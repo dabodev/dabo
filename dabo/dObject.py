@@ -4,7 +4,7 @@ import types
 
 from . import settings
 from .lib.propertyHelperMixin import PropertyHelperMixin
-from .ui.event_mixin import EventMixin
+from .event_mixin import EventMixin
 from .dLocalize import _
 
 NONE_TYPE = type(None)

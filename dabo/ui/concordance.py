@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from lib.utils import ustr
-import ui as dui
+from ..lib.utils import ustr
+from .. import ui
 
-daboNames = dir(dui)
+daboNames = dir(ui)
 
 dabo_to_wx = {}
 wx_to_dabo = {}
 
 for daboName in daboNames:
-    daboClass = getattr(dui, daboName)
+    daboClass = getattr(ui, daboName)
     if hasattr(daboClass, "__mro__"):
         for mro in daboClass.__mro__:
             if "<class 'wx." in ustr(mro):

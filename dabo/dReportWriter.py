@@ -3,7 +3,7 @@ from . import settings
 from .dLocalize import _
 from .lib.reportWriter import ReportWriter
 from .dObject import dObject
-from .ui import events
+from . import events
 
 if settings.implicitImports:
     from . import ui

@@ -2,17 +2,17 @@
 import wx
 import wx.lib.agw.foldpanelbar as fpb
 
-from . import dColors
-from . import ui
-from .ui import events
-from .ui import makeDynamicProperty
-from .dLocalize import _
-from .ui import dCheckBox
-from .ui import dControlMixin
-from .ui import dForm
-from .ui import dGridSizer
-from .ui import dLabel
-from .ui import dSizer
+from .. import dColors
+from .. import ui
+from .. import events
+from . import makeDynamicProperty
+from ..dLocalize import _
+from . import dCheckBox
+from . import dControlMixin
+from . import dForm
+from . import dGridSizer
+from . import dLabel
+from . import dSizer
 # import log
 
 

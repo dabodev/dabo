@@ -234,7 +234,7 @@ if implicitImports:
     from . import dColors
     from . import db
     from . import ui
-    from .ui import events
+    from . import events
 
     ui.load_namespace()
     from .dApp import dApp

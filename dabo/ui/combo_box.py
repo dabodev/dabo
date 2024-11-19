@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from . import ui
-from .ui import events
-from .dLocalize import _
-from .ui import dKeys
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from . import dKeys
 
 
 class dComboBox(ui.dControlItemMixin, wx.ComboBox):

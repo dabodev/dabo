@@ -2,7 +2,7 @@
 import os.path
 
 import wx
-import icons
+from .. import icons
 
 _bmpCache = {}
 

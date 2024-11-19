@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from . import ui
-from .dLocalize import _
-from .ui import events
+from .. import ui
+from ..dLocalize import _
+from .. import events
 
 
 class dButton(ui.dControlMixin, wx.Button):

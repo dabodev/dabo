@@ -3,9 +3,7 @@ import logging
 import time
 
 from . import biz
-from . import ui
 from .dLocalize import _
-from .dReportWriter import dReportWriter
 # import eventLogging
 # import log
 
@@ -57,6 +55,8 @@ class dEvent(object):
 
     def _insertEventData(self):
         """Place ui-specific stuff into the ui-agnostic EventData dictionary."""
+        # Need to do this here to avoid circular import
+        from . import ui
         eventData = {}
         nativeEvent = self._uiEvent
         kwargs = self._kwargs
@@ -254,6 +254,7 @@ class SpinnerEvent(dEvent):
 
 class ReportEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from ..dReportWriter import dReportWriter
         try:
             return issubclass(objectClass, dReportWriter)
         except AttributeError:
@@ -1122,7 +1123,7 @@ class InteractiveChange(dEvent):
     appliesToClass = classmethod(appliesToClass)
 
 
-class Update(ui.dEvent):
+class Update(dEvent):
     """Occurs when a container wants its controls to update
     their properties.
     """

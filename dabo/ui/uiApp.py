@@ -6,14 +6,13 @@ import time
 
 import wx
 
-from . import dConstants as kons
-from . import dColors
-from . import ui
-from .ui import events
-from .lib import utils
-from .dObject import dObject
-from .dLocalize import _, n_
-from .lib.utils import cleanMenuCaption
+from .. import dColors
+from .. import ui
+from .. import events
+from ..lib import utils
+from ..dObject import dObject
+from ..dLocalize import _, n_
+from ..lib.utils import cleanMenuCaption
 # import frameworkPath
 # import loadUserLocale
 # import log
@@ -570,7 +569,9 @@ these automatic updates."""
         self.toggleDebugWindow(self.ActiveForm)
 
     def onObjectInspectorWin(self, evt):
-        self.toggleInspectorWindow(self.ActiveForm)
+        # TODO: get object inspector working
+        # self.toggleInspectorWindow(self.ActiveForm)
+        pass
 
     def showCommandWindow(self, context=None):
         """Display a command window for debugging."""

@@ -4,20 +4,20 @@ import sys
 
 import wx
 
-from . import dColors
-from . import lib
-from . import ui
-from .ui import events
-from .dLocalize import _
-from .lib.utils import ustr
-from .ui import dPageFrameMixin
-from .ui import dPage
-from .ui import dCheckBox
-from .ui import dCheckBox
-from .ui import dCheckBox
-from .ui import dLabel
-from .ui import dDropdownList
-from .ui import dSizer
+from .. import dColors
+from .. import lib
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dPageFrameMixin
+from . import dPage
+from . import dCheckBox
+from . import dCheckBox
+from . import dCheckBox
+from . import dLabel
+from . import dDropdownList
+from . import dSizer
 
 # import log
 

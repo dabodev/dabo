@@ -4,20 +4,20 @@ import sys
 
 import wx
 
-from . import icons
-from .ui import events
-from . import dException
-from . import ui
-from .ui import dDataControlMixin
-from .ui import dMenu
-from .ui import dPemMixin
-from .ui import dStatusBar
-from .ui import dToolBar
-from .dLocalize import _
-from .lib.utils import ustr
-from .lib.xmltodict import xmltodict as XTD
-from .lib.utils import cleanMenuCaption
-from .ui import makeDynamicProperty
+from .. import icons
+from .. import dException
+from .. import ui
+from .. import events
+from . import dDataControlMixin
+from . import dMenu
+from . import dPemMixin
+from . import dStatusBar
+from . import dToolBar
+from ..dLocalize import _
+from ..lib.utils import ustr
+from ..lib.xmltodict import xmltodict as XTD
+from ..lib.utils import cleanMenuCaption
+from . import makeDynamicProperty
 # import log
 
 

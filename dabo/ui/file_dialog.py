@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import dConstants as kons
-from dLocalize import _
+from .. import ui
+from .. import dConstants
+from ..dLocalize import _
 # import dAppRef
 
 
@@ -13,10 +14,10 @@ class OsDialogMixin(object):
 
     def show(self):
         self._dir = self._fname = self._path = ""
-        ret = kons.DLG_CANCEL
+        ret = dConstants.DLG_CANCEL
         res = self.ShowModal()
         if res == wx.ID_OK:
-            ret = kons.DLG_OK
+            ret = dConstants.DLG_OK
             if self._multiple:
                 self._path = self.GetPaths()
             else:

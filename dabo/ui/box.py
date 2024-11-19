@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from ui import dControlMixin
+from .. import ui
+from . import dControlMixin
 
 
 class dBox(dControlMixin, wx.StaticBox):

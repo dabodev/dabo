@@ -21,9 +21,9 @@ from pathlib import Path
 
 import wx
 
-import settings
-import ui
-from dApp import dApp
+from .. import settings
+from .. import ui
+from ..dApp import dApp
 
 # Log all events except the really frequent ones:
 logEvents = ["All", "Idle", "MouseMove"]

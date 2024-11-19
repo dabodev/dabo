@@ -3,12 +3,12 @@ import sys
 import time
 import wx
 
-from . import ui
-from .ui import events
-from .ui import makeDynamicProperty
-from .ui import dDataControlMixin
-from .ui import dControlItemMixin
-from .dLocalize import _
+from .. import ui
+from .. import events
+from . import makeDynamicProperty
+from . import dDataControlMixin
+from . import dControlItemMixin
+from ..dLocalize import _
 
 # import log
 

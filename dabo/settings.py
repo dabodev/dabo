@@ -24,6 +24,7 @@ namespace at runtime, eg::
 
 """
 
+import locale
 import os
 import sys
 import logging

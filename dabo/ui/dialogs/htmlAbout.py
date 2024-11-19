@@ -3,17 +3,17 @@ import sys
 import os
 import string
 
-from .dLocalize import _
-from .ui import dBitmapButton
-from .ui import dButton
-from .ui import dColumn
-from .ui import dDialog
-from .ui import dGrid
-from .ui import dHtmlBox
-from .ui import dLabel
-from .ui import dMenu
-from .ui import dPanel
-from .ui import dSizer
+from ...dLocalize import _
+from .. import dBitmapButton
+from .. import dButton
+from .. import dColumn
+from .. import dDialog
+from .. import dGrid
+from .. import dHtmlBox
+from .. import dLabel
+from .. import dMenu
+from .. import dPanel
+from .. import dSizer
 
 
 class HtmlAbout(dDialog):

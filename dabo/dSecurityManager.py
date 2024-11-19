@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import time
 
-from dObject import dObject
-from dLocalize import _
+from .dObject import dObject
+from .dLocalize import _
 
 
 class dSecurityManager(dObject):

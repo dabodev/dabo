@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from . import biz
-from .ui import events
-from . import dException
-from .dLocalize import _
-from .dObject import dObject
-from .dPref import dPref
-from .lib.utils import ustr
+from .. import biz
+from .. import events
+from .. import dException
+from .. import ui
+from ..dLocalize import _
+from ..dObject import dObject
+from ..dPref import dPref
+from ..lib.utils import ustr
 # import dTextBox_DeriveTextLengthFromSource
 # import autoDisableDataControls
 # import log

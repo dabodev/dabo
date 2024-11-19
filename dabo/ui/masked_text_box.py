@@ -4,9 +4,10 @@ import datetime
 import wx
 import wx.lib.masked as masked
 
-from dLocalize import _
-from ui import dTextBoxMixin
-from ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from . import dTextBoxMixin
+from . import makeDynamicProperty
 # import log
 
 

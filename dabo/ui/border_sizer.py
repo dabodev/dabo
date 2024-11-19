@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from dLocalize import _
-from ui import dBox
-from ui import dButton
-from ui import dForm
-from ui import dLabel
-from ui import dPanel
-from ui import dSizer
-from ui import dSizerMixin
-from ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from . import dBox
+from . import dButton
+from . import dForm
+from . import dLabel
+from . import dPanel
+from . import dSizer
+from . import dSizerMixin
+from . import makeDynamicProperty
 
 
 class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):

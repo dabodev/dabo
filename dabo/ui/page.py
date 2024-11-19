@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from . import ui
-from .ui import events
-from .ui import makeDynamicProperty
-from .ui import dScrollPanel
-from .dLocalize import _
+from .. import ui
+from .. import events
+from . import makeDynamicProperty
+from . import dScrollPanel
+from ..dLocalize import _
 
 
 class dPage(dScrollPanel):

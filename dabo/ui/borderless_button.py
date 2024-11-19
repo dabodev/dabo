@@ -9,10 +9,10 @@ try:
 except ImportError:
     raise ImportError("Your version of wxPython is too old for dBorderlessButton")
 
-from . import dColors
-from . import dEvents
-from . import ui
-from .dLocalize import _
+from .. import dColors
+from .. import dEvents
+from .. import ui
+from ..dLocalize import _
 # import log
 
 

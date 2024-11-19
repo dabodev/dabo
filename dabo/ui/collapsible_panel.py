@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 import wx.lib.agw.pycollapsiblepane as pcp
-import ui as dui
-from dLocalize import _
-from ui import dControlMixin
-from ui import dPanel
+
+from ..dLocalize import _
+from .. import ui
+from . import dControlMixin
+from . import dPanel
 
 
 class dCollapsiblePanel(dControlMixin, pcp.PyCollapsiblePane):
@@ -60,7 +61,7 @@ class dCollapsiblePanel(dControlMixin, pcp.PyCollapsiblePane):
         self.lockDisplay()
         self.createItems()
         self.layout()
-        dui.callAfter(self.unlockDisplay)
+        ui.callAfter(self.unlockDisplay)
 
     def createItems(self):
         """Create the controls in the pane.
@@ -133,9 +134,9 @@ class _CollapsiblePanelTest(dCollapsiblePanel):
 
     def createItems(self):
         panel = self.Panel
-        gs = dui.dGridSizer(MaxCols=2)
-        gs.append(dui.dTextBox(panel), "expand")
-        gs.append(dui.dButton(panel, Caption="Test"), "expand")
+        gs = ui.dGridSizer(MaxCols=2)
+        gs.append(ui.dTextBox(panel), "expand")
+        gs.append(ui.dButton(panel, Caption="Test"), "expand")
         gs.setColExpand(True, (0, 1))
         panel.Sizer = gs
 

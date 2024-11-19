@@ -3,9 +3,9 @@ import os
 
 import wx
 
-from ui import makeDynamicProperty
-from ui import dControlMixin
-from dLocalize import _
+from . import makeDynamicProperty
+from . import dControlMixin
+from ..dLocalize import _
 
 # Need to define this exception class for x-platform
 try:

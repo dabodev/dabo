@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .dObject import dObject
-from .dLocalize import _
-from .lib.utils import ustr
-from .ui import makeDynamicProperty
-from .ui import events
+from .. import ui
+from .. import events
+from ..dObject import dObject
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import makeDynamicProperty
 
 # import log
 # import defaultFontSize

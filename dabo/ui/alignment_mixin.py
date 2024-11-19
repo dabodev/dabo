@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-import ui
-from dLocalize import _
-from lib.utils import ustr
-from ui import makeDynamicProperty
+
+from .. import ui
+from ..dLocalize import _
+from ..lib.utils import ustr
+from ..ui import makeDynamicProperty
 
 
 class AlignmentMixin(object):

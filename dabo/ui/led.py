@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import dColors
-import ui as dui
-from dLocalize import _
-from ui import dDataPanel
+from .. import dColors
+from .. import ui
+from ..dLocalize import _
+from . import dDataPanel
 
 
 class dLed(dDataPanel):

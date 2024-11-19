@@ -9,11 +9,11 @@ import datetime
 
 import wx.html
 
-from . import ui
-from .ui import events
-from .dLocalize import _
-from .ui import makeDynamicProperty
-from .ui import dControlMixin
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from . import makeDynamicProperty
+from . import dControlMixin
 
 try:
     import webbrowser as wb

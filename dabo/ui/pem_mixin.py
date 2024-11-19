@@ -6,16 +6,16 @@ import math
 
 import wx
 
-from . import dException
-from . import dColors
-from . import dObject
-from . import lib
-from . import ui
-from .ui import events
-from .dLocalize import _
-from .lib.utils import ustr
-from .lib.utils import dictStringify
-from .ui import makeDynamicProperty
+from .. import dException
+from .. import dColors
+from ..dObject import dObject
+from .. import lib
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from ..lib.utils import ustr
+from ..lib.utils import dictStringify
+from ..ui import makeDynamicProperty
 
 # import fastNameSet
 # import log

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import ui
-from dLocalize import _
-from dObject import dObject
-from ui import dPemMixin
-from ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from ..dObject import dObject
+from . import dPemMixin
+from . import makeDynamicProperty
 # import log
 
 
@@ -379,7 +379,7 @@ class dSizerMixin(dObject):
                     self.remove(szr, True)
         # Release this sizer
         if isinstance(self, ui.dBorderSizer):
-            dui.callAfter(self.Box.release)
+            ui.callAfter(self.Box.release)
         self.Destroy()
 
     def getPositionInSizer(self):
@@ -607,7 +607,7 @@ class dSizerMixin(dObject):
             itm = self.Parent
         except AttributeError:
             itm = self
-        dui.callAfterInterval(50, self._safeLayout, itm)
+        ui.callAfterInterval(50, self._safeLayout, itm)
         return ret
 
     def setItemProps(self, itm, props):
@@ -642,7 +642,7 @@ class dSizerMixin(dObject):
                 p = p.Parent
         return ret
 
-    @dui.deadCheck
+    @ui.deadCheck
     def getContainingWindow(self):
         """
         Return the window that contains this sizer. In the case of nested
@@ -703,7 +703,7 @@ class dSizerMixin(dObject):
             # dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
             dc.SetLogicalFunction(wx.COPY)
             # Draw the outline
-            dui.callAfter(
+            ui.callAfter(
                 dc.DrawRectangle, x + off, y + off, w - (2 * off), h - (2 * off)
             )
 

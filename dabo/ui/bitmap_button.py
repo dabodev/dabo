@@ -2,12 +2,12 @@
 import warnings
 import wx
 
-import ui as dui
-from dLocalize import _
-from ui import dControlMixin
-from ui import dImageMixin
-from ui import makeDynamicProperty
-from ui.icons import getIconBitmap
+from ..dLocalize import _
+from .. import ui
+from . import dControlMixin
+from . import dImageMixin
+from . import makeDynamicProperty
+from .icons import getIconBitmap
 
 
 class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
@@ -133,7 +133,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
             if isinstance(val, wx.Bitmap):
                 bmp = val
             else:
-                bmp = dui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+                bmp = ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
             self.SetBitmapPressed(bmp)
         else:
             self._properties["DownPicture"] = val
@@ -150,7 +150,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
             if isinstance(val, wx.Bitmap):
                 bmp = val
             else:
-                bmp = dui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+                bmp = ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
             self.SetBitmapFocus(bmp)
         else:
             self._properties["FocusPicture"] = val
@@ -167,7 +167,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
             if isinstance(val, wx.Bitmap):
                 bmp = val
             else:
-                bmp = dui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+                bmp = ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
             self.SetBitmapLabel(bmp)
             # If the others haven't been specified, default them to the same
             if not self._downPicture:

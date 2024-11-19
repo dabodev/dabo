@@ -3,7 +3,8 @@ import time
 
 import wx
 
-from ui import dFormMixin
+from .. import ui
+from . import dFormMixin
 
 # import MDI
 

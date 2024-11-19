@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import string
 
-from .dLocalize import _
+from ..dLocalize import _
 
 
 class PropertyHelperMixin(object):
@@ -251,7 +251,7 @@ class PropertyHelperMixin(object):
         to be bound, and binds the corresponding event to that method.
         """
         for evtName, mthd in list(kwEvtDict.items()):
-            from .ui import events
+            from .. import events
 
             evt = events.__dict__[evtName]
             if callable(mthd):

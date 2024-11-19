@@ -21,10 +21,10 @@ except Exception as e:
     log.error(_("Error importing numpy.oldnumeric: %s") % e)
     numpy = False
 
-from dLocalize import _
-from lib.utils import ustr
-from ui import dControlMixin
-from ui import makeDynamicProperty
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dControlMixin
+from . import makeDynamicProperty
 
 
 class _TraceMixin(object):

@@ -4,15 +4,15 @@ import time
 
 import wx
 
-from .ui import events
-from . import ui
-from . import dException
-from .dLocalize import _
-from .lib.utils import ustr
-from .ui import dButton
-from .ui import dFormMixin
-from .ui import dSizer
-from .ui import makeDynamicProperty
+from .. import events
+from .. import ui
+from .. import dException
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dButton
+from . import dFormMixin
+from . import dSizer
+from . import makeDynamicProperty
 # import biz
 # import eatBizExceptions
 # import log

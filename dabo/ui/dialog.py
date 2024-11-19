@@ -3,20 +3,20 @@ import warnings
 
 import wx
 
-import ui as dui
-from .ui import events
-from . import dConstants as kons
-from .dLocalize import _
-from .ui import dButton
-from .ui import dCheckBox
-from .ui import dDropdownList
-from .ui import dFormMixin
-from .ui import dGridSizer
-from .ui import dLabel
-from .ui import dSizer
-from .ui import dSpinner
-from .ui import dTextBox
-from .ui import makeDynamicProperty
+from .. import ui
+from .. import events
+from .. import dConstants as kons
+from ..dLocalize import _
+from . import dButton
+from . import dCheckBox
+from . import dDropdownList
+from . import dFormMixin
+from . import dGridSizer
+from . import dLabel
+from . import dSizer
+from . import dSpinner
+from . import dTextBox
+from . import makeDynamicProperty
 
 
 class dDialog(dFormMixin, wx.Dialog):

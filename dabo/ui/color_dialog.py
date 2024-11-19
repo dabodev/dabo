@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import dConstants as kons
-import dColors as dColors
+from .. import ui
+from .. import dConstants
+from .. import dColors
 
 
 class dColorDialog(wx.ColourDialog):
@@ -31,10 +32,10 @@ class dColorDialog(wx.ColourDialog):
 
     def show(self):
         self._selColor = None
-        ret = kons.DLG_CANCEL
+        ret = dConstants.DLG_CANCEL
         res = self.ShowModal()
         if res == wx.ID_OK:
-            ret = kons.DLG_OK
+            ret = dConstants.DLG_OK
             col = self.GetColourData().GetColour()
             self._selColor = col.Red(), col.Green(), col.Blue()
         return ret

@@ -3,9 +3,9 @@ import time
 
 import wx
 
-from . import ui
-from .dLocalize import _
-from .ui import events
+from .. import ui
+from ..dLocalize import _
+from .. import events
 
 
 class dControlMixin(ui.dPemMixin):

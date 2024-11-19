@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .ui import dPemMixin
-from .ui import dSizerMixin
+from .. import ui
+from . import dPemMixin
+from . import dSizerMixin
 
 
 class dSizer(dSizerMixin, wx.BoxSizer):

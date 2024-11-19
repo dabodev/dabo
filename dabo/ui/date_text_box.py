@@ -3,9 +3,9 @@ import datetime
 
 import wx
 
-from . import ui
-from .ui import events
-from .dLocalize import _
+from .. import ui
+from .. import events
+from ..dLocalize import _
 # import firstDayOfWeek
 # import log
 

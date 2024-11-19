@@ -8,14 +8,14 @@ import time
 import wx
 import wx.lib.masked as masked
 
-from . import ui
-from .ui import events
-from .lib import dates
-from .lib.utils import ustr
-from .keys import dKeys
-from .dLocalize import _
-from .ui import dDataControlMixin
-from .ui import makeDynamicProperty
+from .. import ui
+from .. import events
+from ..lib import dates
+from ..lib.utils import ustr
+from ..ui import dKeys
+from ..dLocalize import _
+from ..ui import dDataControlMixin
+from ..ui import makeDynamicProperty
 # import log
 
 

@@ -2,10 +2,10 @@
 import wx
 from wx import glcanvas
 
-import ui as dui
-from dLocalize import _
-from ui import dControlMixin
-from ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from . import dControlMixin
+from . import makeDynamicProperty
 
 # import log
 

@@ -10,13 +10,12 @@ import sys
 import wx
 import wx.stc as stc
 
-from . import ui
-from .dLocalize import _
-from .ui import events
-from . import dColors
-from .dLocalize import _
-from .ui import dDataControlMixin
-from .ui import dTimer
+from .. import ui
+from ..dLocalize import _
+from .. import events
+from .. import dColors
+from . import dDataControlMixin
+from . import dTimer
 # import log
 # import getEncoding
 

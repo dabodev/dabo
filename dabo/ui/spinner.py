@@ -6,17 +6,17 @@ import sys
 
 import wx
 
-from . import ui
-from .ui import events
-from .dLocalize import _
-from .lib.utils import ustr
-from .ui import dDataControlMixin
-from .ui import dDataPanel
-from .ui import dKeys
-from .ui import dSizer
-from .ui import dTextBox
-from .ui import makeDynamicProperty
-from .ui import makeProxyProperty
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dDataControlMixin
+from . import dDataPanel
+from . import dKeys
+from . import dSizer
+from . import dTextBox
+from . import makeDynamicProperty
+from . import makeProxyProperty
 # import log
 
 

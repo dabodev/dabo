@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
-import dabo
-from dabo import ui
-from dabo.ui import dDialog
+from ... import ui
+from .. import dDialog
 
 
 class About(dDialog):

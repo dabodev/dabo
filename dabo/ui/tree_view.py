@@ -4,14 +4,14 @@ import os
 import glob
 import wx
 
-from . import dColors
-from . import ui
-from .ui import events
-from .dObject import dObject
-from .dLocalize import _
-from .lib.utils import ustr
-from .ui import dControlMixin
-from .ui import makeDynamicProperty
+from .. import dColors
+from .. import ui
+from .. import events
+from ..dObject import dObject
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dControlMixin
+from . import makeDynamicProperty
 # import log
 
 

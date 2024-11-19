@@ -3,13 +3,13 @@ import random
 
 import wx
 
-from . import dColors
-from . import ui
-from .ui import events
-from .dLocalize import _
-from .ui import dControlMixin
-from .ui import dForm
-from .ui import makeDynamicProperty
+from .. import dColors
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from . import dControlMixin
+from . import dForm
+from . import makeDynamicProperty
 
 
 class SplitterPanelMixin(object):

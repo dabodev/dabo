@@ -4,17 +4,17 @@ import wx.lib.agw.aui as aui
 
 PaneInfo = aui.AuiPaneInfo
 
-from .dLocalize import _
-from .ui import events
-from . import ui
-from .ui import dButton
-from .ui import dCheckBox
-from .ui import dForm
-from .ui import dPanel
-from .ui import dShellForm
-from .ui import dSizer
-from .ui import dStatusBar
-from .ui import makeDynamicProperty
+from ..dLocalize import _
+from .. import events
+from .. import ui
+from . import dButton
+from . import dCheckBox
+from . import dForm
+from . import dPanel
+from . import dShellForm
+from . import dSizer
+from . import dStatusBar
+from . import makeDynamicProperty
 # import log
 
 flag_allow_float = aui.AUI_MGR_ALLOW_FLOATING

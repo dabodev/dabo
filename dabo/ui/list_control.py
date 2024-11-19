@@ -2,13 +2,13 @@
 import wx
 import wx.lib.mixins.listctrl as ListMixin
 
-from . import ui
-from . import dColors
-from .ui import events
-from .dLocalize import _
-from .lib.utils import ustr
-from .ui import dControlItemMixin
-from .ui import makeDynamicProperty
+from .. import ui
+from .. import dColors
+from .. import events
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import dControlItemMixin
+from . import makeDynamicProperty
 
 # import log
 

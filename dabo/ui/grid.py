@@ -16,33 +16,33 @@ import wx
 import wx.grid
 from wx._core import PyAssertionError
 
-from . import ui
-from .ui import events
-from . import dException
-from . import biz as dbiz
-from . import dColors
-from . import db
-from .dLocalize import _, n_
-from .lib.utils import ustr
-from .dObject import dObject
-from .lib import dates
-from .lib.utils import noneSortKey, caseInsensitiveSortKey
-from .dBug import loggit
-from .ui import dButton
-from .ui import dCheckBox
-from .ui import dControlMixin
-from .ui import dDropdownList
-from .ui import dFont
-from .ui import dForm
-from .ui import dGridSizer
-from .ui import dKeys
-from .ui import dMenu
-from .ui import dPemMixin
-from .ui import dRadioList
-from .ui import dTextBox
-from .ui import dTimer
-from .ui import dUICursors
-from .ui import makeDynamicProperty
+from .. import ui
+from .. import events
+from .. import dException
+from .. import biz
+from .. import dColors
+from .. import db
+from ..dLocalize import _, n_
+from ..lib.utils import ustr
+from ..dObject import dObject
+from ..lib import dates
+from ..lib.utils import noneSortKey, caseInsensitiveSortKey
+from ..dBug import loggit
+from . import dButton
+from . import dCheckBox
+from . import dControlMixin
+from . import dDropdownList
+from . import dFont
+from . import dForm
+from . import dGridSizer
+from . import dKeys
+from . import dMenu
+from . import dPemMixin
+from . import dRadioList
+from . import dTextBox
+from . import dTimer
+from . import dUICursors
+from . import makeDynamicProperty
 
 # import log
 # import copyValueSeparator
@@ -2610,7 +2610,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if colTypes is None:
             colTypes = {}
 
-        if isinstance(ds, str) or isinstance(ds, dbiz.dBizobj):
+        if isinstance(ds, str) or isinstance(ds, biz.dBizobj):
             # Assume it is a bizobj datasource.
             if self.DataSource != ds:
                 self.DataSource = ds
@@ -3805,15 +3805,15 @@ class dGrid(dControlMixin, wx.grid.Grid):
         Return None if no bizobj can be located.
         """
         ds = self.DataSource
-        if isinstance(ds, dbiz.dBizobj):
+        if isinstance(ds, biz.dBizobj):
             return ds
         if isinstance(ds, str) and self.Form is not None:
             form = self.Form
             while form is not None:
                 if hasattr(form, "getBizobj"):
-                    biz = form.getBizobj(ds)
-                    if isinstance(biz, dbiz.dBizobj):
-                        return biz
+                    bizobj = form.getBizobj(ds)
+                    if isinstance(bizobj, biz.dBizobj):
+                        return bizobj
                 form = form.Form
         return None
 

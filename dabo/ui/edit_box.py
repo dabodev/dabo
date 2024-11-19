@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from . import ui
-from .dLocalize import _
-from .ui import dTextBoxMixin
-from .ui import makeDynamicProperty
+from .. import ui
+from ..dLocalize import _
+from . import dTextBoxMixin
+from . import makeDynamicProperty
 
 
 # The EditBox is just a TextBox with some additional styles.

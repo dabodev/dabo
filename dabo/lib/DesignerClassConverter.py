@@ -8,18 +8,20 @@ later on to support other UI toolkits.
 from datetime import datetime
 from io import IOBase
 import codecs
+import json
 import os
 import random
 import re
 import tempfile
 import time
 
-from .dLocalize import _
-from .dObject import dObject
-from .lib import utils
-from .lib import xmltodict as xtd
-from .lib.utils import ustr
-from .ui.dialogs import Wizard
+from .. import settings
+from ..dLocalize import _
+from ..dObject import dObject
+from . import utils
+from . import xmltodict as xtd
+from .utils import ustr
+from ..ui.dialogs import Wizard
 
 # Doesn't matter what platform we're on; Python needs
 # newlines in its compiled code.
@@ -62,7 +64,7 @@ class DesignerClassConverter(dObject):
         # Location of the cdxml source file, if any
         self._srcFile = None
         # Encoding to be used
-        self._encoding = dabo.getEncoding()
+        self._encoding = settings.getEncoding()
 
     def classFromText(self, src):
         """Given a text file, returns a class object that that file
@@ -113,7 +115,7 @@ class DesignerClassConverter(dObject):
         return dct
 
     def addCodeFile(self, dct, pth=None, encoding=None):
-        from dabo.lib import DesignerUtils as desUtil
+        from . import DesignerUtils as desUtil
 
         if pth is None:
             pth = self._srcFile
@@ -149,7 +151,7 @@ class DesignerClassConverter(dObject):
                 # It must be raw json
                 jsonText = src
                 self._srcFile = os.getcwd()
-        return dabo.lib.jsonDecode(jsonText)
+        return json.loads(jsonText)
 
     def importXmlSrc(self, src):
         """This will read in an XML source. The parameter can be a
@@ -297,8 +299,8 @@ class DesignerClassConverter(dObject):
         try:
             modpath, shortClsName = nm.rsplit(".", 1)
         except ValueError:
-            # Default to the dabo.ui module
-            modpath = "dabo.ui"
+            # Default to the ui module
+            modpath = "ui"
             shortClsName = nm
         self.mainClassName = clsName = self.uniqename(shortClsName)
 
@@ -309,7 +311,8 @@ class DesignerClassConverter(dObject):
             exec(stmnt, tmpSpace)
         except (ImportError, ValueError):
             pass
-        isWiz = issubclass(tmpSpace.get(shortClsName), Wizard)
+        tmpcls = tmpSpace.get(shortClsName)
+        isWiz = bool([c for c in tmpcls.__mro__ if "dialogs.Wizard" in c]) if tmpcls else False
 
         # Leave the third %s in place. That will be replaced by any
         # inner class definitions we create
@@ -384,10 +387,11 @@ class DesignerClassConverter(dObject):
         else:
             impt = ""
         ct = self.classText
+        encoding = settings.getEncoding()
         if isinstance(ct, str):
-            self.classText = bytes(ct)
+            self.classText = bytes(ct, encoding)
         if isinstance(impt, str):
-            impt = bytes(impt)
+            impt = bytes(impt, encoding)
         self.classText = self.classText.replace(b"|classImportStatements|", impt)
 
         # We're done!
@@ -427,7 +431,7 @@ class DesignerClassConverter(dObject):
         """Takes a list of child object dicts, and adds their code to the
         generated class text.
         """
-        from dabo.lib import DesignerUtils as desUtil
+        from . import DesignerUtils as desUtil
 
         if not isinstance(childList, (list, tuple)):
             childList = [childList]
@@ -443,8 +447,8 @@ class DesignerClassConverter(dObject):
             try:
                 modpath, shortClsName = nm.rsplit(".", 1)
             except ValueError:
-                # Default to the dabo.ui module
-                modpath = "dabo.ui"
+                # Default to the ui module
+                modpath = "ui"
                 shortClsName = nm
 
             atts = child.get("attributes", {})
@@ -498,7 +502,7 @@ class DesignerClassConverter(dObject):
                 isInherited = False
             if isInherited:
                 if not os.path.exists(clsname):
-                    clsname = dabo.lib.utils.locateRelativeTo(self._srcFile, clsname)
+                    clsname = utils.locateRelativeTo(self._srcFile, clsname)
                 chldList = [[child]] + specChildList[:]
                 nm = self.createInheritedClass(clsname, chldList)
                 code = {}
@@ -565,7 +569,7 @@ class DesignerClassConverter(dObject):
                     superName = "getControlClass(%s.%s)" % (modpath, "dPanel")
                     template = self._createCustomControlText
                 else:
-                    superName = "dabo.ui.dPanel"
+                    superName = "ui.dPanel"
                     template = self._createControlText
                 attPropString = ", attProperties=%s" % cleanAtts
                 self.classText += LINESEP + template % locals()
@@ -713,7 +717,7 @@ class DesignerClassConverter(dObject):
                                 code = kid.get("code", {})
                                 subKids = kid.get("children")
                                 attPropString = ""
-                                moduleString = "dabo.ui."
+                                moduleString = "ui."
                                 classname = nm
                                 if code:
                                     nm = self.createInnerClass(
@@ -766,8 +770,8 @@ class DesignerClassConverter(dObject):
         try:
             modpath, shortClsName = nm.rsplit(".", 1)
         except ValueError:
-            # Default to the dabo.ui module
-            modpath = "dabo.ui"
+            # Default to the ui module
+            modpath = "ui"
             shortClsName = nm
         clsName = self.uniqename(shortClsName)
         cleanAtts = self.cleanAttributes(atts)
@@ -861,7 +865,7 @@ class DesignerClassConverter(dObject):
                     ret["NameBase"] = val
                 else:
                     ret[key] = val
-        dabo.lib.utils.resolveAttributePathing(ret, self._srcFile)
+        utils.resolveAttributePathing(ret, self._srcFile)
         return ret
 
     def _getCreateDesignerControls(self):
@@ -911,7 +915,7 @@ class DesignerClassConverter(dObject):
 
 """
         self._clsHdrText = """import dabo
-from .ui import events
+from .. import events
 from .lib.utils import ustr
 import sys
 |classImportStatements|
@@ -948,9 +952,9 @@ import sys
             currSizer.setItemProps(itm, %(szInfo)s)
 """
         self._spltText = """
-        dabo.ui.setAfter(obj, "Orientation", "%(ornt)s")
-        dabo.ui.setAfter(obj, "Split", %(splt)s)
-        dabo.ui.setAfter(obj, "SashPosition", %(pos)s)
+        ui.setAfter(obj, "Orientation", "%(ornt)s")
+        ui.setAfter(obj, "Split", %(splt)s)
+        ui.setAfter(obj, "SashPosition", %(pos)s)
 """
         self._createControlText = """        obj = %(superName)s(currParent%(attPropString)s)%(splitterString)s
         if currSizer:
@@ -996,7 +1000,7 @@ import sys
         self._complexPrntRef = """        # save a reference to the parent control
         %(prntName)s = obj
 """
-        self._grdColText = """        col = dabo.ui.dColumn(obj, attProperties=%(kidCleanAtts)s)
+        self._grdColText = """        col = ui.dColumn(obj, attProperties=%(kidCleanAtts)s)
         obj.addColumn(col)
 """
         self._pgfPageText = """        pg = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)

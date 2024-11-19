@@ -3,14 +3,14 @@ import sys
 
 import wx
 
-import lib
-from . import ui
-from .ui import events
-from .ui import dControlMixin
-from .ui import dPage
-from .dLocalize import _
-from .lib.utils import ustr
-from .ui import makeDynamicProperty
+from ..dLocalize import _
+from ..lib.utils import ustr
+from .. import lib
+from .. import ui
+from .. import events
+from . import dControlMixin
+from . import dPage
+from . import makeDynamicProperty
 # import log
 
 

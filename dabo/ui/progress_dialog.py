@@ -33,7 +33,7 @@ from threading import *
 
 import wx
 
-from dLocalize import _
+from ..dLocalize import _
 
 ID_CANCEL = wx.ID_ANY
 EVT_RESULT_ID = wx.ID_ANY

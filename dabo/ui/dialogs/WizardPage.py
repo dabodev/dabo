@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from . import ui
-from .dLocalize import _
-from .ui import dScrollPanel
+from ... import ui
+from ...dLocalize import _
+from .. import dScrollPanel
 
 
 class WizardPage(dScrollPanel):

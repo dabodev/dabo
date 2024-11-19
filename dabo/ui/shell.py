@@ -7,22 +7,22 @@ import wx.stc as stc
 import wx.py
 from wx.py import pseudo
 
-from . import ui
-from .ui import events
-from .dLocalize import _
-from .ui import dKeys
-from .ui import makeDynamicProperty
-from .ui import dButton
-from .ui import dControlMixin
-from .ui import dEditBox
-from .ui import dEditor
-from .ui import dLabel
-from .ui import dListBox
-from .ui import dMenu
-from .ui import dPageFrame
-from .ui import dPanel
-from .ui import dSizer
-from .ui import dSplitForm
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from . import dKeys
+from . import makeDynamicProperty
+from . import dButton
+from . import dControlMixin
+from . import dEditBox
+from . import dEditor
+from . import dLabel
+from . import dListBox
+from . import dMenu
+from . import dPageFrame
+from . import dPanel
+from . import dSizer
+from . import dSplitForm
 
 
 class _LookupPanel(dPanel):

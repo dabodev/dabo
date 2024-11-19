@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-import dabo
-import dabo.ui
-from dabo.dLocalize import _
-from dabo.ui import dBitmapButton
-from dabo.ui import dButton
-from dabo.ui import dCheckBox
-from dabo.ui import dColumn
-from dabo.ui import dDialog
-from dabo.ui import dGrid
-from dabo.ui import dLabel
-from dabo.ui import dMenu
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dStandardButtonDialog
+from ... import ui
+from ...dLocalize import _
+from .. import dBitmapButton
+from .. import dButton
+from .. import dCheckBox
+from .. import dColumn
+from .. import dDialog
+from .. import dGrid
+from .. import dLabel
+from .. import dMenu
+from .. import dPanel
+from .. import dSizer
+from .. import dStandardButtonDialog
 
 
 class LblMessage(dLabel):

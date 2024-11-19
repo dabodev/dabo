@@ -9,7 +9,8 @@ along with convenience functions to allow calling like::
 
 import wx
 
-from dLocalize import _
+from .. import ui
+from ..dLocalize import _
 # import dAppRef
 
 

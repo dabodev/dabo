@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-import ui as dui
-from ui import dDataControlMixin
-from ui import makeDynamicProperty
-from dLocalize import _
+
+from .. import ui
+from . import dDataControlMixin
+from . import makeDynamicProperty
+from ..dLocalize import _
 
 
 class dCheckBox(dDataControlMixin, wx.CheckBox):

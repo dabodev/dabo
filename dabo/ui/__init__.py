@@ -16,11 +16,13 @@ import traceback
 import urllib.request, urllib.parse, urllib.error
 import warnings
 
-from . import events
-from .dException import dException
-from .dLocalize import _
-from .lib import utils
-from .lib.utils import ustr
+from .. import events
+from ..dException import dException
+from ..dLocalize import _
+from ..lib import utils
+from ..lib.utils import ustr
+from .. import dConstants
+from .uiApp import uiApp
 
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
@@ -78,8 +80,6 @@ del _failedLibs
 #######################################################
 import wx
 from wx import Image, BitmapFromImage
-import dConstants as kons
-from uiApp import uiApp
 
 # Used by the callAfter* functions
 lastCallAfterStack = ""
@@ -98,6 +98,10 @@ nativeScrollBar = wx.ScrollBar
 
 namespace_loaded = False
 
+# Put these in module namespace
+dKeys = None
+dIcons = None
+dUICursors = None
 
 def load_namespace():
     """Add all the UI classes to the dabo.ui namespace.
@@ -109,19 +113,18 @@ def load_namespace():
     classes inherit from or otherwise reference other classes, so those referenced classes need to
     be added to the namespace first.
     """
-    global namespace_loaded
+    global namespace_loaded, dKeys, dIcons, dUICursors
     if namespace_loaded:
         return
     namespace_loaded = True
     from . import keys
-
-    dabo.ui.dKeys = keys
+    dKeys = keys
     from . import icons
 
-    dabo.ui.dIcons = icons
+    dIcons = icons
     from . import ui_cursors
 
-    dabo.ui.dUICursors = ui_cursors
+    dUICursors = ui_cursors
 
     from . import pem_mixin
     from . import control_mixin
@@ -193,7 +196,7 @@ def load_namespace():
     from . import ui_calendar
     from . import dialogs
     from . import grid_renderers
-    from . import object_inspector
+#     from . import object_inspector
     from . import dock_form
     from .dialogs import WizardPage
     from .dialogs import Wizard
@@ -368,7 +371,7 @@ def makeProxyProperty(dct, nm, proxyAtts):
         return _resolveSet(self, nm, val)
 
     try:
-        doc = getattr(dabo.ui.dPemMixin, nm).__doc__
+        doc = getattr(dPemMixin, nm).__doc__
     except AttributeError:
         doc = None
     return property(fget, fset, None, doc)
@@ -1210,7 +1213,7 @@ def getColor(color=None):
     """
     ret = None
     dlg = dabo.ui.dColorDialog(_getActiveForm(), color)
-    if dlg.show() == kons.DLG_OK:
+    if dlg.show() == dConstants.DLG_OK:
         ret = dlg.getColor()
     dlg.release()
     return ret
@@ -1274,7 +1277,7 @@ def getFont(font=None):
             return None
         param = font._nativeFont
     dlg = dabo.ui.dFontDialog(_getActiveForm(), param)
-    if dlg.show() == kons.DLG_OK:
+    if dlg.show() == dConstants.DLG_OK:
         fnt = dlg.getFont()
     dlg.release()
     if fnt is not None:
@@ -1296,7 +1299,7 @@ def _getPath(cls, wildcard, **kwargs):
     if isinstance(cls, str):
         cls = getattr(dabo.ui, cls)
     fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
-    if fd.show() == kons.DLG_OK:
+    if fd.show() == dConstants.DLG_OK:
         pth = fd.Path
         try:
             idx = fd.GetFilterIndex()

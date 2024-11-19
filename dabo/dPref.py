@@ -4,10 +4,10 @@ import datetime
 import os
 import warnings
 
-from dLocalize import _
-import lib.utils as utils
-from lib.utils import ustr
-import db
+from .dLocalize import _
+from .lib import utils
+from .lib.utils import ustr
+from . import db
 # import log
 
 

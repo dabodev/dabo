@@ -11,12 +11,13 @@ menu items that your app needs.
 
 import os
 
-import os
 import wx
-import icons
-from dLocalize import _, n_
-from ui import dMenu
-from ui import dMenuBar
+
+from .. import ui
+from .. import icons
+from ..dLocalize import _, n_
+from . import dMenu
+from . import dMenuBar
 
 
 iconPath = (
@@ -56,15 +57,16 @@ class FileMenu(dMenu):
             )
             self.Parent.debugMenuItem.Checked = True
 
-            self.Parent.inspectorMenuItem = self.append(
-                _("Object &Inspector"),
-                HotKey="Ctrl+Shift+I",
-                OnHit=app.onObjectInspectorWin,
-                bmp="%s/apps/actions/system-search.png" % iconPath,
-                ItemID="file_inspectorwin",
-                menutype="check",
-                help=_("Open up the object inspector"),
-            )
+            # TODO: get object inspector working
+#             self.Parent.inspectorMenuItem = self.append(
+#                 _("Object &Inspector"),
+#                 HotKey="Ctrl+Shift+I",
+#                 OnHit=app.onObjectInspectorWin,
+#                 bmp="%s/apps/actions/system-search.png" % iconPath,
+#                 ItemID="file_inspectorwin",
+#                 menutype="check",
+#                 help=_("Open up the object inspector"),
+#             )
 
         prmpt = _("Close Windo&w")
         self.Parent.closeWindowMenuItem = self.append(

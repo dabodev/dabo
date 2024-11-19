@@ -5,10 +5,10 @@ import wx
 import wx.lib.mixins.listctrl as listmix
 from wx import ImageFromStream, BitmapFromImage
 
-from . import biz
-from . import locale
-from . import dEvents
-from . import ui
+from .. import biz
+from .. import locale
+from .. import dEvents
+from .. import ui
 
 """
 wxPython Custom Widget Collection 20060207

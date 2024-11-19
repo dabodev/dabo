@@ -2,20 +2,20 @@
 import sys
 import os
 import inspect
-from dabo.dLocalize import _
-from dabo.lib.utils import cleanMenuCaption
-import dabo.ui
-from dabo.ui import dButton
-from dabo.ui import dCheckBox
-from dabo.ui import dForm
-from dabo.ui import dGridSizer
-from dabo.ui import dLabel
-from dabo.ui import dOkCancelDialog
-from dabo.ui import dPageFrame
-from dabo.ui import dRadioList
-from dabo.ui import dSizer
-from dabo.ui import dTextBox
-from dabo.ui import dTreeView
+from ...dLocalize import _
+from ...lib.utils import cleanMenuCaption
+from ... import ui
+from .. import dButton
+from .. import dCheckBox
+from .. import dForm
+from .. import dGridSizer
+from .. import dLabel
+from .. import dOkCancelDialog
+from .. import dPageFrame
+from .. import dRadioList
+from .. import dSizer
+from .. import dTextBox
+from .. import dTreeView
 from . import HotKeyEditor
 
 dayMins = 24 * 60

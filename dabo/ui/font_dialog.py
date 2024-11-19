@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 
-import dConstants as k
+from .. import ui
+from .. import dConstants
 
 
 class dFontDialog(wx.FontDialog):
@@ -16,10 +17,10 @@ class dFontDialog(wx.FontDialog):
         super(dFontDialog, self).__init__(parent=parent, data=dat)
 
     def show(self):
-        ret = k.DLG_CANCEL
+        ret = dConstants.DLG_CANCEL
         res = self.ShowModal()
         if res == wx.ID_OK:
-            ret = k.DLG_OK
+            ret = dConstants.DLG_OK
         return ret
 
     def getFont(self):
