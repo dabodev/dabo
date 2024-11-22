@@ -270,14 +270,14 @@ class dBaseMenuBar(dMenuBar):
 
 
 ui.dBaseMenuBar = dBaseMenuBar
-ui.FileMenu = dBaseMenuBar
-ui.EditMenu = dBaseMenuBar
-ui.ViewMenu = dBaseMenuBar
-ui.HelpMenu = dBaseMenuBar
+ui.FileMenu = FileMenu
+ui.EditMenu = EditMenu
+ui.ViewMenu = ViewMenu
+ui.HelpMenu = HelpMenu
 
 
 if __name__ == "__main__":
-    from .. import dApp
+    from ..dApp import dApp
 
     app = dApp()
     app.setup()
