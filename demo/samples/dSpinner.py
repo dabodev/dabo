@@ -52,9 +52,7 @@ class TestPanel(dPanel):
         gsz.append(lbl, halign="right")
         gsz.append(txt)
         lbl = dLabel(self, Caption="Increment")
-        txt = dTextBox(
-            self, DataSource=spn, DataField="Increment", StrictNumericEntry=False
-        )
+        txt = dTextBox(self, DataSource=spn, DataField="Increment", StrictNumericEntry=False)
         gsz.append(lbl, halign="right")
         gsz.append(txt)
         lbl = dLabel(self, Caption="SpinnerWrap")

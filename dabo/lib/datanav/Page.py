@@ -78,9 +78,7 @@ class SelectionOpDropdown(dui.dDropdownList):
         if self.Target:
             self.Target.FontItalic = self.FontItalic
 
-    Target = property(
-        _getTarget, _setTarget, None, "Holds a reference to the edit control."
-    )
+    Target = property(_getTarget, _setTarget, None, "Holds a reference to the edit control.")
 
 
 class Page(dui.dPage):
@@ -274,9 +272,7 @@ class SelectPage(Page):
         else:
             parts = lambda k: (k, sf[k][1].upper())
 
-        flds = sorted(
-            (self.sortFields[k][0], k, " ".join(parts(k))) for k in self.sortFields
-        )
+        flds = sorted((self.sortFields[k][0], k, " ".join(parts(k))) for k in self.sortFields)
         if infoOnly:
             return [e[1:] for e in flds]
         else:
@@ -452,9 +448,7 @@ class SelectPage(Page):
 
             ret = frm.requery(_fromSelectPage=True)
 
-            if (
-                bizobj.RowCount > 0
-            ):  # don't bother applying this if there are no records to work on
+            if bizobj.RowCount > 0:  # don't bother applying this if there are no records to work on
                 # filter virtual fields
                 for vField in self.__virtualFilters:
                     opVal = self.selectFields[vField]["op"].Value
@@ -644,7 +638,5 @@ class EditPage(Page):
         _getDS,
         _setDS,
         None,
-        _(
-            "Table that is the primary source for the fields displayed on the page  (str)"
-        ),
+        _("Table that is the primary source for the fields displayed on the page  (str)"),
     )

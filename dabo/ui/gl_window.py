@@ -2,12 +2,13 @@
 import wx
 from wx import glcanvas
 
+from .. import main
 from .. import ui
 from ..dLocalize import _
 from . import dControlMixin
 from . import makeDynamicProperty
 
-# import log
+dabo_module = main.get_dabo_package()
 
 try:
     from OpenGL.GL import *
@@ -18,16 +19,14 @@ except ImportError:
     openGL = False
 except Exception as e:
     # Report the error, and abandon the import
-    log.error(_("Error importing OpenGL: %s") % e)
+    dabo_module.error(_("Error importing OpenGL: %s") % e)
     openGL = False
 
 
 class dGlWindow(dControlMixin, glcanvas.GLCanvas):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         if not openGL:
-            raise ImportError(
-                "PyOpenGL is not present, so dGlWindow cannot instantiate."
-            )
+            raise ImportError("PyOpenGL is not present, so dGlWindow cannot instantiate.")
 
         self.init = False
         self._rotate = self._pan = False
@@ -118,9 +117,7 @@ class dGlWindow(dControlMixin, glcanvas.GLCanvas):
         self._rotate = val
 
     # Property Definitions
-    Rotate = property(
-        _getRotate, _setRotate, None, _("Rotate on Right Mouse Click and Drag")
-    )
+    Rotate = property(_getRotate, _setRotate, None, _("Rotate on Right Mouse Click and Drag"))
 
 
 ui.dGlWindow = dGlWindow
@@ -237,7 +234,7 @@ class _dGlWindow_test2(dGlWindow):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dGlWindow_test)
     test.Test().runTest(_dGlWindow_test2)

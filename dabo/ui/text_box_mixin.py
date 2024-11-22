@@ -10,14 +10,16 @@ import wx.lib.masked as masked
 
 from .. import ui
 from .. import events
+from .. import main
+from .. import settings
 from ..lib import dates
 from ..lib.utils import ustr
 from ..ui import dKeys
 from ..dLocalize import _
 from ..ui import dDataControlMixin
 from ..ui import makeDynamicProperty
-# import log
 
+dabo_module = main.get_dabo_package()
 
 numericTypes = (int, int, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)
@@ -29,9 +31,7 @@ decimalPoint = None
 
 
 class dTextBoxMixinBase(dDataControlMixin):
-    def __init__(
-        self, preClass, parent, properties=None, attProperties=None, *args, **kwargs
-    ):
+    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         global decimalPoint
         if decimalPoint is None:
             decimalPoint = locale.localeconv()["decimal_point"]
@@ -174,9 +174,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         """
         if num is None:
             num = 1
-        return self._substringByRange(
-            before=num, includeSelectedText=includeSelectedText
-        )
+        return self._substringByRange(before=num, includeSelectedText=includeSelectedText)
 
     def charsAfterCursor(self, num=None, includeSelectedText=False):
         """
@@ -187,9 +185,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         """
         if num is None:
             num = 1
-        return self._substringByRange(
-            after=num, includeSelectedText=includeSelectedText
-        )
+        return self._substringByRange(after=num, includeSelectedText=includeSelectedText)
 
     def _substringByRange(self, before=0, after=0, includeSelectedText=False):
         """
@@ -237,9 +233,7 @@ class dTextBoxMixinBase(dDataControlMixin):
             elif val == "r":
                 self._addWindowStyleFlag(wx.TE_RIGHT)
             else:
-                raise ValueError(
-                    _("The only possible values are 'Left', 'Center', and 'Right'")
-                )
+                raise ValueError(_("The only possible values are 'Left', 'Center', and 'Right'"))
             self.SetEditable(rw)
         else:
             self._properties["Alignment"] = val
@@ -461,9 +455,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         _getSelectedText,
         None,
         None,
-        _(
-            "Currently selected text. Returns the empty string if nothing is selected  (str)"
-        ),
+        _("Currently selected text. Returns the empty string if nothing is selected  (str)"),
     )
 
     SelectionEnd = property(
@@ -511,9 +503,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         _getValue,
         _setValue,
         None,
-        _(
-            "Specifies the current state of the control (the value of the field). (string)"
-        ),
+        _("Specifies the current state of the control (the value of the field). (string)"),
     )
 
     # Dynamic property declarations
@@ -528,9 +518,7 @@ class dTextBoxMixinBase(dDataControlMixin):
 
 
 class dTextBoxMixin(dTextBoxMixinBase):
-    def __init__(
-        self, preClass, parent, properties=None, attProperties=None, *args, **kwargs
-    ):
+    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         self._dregex = {}
         self._lastDataType = str
 
@@ -596,26 +584,20 @@ class dTextBoxMixin(dTextBoxMixinBase):
             strVal = strVal.strip()
             if not strVal and self.NumericBlankToZero:
                 if type(_oldVal) == decimal.Decimal:
-                    return decimal.DefaultContext.quantize(
-                        decimal.Decimal("0"), _oldVal
-                    )
+                    return decimal.DefaultContext.quantize(decimal.Decimal("0"), _oldVal)
                 return decimal.Decimal("0")
 
             try:
                 if type(_oldVal) == decimal.Decimal:
                     # Enforce the precision as previously set programatically
-                    return decimal.DefaultContext.quantize(
-                        decimal.Decimal(strVal), _oldVal
-                    )
+                    return decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
                 return decimal.Decimal(strVal)
             except (ValueError, decimal.InvalidOperation):
                 raise ValueError(_("Invalid decimal value."))
         elif dataType in (tuple, list):
             return eval(strVal)
         elif not self.StrictNumericEntry and (dataType in numericTypes):
-            isint = (strVal.count(decimalPoint) == 0) and (
-                strVal.lower().count("e") == 0
-            )
+            isint = (strVal.count(decimalPoint) == 0) and (strVal.lower().count("e") == 0)
             strVal = strVal.strip()
             if not strVal and self.NumericBlankToZero:
                 return 0
@@ -631,9 +613,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                         raise ValueError(_("Invalid decimal value."))
             except valueErrors:
                 raise ValueError(_("Invalid Numeric Value: %s") % strVal)
-        elif (
-            dataType in numericTypes and self.NumericBlankToZero and not strVal.strip()
-        ):
+        elif dataType in numericTypes and self.NumericBlankToZero and not strVal.strip():
             # strict:
             if dataType == decimal.Decimal:
                 oldVal = getattr(self, "_oldVal", None)
@@ -721,7 +701,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
         return dates.getTimeFromString(strVal, formats)
 
     def _getNumericBlankToZero(self):
-        return getattr(self, "_numericBlankToZero", dTextBox_NumericBlankToZero)
+        return getattr(self, "_numericBlankToZero", settings.dTextBox_NumericBlankToZero)
 
     def _setNumericBlankToZero(self, val):
         self._numericBlankToZero = bool(val)
@@ -864,9 +844,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                     # PVG: maskedtextedit sometimes fails, on value error..allow the code to continue
                     uv = ustr(strVal)
                     ue = ustr(e)
-                    log.error(
-                        _("Error setting value to '%(uv)s': " "%(ue)s") % locals()
-                    )
+                    dabo_module.error(_("Error setting value to '%(uv)s': " "%(ue)s") % locals())
 
             if type(_oldVal) != type(val) or _oldVal != val:
                 self._afterValueChanged()
@@ -927,9 +905,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
         _getValue,
         _setValue,
         None,
-        _(
-            "Specifies the current state of the control (the value of the field). (varies)"
-        ),
+        _("Specifies the current state of the control (the value of the field). (varies)"),
     )
 
     # Dynamic property declarations

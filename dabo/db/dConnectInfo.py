@@ -50,9 +50,9 @@ class dConnectInfo(dObject):
     def __init__(self, connInfo=None, **kwargs):
         self._baseClass = dConnectInfo
         self._backendObject = None
-        self._host = self._user = self._password = self._dbType = self._database = (
-            self._port
-        ) = self._name = self._remoteHost = ""
+        self._host = self._user = self._password = self._dbType = self._database = self._port = (
+            self._name
+        ) = self._remoteHost = ""
         self._keepAliveInterval = None
         super(dConnectInfo, self).__init__(**kwargs)
         if connInfo:
@@ -191,9 +191,7 @@ class dConnectInfo(dObject):
                 else:
                     raise ValueError("Invalid database type: %s." % nm)
             except ImportError:
-                dabo.log.error(
-                    _("You do not have the database module for %s installed") % dbType
-                )
+                dabo.log.error(_("You do not have the database module for %s installed") % dbType)
                 self._dbType = None
                 self._backendObject = None
             if _oldObject != self._backendObject:
@@ -277,13 +275,9 @@ class dConnectInfo(dObject):
         _("""Additional parameters passed to backend object connect method. (dict)"""),
     )
 
-    DbType = property(
-        _getDbType, _setDbType, None, _("Name of the backend database type.  (str)")
-    )
+    DbType = property(_getDbType, _setDbType, None, _("Name of the backend database type.  (str)"))
 
-    Database = property(
-        _getDatabase, _setDatabase, None, _("The database name to login to. (str)")
-    )
+    Database = property(_getDatabase, _setDatabase, None, _("The database name to login to. (str)"))
 
     Host = property(_getHost, _setHost, None, _("The host name or ip address. (str)"))
 

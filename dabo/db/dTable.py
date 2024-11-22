@@ -112,13 +112,9 @@ class dTable(dObject):
     def _getPK(self):
         return self._pk
 
-    Fields = property(
-        _getFields, None, None, _("List of the fields in the table. (list)")
-    )
+    Fields = property(_getFields, None, None, _("List of the fields in the table. (list)"))
 
-    Indexes = property(
-        _getIndexes, None, None, _("List of the indexes in the table. (list)")
-    )
+    Indexes = property(_getIndexes, None, None, _("List of the indexes in the table. (list)"))
 
     IsTemp = property(
         _getIsTemp, _setIsTemp, None, _("Whether or not the table is temporary. (bool)")
@@ -162,9 +158,7 @@ class dIndex(dObject):
     def _setName(self, name):
         self._name = name
 
-    Fields = property(
-        _getFields, _setFields, None, _("Fields which comprise the index.  (list)")
-    )
+    Fields = property(_getFields, _setFields, None, _("Fields which comprise the index.  (list)"))
 
     Name = property(_getName, _setName, None, _("Name of the index.  (str)"))
 
@@ -274,9 +268,7 @@ class dField(dObject):
         _("Whether or not nulls are allowed. Default:True (bool)"),
     )
 
-    DataType = property(
-        _getDataType, _setDataType, None, _("The type of the column. (str)")
-    )
+    DataType = property(_getDataType, _setDataType, None, _("The type of the column. (str)"))
 
     Default = property(
         _getDefault,
@@ -322,9 +314,7 @@ class dField(dObject):
         _getSize,
         _setSize,
         None,
-        _(
-            "The size required for the column in bytes or character units if it's a string. (int)"
-        ),
+        _("The size required for the column in bytes or character units if it's a string. (int)"),
     )
 
     Type = property(_getType, _setType, None, _("The type of the column.  (class)"))
@@ -388,9 +378,7 @@ class fType(dObject):
     def _getSize(self):
         return self._size
 
-    DataType = property(
-        _getDataType, _setDataType, None, _("Type of data for this field  (str)")
-    )
+    DataType = property(_getDataType, _setDataType, None, _("Type of data for this field  (str)"))
 
     TotalDP = property(
         _getTotalDP, _setTotalDP, None, _("The total number of decimal places  (int)")
@@ -421,16 +409,12 @@ if __name__ == "__main__":
     # print col
 
     myTable = dTable(Name="mytemp", IsTemp=True)
-    myTable.addField(
-        Name="theid", IsPK=True, DataType="int", Size=2, IsAutoIncrement=True
-    )
+    myTable.addField(Name="theid", IsPK=True, DataType="int", Size=2, IsAutoIncrement=True)
     myTable.addField(Name="first_name", DataType="string", Size=25, Index="idx_first")
     myTable.addField(
         Name="last_name", DataType="string", Size=25, AllowNulls=False, Index="idx_last"
     )
-    myTable.addField(
-        Name="amount_owes", DataType="float", TotalDP=8, RightDP=2, Size=8, Default=0
-    )
+    myTable.addField(Name="amount_owes", DataType="float", TotalDP=8, RightDP=2, Size=8, Default=0)
 
     # When you want to have more than one field in an index, use addIndex().
     myTable.addIndex(Name="idx_name", Fields=("last_name", "first_name"))

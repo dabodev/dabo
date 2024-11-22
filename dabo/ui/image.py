@@ -9,6 +9,7 @@ import wx
 
 from .. import ui
 from .. import events
+from .. import main
 from ..dLocalize import _
 from ..lib import utils
 from . import makeDynamicProperty
@@ -28,8 +29,7 @@ except ImportError:
 #        if tagname == "Orientation"][0]
 _ORIENTATION_TAG = 274
 
-# import dApp
-# import log
+dabo_module = main.get_dabo_package()
 
 
 # The EXIF rotation values do not lend themselves easily to rotation
@@ -289,7 +289,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                         val = None
                 if val is None or not os.path.isfile(val):
                     # Bad image reference
-                    log.error(_("No file named '%s' exists.") % origVal)
+                    dabo_module.error(_("No file named '%s' exists.") % origVal)
                     return
             self._picture = val
             self._displayState = 1
@@ -298,7 +298,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                 # The image count is 1-based.
                 maxIdx = self.FrameCount - 1
                 if idx > maxIdx:
-                    log.error(
+                    dabo_module.error(
                         _(
                             "Attempt to set PictureIndex (%(idx)s)to a value "
                             "greater than the maximum index available (%(maxIdx)s)."
@@ -326,9 +326,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
                     # Bad image, or no exif data available
                     pass
         if self._Image.IsOk():
-            self._imgProp = float(self._Image.GetWidth()) / float(
-                self._Image.GetHeight()
-            )
+            self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
         else:
             self._imgProp = 1.0
         self._showPic()
@@ -358,9 +356,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             self._scaleMode = modes[initial]
             self._showPic()
         except KeyError:
-            log.error(
-                _("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'.")
-            )
+            dabo_module.error(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'."))
 
     def _getValue(self):
         return self._imageData
@@ -453,9 +449,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         _("Image content for this control  (binary img data)"),
     )
 
-    _Image = property(
-        _getImg, None, None, _("Underlying image handler object  (wx.Image)")
-    )
+    _Image = property(_getImg, None, None, _("Underlying image handler object  (wx.Image)"))
 
     DynamicPicture = makeDynamicProperty(Picture)
     DynamicScaleMode = makeDynamicProperty(ScaleMode)
@@ -465,7 +459,7 @@ ui.dImage = dImage
 
 
 if __name__ == "__main__":
-    from dApp import dApp
+    from ..dApp import dApp
 
     class ImgForm(dForm):
         def afterInit(self):

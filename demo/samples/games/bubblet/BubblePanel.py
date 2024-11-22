@@ -102,9 +102,7 @@ class BubblePanel(dPanel):
         if val != self._selected:
             self._selected = val
 
-    Color = property(
-        _getColor, _setColor, None, _("Color for this bubble  (str or tuple)")
-    )
+    Color = property(_getColor, _setColor, None, _("Color for this bubble  (str or tuple)"))
 
     Popped = property(_getPopped, _setPopped, None, _("Is the bubble popped?  (bool)"))
 

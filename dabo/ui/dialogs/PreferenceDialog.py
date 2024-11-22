@@ -403,8 +403,7 @@ if __name__ == "__main__":
         def afterInit(self):
             lbl = dLabel(
                 self,
-                Caption="Preference Manager Demo\n"
-                + "Select 'Preferences' from the menu.",
+                Caption="Preference Manager Demo\n" + "Select 'Preferences' from the menu.",
                 WordWrap=True,
             )
             self.Sizer.append(lbl, halign="center", border=20)

@@ -101,12 +101,8 @@ class BubbleBizobj(biz.dBizobj):
             for rr in range(1, rows):
                 if self.bubbles[rr][cc].Popped:
                     for rAbove in range(rr, 0, -1):
-                        self.bubbles[rAbove][cc].Color = self.bubbles[rAbove - 1][
-                            cc
-                        ].Color
-                        self.bubbles[rAbove][cc].Popped = self.bubbles[rAbove - 1][
-                            cc
-                        ].Popped
+                        self.bubbles[rAbove][cc].Color = self.bubbles[rAbove - 1][cc].Color
+                        self.bubbles[rAbove][cc].Popped = self.bubbles[rAbove - 1][cc].Popped
                     self.bubbles[0][cc].Popped = True
         # Now shift columns to the right
         for rr in range(rows):

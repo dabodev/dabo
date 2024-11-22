@@ -56,9 +56,7 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
         if kwargs:
             # Some kwargs haven't been handled.
             bad = ", ".join(list(kwargs.keys()))
-            raise TypeError(
-                ("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs
-            )
+            raise TypeError(("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs)
 
         # Mark the box as part of the sizer
         self.Box._belongsToBorderSizer = True
@@ -121,9 +119,7 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
         _("Color of the box background  (str or tuple)"),
     )
 
-    Box = property(
-        _getBox, None, None, _("Reference to the box used in the sizer  (dBox)")
-    )
+    Box = property(_getBox, None, None, _("Reference to the box used in the sizer  (dBox)"))
 
     Caption = property(_getCaption, _setCaption, None, _("Caption for the box  (str)"))
 
@@ -148,9 +144,7 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
         _("Controls the italic setting of the box caption  (bool)"),
     )
 
-    FontSize = property(
-        _getFontSize, _setFontSize, None, _("Size of the box caption font  (int)")
-    )
+    FontSize = property(_getFontSize, _setFontSize, None, _("Size of the box caption font  (int)"))
 
     FontUnderline = property(
         _getFontUnderline,
@@ -187,13 +181,11 @@ class TestForm(dForm):
 
 class _dBorderSizer_test(dBorderSizer):
     def __init__(self, bx=None, *args, **kwargs):
-        super(_dBorderSizer_test, self).__init__(
-            box=bx, orientation="h", *args, **kwargs
-        )
+        super(_dBorderSizer_test, self).__init__(box=bx, orientation="h", *args, **kwargs)
 
 
 if __name__ == "__main__":
-    from dApp import dApp
+    from .. import dApp
 
     app = dApp()
     app.MainFormClass = TestForm

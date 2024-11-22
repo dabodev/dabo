@@ -468,9 +468,7 @@ class TraceFuncCoverage:
     """
 
     # Shared between all instances so that nested calls work
-    tracer = trace.Trace(
-        count=True, trace=False, ignoredirs=[sys.prefix, sys.exec_prefix]
-    )
+    tracer = trace.Trace(count=True, trace=False, ignoredirs=[sys.prefix, sys.exec_prefix])
 
     # This flag is also shared between all instances
     tracing = False
@@ -620,8 +618,7 @@ def timecall(fn):
             filename = fn.__code__.co_filename
             lineno = fn.__code__.co_firstlineno
             print(
-                "\n  %s (%s:%s):\n    %.3f seconds\n"
-                % (funcname, filename, lineno, duration),
+                "\n  %s (%s:%s):\n    %.3f seconds\n" % (funcname, filename, lineno, duration),
                 file=sys.stderr,
             )
 

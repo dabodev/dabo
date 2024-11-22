@@ -78,9 +78,7 @@ class BubbletForm(dForm):
         if quitPos is None:
             quitPos = len(fm.Children)
         fm.insert(quitPos, _("&ScreenShot"), HotKey="Ctrl+S", OnHit=self.saveScreenShot)
-        fm.insert(
-            quitPos, _("&Reset Statistics"), HotKey="Ctrl+R", OnHit=self.onResetStats
-        )
+        fm.insert(quitPos, _("&Reset Statistics"), HotKey="Ctrl+R", OnHit=self.onResetStats)
         fm.insert(quitPos, _("&Statistics"), HotKey="Ctrl+T", OnHit=self.onStats)
         fm.insertSeparator(0)
         fm.insert(0, _("&New Game"), HotKey="Ctrl+N", OnHit=self.onNewGame)

@@ -7,6 +7,7 @@ import wx.stc as stc
 import wx.py
 from wx.py import pseudo
 
+from .. import db
 from .. import ui
 from .. import events
 from ..dLocalize import _
@@ -226,15 +227,11 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 
     def setDefaultFont(self, fontFace, fontSize):
         # Global default styles for all languages
-        self.StyleSetSpec(
-            stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
         self.StyleClearAll()  # Reset all to be like the default
 
         # Global default styles for all languages
-        self.StyleSetSpec(
-            stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (self._fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (self._fontFace, fontSize))
         self.StyleSetSpec(
             stc.STC_STYLE_LINENUMBER,
             "back:#C0C0C0,face:%s,size:%d" % (self._fontFace, 8),
@@ -245,9 +242,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 
     def setPyFont(self, fontFace, fontSize):
         # Python-specific styles
-        self.StyleSetSpec(
-            stc.STC_P_DEFAULT, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
         # Comments
         self.StyleSetSpec(
             stc.STC_P_COMMENTLINE,
@@ -256,9 +251,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
         # Number
         self.StyleSetSpec(stc.STC_P_NUMBER, "fore:#007F7F,size:%d" % fontSize)
         # String
-        self.StyleSetSpec(
-            stc.STC_P_STRING, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_P_STRING, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
         # Single quoted string
         self.StyleSetSpec(
             stc.STC_P_CHARACTER, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize)
@@ -268,13 +261,9 @@ class dShell(dControlMixin, wx.py.shell.Shell):
         # Triple quotes
         self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:#7F0000,size:%d,italic" % fontSize)
         # Triple double quotes
-        self.StyleSetSpec(
-            stc.STC_P_TRIPLEDOUBLE, "fore:#7F0000,size:%d,italic" % fontSize
-        )
+        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:#7F0000,size:%d,italic" % fontSize)
         # Class name definition
-        self.StyleSetSpec(
-            stc.STC_P_CLASSNAME, "fore:#0000FF,bold,underline,size:%d" % fontSize
-        )
+        self.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:#0000FF,bold,underline,size:%d" % fontSize)
         # Function or method name definition
         self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:#007F7F,bold,size:%d" % fontSize)
         # Operators
@@ -284,9 +273,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             stc.STC_P_IDENTIFIER, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize)
         )
         # Comment-blocks
-        self.StyleSetSpec(
-            stc.STC_P_COMMENTBLOCK, "fore:#7F7F7F,size:%d,italic" % fontSize
-        )
+        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:#7F7F7F,size:%d,italic" % fontSize)
         # End of line where string is not closed
         self.StyleSetSpec(
             stc.STC_P_STRINGEOL,
@@ -434,15 +421,11 @@ class dShellForm(dSplitForm):
         self.pgCode.Caption = _("Code")
         cp.Sizer.append1x(pgf)
 
-        self.shell = self.ShellClass(
-            self.pgShell, DroppedTextHandler=self, DroppedFileHandler=self
-        )
+        self.shell = self.ShellClass(self.pgShell, DroppedTextHandler=self, DroppedFileHandler=self)
         self.pgShell.Sizer.append1x(self.shell, border=4)
         # Configure the shell's behavior
         self.shell.AutoCompSetIgnoreCase(True)
-        self.shell.AutoCompSetAutoHide(
-            False
-        )  ## don't hide when the typed string no longer matches
+        self.shell.AutoCompSetAutoHide(False)  ## don't hide when the typed string no longer matches
         self.shell.AutoCompStops(" ")  ## characters that will stop the autocomplete
         self.shell.AutoCompSetFillUps(".(")
         # This lets you go all the way back to the '.' without losing the AutoComplete
@@ -724,6 +707,7 @@ Ctrl-Up/Down to scroll through history."""
         self._sashPct = float(self.SashPosition) / self.Height
 
     def fillMenu(self):
+        import pudb ; pudb.set_trace()
         viewMenu = self.MenuBar.getMenu("base_view")
         if viewMenu.Children:
             viewMenu.appendSeparator()
@@ -881,7 +865,7 @@ ui.dShellForm = dShellForm
 
 
 def main():
-    from dApp import dApp
+    from ..dApp import dApp
 
     app = dApp(BasePrefKey="ui.dShellForm")
     app.MainFormClass = dShellForm

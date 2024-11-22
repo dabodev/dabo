@@ -2,6 +2,7 @@
 import string
 import types
 
+from . import main
 from . import settings
 from .lib.propertyHelperMixin import PropertyHelperMixin
 from .event_mixin import EventMixin
@@ -78,9 +79,7 @@ class dObject(PropertyHelperMixin, EventMixin):
         if kwargs:
             # Some kwargs haven't been handled.
             bad = ", ".join(["'%s'" % kk for kk in kwargs])
-            raise TypeError(
-                "Invalid keyword arguments passed to %s: %s" % (self.__repr__(), bad)
-            )
+            raise TypeError("Invalid keyword arguments passed to %s: %s" % (self.__repr__(), bad))
 
         if self._call_afterInit:
             self._afterInit()
@@ -235,9 +234,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 
     def super(self, *args, **kwargs):
         """This method used to call superclass code, but it's been removed."""
-        raise NotImplementedError(
-            _("Please change your self.super() call to super(cls, self).")
-        )
+        raise NotImplementedError(_("Please change your self.super() call to super(cls, self)."))
 
     def _addCodeAsMethod(self, cd):
         """
@@ -256,9 +253,7 @@ class dObject(PropertyHelperMixin, EventMixin):
             except SyntaxError as e:
                 snm = self.Name
                 log.error(
-                    _(
-                        "Method '%(nm)s' of object '%(snm)s' has the following error: %(e)s"
-                    )
+                    _("Method '%(nm)s' of object '%(snm)s' has the following error: %(e)s")
                     % locals()
                 )
                 continue
@@ -274,8 +269,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 
     # Property definitions begin here
     def _getApplication(self):
-        # dApp saves a ref to itself inside the dabo module object.
-        return settings.dAppRef
+        return main.get_application()
 
     def _getBaseClass(self):
         # Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
@@ -370,13 +364,13 @@ class dObject(PropertyHelperMixin, EventMixin):
                 except AttributeError:
                     pass
             if ret is None:
-                from dPref import dPref  ## here to avoid circular import
+                from .dPref import dPref  ## here to avoid circular import
 
                 ret = self._preferenceManager = dPref(key=self.BasePrefKey)
         return ret
 
     def _setPreferenceManager(self, val):
-        from dPref import dPref  ## here to avoid circular import
+        from .dPref import dPref  ## here to avoid circular import
 
         if not isinstance(val, dPref):
             raise TypeError("PreferenceManager must be a dPref object")

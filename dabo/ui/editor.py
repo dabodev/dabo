@@ -13,11 +13,13 @@ import wx.stc as stc
 from .. import ui
 from ..dLocalize import _
 from .. import events
+from .. import main
+from .. import settings
 from .. import dColors
 from . import dDataControlMixin
 from . import dTimer
-# import log
-# import getEncoding
+
+dabo_module = main.get_dabo_package()
 
 
 LexerDic = {
@@ -205,9 +207,7 @@ class STCPrintout(wx.Printout):
 
         if self.filename:
             tlw, tlh = dc.GetTextExtent(self.filename)
-            dc.DrawText(
-                self.filename, int(dw / scale / 2 - tlw / 2), int(mh / scale - tlh * 3)
-            )
+            dc.DrawText(self.filename, int(dw / scale / 2 - tlw / 2), int(mh / scale - tlh * 3))
 
         if self.doPageNums:
             pageLabel = _("Page: %d") % page
@@ -230,9 +230,7 @@ class STCPrintout(wx.Printout):
             stcEndPos,
             dc,
             dc,
-            wx.Rect(
-                int(mw / scale), int(mh / scale), maxWidth, int(textAreaHeight / scale)
-            ),
+            wx.Rect(int(mw / scale), int(mh / scale), maxWidth, int(textAreaHeight / scale)),
             wx.Rect(
                 0,
                 (page - 1) * self.linesPerPage * self.stcLineHeight,
@@ -245,10 +243,8 @@ class STCPrintout(wx.Printout):
         if not self.IsPreview():
             if ep < stcEndPos:
                 posdiff = stcEndPos - ep
-                log.error(
-                    _(
-                        "warning: on page %(page)s: not enough chars rendered, diff: %(posdiff)s"
-                    )
+                dabo_module.error(
+                    _("warning: on page %(page)s: not enough chars rendered, diff: %(posdiff)s")
                     % locals()
                 )
         return True
@@ -278,7 +274,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self._hiliteLimitColumn = 79
         self._showEdgeGuide = False
         self._edgeGuideColumn = 80
-        self._encoding = getEncoding()
+        self._encoding = settings.getEncoding()
         self._eolMode = ""
         self._useAntiAliasing = True
         self._codeFolding = True
@@ -402,15 +398,11 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         printDlg.Destroy()
 
     def onPrintPreview(self):
-        po1 = STCPrintout(
-            self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG, self._fileName, False
-        )
-        po2 = STCPrintout(
-            self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG, self._fileName, False
-        )
+        po1 = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG, self._fileName, False)
+        po2 = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG, self._fileName, False)
         self._printPreview = wx.PrintPreview(po1, po2, self._printData)
         if not self._printPreview.Ok():
-            log.error(_("An error occured while preparing preview."))
+            dabo_module.error(_("An error occured while preparing preview."))
             return
         frame = wx.PreviewFrame(self._printPreview, self.Form, _("Print Preview"))
         frame.Initialize()
@@ -422,12 +414,10 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         pdd = wx.PrintDialogData()
         pdd.SetPrintData(self._printData)
         printer = wx.Printer(pdd)
-        printout = STCPrintout(
-            self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG, self._fileName, False
-        )
+        printout = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG, self._fileName, False)
 
         if not printer.Print(self.Form, printout):
-            log.error(_("An error occured while printing."))
+            dabo_module.error(_("An error occured while printing."))
         else:
             self.printData = wx.PrintData(printer.GetPrintDialogData().GetPrintData())
         printout.Destroy()
@@ -645,9 +635,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 }[newcase]
                 self.ReplaceSelection(fnc())
             except KeyError:
-                raise ValueError(
-                    _("Case must be either upper, lower, capitalize, or invert.")
-                )
+                raise ValueError(_("Case must be either upper, lower, capitalize, or invert."))
         self.SelectionPosition = pos
 
     def select(self, position, length):
@@ -813,18 +801,10 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 self.MarkerDefine(
                     stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_ARROWDOWN, "black", "black"
                 )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDER, stc.STC_MARK_ARROW, "black", "black"
-                )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_EMPTY, "black", "black"
-                )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_EMPTY, "black", "black"
-                )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_EMPTY, "white", "black"
-                )
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_ARROW, "black", "black")
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_EMPTY, "black", "black")
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_EMPTY, "black", "black")
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_EMPTY, "white", "black")
                 self.MarkerDefine(
                     stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_EMPTY, "white", "black"
                 )
@@ -834,21 +814,11 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
 
             elif self.fold_symbols == 1:
                 # Plus for contracted folders, minus for expanded
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_MINUS, "white", "black"
-                )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDER, stc.STC_MARK_PLUS, "white", "black"
-                )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_EMPTY, "white", "black"
-                )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_EMPTY, "white", "black"
-                )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_EMPTY, "white", "black"
-                )
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_MINUS, "white", "black")
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_PLUS, "white", "black")
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_EMPTY, "white", "black")
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_EMPTY, "white", "black")
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_EMPTY, "white", "black")
                 self.MarkerDefine(
                     stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_EMPTY, "white", "black"
                 )
@@ -867,9 +837,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 self.MarkerDefine(
                     stc.STC_MARKNUM_FOLDER, stc.STC_MARK_CIRCLEPLUS, "white", "#404040"
                 )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, "white", "#404040"
-                )
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, "white", "#404040")
                 self.MarkerDefine(
                     stc.STC_MARKNUM_FOLDERTAIL,
                     stc.STC_MARK_LCORNERCURVE,
@@ -903,12 +871,8 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                     "white",
                     "#808080",
                 )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, "white", "#808080"
-                )
-                self.MarkerDefine(
-                    stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, "white", "#808080"
-                )
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, "white", "#808080")
+                self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, "white", "#808080")
                 self.MarkerDefine(
                     stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNER, "white", "#808080"
                 )
@@ -949,9 +913,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 try:
                     newSize = int(fontSize)
                 except ValueError:
-                    log.error(
-                        _("Invalid value passed to changeFontSize: %s") % fontSize
-                    )
+                    dabo_module.error(_("Invalid value passed to changeFontSize: %s") % fontSize)
                     return
         else:
             newSize = fontSize
@@ -960,27 +922,19 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
 
     def setDefaultFont(self, fontFace, fontSize):
         # Global default styles for all languages
-        self.StyleSetSpec(
-            stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
         self.StyleClearAll()  # Reset all to be like the default
 
         # Global default styles for all languages
-        self.StyleSetSpec(
-            stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (propFont, fontSize)
-        )
-        self.StyleSetSpec(
-            stc.STC_STYLE_LINENUMBER, "back:#C0C0C0,face:%s,size:%d" % (propFont, 8)
-        )
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (propFont, fontSize))
+        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "back:#C0C0C0,face:%s,size:%d" % (propFont, 8))
         self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%s" % fontFace)
         self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#000000,back:#00FF00,bold")
         self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
 
     def setPyFont(self, fontFace, fontSize):
         # Python-specific styles
-        self.StyleSetSpec(
-            stc.STC_P_DEFAULT, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
         # Comments
         self.StyleSetSpec(
             stc.STC_P_COMMENTLINE,
@@ -989,9 +943,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         # Number
         self.StyleSetSpec(stc.STC_P_NUMBER, "fore:#007F7F,size:%d" % fontSize)
         # String
-        self.StyleSetSpec(
-            stc.STC_P_STRING, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_P_STRING, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
         # Single quoted string
         self.StyleSetSpec(
             stc.STC_P_CHARACTER, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize)
@@ -1001,13 +953,9 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         # Triple quotes
         self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:#7F0000,size:%d,italic" % fontSize)
         # Triple double quotes
-        self.StyleSetSpec(
-            stc.STC_P_TRIPLEDOUBLE, "fore:#7F0000,size:%d,italic" % fontSize
-        )
+        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:#7F0000,size:%d,italic" % fontSize)
         # Class name definition
-        self.StyleSetSpec(
-            stc.STC_P_CLASSNAME, "fore:#0000FF,bold,underline,size:%d" % fontSize
-        )
+        self.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:#0000FF,bold,underline,size:%d" % fontSize)
         # Function or method name definition
         self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:#007F7F,bold,size:%d" % fontSize)
         # Operators
@@ -1017,9 +965,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             stc.STC_P_IDENTIFIER, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize)
         )
         # Comment-blocks
-        self.StyleSetSpec(
-            stc.STC_P_COMMENTBLOCK, "fore:#7F7F7F,size:%d,italic" % fontSize
-        )
+        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:#7F7F7F,size:%d,italic" % fontSize)
         # End of line where string is not closed
         self.StyleSetSpec(
             stc.STC_P_STRINGEOL,
@@ -1037,9 +983,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             self.InsertText(pos, self.CommentString)
         self.EndUndoAction()
 
-        self.SetSelection(
-            self.PositionFromLine(begLine), self.PositionFromLine(endLine + 1)
-        )
+        self.SetSelection(self.PositionFromLine(begLine), self.PositionFromLine(endLine + 1))
 
     def onUncommentLine(self, evt):
         sel = self.GetSelection()
@@ -1055,9 +999,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 self.ReplaceTarget("")
         self.EndUndoAction()
 
-        self.SetSelection(
-            self.PositionFromLine(begLine), self.PositionFromLine(endLine + 1)
-        )
+        self.SetSelection(self.PositionFromLine(begLine), self.PositionFromLine(endLine + 1))
 
     def __onKeyDown(self, evt):
         keyCode = evt.EventData["keyCode"]
@@ -1202,11 +1144,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             styleBefore = self.GetStyleAt(caretPos - 1)
 
         # check before
-        if (
-            charBefore
-            and chr(charBefore) in "[]{}()"
-            and styleBefore == stc.STC_P_OPERATOR
-        ):
+        if charBefore and chr(charBefore) in "[]{}()" and styleBefore == stc.STC_P_OPERATOR:
             braceAtCaret = caretPos - 1
 
         # check after
@@ -1214,11 +1152,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             charAfter = self.GetCharAt(caretPos)
             styleAfter = self.GetStyleAt(caretPos)
 
-            if (
-                charAfter
-                and chr(charAfter) in "[]{}()"
-                and styleAfter == stc.STC_P_OPERATOR
-            ):
+            if charAfter and chr(charAfter) in "[]{}()" and styleAfter == stc.STC_P_OPERATOR:
                 braceAtCaret = caretPos
 
         if braceAtCaret >= 0:
@@ -1260,9 +1194,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             self.hiliteLine(ln, evt.GetShift())
         if mg == 0:
             # Bookmark margin.  Call stubs so dev can decide how to handle it.
-            self.processBookmarkClick(
-                lineClicked, self.getBookmarkFromLine(lineClicked)
-            )
+            self.processBookmarkClick(lineClicked, self.getBookmarkFromLine(lineClicked))
 
     def processBookmarkClick(self, lineNumber, bookmarkName):
         "Stub function to process a left click on the bookmark margin area."
@@ -1527,8 +1459,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 break
             if os.path.exists(fname):
                 r = ui.areYouSure(
-                    _("File '%s' already exists. Do you " "want to overwrite it?")
-                    % fname,
+                    _("File '%s' already exists. Do you " "want to overwrite it?") % fname,
                     defaultNo=True,
                 )
                 if r is None:
@@ -1582,10 +1513,7 @@ Do you want to overwrite it?"""
         try:
             open(fname, "wb").write(txt)
         except OSError:
-            ui.stop(
-                _("Could not save file '%s'. Please check your write permissions.")
-                % fname
-            )
+            ui.stop(_("Could not save file '%s'. Please check your write permissions.") % fname)
             return False
         if not isTmp:
             # set self._fileName, in case it was changed with a Save As
@@ -1609,8 +1537,7 @@ Do you want to overwrite it?"""
             return
         # Get the current status of bookmarks
         currBmks = [
-            (nm, self.MarkerLineFromHandle(hnd))
-            for nm, hnd in list(self._bookmarks.items())
+            (nm, self.MarkerLineFromHandle(hnd)) for nm, hnd in list(self._bookmarks.items())
         ]
         if currBmks != self._lastBookmarks:
             # Save them
@@ -1704,15 +1631,12 @@ Do you want to overwrite it?"""
             except IOError:
                 if os.path.exists(fileSpec):
                     ui.stop(
-                        _(
-                            "Could not open %s.  Please check that you have read permissions."
-                        )
+                        _("Could not open %s.  Please check that you have read permissions.")
                         % fileSpec
                     )
                     return False
                 if ui.areYouSure(
-                    _("File '%s' does not exist. Would you like to create it?")
-                    % fileSpec
+                    _("File '%s' does not exist. Would you like to create it?") % fileSpec
                 ):
                     text = ""
                     self.saveFile(fileSpec)
@@ -1863,9 +1787,7 @@ Do you want to overwrite it?"""
                 flag = 0
             retAll = [
                 x
-                for x in re.findall(
-                    r"\b" + word + r"\w+\b", self._getTextSource(), flag
-                )
+                for x in re.findall(r"\b" + word + r"\w+\b", self._getTextSource(), flag)
                 if x.find(",") == -1 and x[0] != " "
             ]
             ret = list(dict.fromkeys(retAll).keys())
@@ -2136,9 +2058,7 @@ Do you want to overwrite it?"""
             self._bookmarkIcon = val
             self._setBookmarkMarker()
         else:
-            raise ValueError(
-                "Value of BookmarkIcon must be in %s" % (list(bmkIconDic.keys()),)
-            )
+            raise ValueError("Value of BookmarkIcon must be in %s" % (list(bmkIconDic.keys()),))
 
     def _getBufferedDrawing(self):
         return self._bufferedDrawing
@@ -2288,9 +2208,8 @@ Do you want to overwrite it?"""
                 if val.lower() in list(LexerDic.keys()):
                     self._language = val.lower()
                 else:
-                    log.error(
-                        _("Currently only %s are supported")
-                        % ", ".join(list(LexerDic.keys()))
+                    dabo_module.error(
+                        _("Currently only %s are supported") % ", ".join(list(LexerDic.keys()))
                     )
                 self.setDefaults()
                 self._defaultsSet = True
@@ -2535,10 +2454,8 @@ Do you want to overwrite it?"""
                     self.Text = val
                 except TypeError as e:
                     nm = self._name
-                    log.error(
-                        _(
-                            "Could not set value of %(nm)s to %(val)s. Error message: %(e)s"
-                        )
+                    dabo_module.error(
+                        _("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
                         % locals()
                     )
                 self._afterValueChanged()
@@ -2577,9 +2494,7 @@ Do you want to overwrite it?"""
         _getAutoAutoComplete,
         _setAutoAutoComplete,
         None,
-        _(
-            "Determines if auto-completion pops up without a special trigger key  (bool)"
-        ),
+        _("Determines if auto-completion pops up without a special trigger key  (bool)"),
     )
 
     AutoAutoCompleteMinLen = property(
@@ -2671,9 +2586,7 @@ Do you want to overwrite it?"""
         _getEdgeGuideColumn,
         _setEdgeGuideColumn,
         None,
-        _(
-            "If self.EdgeGuide is set to True, specifies the column position the guide is in(int)"
-        ),
+        _("If self.EdgeGuide is set to True, specifies the column position the guide is in(int)"),
     )
 
     Encoding = property(
@@ -2700,9 +2613,7 @@ Do you want to overwrite it?"""
         _("Name of the file being edited (without path info)  (str)"),
     )
 
-    FilePath = property(
-        _getFilePath, None, None, _("Full path of the file being edited  (str)")
-    )
+    FilePath = property(_getFilePath, None, None, _("Full path of the file being edited  (str)"))
 
     FontFace = property(
         _getFontFace,
@@ -2732,9 +2643,7 @@ Do you want to overwrite it?"""
         _getHiliteLimitColumn,
         _setHiliteLimitColumn,
         None,
-        _(
-            "If self.HiliteCharsBeyondLimit is True, specifies the limiting column (int)"
-        ),
+        _("If self.HiliteCharsBeyondLimit is True, specifies the limiting column (int)"),
     )
 
     Language = property(
@@ -2790,17 +2699,13 @@ Do you want to overwrite it?"""
         _("Forecolor of the selected text. Default=black  (str or tuple)"),
     )
 
-    Selection = property(
-        _getSelection, None, None, _("Selected text. (read-only) (str)")
-    )
+    Selection = property(_getSelection, None, None, _("Selected text. (read-only) (str)"))
 
     SelectionPosition = property(
         _getSelectionPosition,
         _setSelectionPosition,
         None,
-        _(
-            "Tuple containing the start/end positions of the selected text.  (2-tuple of int)"
-        ),
+        _("Tuple containing the start/end positions of the selected text.  (2-tuple of int)"),
     )
 
     SelectionStart = property(
@@ -2855,9 +2760,7 @@ Do you want to overwrite it?"""
         _getShowLineNumbers,
         _setShowLineNumbers,
         None,
-        _(
-            "Determines if line numbers are shown in the left margin (default=True)  (bool)"
-        ),
+        _("Determines if line numbers are shown in the left margin (default=True)  (bool)"),
     )
 
     ShowWhiteSpace = property(
@@ -2878,14 +2781,10 @@ Do you want to overwrite it?"""
         _getTabWidth,
         _setTabWidth,
         None,
-        _(
-            "Approximate number of spaces taken by each tab character (default=4)  (int)"
-        ),
+        _("Approximate number of spaces taken by each tab character (default=4)  (int)"),
     )
 
-    Text = property(
-        _getText, _setText, None, _("Current contents of the editor  (str)")
-    )
+    Text = property(_getText, _setText, None, _("Current contents of the editor  (str)"))
 
     UseBookmarks = property(
         _getUseBookmarks,
@@ -2970,6 +2869,6 @@ class _dEditor_test(dEditor):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dEditor_test)

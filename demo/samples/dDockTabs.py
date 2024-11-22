@@ -50,9 +50,7 @@ class TestPanel(dPanel):
         return self.pgf
 
     def onPageChanged(self, evt):
-        self.Form.logit(
-            "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
-        )
+        self.Form.logit("Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum))
 
 
 category = "Controls.dDockTabs"

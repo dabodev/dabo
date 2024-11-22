@@ -13,14 +13,13 @@ import six
 import string
 from xml.parsers import expat
 
-# If we're in Dabo, get the default encoding.
-import dabo
-from dabo.dLocalize import _
-from dabo.lib.utils import resolvePath
-from dabo.lib.utils import ustr
+from .. import settings
+from .. import dException
+from ..dLocalize import _
+from ..lib.utils import resolvePath
+from ..lib.utils import ustr
 
-app = dabo.dAppRef
-default_encoding = dabo.getEncoding()
+default_encoding = settings.getEncoding()
 # Normalize the names, as xml.sax running on Gtk will complain for some variations
 deLow = default_encoding.lower()
 if deLow in ("utf8", "utf-8"):
@@ -51,7 +50,7 @@ class Xml2Obj(object):
         self._currPropAtt = ""
         self._currPropDict = None
         if encoding is None:
-            self._encoding = dabo.getEncoding()
+            self._encoding = settings.getEncoding()
         else:
             self._encoding = encoding
 
@@ -173,7 +172,7 @@ class Xml2Obj(object):
 
 def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
     """Given an xml string or file, return a Python dictionary."""
-    import dabo.lib.DesignerUtils as desUtil
+    from .. import DesignerUtils
 
     encoding = encoding if encoding else default_encoding
     parser = Xml2Obj(encoding=encoding)
@@ -192,8 +191,7 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
             ret = parser.Parse(xmlContent)
         except expat.ExpatError as e:
             errmsg = (
-                _("The XML in '%(xml)s' is not well-formed and cannot be parsed: %(e)s")
-                % locals()
+                _("The XML in '%(xml)s' is not well-formed and cannot be parsed: %(e)s") % locals()
             )
     else:
         # argument must have been raw xml:
@@ -202,16 +200,16 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
         except expat.ExpatError as e:
             errmsg = _("An invalid XML string was encountered: %s") % e
     if errmsg:
-        raise dabo.dException.XmlException(errmsg)
+        raise dException.XmlException(errmsg)
     if addCodeFile and isPath:
         # Get the associated code file, if any
         codePth = "%s-code.py" % os.path.splitext(xml)[0]
         if os.path.exists(codePth):
             try:
                 codeContent = codecs.open(codePth, "r", encoding).read()
-                codeDict = desUtil.parseCodeFile(codeContent)
+                codeDict = DesignerUtils.parseCodeFile(codeContent)
                 ret["importStatements"] = codeDict.pop("importStatements", "")
-                desUtil.addCodeToClassDict(ret, codeDict)
+                DesignerUtils.addCodeToClassDict(ret, codeDict)
             except Exception as e:
                 print("Failed to parse code file:", e)
     return ret
@@ -448,9 +446,7 @@ if __name__ == "__main__":
         "name": "test",
         "attributes": {
             "path": "c:\\temp\\name",
-            "problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode(
-                "latin-1"
-            ),
+            "problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1"),
         },
     }
     print("test_dict:", test_dict)

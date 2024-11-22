@@ -76,9 +76,7 @@ class SimpleCrypt(object):
             myRand = random.Random(tmpKey).randrange
             crypted = [chr(ord(elem) ^ myRand(256)) for elem in aString]
             hex = self.strToHex("".join(crypted))
-            ret = "".join(
-                [tmpKey[int(i / 2)] + hex[i : i + 2] for i in range(0, len(hex), 2)]
-            )
+            ret = "".join([tmpKey[int(i / 2)] + hex[i : i + 2] for i in range(0, len(hex), 2)])
             return ret
 
     def decrypt(self, aString):
@@ -116,10 +114,7 @@ class SimpleCrypt(object):
     def hexToStr(self, aString):
         # Break the string into 2-character chunks
         try:
-            chunks = [
-                chr(int(aString[i] + aString[i + 1], 16))
-                for i in range(0, len(aString), 2)
-            ]
+            chunks = [chr(int(aString[i] + aString[i + 1], 16)) for i in range(0, len(aString), 2)]
         except IndexError:
             raise ValueError(_("Incorrectly-encrypted password"))
         return "".join(chunks)

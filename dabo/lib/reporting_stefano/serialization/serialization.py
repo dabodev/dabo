@@ -12,9 +12,7 @@ class SerializableMeta(type):
             if hasattr(base, "_xmlSerializationAttributes"):
                 attributes.extend(base._xmlSerializationAttributes)
         for name, obj in list(dict.items()):
-            if isinstance(obj, SerializableAttribute) or isinstance(
-                obj, SerializableObjectChild
-            ):
+            if isinstance(obj, SerializableAttribute) or isinstance(obj, SerializableObjectChild):
                 attributes.append((name, obj))
                 delattr(cls, name)
             else:
@@ -26,9 +24,7 @@ class SerializableMeta(type):
 class Serializable(object, metaclass=SerializableMeta):
     def __init__(self, **args):
         self.srcValues = {}
-        attributeNames = [
-            attrName for attrName, attrType in self._xmlSerializationAttributes
-        ]
+        attributeNames = [attrName for attrName, attrType in self._xmlSerializationAttributes]
         for key, value in args.items():
             assert key in attributeNames, "Unknown attribute name %r for object %s" % (
                 key,
@@ -38,8 +34,7 @@ class Serializable(object, metaclass=SerializableMeta):
 
     def getExpectedNames(cls):
         assert hasattr(cls, "_xmlSerializationAttributes"), (
-            "Class %r does not "
-            "define list of attributes needed for deserialization" % cls
+            "Class %r does not " "define list of attributes needed for deserialization" % cls
         )
         names = []
         for attrName, attrType in cls._xmlSerializationAttributes:
@@ -53,8 +48,7 @@ class Serializable(object, metaclass=SerializableMeta):
 
     def getChildObjType(cls, childName):
         assert hasattr(cls, "_xmlSerializationAttributes"), (
-            "Class %r does not "
-            "define list of attributes needed for deserialization" % cls
+            "Class %r does not " "define list of attributes needed for deserialization" % cls
         )
         for attrName, attrType in cls._xmlSerializationAttributes:
             if isinstance(attrType, SerializableAttribute):

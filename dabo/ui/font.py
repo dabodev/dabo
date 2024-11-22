@@ -3,14 +3,14 @@ import wx
 
 from .. import ui
 from .. import events
+from .. import main
+from .. import settings
 from ..dObject import dObject
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import makeDynamicProperty
 
-# import log
-# import defaultFontSize
-# import macFontScaling
+dabo_module = main.get_dabo_package()
 
 
 class dFont(dObject):
@@ -21,7 +21,7 @@ class dFont(dObject):
             self._nativeFont = _nativeFont
         else:
             self._nativeFont = wx.Font(
-                defaultFontSize,
+                settings.defaultFontSize,
                 wx.FONTFAMILY_DEFAULT,
                 wx.FONTSTYLE_NORMAL,
                 wx.FONTWEIGHT_NORMAL,
@@ -95,7 +95,7 @@ class dFont(dObject):
             if not automatic_face:
                 if not lowVal.startswith("ms shell dlg"):
                     # Ignore the non-existent MS Shell Dlg font names; they are Windows aliases
-                    log.error(_("The font '%s' doesn't exist on this system.") % val)
+                    dabo_module.error(_("The font '%s' doesn't exist on this system.") % val)
 
         self._propsChanged()
 
@@ -125,20 +125,19 @@ class dFont(dObject):
         return ret
 
     def _setSize(self, val):
-        if int(val) != val:
-            # cast to float
-            val = float(val)
+        # Round to closest int
+        val = round(val)
         if self._useMacFontScaling():
             self._macNonScaledSize = val
-            val = round(val / 0.75, 0)
+            val = round(val / 0.75)
         try:
             self._nativeFont.SetPointSize(val)
         except ValueError:
-            log.error(_("Setting FontSize to %s failed") % val)
+            dabo_module.error(_("Setting FontSize to %s failed") % val)
         self._propsChanged()
 
     def _useMacFontScaling(self):
-        return wx.Platform == "__WXMAC__" and macFontScaling
+        return wx.Platform == "__WXMAC__" and settings.macFontScaling
 
     def _getUnderline(self):
         if self._nativeFont:
@@ -162,9 +161,7 @@ class dFont(dObject):
     Face = property(_getFace, _setFace, None, _("Name of the font face  (str)"))
     FontFace = Face
 
-    Italic = property(
-        _getItalic, _setItalic, None, _("Italic setting for this font  (bool)")
-    )
+    Italic = property(_getItalic, _setItalic, None, _("Italic setting for this font  (bool)"))
     FontItalic = Italic
 
     Size = property(_getSize, _setSize, None, _("Size in points for this font  (int)"))

@@ -53,9 +53,7 @@ class dLine(dControlMixin, wx.StaticLine):
         elif value == "h":
             self._addWindowStyleFlag(wx.LI_HORIZONTAL)
         else:
-            raise ValueError(
-                "The only possible values are " "'Horizontal' and 'Vertical'."
-            )
+            raise ValueError("The only possible values are " "'Horizontal' and 'Vertical'.")
 
     # property definitions follow:
     Orientation = property(
@@ -83,6 +81,6 @@ class _dLine_test(dLine):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dLine_test)

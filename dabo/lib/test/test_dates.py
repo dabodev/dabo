@@ -77,18 +77,10 @@ class Test_Dates(unittest.TestCase):
         )
 
     def test_goMonth(self):
-        self.assertEqual(
-            dates.goMonth(datetime.date(2012, 8, 1), 10), datetime.date(2013, 6, 1)
-        )
-        self.assertEqual(
-            dates.goMonth(datetime.date(2012, 8, 1), 10), datetime.date(2013, 6, 1)
-        )
-        self.assertEqual(
-            dates.goMonth(datetime.date(2012, 3, 31), -1), datetime.date(2012, 2, 29)
-        )
-        self.assertEqual(
-            dates.goMonth(datetime.date(2012, 3, 31), -13), datetime.date(2011, 2, 28)
-        )
+        self.assertEqual(dates.goMonth(datetime.date(2012, 8, 1), 10), datetime.date(2013, 6, 1))
+        self.assertEqual(dates.goMonth(datetime.date(2012, 8, 1), 10), datetime.date(2013, 6, 1))
+        self.assertEqual(dates.goMonth(datetime.date(2012, 3, 31), -1), datetime.date(2012, 2, 29))
+        self.assertEqual(dates.goMonth(datetime.date(2012, 3, 31), -13), datetime.date(2011, 2, 28))
 
 
 if __name__ == "__main__":

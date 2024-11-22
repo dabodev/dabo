@@ -61,9 +61,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
     ## - Begin property unit tests -
     def test_AutoSQL(self):
         biz = self.biz
-        self.assertEqual(
-            biz.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name
-        )
+        self.assertEqual(biz.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name)
 
     def test_AutoPopulatePK(self):
         biz = self.biz
@@ -87,16 +85,12 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
             ds[0] == ("pk", "I", True, self.temp_table_name, "pk", None)
             or ds[0] == ("pk", "G", True, self.temp_table_name, "pk", None)
         )
-        self.assertEqual(
-            ds[1], ("cField", "C", False, self.temp_table_name, "cField", None)
-        )
+        self.assertEqual(ds[1], ("cField", "C", False, self.temp_table_name, "cField", None))
         self.assertTrue(
             ds[2] == ("iField", "I", False, self.temp_table_name, "iField", None)
             or ds[2] == ("iField", "G", False, self.temp_table_name, "iField", None)
         )
-        self.assertEqual(
-            ds[3], ("nField", "N", False, self.temp_table_name, "nField", None)
-        )
+        self.assertEqual(ds[3], ("nField", "N", False, self.temp_table_name, "nField", None))
 
     def test_DefaultValues(self):
         biz = self.biz
@@ -232,9 +226,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz.Record.cField = newVal
         self.assertEqual(biz.oldVal("cField"), oldVal)
         self.assertEqual(biz.Record.cField, newVal)
-        self.assertRaises(
-            dabo.dException.FieldNotFoundException, biz.oldVal, "bogusField"
-        )
+        self.assertRaises(dabo.dException.FieldNotFoundException, biz.oldVal, "bogusField")
 
     ## - End method unit tests -
 
@@ -305,8 +297,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(bizMain.isAnyChanged(), False)
         self.assertEqual(bizChild.RowCount, 3)
         test_sql = (
-            "select count(*) as count from %s where parent_fk = ?"
-            % self.temp_child_table_name
+            "select count(*) as count from %s where parent_fk = ?" % self.temp_child_table_name
         )
         temp = bizMain.getTempCursor(test_sql, (bizMain.Record.pk,))
         self.assertEqual(bizChild.RowCount, temp.Record.count)
@@ -317,13 +308,9 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(bizChild.RowCount, 4)
         self.assertEqual(bizMain.SaveNewUnchanged, False)
         self.assertEqual(bizChild.SaveNewUnchanged, True)
-        self.assertEqual(
-            bizMain.isAnyChanged(), True
-        )  ## the new child record isn't changed
+        self.assertEqual(bizMain.isAnyChanged(), True)  ## the new child record isn't changed
         self.assertEqual(bizMain.getChangedRows(), [])
-        self.assertEqual(
-            bizChild.isAnyChanged(), True
-        )  ## bizChild.SaveNewUnchanged == True
+        self.assertEqual(bizChild.isAnyChanged(), True)  ## bizChild.SaveNewUnchanged == True
         self.assertEqual(bizChild.isAnyChanged(includeNewUnchanged=False), False)
         bizMain.save()
         self.assertEqual(bizChild.RowCount, 4)
@@ -365,9 +352,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(biz.RowCount, 4)
         self.assertEqual(biz.RowNumber, 3)
         self.assertEqual(cur._newRecords, {-1: None})
-        self.assertEqual(
-            biz.isChanged(), False
-        )  ## (because no field changed in new record)
+        self.assertEqual(biz.isChanged(), False)  ## (because no field changed in new record)
         self.assertEqual(cur.Record.pk, -1)
         self.assertEqual(biz.Record.cField, "")
         self.assertEqual(biz.Record.iField, 0)

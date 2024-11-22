@@ -45,9 +45,9 @@ class Test(object):
             frame = classRefs[0](None, *args, **kwargs)
             isDialog = issubclass(classRefs[0], wx.Dialog)
         else:
-            from ui import dForm
-            from ui import dPanel
-            from ui import dSizer
+            from . import dForm
+            from . import dPanel
+            from . import dSizer
 
             frame = dForm(Name="formTest")
             panel = frame.addObject(dPanel, Name="panelTest")
@@ -84,11 +84,11 @@ class Test(object):
 
     def testAll(self):
         """Create a dForm and populate it with example dWidgets."""
-        from ui import dEditBox
-        from ui import dForm
-        from ui import dLabel
-        from ui import dScrollPanel
-        from ui import dSizer
+        from ..ui import dEditBox
+        from ..ui import dForm
+        from ..ui import dLabel
+        from ..ui import dScrollPanel
+        from ..ui import dSizer
 
         frame = dForm(Name="formTestAll")
         frame.Caption = "Test of all the dControls"
@@ -102,9 +102,7 @@ class Test(object):
         # Get all the python modules in this directory into a list:
         dabo_root = settings.root_path
         ui_root = dabo_root / "ui"
-        modules = [
-            modname.stem for modname in ui_root.iterdir() if modname.suffix == ".py"
-        ]
+        modules = [modname.stem for modname in ui_root.iterdir() if modname.suffix == ".py"]
 
         for modname in sorted(modules):
             print("==> ", modname)
@@ -135,9 +133,7 @@ class Test(object):
                     break
 
                 bs = dSizer("horizontal")
-                label = dLabel(
-                    panel, Alignment="Right", AutoResize=False, Width=labelWidth
-                )
+                label = dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
 
                 label.Caption = "%s:" % modname
                 bs.append(label)

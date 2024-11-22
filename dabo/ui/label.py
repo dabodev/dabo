@@ -149,21 +149,15 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         ),
     )
 
-    FontBold = property(
-        _getFontBold, _setFontBold, None, _("Sets the Bold of the Font (int)")
-    )
+    FontBold = property(_getFontBold, _setFontBold, None, _("Sets the Bold of the Font (int)"))
 
-    FontFace = property(
-        _getFontFace, _setFontFace, None, _("Sets the face of the Font (int)")
-    )
+    FontFace = property(_getFontFace, _setFontFace, None, _("Sets the face of the Font (int)"))
 
     FontItalic = property(
         _getFontItalic, _setFontItalic, None, _("Sets the Italic of the Font (int)")
     )
 
-    FontSize = property(
-        _getFontSize, _setFontSize, None, _("Sets the size of the Font (int)")
-    )
+    FontSize = property(_getFontSize, _setFontSize, None, _("Sets the size of the Font (int)"))
 
     WordWrap = property(
         _getWordWrap,
@@ -198,7 +192,7 @@ class _dLabel_test(dLabel):
 
 
 if __name__ == "__main__":
-    from dApp import dApp
+    from .. import dApp
     from ui.dForm import dForm
 
     class LabelTestForm(dForm):

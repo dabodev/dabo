@@ -2,11 +2,13 @@
 import wx
 
 from .. import ui
+from .. import main
 from ..dLocalize import _
 from ..dObject import dObject
 from . import dPemMixin
 from . import makeDynamicProperty
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dSizerMixin(dObject):
@@ -397,7 +399,7 @@ class dSizerMixin(dObject):
                     if szitem.GetSizer() == self:
                         return pos
             # If we reached here, something's wrong!
-            log.error(_("Containing sizer did not match item %s") % self.Name)
+            dabo_module.error(_("Containing sizer did not match item %s") % self.Name)
             return None
         elif isinstance(sz, wx.GridBagSizer):
             # Return a row,col tuple
@@ -417,9 +419,7 @@ class dSizerMixin(dObject):
         elif isinstance(self, wx.GridBagSizer):
             row, col = pos
             if self.getItemByRowCol(row, col):
-                raise ValueError(
-                    _("An object already exists at %(row)s, " "%(col)s") % locals()
-                )
+                raise ValueError(_("An object already exists at %(row)s, " "%(col)s") % locals())
             self.remove(obj)
             self.append(obj, row=row, col=col)
             self.setItemProps(obj, props)
@@ -703,9 +703,7 @@ class dSizerMixin(dObject):
             # dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
             dc.SetLogicalFunction(wx.COPY)
             # Draw the outline
-            ui.callAfter(
-                dc.DrawRectangle, x + off, y + off, w - (2 * off), h - (2 * off)
-            )
+            ui.callAfter(dc.DrawRectangle, x + off, y + off, w - (2 * off), h - (2 * off))
 
         if recurse:
             for ch in self.GetChildren():
@@ -1076,9 +1074,7 @@ class dSizerMixin(dObject):
         _getChildSizers,
         None,
         None,
-        _(
-            "List of all the sizers that are directly managed by this sizer  (list of sizers"
-        ),
+        _("List of all the sizers that are directly managed by this sizer  (list of sizers"),
     )
 
     ChildSpacers = property(
@@ -1094,9 +1090,7 @@ class dSizerMixin(dObject):
         _getChildWindows,
         None,
         None,
-        _(
-            "List of all the windows that are directly managed by this sizer  (list of controls"
-        ),
+        _("List of all the windows that are directly managed by this sizer  (list of controls"),
     )
 
     ControllingSizer = property(

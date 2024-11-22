@@ -5,6 +5,7 @@ import os
 import wx
 import wx.richtext
 
+from .. import main
 from .. import dColors
 from .. import ui
 from ..dLocalize import _
@@ -16,7 +17,8 @@ from . import dDropdownList
 from . import dForm
 from . import dTimer
 from . import dToggleButton
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
@@ -80,7 +82,7 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
             if handler is None:
                 handler = self._xmlHandler
                 filename = "%s.xml" % filename
-                log.info(_("Forcing to RichText XML format"))
+                dabo_module.info(_("Forcing to RichText XML format"))
             handler.SaveFile(self.GetBuffer(), filename)
 
     def setPlain(self):
@@ -324,9 +326,7 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
 
     def _setSelectionPlain(self, val):
         if self._constructed():
-            self.SelectionFontBold = self.SelectionFontItalic = (
-                self.SelectionFontUnderline
-            ) = False
+            self.SelectionFontBold = self.SelectionFontItalic = self.SelectionFontUnderline = False
         else:
             self._properties["SelectionPlain"] = val
 
@@ -637,9 +637,7 @@ class RichTextTestForm(dForm):
         tb.appendControl(self.openButton)
         self.saveButton = dButton(tb, Caption="Save", OnHit=self.onSave)
         tb.appendControl(self.saveButton)
-        self.styleTimer = dTimer(
-            self, Interval=500, Enabled=True, OnHit=self.checkForUpdate
-        )
+        self.styleTimer = dTimer(self, Interval=500, Enabled=True, OnHit=self.checkForUpdate)
 
         # For development: uncomment the next line, and add the code you want to
         # run to the onTest() method.
@@ -739,7 +737,7 @@ Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit ame
 
 
 if __name__ == "__main__":
-    from dApp import dApp
+    from .. import dApp
 
     app = dApp(MainFormClass=RichTextTestForm)
     app.start()

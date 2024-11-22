@@ -10,10 +10,12 @@ except ImportError:
     raise ImportError("Your version of wxPython is too old for dBorderlessButton")
 
 from .. import dColors
-from .. import dEvents
+from .. import events
+from .. import main
 from .. import ui
 from ..dLocalize import _
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
@@ -65,9 +67,7 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
         self.Bind(wx.EVT_LEFT_UP, self._onWxHit)
 
     def _getInitPropertiesList(self):
-        return super(dBorderlessButton, self)._getInitPropertiesList() + (
-            "ButtonShape",
-        )
+        return super(dBorderlessButton, self)._getInitPropertiesList() + ("ButtonShape",)
 
     # Property getters and setters
     def _getBackColorHover(self):
@@ -131,7 +131,7 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
             self._properties["DefaultButton"] = val
 
     def _getFont(self):
-        from ui import dFont
+        from ..ui import dFont
 
         if hasattr(self, "_font") and isinstance(self._font, dFont):
             v = self._font
@@ -155,7 +155,7 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
             try:
                 self.SetFont(val._nativeFont)
             except AttributeError:
-                log.error(_("Error setting font for %s") % self.Name)
+                dabo_module.error(_("Error setting font for %s") % self.Name)
             val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
         else:
             self._properties["Font"] = val
@@ -207,9 +207,7 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
         ),
     )
 
-    Font = property(
-        _getFont, _setFont, None, _("The font properties of the button. (obj)")
-    )
+    Font = property(_getFont, _setFont, None, _("The font properties of the button. (obj)"))
 
     Picture = property(
         _getNormalPicture,

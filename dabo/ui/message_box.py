@@ -11,11 +11,10 @@ import wx
 
 from .. import ui
 from ..dLocalize import _
-# import dAppRef
 
 
 def getForm():
-    ret = dAppRef.ActiveForm
+    ret = main.get_application().ActiveForm
     if not ret:
         # Could be a dead object
         ret = None
@@ -213,8 +212,9 @@ def getDefaultTitle():
     object isn't available the title will be "Dabo Application".
     """
     ret = None
-    if dAppRef:
-        ret = dAppRef.getAppInfo("appName")
+    app = main.get_application()
+    if app:
+        ret = app.getAppInfo("appName")
     if ret is None:
         ret = "Dabo Application"
     return ret
@@ -229,11 +229,11 @@ ui.showMessageBox = showMessageBox
 
 
 if __name__ == "__main__":
-    from dApp import dApp
-    from ui import dButton
-    from ui import dForm
-    from ui import dLabel
-    from ui import dLine
+    from ..dApp import dApp
+    from ..ui import dButton
+    from ..ui import dForm
+    from ..ui import dLabel
+    from ..ui import dLine
 
     app = dApp()
     app.showMainFormOnStart = False
@@ -256,9 +256,7 @@ if __name__ == "__main__":
     ln = dLine(frm, Orientation="H", Height=3)
     btn = dButton(frm, Caption=_("Exit"), OnHit=onExit)
     frm.Sizer.append(lbl, halign="center", border=20)
-    frm.Sizer.append(
-        ln, "x", halign="center", border=120, borderSides=["left", "right"]
-    )
+    frm.Sizer.append(ln, "x", halign="center", border=120, borderSides=["left", "right"])
     frm.Sizer.appendSpacer(80)
     frm.Sizer.append(btn, halign="center")
     frm.layout()

@@ -265,9 +265,7 @@ class _BasePanelMixin(object):
 
 
 class _PanelMixin(dControlMixin, _BasePanelMixin):
-    def __init__(
-        self, preClass, parent, properties=None, attProperties=None, *args, **kwargs
-    ):
+    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         _BasePanelMixin.__init__(
             self,
             dControlMixin,
@@ -281,9 +279,7 @@ class _PanelMixin(dControlMixin, _BasePanelMixin):
 
 
 class _DataPanelMixin(dDataControlMixin, _BasePanelMixin):
-    def __init__(
-        self, preClass, parent, properties=None, attProperties=None, *args, **kwargs
-    ):
+    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         _BasePanelMixin.__init__(
             self,
             dDataControlMixin,
@@ -465,9 +461,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
         _getHorizontalScroll,
         _setHorizontalScroll,
         None,
-        _(
-            "Controls whether this object will scroll horizontally (default=True)  (bool)"
-        ),
+        _("Controls whether this object will scroll horizontally (default=True)  (bool)"),
     )
 
     VerticalScroll = property(
@@ -556,8 +550,8 @@ class _dScrollPanel_test(dScrollPanel):
 
 
 if __name__ == "__main__":
-    from ui import test
-    from ui import dForm
+    from . import test
+    from ..ui import dForm
 
     class SquarePanel(dPanel):
         def afterInit(self):

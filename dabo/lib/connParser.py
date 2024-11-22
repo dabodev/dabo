@@ -4,6 +4,7 @@ import xml.sax
 from io import StringIO
 import os.path
 
+from .. import main
 from .. import settings
 from . import utils
 from ..dLocalize import _
@@ -50,10 +51,7 @@ class connHandler(xml.sax.ContentHandler):
                 # It's an extended connection information, we log it.
                 elem = self.element
                 dabo.log.info(
-                    _(
-                        "Extended database connection parameter loaded: "
-                        "%(elem)s = %(content)s"
-                    )
+                    _("Extended database connection parameter loaded: " "%(elem)s = %(content)s")
                     % locals()
                 )
                 atype = self.attributes.get("type", None)
@@ -101,7 +99,7 @@ def importConnections(pth=None, useHomeDir=False):
     ret = ch.getConnectionDict()
     basePath = pth
     if useHomeDir:
-        basePath = dabo.dAppRef.HomeDirectory
+        basePath = main.get_application().HomeDirectory
     else:
         basePath = pth
 

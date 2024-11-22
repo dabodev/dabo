@@ -42,6 +42,6 @@ class _dBitmap_test(dBitmap):
 #        self.Size = (40,30)
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dBitmap_test)

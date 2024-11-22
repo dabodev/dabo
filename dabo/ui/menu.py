@@ -25,9 +25,7 @@ class dMenu(dPemMixin, wx.Menu):
     and separators.
     """
 
-    def __init__(
-        self, parent=None, properties=None, attProperties=None, *args, **kwargs
-    ):
+    def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dMenu
         preClass = wx.Menu
         self.Parent = parent
@@ -205,9 +203,7 @@ class dMenu(dPemMixin, wx.Menu):
         """Insert a separator at the top of the menu."""
         return self.PrependSeparator()
 
-    def _createMenuItem(
-        self, pos, caption, help, bmp, picture, menutype, *args, **kwargs
-    ):
+    def _createMenuItem(self, pos, caption, help, bmp, picture, menutype, *args, **kwargs):
         """Handles the menu item creation for append(), insert() and prepend()."""
         if pos is None:
             pos = len(self.Children)
@@ -237,9 +233,7 @@ class dMenu(dPemMixin, wx.Menu):
         item = _actualCreation(caption, help, picture, menutype, *args, **kwargs)
         return item
 
-    def append(
-        self, caption, help="", bmp=None, picture=None, menutype="", *args, **kwargs
-    ):
+    def append(self, caption, help="", bmp=None, picture=None, menutype="", *args, **kwargs):
         """
         Append a dMenuItem with the specified properties.
 
@@ -293,9 +287,7 @@ class dMenu(dPemMixin, wx.Menu):
             **kwargs,
         )
 
-    def prepend(
-        self, caption, help="", bmp=None, picture=None, menutype="", *args, **kwargs
-    ):
+    def prepend(self, caption, help="", bmp=None, picture=None, menutype="", *args, **kwargs):
         """
         Prepend a dMenuItem with the specified properties.
 
@@ -463,9 +455,7 @@ class dMenu(dPemMixin, wx.Menu):
             # Set up a mechanism to catch menu events and re-raise Dabo events.
             # If Application is None, however, this won't work because of wx
             # limitations.
-            self.Application.uiApp.Bind(
-                wx.EVT_MENU_HIGHLIGHT, self.__onWxMenuHighlight, id=id_
-            )
+            self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT, self.__onWxMenuHighlight, id=id_)
 
     def _itemByCaption(self, cap, returnPos=False):
         """
@@ -608,9 +598,7 @@ class dMenu(dPemMixin, wx.Menu):
     def _setParent(self, val):
         self._parent = val
 
-    Caption = property(
-        _getCaption, _setCaption, None, _("Specifies the text of the menu.  (str)")
-    )
+    Caption = property(_getCaption, _setCaption, None, _("Specifies the text of the menu.  (str)"))
 
     Enabled = property(
         _getEnabled,
@@ -619,9 +607,7 @@ class dMenu(dPemMixin, wx.Menu):
         _("Specifies whether the menu can be interacted with. Default=True  (bool)"),
     )
 
-    Form = property(
-        _getForm, None, None, _("Specifies the form that contains the menu.  (dForm)")
-    )
+    Form = property(_getForm, None, None, _("Specifies the form that contains the menu.  (dForm)"))
 
     HelpText = property(
         _getHelpText,
@@ -645,9 +631,7 @@ class dMenu(dPemMixin, wx.Menu):
         _getMRU,
         _setMRU,
         None,
-        _(
-            "Determines if this menu uses Most Recently Used behavior. Default=False  (bool)"
-        ),
+        _("Determines if this menu uses Most Recently Used behavior. Default=False  (bool)"),
     )
 
     Parent = property(

@@ -30,7 +30,6 @@ import sys
 import logging
 from pathlib import Path
 
-from .version import __version__
 
 ### Settings - begin
 

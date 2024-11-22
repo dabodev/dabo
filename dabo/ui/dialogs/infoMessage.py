@@ -59,9 +59,7 @@ class DlgInfoMessage(dStandardButtonDialog):
         _("Specifies whether the 'show in future' checkbox is checked by default."),
     )
 
-    Message = property(
-        _getMessage, _setMessage, None, _("Specifies the message to display.")
-    )
+    Message = property(_getMessage, _setMessage, None, _("Specifies the message to display."))
 
 
 if __name__ == "__main__":

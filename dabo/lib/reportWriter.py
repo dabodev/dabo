@@ -12,6 +12,7 @@ Decimal = decimal.Decimal
 from ..dLocalize import _
 from ..lib.dates import getStringFromDate
 from .. import settings
+from .. import main
 
 ######################################################
 # Very first thing: check for required libraries:
@@ -142,10 +143,7 @@ def getSubFont(fontName, subFontName="Helvetica"):
     if oblique:
         subFontName += "Oblique"
     if subFontName not in substitutedFontNames:
-        log.error(
-            _("Font '%(fontName)s' not found. Substituting " "'%(subFontName)s'")
-            % locals()
-        )
+        log.error(_("Font '%(fontName)s' not found. Substituting " "'%(subFontName)s'") % locals())
         substitutedFontNames.append(subFontName)
     return subFontName
 
@@ -168,9 +166,7 @@ def getFloatLeading(obj):
                 adj_float -= adj_amt
         return adj_float
 
-    if leading is None or (
-        isinstance(leading, str) and leading[:6].lower() == "single"
-    ):
+    if leading is None or (isinstance(leading, str) and leading[:6].lower() == "single"):
         return size + getadj()
     elif isinstance(leading, str) and leading[:6].lower() == "double":
         return (2 * size) + getadj()
@@ -371,10 +367,7 @@ class ReportObject(CaselessDict):
             # If the prop is in <Report><Defaults>:
             if self is not self.ReportForm and (
                 prop in self.ReportForm["Defaults"].AvailableProps
-                or (
-                    prop[-4:] == "_def"
-                    and prop[:-4] in self.ReportForm["Defaults"].AvailableProps
-                )
+                or (prop[-4:] == "_def" and prop[:-4] in self.ReportForm["Defaults"].AvailableProps)
             ):
                 try:
                     ret = self.ReportForm["Defaults"][prop]
@@ -433,9 +426,7 @@ class ReportObject(CaselessDict):
                 # hasn't explicitly set it.
                 self[defProp] = val
         if logUndo:
-            self.Report.reportWriter.storeUndo(
-                self, prop, self.getProp(prop, evaluate=False), val
-            )
+            self.Report.reportWriter.storeUndo(self, prop, self.getProp(prop, evaluate=False), val)
         self[prop] = val
 
     def getPropVal(self, propName):
@@ -1151,9 +1142,7 @@ class Image(Drawable):
 
     def initAvailableProps(self):
         super(Image, self).initAvailableProps()
-        self.AvailableProps["expr"] = toPropDict(
-            str, "", """Specifies the image to use."""
-        )
+        self.AvailableProps["expr"] = toPropDict(str, "", """Specifies the image to use.""")
 
         self.AvailableProps["BorderWidth"] = toPropDict(
             float, 0, """Specifies the width of the image border."""
@@ -1163,9 +1152,7 @@ class Image(Drawable):
             tuple, (0, 0, 0), """Specifies the color of the image border."""
         )
 
-        self.AvailableProps["ImageMask"] = toPropDict(
-            tuple, None, """Specifies the image mask."""
-        )
+        self.AvailableProps["ImageMask"] = toPropDict(tuple, None, """Specifies the image mask.""")
 
         self.AvailableProps["ScaleMode"] = toPropDict(
             str,
@@ -1452,17 +1439,13 @@ class Paragraph(Drawable):
             """Reportlab allows defining styles, but for now leave this as "Normal".""",
         )
 
-        self.AvailableProps["FontSize"] = toPropDict(
-            float, 10, """Specifies the font size."""
-        )
+        self.AvailableProps["FontSize"] = toPropDict(float, 10, """Specifies the font size.""")
 
         self.AvailableProps["FontName"] = toPropDict(
             str, "Helvetica", """Specifies the font name."""
         )
 
-        self.AvailableProps["Leading"] = toPropDict(
-            float, None, """Specifies the font leading."""
-        )
+        self.AvailableProps["Leading"] = toPropDict(float, None, """Specifies the font leading.""")
 
         self.AvailableProps["SpaceAfter"] = toPropDict(
             float, 0, """Specifies the amount of space to leave after the paragraph."""
@@ -1482,9 +1465,7 @@ class Paragraph(Drawable):
             """Specifies the extra amount to indent for the first line in the paragraph.""",
         )
 
-        self.AvailableProps["expr"] = toPropDict(
-            str, "", """Specifies the text to print."""
-        )
+        self.AvailableProps["expr"] = toPropDict(str, "", """Specifies the text to print.""")
 
         self.MajorProperty = "expr"
 
@@ -1572,9 +1553,7 @@ class ReportWriter(object):
 
     def _onReportIteration(self):
         if self.PrintStatus:
-            print(
-                "Processing row %s of %s..." % (self.RecordNumber + 1, len(self.Cursor))
-            )
+            print("Processing row %s of %s..." % (self.RecordNumber + 1, len(self.Cursor)))
             sys.stdout.flush()
 
     def _onReportEnd(self):
@@ -1975,9 +1954,7 @@ class ReportWriter(object):
                 story = deferred
                 neededHeight = sum([s[1] for s in story])
             else:
-                story, neededHeight = self.getStory(
-                    obj, availableHeight=availableHeight
-                )
+                story, neededHeight = self.getStory(obj, availableHeight=availableHeight)
 
             dynamicHeight = obj.getProp("Height") is None
 
@@ -2214,9 +2191,7 @@ class ReportWriter(object):
         c.restoreState()
         return deferred, neededHeight
 
-    def getStory(
-        self, obj, overrideExpr=None, overrideFontSize=None, availableHeight=None
-    ):
+    def getStory(self, obj, overrideExpr=None, overrideFontSize=None, availableHeight=None):
         width = self.getPt(obj.getProp("width"))
         height = obj.getProp("height")
         if height is not None:
@@ -2318,15 +2293,11 @@ class ReportWriter(object):
                             objNeededHeight -= prior_height
                             availableHeight = height - objNeededHeight
                             trial_p = ParaClass("%s..." % prior_para, s)
-                            trial_height = trial_p.wrap(
-                                columnWidth - padLeft - padRight, None
-                            )[1]
+                            trial_height = trial_p.wrap(columnWidth - padLeft - padRight, None)[1]
                             if trial_height > availableHeight:
                                 # It worked before, so just remove the final 3 chars and be done with it:
                                 p = ParaClass("%s..." % prior_para[:-3], s)
-                                p_height = p.wrap(
-                                    columnWidth - padLeft - padRight, None
-                                )[1]
+                                p_height = p.wrap(columnWidth - padLeft - padRight, None)[1]
                                 objNeededHeight += p_height
                                 story.append((p, p_height))
                                 break
@@ -2352,14 +2323,10 @@ class ReportWriter(object):
                                     continue
                                 this_balanced_para = para1
                                 p = ParaClass("%s..." % this_balanced_para, s)
-                                p_height = p.wrap(
-                                    columnWidth - padLeft - padRight, None
-                                )[1]
+                                p_height = p.wrap(columnWidth - padLeft - padRight, None)[1]
                                 if p_height > availableHeight:
                                     p = ParaClass("%s..." % last_balanced_para, s)
-                                    p_height = p.wrap(
-                                        columnWidth - padLeft - padRight, None
-                                    )[1]
+                                    p_height = p.wrap(columnWidth - padLeft - padRight, None)[1]
                                     break
 
                             objNeededHeight += p_height
@@ -2371,9 +2338,7 @@ class ReportWriter(object):
 
                 def hackDeferredPara():
                     """When a paragraph wraps to the next page, the last line won't print if this isn't done."""
-                    append_p = ParaClass(
-                        "Hack: see hackDeferredPara() in reportWriter.py", s
-                    )
+                    append_p = ParaClass("Hack: see hackDeferredPara() in reportWriter.py", s)
                     p_height = p.wrap(99999, None)[1]
                     story.append((append_p, p_height))
 
@@ -2452,9 +2417,7 @@ class ReportWriter(object):
         self._pageCount = pageCount
         page_count_objects = self.page_count_objects.get(pageNum, [])
         for x, y, obj, expr in page_count_objects:
-            obj["expr_pagecount"] = expr.replace(
-                "^^^PageCount^^^", ustr(self.PageCount)
-            )
+            obj["expr_pagecount"] = expr.replace("^^^PageCount^^^", ustr(self.PageCount))
             self.draw(obj, (x, y))
             del obj["expr_pagecount"]
 
@@ -2501,9 +2464,9 @@ class ReportWriter(object):
 
         # Get the number of columns:
         columnCount = self._columnCount = _form.getProp("columnCount")
-        columnPadding = self._columnPadding = self.getPt(
-            _form.getProp("columnPadding")
-        ) * (columnCount - 1)
+        columnPadding = self._columnPadding = self.getPt(_form.getProp("columnPadding")) * (
+            columnCount - 1
+        )
         columnWidth = self._columnWidth = (
             (self._pageWidth - self._ml - self._mr) / self._columnCount
         ) - (0.5 * self._columnPadding)
@@ -2578,9 +2541,7 @@ class ReportWriter(object):
             mb = self._mb
 
             # Page header/footer origins are needed in various places:
-            if band.lower() != "pageheader" and _form["PageHeader"].getProp(
-                "ColumnBreakAfter"
-            ):
+            if band.lower() != "pageheader" and _form["PageHeader"].getProp("ColumnBreakAfter"):
                 pageHeaderOrigin = (ml, pageHeight - mt)
             else:
                 pageHeaderOrigin = (
@@ -2613,10 +2574,7 @@ class ReportWriter(object):
                     pfHeight = self.getBandHeight(pf)
                 pfHeight = self.getPt(pfHeight)
 
-            if (
-                band.lower() in ("pagefooter", "groupfooter")
-                and pf.getProp("Height") is None
-            ):
+            if band.lower() in ("pagefooter", "groupfooter") and pf.getProp("Height") is None:
                 raise ValueError("PageFooter height must be fixed (not None).")
 
             if band.lower() == "groupfooter" and bandDict.getProp("PrintAtBottom"):
@@ -2675,11 +2633,7 @@ class ReportWriter(object):
                                 # mechanism to flow just the memo can happen. Don't want to do this in all
                                 # cases, though, only when the contents would flow to a new page.
                                 storyheight = obj.getProp("Height_def")
-                                needed = (
-                                    storyheight
-                                    + bandHeight
-                                    - self.getPt(obj.getProp("y"))
-                                )
+                                needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))
                             maxBandHeight = max(maxBandHeight, needed)
                 if (maxBandHeight - bandHeight) > 0 > availableHeight:
                     # Signal that we need a page change as there isn't room:
@@ -2730,9 +2684,7 @@ class ReportWriter(object):
                     maxBandHeight = getTotalBandHeight()
 
                     if band == "groupHeader":
-                        if headers_reprinted and bandDict.get(
-                            "ReprintHeaderOnNewPage", False
-                        ):
+                        if headers_reprinted and bandDict.get("ReprintHeaderOnNewPage", False):
                             # This header was reprinted above; return now to avoid dupe.
                             return y
                         else:
@@ -2800,17 +2752,15 @@ class ReportWriter(object):
                 else:
                     y1 = y + y1
 
-                if obj.__class__.__name__ in (
-                    "String",
-                ) and "self.PageCount" in obj.get("expr", ""):
+                if obj.__class__.__name__ in ("String",) and "self.PageCount" in obj.get(
+                    "expr", ""
+                ):
                     # We'll stuff the pagecount in later (when we know the value), but we still
                     # must evaluate the rest of the expression now, because it could be dependent
                     # on whatever the current record or page number is.
                     expr = obj["expr"].replace("self.PageCount", "'^^^PageCount^^^'")
                     expr = "'''%s'''" % eval(expr)
-                    page_count_objects = self.page_count_objects.setdefault(
-                        self.PageNumber - 1, []
-                    )
+                    page_count_objects = self.page_count_objects.setdefault(self.PageNumber - 1, [])
                     page_count_objects.append((x1, y1, obj, expr))
                     continue
 
@@ -3146,8 +3096,7 @@ class ReportWriter(object):
         Used by the report designer.
         """
         return not (
-            self.ReportForm is None
-            or self.ReportForm.getMemento() == self._reportFormMemento
+            self.ReportForm is None or self.ReportForm.getMemento() == self._reportFormMemento
         )
 
     def _elementSort(self, x=None, y=None):
@@ -3303,12 +3252,8 @@ class ReportWriter(object):
                         coll = child["name"]
                         formdict[coll] = self._getReportObject(coll, formdict)
                         for obchild in child["children"]:
-                            reportObject = self._getReportObject(
-                                obchild["name"], formdict[coll]
-                            )
-                            c = self._getFormFromXMLDict(
-                                obchild, reportObject, level + 1
-                            )
+                            reportObject = self._getReportObject(obchild["name"], formdict[coll])
+                            c = self._getFormFromXMLDict(obchild, reportObject, level + 1)
                             formdict[coll].append(c)
                     else:
                         reportObject = self._getReportObject(child["name"], formdict)
@@ -3447,7 +3392,7 @@ class ReportWriter(object):
         ret = getattr(self, "_noneDisplay", None)
         if ret is None:
             try:
-                ret = settings.dAppRef.NoneDisplay
+                ret = main.get_application().NoneDisplay
             except AttributeError:
                 ret = _("< None >")
         return ret
@@ -3679,9 +3624,7 @@ class ReportWriter(object):
         _("Specifies the output PDF file (name or file object)."),
     )
 
-    PageCount = property(
-        _getPageCount, None, None, _("""Returns the page count at runtime.""")
-    )
+    PageCount = property(_getPageCount, None, None, _("""Returns the page count at runtime."""))
 
     PageNumber = property(
         _getPageNumber, None, None, _("""Returns the current page number at runtime.""")

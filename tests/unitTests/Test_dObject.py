@@ -36,9 +36,7 @@ class TestApplicationProperty(BaseTestdObject):
 
     def testSetApplication(self):
         """Setting dObject.Application should fail"""
-        self.assertRaises(
-            AttributeError, self.setProperty, ("self.dObject.Application", "42")
-        )
+        self.assertRaises(AttributeError, self.setProperty, ("self.dObject.Application", "42"))
 
     def testGetApplication(self):
         """Getting dObject.Application should return a known application"""
@@ -56,9 +54,7 @@ class TestBaseClassProperty(BaseTestdObject):
 
     def testSetBaseClass(self):
         """Setting dObject.BaseClass should fail for all inputs"""
-        self.assertRaises(
-            AttributeError, self.setProperty, ("self.dObject.BaseClass", "42")
-        )
+        self.assertRaises(AttributeError, self.setProperty, ("self.dObject.BaseClass", "42"))
 
     def testGetBaseClassNoSubclass(self):
         """Getting dObject.BaseClass should return None when not subclassed"""
@@ -85,9 +81,7 @@ class TestBasePrefKeyProperty(BaseTestdObject):
 
     def testBasePrefFailOnNonString(self):
         """setting dObject.BasePrefKey should fail if value is not a string"""
-        self.assertRaises(
-            TypeError, self.setProperty, ("self.dObject.BasePrefKey", "42")
-        )
+        self.assertRaises(TypeError, self.setProperty, ("self.dObject.BasePrefKey", "42"))
 
 
 class TestClassProperty(BaseTestdObject):
@@ -100,9 +94,7 @@ class TestClassProperty(BaseTestdObject):
 
     def testSetClassShouldFail(self):
         """setting dObject.Class should fail for all inputs"""
-        self.assertRaises(
-            AttributeError, self.setProperty, ("self.dObject.Class", "42")
-        )
+        self.assertRaises(AttributeError, self.setProperty, ("self.dObject.Class", "42"))
 
     def testGetClassNoSubclass(self):
         """dObject.Class should return the dObject class when instansiated"""
@@ -142,9 +134,7 @@ class TestNameProperty(BaseTestdObject):
 
     def testFailOnSpaceInput(self):
         """dObject.Name should fail when given an input with spaces"""
-        self.assertRaises(
-            KeyError, self.setProperty, ("self.dObject.Name", '"Name With Spaces"')
-        )
+        self.assertRaises(KeyError, self.setProperty, ("self.dObject.Name", '"Name With Spaces"'))
 
 
 class TestParentProperty(BaseTestdObject):
@@ -183,9 +173,7 @@ class TestPreferenceManagerProperty(BaseTestdObject):
 
     def testSetFailOnNondPrefValue(self):
         """dObject.PreferenceManager should fail when set to an object not of type dPref"""
-        self.assertRaises(
-            TypeError, self.setProperty, ("self.dObject.PreferenceManager", "42")
-        )
+        self.assertRaises(TypeError, self.setProperty, ("self.dObject.PreferenceManager", "42"))
 
     # TODO: NEED A TEST HERE FOR INITIAL CONDITION
 

@@ -141,9 +141,7 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
         _getValue,
         _setValue,
         None,
-        _(
-            "Specifies the current state of the control (the value of the field). (varies)"
-        ),
+        _("Specifies the current state of the control (the value of the field). (varies)"),
     )
 
     DynamicAlignment = makeDynamicProperty(Alignment)
@@ -176,6 +174,6 @@ class _dCheckBox_test3_b(dCheckBox):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest((_dCheckBox_test, _dCheckBox_test3_a, _dCheckBox_test3_b))

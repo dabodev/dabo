@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 
+from .. import main
 from .. import ui
 from ..dLocalize import _
 from . import dDataControlMixin
 from . import makeDynamicProperty
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dSlider(dDataControlMixin, wx.Slider):
@@ -118,14 +120,12 @@ class dSlider(dDataControlMixin, wx.Slider):
         tickpos = self._tickPosition
         isHoriz = val.lower()[:1] == "h"
         if isHoriz and tickpos in ("Left", "Right"):
-            log.error(
-                _("Cannot set the slider to Horizontal when TickPosition is %s.")
-                % tickpos
+            dabo_module.error(
+                _("Cannot set the slider to Horizontal when TickPosition is %s.") % tickpos
             )
         elif not isHoriz and tickpos in ("Top", "Bottom"):
-            log.error(
-                _("Cannot set the slider to Vertical when TickPosition is %s.")
-                % tickpos
+            dabo_module.error(
+                _("Cannot set the slider to Vertical when TickPosition is %s.") % tickpos
             )
         self._delWindowStyleFlag(wx.SL_HORIZONTAL)
         self._delWindowStyleFlag(wx.SL_VERTICAL)
@@ -255,6 +255,6 @@ class _dSlider_test(dSlider):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dSlider_test)

@@ -94,9 +94,7 @@ class TestTextLengthProperty(BaseTestdTextBox):
 
     def testFailOnNegativeInput(self):
         """setting TextLength to a negative number should fail."""
-        self.assertRaises(
-            ValueError, self.setProperty, ("self.testTextBox.TextLength", "-1")
-        )
+        self.assertRaises(ValueError, self.setProperty, ("self.testTextBox.TextLength", "-1"))
 
     def testNoneIsAnyLength(self):
         """setting TextLength to None should allow any length"""
@@ -106,9 +104,7 @@ class TestTextLengthProperty(BaseTestdTextBox):
 
     def testFailOnZeroInput(self):
         """setting TextLength to Zero should fail."""
-        self.assertRaises(
-            ValueError, self.setProperty, ("self.testTextBox.TextLength", "-0")
-        )
+        self.assertRaises(ValueError, self.setProperty, ("self.testTextBox.TextLength", "-0"))
 
     def testNoInsertionUponLimitReached(self):
         """extLength = n.  Set Value to string with length > n should set only string[:n]."""

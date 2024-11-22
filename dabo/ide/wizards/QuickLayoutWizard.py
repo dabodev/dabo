@@ -2,9 +2,7 @@
 import sys
 
 if __name__ == "__main__":
-    sys.exit(
-        "This isn't meant to be run stand-alone. Please run ide/ClassDesigner.py instead."
-    )
+    sys.exit("This isn't meant to be run stand-alone. Please run ide/ClassDesigner.py instead.")
 import os
 import time
 import dabo.ui
@@ -200,9 +198,7 @@ class PgSelect(WizardPage):
             "G": "long",
             "?": "unknown",
         }
-        fldInfo = [
-            (pktext[fldDict[p]["pk"]], typeText[fldDict[p]["type"]], p) for p in flds
-        ]
+        fldInfo = [(pktext[fldDict[p]["pk"]], typeText[fldDict[p]["type"]], p) for p in flds]
         self.lstFields.appendRows(fldInfo)
 
     def onSelectAll(self, evt):
@@ -331,9 +327,7 @@ class PgSample(WizardPage):
                 self.origCap = self.Caption
                 # The label will be on the sample panel, which is on the page
                 # that contains the actual event code.
-                self.bindEvent(
-                    dEvents.MouseLeftDoubleClick, self.Parent.Parent.onLblEdit
-                )
+                self.bindEvent(dEvents.MouseLeftDoubleClick, self.Parent.Parent.onLblEdit)
                 # Store the original caption for later reference
                 dabo.ui.callAfter(self._storeCaption)
 
@@ -394,9 +388,7 @@ class PgSample(WizardPage):
             cs = self.controlSizer = LayoutSizer("v")
         else:
             style = "left"
-            cs = self.controlSizer = LayoutGridSizer(
-                MaxCols=2, HGap=0, VGap=self.BetweenSpacing
-            )
+            cs = self.controlSizer = LayoutGridSizer(MaxCols=2, HGap=0, VGap=self.BetweenSpacing)
             cs.setColExpand(True, 1)
         # Go through the list, and add the items to the sizer in order. Any
         # field which was previously created will be restored
@@ -440,9 +432,7 @@ class PgSample(WizardPage):
 
         lbl = dabo.ui.dLabel(self, Caption=_("Outside Border:"))
         gs.append(lbl, halign="right")
-        spn = dabo.ui.dSpinner(
-            self, DataSource="self.Parent", DataField="OutsideBorder"
-        )
+        spn = dabo.ui.dSpinner(self, DataSource="self.Parent", DataField="OutsideBorder")
         spn.Value = self.OutsideBorder
         gs.append(spn)
         self._layoutControls.append(lbl)
@@ -450,9 +440,7 @@ class PgSample(WizardPage):
 
         lbl = dabo.ui.dLabel(self, Caption=_("Spacing:"))
         gs.append(lbl, halign="right")
-        spn = dabo.ui.dSpinner(
-            self, DataSource="self.Parent", DataField="BetweenSpacing"
-        )
+        spn = dabo.ui.dSpinner(self, DataSource="self.Parent", DataField="BetweenSpacing")
         spn.Value = self.BetweenSpacing
         gs.append(spn)
         self._layoutControls.append(lbl)
@@ -462,9 +450,7 @@ class PgSample(WizardPage):
             # Add a spinner for column separation
             lbl = dabo.ui.dLabel(self, Caption=_("Column Separation:"))
             gs.append(lbl, halign="right")
-            spn = dabo.ui.dSpinner(
-                self, DataSource="self.Parent", DataField="ColumnSpacing"
-            )
+            spn = dabo.ui.dSpinner(self, DataSource="self.Parent", DataField="ColumnSpacing")
             spn.Value = self.ColumnSpacing
             gs.append(spn)
             self._layoutControls.append(lbl)
@@ -472,9 +458,7 @@ class PgSample(WizardPage):
 
         lbl = dabo.ui.dLabel(self, Caption=_("Label Alignment:"))
         gs.append(lbl, halign="right")
-        dd = dabo.ui.dDropdownList(
-            self, DataSource="self.Parent", DataField="LabelAlignment"
-        )
+        dd = dabo.ui.dDropdownList(self, DataSource="self.Parent", DataField="LabelAlignment")
         dd.Choices = ["Left", "Center", "Right"]
         dd.Value = self.LabelAlignment
         gs.append(dd)
@@ -491,9 +475,7 @@ class PgSample(WizardPage):
 
         lbl = dabo.ui.dLabel(self, Caption=_("Title-case Labels:"))
         gs.append(lbl, halign="right")
-        chk = dabo.ui.dCheckBox(
-            self, DataSource="self.Parent", DataField="UseTitleCase"
-        )
+        chk = dabo.ui.dCheckBox(self, DataSource="self.Parent", DataField="UseTitleCase")
         chk.Value = self.UseTitleCase
         gs.append(chk)
         self._layoutControls.append(lbl)
@@ -555,11 +537,7 @@ class PgSample(WizardPage):
         newobj.unbindEvent(dEvents.MouseRightClick)
         newobj.bindEvent(dEvents.ContextMenu, self.onCtlRightClick)
         # Update the wizard's field dict
-        key = [
-            kk
-            for kk in list(self.controls.keys())
-            if self.controls[kk]["control"] is obj
-        ][0]
+        key = [kk for kk in list(self.controls.keys()) if self.controls[kk]["control"] is obj][0]
         self.controls[key]["control"] = newobj
         self.controls[key]["controlClass"] = cls
         sz.remove(obj, destroy=True)
@@ -864,25 +842,16 @@ class QuickLayoutWizard(Wizard):
             return False
         try:
             crs = conn.getDaboCursor()
-            self.ConnectionFile = self.Application.dbConnectionNameToFiles[
-                self.ConnectionName
-            ]
+            self.ConnectionFile = self.Application.dbConnectionNameToFiles[self.ConnectionName]
         except Exception as e:
             if showAlert:
-                dabo.ui.stop(
-                    _("Could not make connection to '%s'") % self.ConnectionName
-                )
+                dabo.ui.stop(_("Could not make connection to '%s'") % self.ConnectionName)
             return False
         self._dataEnv = dict(
             (
                 (
                     tb,
-                    dict(
-                        (
-                            (fld[0], {"type": fld[1], "pk": fld[2]})
-                            for fld in crs.getFields(tb)
-                        )
-                    ),
+                    dict(((fld[0], {"type": fld[1], "pk": fld[2]}) for fld in crs.getFields(tb))),
                 )
                 for tb in crs.getTables()
             )
@@ -957,9 +926,7 @@ class QuickLayoutWizard(Wizard):
         _("Name of the connection used to access the database  (str)"),
     )
 
-    DE = property(
-        _getDE, _setDE, None, _("Reference to the data env dictionary   (dict)")
-    )
+    DE = property(_getDE, _setDE, None, _("Reference to the data env dictionary   (dict)"))
 
 
 if __name__ == "__main__":

@@ -15,24 +15,19 @@ class dCollapsiblePanel(dControlMixin, pcp.PyCollapsiblePane):
     """
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
-        val = self._extractKey(
-            (kwargs, properties, attProperties), "PanelStyle", "Label"
-        )
+        val = self._extractKey((kwargs, properties, attProperties), "PanelStyle", "Label")
         try:
             agwStyle = {"l": wx.CP_GTK_EXPANDER, "b": 0}[val[:1].lower()]
         except (KeyError, TypeError):
             raise ValueError("The only possible values are 'Label' or 'Button'.")
         kwargs["agwStyle"] = wx.CP_NO_TLW_RESIZE | agwStyle
         kwargs["style"] = (
-            self._extractKey((kwargs, properties, attProperties), "style", 0)
-            | wx.CLIP_CHILDREN
+            self._extractKey((kwargs, properties, attProperties), "style", 0) | wx.CLIP_CHILDREN
         )
         self.itemsCreated = False
         self._baseClass = dCollapsiblePanel
         preClass = pcp.PyCollapsiblePane
-        dControlMixin.__init__(
-            self, preClass, parent, properties, attProperties, *args, **kwargs
-        )
+        dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
         self._pPane = dPanel(self, Visible=False, BorderStyle="None")
 
     def _initEvents(self):
@@ -142,6 +137,6 @@ class _CollapsiblePanelTest(dCollapsiblePanel):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_CollapsiblePanelTest)

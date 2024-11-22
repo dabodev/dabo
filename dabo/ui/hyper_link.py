@@ -96,9 +96,7 @@ class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
     def _setHoverUnderline(self, val):
         if self._constructed():
             if val != self.HoverUnderline:
-                self._setUnderlines(
-                    self.LinkUnderline, self.VisitedUnderline, bool(val)
-                )
+                self._setUnderlines(self.LinkUnderline, self.VisitedUnderline, bool(val))
         else:
             self._properties["HoverUnderline"] = val
 
@@ -119,9 +117,7 @@ class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
     def _setLinkUnderline(self, val):
         if self._constructed():
             if val != self.LinkUnderline:
-                self._setUnderlines(
-                    bool(val), self.VisitedUnderline, self.HoverUnderline
-                )
+                self._setUnderlines(bool(val), self.VisitedUnderline, self.HoverUnderline)
         else:
             self._properties["LinkUnderline"] = val
 
@@ -217,9 +213,7 @@ class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
 
     URL = property(_getURL, _setURL, None, _("URL for this link  (str)"))
 
-    Visited = property(
-        _getVisited, _setVisited, None, _("Has this link been visited?  (bool)")
-    )
+    Visited = property(_getVisited, _setVisited, None, _("Has this link been visited?  (bool)"))
 
     VisitedColor = property(
         _getVisitedColor,
@@ -260,6 +254,6 @@ class _dHyperLink_test(dHyperLink):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dHyperLink_test)

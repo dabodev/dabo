@@ -50,9 +50,7 @@ class TreeViewSample(dTreeView):
     def onChangeCaption(self, evt):
         nd = self.activeNode
         self.activeNode = None
-        txt = dabo.ui.getString(
-            _("New Caption"), _("Adding Child Node"), defaultValue=nd.Caption
-        )
+        txt = dabo.ui.getString(_("New Caption"), _("Adding Child Node"), defaultValue=nd.Caption)
         if txt is not None:
             nd.Caption = txt
 
@@ -60,19 +58,13 @@ class TreeViewSample(dTreeView):
         self.Form.logit(_("Mouse Right Click on tree"))
 
     def onTreeSelection(self, evt):
-        self.Form.logit(
-            _("Selected node caption: %s") % evt.EventData["selectedCaption"]
-        )
+        self.Form.logit(_("Selected node caption: %s") % evt.EventData["selectedCaption"])
 
     def onTreeItemCollapse(self, evt):
-        self.Form.logit(
-            _("Collapsed node caption: %s") % evt.EventData["selectedCaption"]
-        )
+        self.Form.logit(_("Collapsed node caption: %s") % evt.EventData["selectedCaption"])
 
     def onTreeItemExpand(self, evt):
-        self.Form.logit(
-            _("Expanded node caption: %s") % evt.EventData["selectedCaption"]
-        )
+        self.Form.logit(_("Expanded node caption: %s") % evt.EventData["selectedCaption"])
 
     def onTreeBeginDrag(self, evt):
         self.Form.logit(_("Beginning drag for %s") % evt.selectedCaption)

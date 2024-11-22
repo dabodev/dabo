@@ -141,6 +141,6 @@ class _dSplitForm_test(dSplitForm):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dSplitForm_test)

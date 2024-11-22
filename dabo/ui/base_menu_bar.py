@@ -58,15 +58,15 @@ class FileMenu(dMenu):
             self.Parent.debugMenuItem.Checked = True
 
             # TODO: get object inspector working
-#             self.Parent.inspectorMenuItem = self.append(
-#                 _("Object &Inspector"),
-#                 HotKey="Ctrl+Shift+I",
-#                 OnHit=app.onObjectInspectorWin,
-#                 bmp="%s/apps/actions/system-search.png" % iconPath,
-#                 ItemID="file_inspectorwin",
-#                 menutype="check",
-#                 help=_("Open up the object inspector"),
-#             )
+        #             self.Parent.inspectorMenuItem = self.append(
+        #                 _("Object &Inspector"),
+        #                 HotKey="Ctrl+Shift+I",
+        #                 OnHit=app.onObjectInspectorWin,
+        #                 bmp="%s/apps/actions/system-search.png" % iconPath,
+        #                 ItemID="file_inspectorwin",
+        #                 menutype="check",
+        #                 help=_("Open up the object inspector"),
+        #             )
 
         prmpt = _("Close Windo&w")
         self.Parent.closeWindowMenuItem = self.append(
@@ -277,7 +277,7 @@ ui.HelpMenu = dBaseMenuBar
 
 
 if __name__ == "__main__":
-    from dApp import dApp
+    from .. import dApp
 
     app = dApp()
     app.setup()

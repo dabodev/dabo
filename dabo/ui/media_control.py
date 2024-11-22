@@ -48,9 +48,7 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
         self._source = None
         self._timeInSeconds = True
         self._playbackRate = 100
-        self._showControls = self._extractKey(
-            (properties, kwargs), "ShowControls", True
-        )
+        self._showControls = self._extractKey((properties, kwargs), "ShowControls", True)
         kwargs["ShowControls"] = self._showControls
         dropHandler = self._extractKey((properties, kwargs), "DroppedFileHandler", self)
         kwargs["DroppedFileHandler"] = dropHandler
@@ -413,8 +411,8 @@ ui.dMediaControl = dMediaControl
 
 
 if __name__ == "__main__":
-    from dApp import dApp
-    from ui import dForm
+    from .. import dApp
+    from ..ui import dForm
 
     class MediaForm(dForm):
         def afterInit(self):

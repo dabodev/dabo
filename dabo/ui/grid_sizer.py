@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 
+from .. import main
 from .. import ui
 from ..dLocalize import _
 from . import dSizerMixin
 from . import makeDynamicProperty
 
-# import log
+dabo_module = main.get_dabo_package()
 
 
 class dGridSizer(dSizerMixin, wx.GridBagSizer):
@@ -45,9 +46,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         if kwargs:
             # Some kwargs haven't been handled.
             bad = ", ".join(list(kwargs.keys()))
-            raise TypeError(
-                ("Invalid keyword arguments passed to dGridSizer: %s") % bad
-            )
+            raise TypeError(("Invalid keyword arguments passed to dGridSizer: %s") % bad)
 
         dSizerMixin.__init__(self, *args, **kwargs)
 
@@ -368,9 +367,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             try:
                 itm.SetSpan(spn)
             except wx.PyAssertionError:
-                raise ui.GridSizerSpanException(
-                    _("An item already exists in that location")
-                )
+                raise ui.GridSizerSpanException(_("An item already exists in that location"))
 
     def _clearCells(self, obj, span, typ):
         """
@@ -401,9 +398,8 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         """Sets the row span, keeping the col span the same."""
         if rowspan > 1:
             if not self._clearCells(obj, rowspan, "row"):
-                log.error(
-                    "Cannot set RowSpan for %s; remove objects in the way first."
-                    % itm.Name
+                dabo_module.error(
+                    "Cannot set RowSpan for %s; remove objects in the way first." % itm.Name
                 )
                 return
         self.setGridSpan(obj, row=rowspan)
@@ -412,9 +408,8 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         """Sets the col span, keeping the row span the same."""
         if colspan > 1:
             if not self._clearCells(obj, colspan, "col"):
-                log.error(
-                    "Cannot set ColSpan for %s; remove objects in the way first."
-                    % itm.Name
+                dabo_module.error(
+                    "Cannot set ColSpan for %s; remove objects in the way first." % itm.Name
                 )
                 return
         self.setGridSpan(obj, col=colspan)
@@ -591,10 +586,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
 
     def _getHighCol(self):
         itms = self.ChildWindows + self.ChildSizers
-        cols = [
-            self.GetItemPosition(itm)[1] + (self.GetItemSpan(itm)[1] - 1)
-            for itm in itms
-        ]
+        cols = [self.GetItemPosition(itm)[1] + (self.GetItemSpan(itm)[1] - 1) for itm in itms]
         if cols:
             ret = max(cols)
         else:
@@ -603,10 +595,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
 
     def _getHighRow(self):
         itms = self.ChildWindows + self.ChildSizers
-        rows = [
-            self.GetItemPosition(itm)[0] + (self.GetItemSpan(itm)[0] - 1)
-            for itm in itms
-        ]
+        rows = [self.GetItemPosition(itm)[0] + (self.GetItemSpan(itm)[0] - 1) for itm in itms]
         if rows:
             ret = max(rows)
         else:
@@ -649,9 +638,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             val = int(val)
         self.SetVGap(val)
 
-    HGap = property(
-        _getHGap, _setHGap, None, _("Horizontal gap between cells in the sizer  (int)")
-    )
+    HGap = property(_getHGap, _setHGap, None, _("Horizontal gap between cells in the sizer  (int)"))
 
     HighCol = property(
         _getHighCol,
@@ -704,9 +691,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         _("Alias for the MaxDimensions property. (char: 'r' or 'c'(default) )"),
     )
 
-    VGap = property(
-        _getVGap, _setVGap, None, _("Vertical gap between cells in the sizer  (int)")
-    )
+    VGap = property(_getVGap, _setVGap, None, _("Vertical gap between cells in the sizer  (int)"))
 
     DynamicHGap = makeDynamicProperty(HGap)
     DynamicMaxRows = makeDynamicProperty(MaxRows)

@@ -126,9 +126,7 @@ class Login(dOkCancelDialog):
         self._iconFile = val
         self.bm.Picture = val
 
-    IconFile = property(
-        _getIconFile, _setIconFile, None, _("Specifies the icon to use.")
-    )
+    IconFile = property(_getIconFile, _setIconFile, None, _("Specifies the icon to use."))
 
 
 if __name__ == "__main__":

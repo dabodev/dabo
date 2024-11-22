@@ -80,12 +80,8 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
         kwargs["allowNone"] = self._extractKey(
             (properties, attProperties, kwargs), "AllowNoneValue", False
         )
-        kwargs["max"] = self._extractKey(
-            (properties, attProperties, kwargs), "MaxValue", None
-        )
-        kwargs["min"] = self._extractKey(
-            (properties, attProperties, kwargs), "MinValue", None
-        )
+        kwargs["max"] = self._extractKey((properties, attProperties, kwargs), "MaxValue", None)
+        kwargs["min"] = self._extractKey((properties, attProperties, kwargs), "MinValue", None)
         # Base class 'limited' property is inconvenient.
         kwargs["limited"] = False
         fontFace = self._extractKey((properties, attProperties, kwargs), "FontFace", "")
@@ -504,7 +500,7 @@ ui.dNumericBox = dNumericBox
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     class _testDecimal2(dNumericBox):
         def initProperties(self):

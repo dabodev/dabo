@@ -21,10 +21,7 @@ class dSecurityManager(dObject):
         for attempt in range(self.LoginAttemptsAllowed):
             if attempt > 0:
                 num, allwd = attempt + 1, self.LoginAttemptsAllowed
-                message = (
-                    _("Login incorrect, please try again. (%(num)s/%(allwd)s)")
-                    % locals()
-                )
+                message = _("Login incorrect, please try again. (%(num)s/%(allwd)s)") % locals()
             loginInfo = self.Application.getLoginInfo(message)
 
             if isinstance(loginInfo[1], dict):

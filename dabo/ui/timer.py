@@ -123,6 +123,6 @@ class _dTimer_test(dPanel):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dTimer_test)

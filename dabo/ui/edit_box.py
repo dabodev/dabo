@@ -21,9 +21,7 @@ class dEditBox(dTextBoxMixin, wx.TextCtrl):
 
         preClass = wx.TextCtrl
         kwargs["style"] = wx.TE_MULTILINE
-        self._wordWrap = self._extractKey(
-            (properties, attProperties, kwargs), "WordWrap", True
-        )
+        self._wordWrap = self._extractKey((properties, attProperties, kwargs), "WordWrap", True)
         if self._wordWrap:
             kwargs["style"] = kwargs["style"] | wx.TE_BESTWRAP
         else:
@@ -141,7 +139,7 @@ It's the Love Boat
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dEditBox_test, WordWrap=True)
     test.Test().runTest(_dEditBox_test, WordWrap=False)

@@ -80,9 +80,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
     ## - Begin property unit tests -
     def test_AutoSQL(self):
         cur = self.cur
-        self.assertEqual(
-            cur.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name
-        )
+        self.assertEqual(cur.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name)
 
     def test_AutoPopulatePK(self):
         cur = self.cur
@@ -108,16 +106,12 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
             ds[0] == ("pk", "I", True, self.temp_table_name, "pk", None)
             or ds[0] == ("pk", "G", True, self.temp_table_name, "pk", None)
         )
-        self.assertEqual(
-            ds[1], ("cfield", "C", False, self.temp_table_name, "cfield", None)
-        )
+        self.assertEqual(ds[1], ("cfield", "C", False, self.temp_table_name, "cfield", None))
         self.assertTrue(
             ds[2] == ("ifield", "I", False, self.temp_table_name, "ifield", None)
             or ds[2] == ("ifield", "G", False, self.temp_table_name, "ifield", None)
         )
-        self.assertEqual(
-            ds[3], ("nfield", "N", False, self.temp_table_name, "nfield", None)
-        )
+        self.assertEqual(ds[3], ("nfield", "N", False, self.temp_table_name, "nfield", None))
 
     def test_Encoding(self):
         cur = self.cur
@@ -161,14 +155,10 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         self.assertEqual(cur.Record.cfield.rstrip(), "Paul Keith McNett")
         cur.Record.cfield = "Denise McNett"
         self.assertEqual(cur.Record.cfield, "Denise McNett")
-        self.assertEqual(
-            cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett"
-        )
+        self.assertEqual(cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett")
         cur.Record.cfield = "Alison Anton"
         self.assertEqual(cur.Record.cfield, "Alison Anton")
-        self.assertEqual(
-            cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett"
-        )
+        self.assertEqual(cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett")
         cur.setFieldVal("ifield", 80)
         self.assertEqual(cur.Record.ifield, 80)
         self.assertTrue(isinstance(cur.Record.ifield, int))
@@ -234,9 +224,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         cur.Record.cfield = newVal
         self.assertEqual(cur.oldVal("cfield"), oldVal)
         self.assertEqual(cur.Record.cfield, newVal)
-        self.assertRaises(
-            dabo.dException.FieldNotFoundException, cur.oldVal, "bogusField"
-        )
+        self.assertRaises(dabo.dException.FieldNotFoundException, cur.oldVal, "bogusField")
 
     ## - End method unit tests -
 
@@ -282,9 +270,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         self.assertEqual(cur.RowCount, 4)
         self.assertEqual(cur.RowNumber, 3)
         self.assertEqual(cur._newRecords, {-1: None})
-        self.assertEqual(
-            cur.isChanged(), False
-        )  ## (because no field changed in new record)
+        self.assertEqual(cur.isChanged(), False)  ## (because no field changed in new record)
         self.assertEqual(cur.isChanged(allRows=False), False)
         self.assertEqual(cur.Record.pk, -1)
         self.assertEqual(cur.Record.cfield, "")
@@ -427,9 +413,7 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
 
     def tearDown(self):
         self.cur.execute("commit")
-        self.cur.execute(
-            "delete from %s where jobid = %f" % (self.temp_table_name, self.jobid)
-        )
+        self.cur.execute("delete from %s where jobid = %f" % (self.temp_table_name, self.jobid))
         self.cur.execute("commit")
         super(Test_dCursorMixin_firebird, self).tearDown()
 

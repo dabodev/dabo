@@ -4,11 +4,13 @@ import datetime
 import wx
 import wx.lib.masked as masked
 
+from .. import main
 from .. import ui
 from ..dLocalize import _
 from . import dTextBoxMixin
 from . import makeDynamicProperty
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
@@ -86,12 +88,8 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
         self._baseClass = dMaskedTextBox
         self._valueMode = None
         self._mask = self._extractKey((properties, attProperties, kwargs), "Mask", "")
-        self._format = self._extractKey(
-            (properties, attProperties, kwargs), "Format", ""
-        )
-        self._validregex = self._extractKey(
-            (properties, attProperties, kwargs), "ValidRegex", ""
-        )
+        self._format = self._extractKey((properties, attProperties, kwargs), "Format", "")
+        self._validregex = self._extractKey((properties, attProperties, kwargs), "ValidRegex", "")
         self._inputCodes = self._uniqueCodes(
             self._extractKey((properties, attProperties, kwargs), "InputCodes", "_>")
         )
@@ -145,7 +143,7 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
             try:
                 self.SetAutoformat(self._formatMap.get(val))
             except AttributeError:
-                log.error(_("Invalid Format value: %s") % val)
+                dabo_module.error(_("Invalid Format value: %s") % val)
                 return
             self._format = val
             if not val:
@@ -161,11 +159,11 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
         if self._constructed():
             if self.GetAutoformat() and val:
                 # Cannot have both a mask and a format
-                log.error(_("Cannot set InputCodes when a Format has been set"))
+                dabo_module.error(_("Cannot set InputCodes when a Format has been set"))
             elif [cd for cd in val if cd not in self._allowedInputCodes]:
                 # Illegal codes
                 bad = "".join([cd for cd in val if cd not in self._allowedInputCodes])
-                log.error(_("Invalid InputCodes: %s") % bad)
+                dabo_module.error(_("Invalid InputCodes: %s") % bad)
             else:
                 val = self._uniqueCodes(val)
                 self._inputCodes = val
@@ -412,13 +410,13 @@ ui.dMaskedTextBox = dMaskedTextBox
 
 
 if __name__ == "__main__":
-    from ui import test
-    from ui import dCheckBox
-    from ui import dForm
-    from ui import dGridSizer
-    from ui import dLabel
-    from ui import dPageFrame
-    from ui import dSizer
+    from . import test
+    from ..ui import dCheckBox
+    from ..ui import dForm
+    from ..ui import dGridSizer
+    from ..ui import dLabel
+    from ..ui import dPageFrame
+    from ..ui import dSizer
 
     class MaskedForm(dForm):
         def afterInit(self):
@@ -456,14 +454,10 @@ versions of wxPython)""",
                 valign="Top",
             )
 
-            sz.append(
-                dLabel(pg1, Caption="Accepts Uppercase Letters Only:"), halign="right"
-            )
+            sz.append(dLabel(pg1, Caption="Accepts Uppercase Letters Only:"), halign="right")
             sz.append(dMaskedTextBox(pg1, Width=240, Mask="A{20}"))
 
-            sz.append(
-                dLabel(pg1, Caption="Forced Uppercase Letters Only:"), halign="right"
-            )
+            sz.append(dLabel(pg1, Caption="Forced Uppercase Letters Only:"), halign="right")
             sz.append(dMaskedTextBox(pg1, Width=240, InputCodes="!>", Mask="C{20}"))
 
             sz.append(dLabel(pg1, Caption="Lowercase Letters Only:"), halign="right")
@@ -475,9 +469,7 @@ versions of wxPython)""",
             sz.append(dLabel(pg1, Caption="Punctuation Only:"), halign="right")
             sz.append(dMaskedTextBox(pg1, Width=240, Mask="&{20}"))
 
-            sz.append(
-                dLabel(pg1, Caption="Letter left; Numbers right:"), halign="right"
-            )
+            sz.append(dLabel(pg1, Caption="Letter left; Numbers right:"), halign="right")
             sz.append(dMaskedTextBox(pg1, Width=240, Mask="C{6} - #{6}"))
 
             sz.append(dLabel(pg1, Caption="No Mask:"), halign="right")
@@ -519,17 +511,11 @@ versions of wxPython)""",
             gsz = dGridSizer(MaxCols=4, HGap=25, VGap=5)
             lbl = dLabel(pg3, Caption="General Codes", FontBold=True)
             gsz.append(lbl, halign="center", colSpan=4)
-            chk = dCheckBox(
-                pg3, Caption="_", ToolTipText="Allow Spaces", OnHit=self.onCheckHit
-            )
+            chk = dCheckBox(pg3, Caption="_", ToolTipText="Allow Spaces", OnHit=self.onCheckHit)
             gsz.append(chk)
-            chk = dCheckBox(
-                pg3, Caption="R", ToolTipText="Right Align", OnHit=self.onCheckHit
-            )
+            chk = dCheckBox(pg3, Caption="R", ToolTipText="Right Align", OnHit=self.onCheckHit)
             gsz.append(chk)
-            chk = dCheckBox(
-                pg3, Caption="r", ToolTipText="Right Insert", OnHit=self.onCheckHit
-            )
+            chk = dCheckBox(pg3, Caption="r", ToolTipText="Right Insert", OnHit=self.onCheckHit)
             gsz.append(chk)
             chk = dCheckBox(
                 pg3,
@@ -569,13 +555,9 @@ versions of wxPython)""",
             gsz = dGridSizer(MaxCols=2, HGap=25, VGap=5)
             lbl = dLabel(pg3, Caption="Character Codes", FontBold=True)
             gsz.append(lbl, halign="center", colSpan=2)
-            chk = dCheckBox(
-                pg3, Caption="!", ToolTipText="Force Upper Case", OnHit=self.onCheckHit
-            )
+            chk = dCheckBox(pg3, Caption="!", ToolTipText="Force Upper Case", OnHit=self.onCheckHit)
             gsz.append(chk)
-            chk = dCheckBox(
-                pg3, Caption="^", ToolTipText="Force Lower Case", OnHit=self.onCheckHit
-            )
+            chk = dCheckBox(pg3, Caption="^", ToolTipText="Force Lower Case", OnHit=self.onCheckHit)
             gsz.append(chk)
             txt = self.charText = dMaskedTextBox(pg3, Value="", Mask="C{30}")
             gsz.append(txt, "x", colSpan=2)
@@ -622,13 +604,9 @@ versions of wxPython)""",
                 OnHit=self.onCheckHit,
             )
             gsz.append(chk)
-            chk = dCheckBox(
-                pg3, Caption="T", ToolTipText="Time Field", OnHit=self.onCheckHit
-            )
+            chk = dCheckBox(pg3, Caption="T", ToolTipText="Time Field", OnHit=self.onCheckHit)
             gsz.append(chk)
-            txt = self.dateText = dMaskedTextBox(
-                pg3, InputCodes="D", Value=datetime.date.today()
-            )
+            txt = self.dateText = dMaskedTextBox(pg3, InputCodes="D", Value=datetime.date.today())
             gsz.append(txt, "x", colSpan=2)
             sz.append(gsz, 1, halign="center")
 

@@ -5,23 +5,26 @@ import functools
 import re
 import time
 
-import dabo
-import dabo.dConstants as kons
-from dabo.dLocalize import _
-import dabo.dException as dException
-from dabo.dObject import dObject
+from .. import db
+from .. import dConstants
+from .. import dException
+from .. import main
+from ..dLocalize import _
+from ..dObject import dObject
 from .dNoEscQuoteStr import dNoEscQuoteStr
-from dabo.db.dDataSet import dDataSet
-from dabo.lib import dates
-from dabo.lib.utils import noneSortKey, caseInsensitiveSortKey
-from dabo.lib.utils import ustr
+from .dDataSet import dDataSet
+from ..lib import dates
+from ..lib.utils import noneSortKey, caseInsensitiveSortKey
+from ..lib.utils import ustr
 
 cursor_flags = (
-    kons.CURSOR_MEMENTO,
-    kons.CURSOR_NEWFLAG,
-    kons.CURSOR_TMPKEY_FIELD,
-    kons.CURSOR_FIELD_TYPES_CORRECTED,
+    dConstants.CURSOR_MEMENTO,
+    dConstants.CURSOR_NEWFLAG,
+    dConstants.CURSOR_TMPKEY_FIELD,
+    dConstants.CURSOR_FIELD_TYPES_CORRECTED,
 )
+
+dabo_module = main.get_dabo_package()
 
 
 class dCursorMixin(dObject):
@@ -84,9 +87,7 @@ class dCursorMixin(dObject):
         self.__lastExecute = ""
         self.__lastFieldList = ""
         self._whitespacePat = re.compile(r"(\s+)")
-        self._selectStatementPat = re.compile(
-            r"\bselect\b(.+)\bfrom\b", re.I | re.M | re.S
-        )
+        self._selectStatementPat = re.compile(r"\bselect\b(.+)\bfrom\b", re.I | re.M | re.S)
         # Holds the keys in the original, unsorted order for unsorting the dataset
         self.__unsortedRows = []
         # Holds the name of fields to be skipped when updating the backend, such
@@ -209,11 +210,11 @@ class dCursorMixin(dObject):
         return pkField
 
     def _correctFieldTypesIfNeeded(self, rec):
-        if not rec.get(kons.CURSOR_FIELD_TYPES_CORRECTED, False):
+        if not rec.get(dConstants.CURSOR_FIELD_TYPES_CORRECTED, False):
             _correctFieldType = self._correctFieldType
             for fld_name in (i for i in rec if i not in cursor_flags):
                 rec[fld_name] = _correctFieldType(rec[fld_name], fld_name)
-            rec[kons.CURSOR_FIELD_TYPES_CORRECTED] = True
+            rec[dConstants.CURSOR_FIELD_TYPES_CORRECTED] = True
 
     def _correctFieldType(self, field_val, field_name):
         """
@@ -227,9 +228,9 @@ class dCursorMixin(dObject):
         if field_val is None:
             return field_val
 
-        pythonType = self._types.get(field_name, dabo.db.getDataType(type(field_val)))
+        pythonType = self._types.get(field_name, db.getDataType(type(field_val)))
         if not pythonType:
-            pythonType = dabo.db.getDataType(type(field_val))
+            pythonType = db.getDataType(type(field_val))
 
         if isinstance(field_val, pythonType):
             # No conversion needed.
@@ -240,15 +241,13 @@ class dCursorMixin(dObject):
                 return func(field_val)
             except Exception as e:
                 tfv = type(field_val)
-                dabo.log.error(
+                dabo_module.error(
                     _(
-                        "_correctFieldType() failed for field: "
-                        "'%(field_name)s' (%(func)s); value: %(field_val)s (%(tfv)s)"
+                        f"_correctFieldType() failed for field: '{field_name}' ({func}); value: {field_val} ({tfv})"
                     )
-                    % locals()
                 )
 
-        if pythonType in (str,):
+        if isinstance(pythonType, str):
             # Unicode conversion happens below.
             pass
         elif pythonType in (datetime.datetime,) and isinstance(field_val, str):
@@ -302,26 +301,22 @@ class dCursorMixin(dObject):
                             ##                 one doesn't work, especially since Dabo currently allows non-utf8-encoded
                             ##                 bytes to get saved to the database.
                             # self.Encoding = enc
-                            dabo.log.error(
+                            dabo_module.error(
                                 _(
-                                    "Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead"
+                                    f"Field {field_name}: Incorrect unicode encoding set; using '{enc}' instead"
                                 )
-                                % {"fname": field_name, "enc": enc}
                             )
                             return ret
                 else:
                     raise
 
             rfv = repr(field_val)
-            dabo.log.error(
-                _(
-                    "%(rfv)s couldn't be converted to %(pythonType)s (field %(field_name)s)"
-                )
-                % locals()
+            dabo_module.error(
+                _(f"{rfv} couldn't be converted to {pythonType} (field {field_name})")
             )
         return field_val
 
-    def _dblogExecute(self, msg, sql="", params=None, log=dabo.dbActivityLog.info):
+    def _dblogExecute(self, msg, sql="", params=None, db_log=dabo_module.dbActivityLog.info):
         if params is None:
             params = tuple()
         if sql:
@@ -333,9 +328,9 @@ class dCursorMixin(dObject):
             params = "(couldn't decode params)"
 
         try:
-            log("%s SQL: %s, PARAMS: %s" % (msg, sql, params))
+            db_log(f"{msg} SQL: {sql}, PARAMS: {params}")
         except Exception:
-            log("%s (couldn't log SQL or PARAMS)" % msg)
+            db_log(f"{msg} (couldn't log SQL or PARAMS)")
 
     def execute(self, sql, params=None, errorClass=None, convertQMarks=False):
         """Execute the sql, and populate the DataSet if it is a select statement."""
@@ -397,13 +392,13 @@ class dCursorMixin(dObject):
         try:
             _records = self.fetchall()
         except Exception as e:
-            _records = dabo.db.dDataSet()
+            _records = dDataSet()
             # Database errors need to be decoded from database encoding.
             try:
                 errMsg = ustr(e).decode(self.Encoding)
             except UnicodeError:
                 errMsg = ustr(e)
-            dabo.log.error("Error fetching records: (%s, %s)" % (type(e), errMsg))
+            dabo_module.error("Error fetching records: (%s, %s)" % (type(e), errMsg))
 
         if _records and isinstance(_records[0], (tuple, list)):
             # Need to convert each row to a Dict, since the backend didn't do it.
@@ -517,7 +512,7 @@ class dCursorMixin(dObject):
         target._types = {}
         for field in self.DataStructure:
             field_alias, field_type = field[0], field[1]
-            target._types[field_alias] = dabo.db.getPythonType(field_type)
+            target._types[field_alias] = db.getPythonType(field_type)
 
     def sort(self, col, ordr=None, caseSensitive=True):
         """
@@ -543,10 +538,7 @@ class dCursorMixin(dObject):
             col = currCol
 
         # Make sure that the specified column is a column in the result set
-        if (
-            not [True for t in self.DataStructure if t[0] == col]
-            and col not in self.VirtualFields
-        ):
+        if not [True for t in self.DataStructure if t[0] == col] and col not in self.VirtualFields:
             raise dException.dException(_("Invalid column specified for sort: ") + col)
 
         newCol = col
@@ -565,9 +557,7 @@ class dCursorMixin(dObject):
                 if ordr.upper() in ("ASC", "DESC", ""):
                     newOrd = ordr.upper()
                 else:
-                    raise dException.dException(
-                        _("Invalid Sort direction specified: ") + ordr
-                    )
+                    raise dException.dException(_("Invalid Sort direction specified: ") + ordr)
 
         else:
             # Different column specified.
@@ -578,9 +568,7 @@ class dCursorMixin(dObject):
                 if ordr.upper() in ("ASC", "DESC", ""):
                     newOrd = ordr.upper()
                 else:
-                    raise dException.dException(
-                        _("Invalid Sort direction specified: ") + ordr
-                    )
+                    raise dException.dException(_("Invalid Sort direction specified: ") + ordr)
 
         self.__sortRows(newCol, newOrd, caseSensitive)
         # Save the current sort values
@@ -686,8 +674,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         rowXML = ""
         for rec in self._records:
             recInfo = [
-                colTemplate % (k, self.getType(v), self.escape(v))
-                for k, v in list(rec.items())
+                colTemplate % (k, self.getType(v), self.escape(v)) for k, v in list(rec.items())
             ]
             rowXML += rowTemplate % "\n".join(recInfo)
         return base % (
@@ -773,9 +760,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 # self.RowNumber doesn't exist (init phase?) Nothing's changed:
                 return False
             recKey = self.pkExpression(rec)
-            return recKey in self._mementos or (
-                includeNewUnchanged and recKey in self._newRecords
-            )
+            return recKey in self._mementos or (includeNewUnchanged and recKey in self._newRecords)
 
     def setNewFlag(self):
         """
@@ -797,7 +782,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             pk = self.getPK()
             self._newRecords[pk] = None
         # Add the 'new record' flag
-        self._records[self.RowNumber][kons.CURSOR_TMPKEY_FIELD] = pk
+        self._records[self.RowNumber][dConstants.CURSOR_TMPKEY_FIELD] = pk
 
     def genTempAutoPK(self):
         """
@@ -825,7 +810,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 rec[key] = tmpPK
         else:
             rec[kf] = tmpPK
-        rec[kons.CURSOR_TMPKEY_FIELD] = tmpPK
+        rec[dConstants.CURSOR_TMPKEY_FIELD] = tmpPK
         return tmpPK
 
     def _genTempPKVal(self, pkValue):
@@ -851,16 +836,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             return self._bizobj.getPK()
         ret = None
         if self.RowCount <= 0:
-            raise dException.NoRecordsException(
-                _("No records in dataset '%s'.") % self.Table
-            )
+            raise dException.NoRecordsException(_("No records in dataset '%s'.") % self.Table)
         if row is None:
             row = self.RowNumber
         rec = self._records[row]
         recKey = self.pkExpression(rec)
         if (recKey in self._newRecords) and self.AutoPopulatePK:
             # New, unsaved record
-            ret = rec[kons.CURSOR_TMPKEY_FIELD]
+            ret = rec[dConstants.CURSOR_TMPKEY_FIELD]
         else:
             kf = self.KeyField
             if isinstance(kf, tuple):
@@ -873,9 +856,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         """Return the value of the specified field in the current or specified row."""
         _records = self._records
         if not _records:
-            raise dException.NoRecordsException(
-                _("No records in dataset '%s'.") % self.Table
-            )
+            raise dException.NoRecordsException(_("No records in dataset '%s'.") % self.Table)
         if row is None:
             row = self._getRowNumber()
         try:
@@ -883,8 +864,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         except IndexError:
             cnt = len(_records)
             raise dException.RowNotFoundException(
-                _("Row #%(row)s requested, but the data set has only %(cnt)s row(s),")
-                % locals()
+                _("Row #%(row)s requested, but the data set has only %(cnt)s row(s),") % locals()
             )
         self._correctFieldTypesIfNeeded(rec)
         if isinstance(fld, (tuple, list)):
@@ -898,9 +878,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             vf.setdefault("args", ())
             vf.setdefault("kwargs", {})
 
-            requery_children = vf.get("requery_children", False) and bool(
-                _rowChangeCallback
-            )
+            requery_children = vf.get("requery_children", False) and bool(_rowChangeCallback)
 
             # Move to specified row if necessary, and then call the VirtualFields
             # function, which expects to be on the correct row.
@@ -938,7 +916,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             typ = None
         if typ:
             try:
-                ret = dabo.db.getPythonType(typ)
+                ret = db.getPythonType(typ)
             except KeyError:
                 ret = None
         return ret
@@ -964,9 +942,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
     def setFieldVal(self, fld, val, row=None, pk=None):
         """Set the value of the specified field."""
         if self.RowCount <= 0:
-            raise dException.NoRecordsException(
-                _("No records in dataset '%s'.") % self.Table
-            )
+            raise dException.NoRecordsException(_("No records in dataset '%s'.") % self.Table)
 
         rec = None
         if pk is not None:
@@ -980,9 +956,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             except IndexError:
                 cnt = len(self._records)
                 raise dException.RowNotFoundException(
-                    _(
-                        "Row #%(row)s requested, but the data set has only %(cnt)s row(s),"
-                    )
+                    _("Row #%(row)s requested, but the data set has only %(cnt)s row(s),")
                     % locals()
                 )
         valid_pk = self._hasValidKeyField()
@@ -1063,7 +1037,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                         )
                         % locals()
                     )
-                    dabo.log.error(msg)
+                    dabo_module.error(msg)
 
         # If the new value is different from the current value, change it and also
         # update the mementos if necessary.
@@ -1078,9 +1052,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                     # old key value to the new one.
                     if self._compoundKey:
                         old_key = tuple([rec[k] for k in keyField])
-                        keyFieldValue = tuple(
-                            [(val if k == fld else rec[k]) for k in keyField]
-                        )
+                        keyFieldValue = tuple([(val if k == fld else rec[k]) for k in keyField])
                     else:
                         old_key = old_val
                         keyFieldValue = val
@@ -1089,8 +1061,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                     if old_key in self._newRecords:
                         self._newRecords[keyFieldValue] = self._newRecords.pop(old_key)
                         # Should't ever happen, but just in case of desynchronization.
-                        if kons.CURSOR_TMPKEY_FIELD in rec:
-                            rec[kons.CURSOR_TMPKEY_FIELD] = keyFieldValue
+                        if dConstants.CURSOR_TMPKEY_FIELD in rec:
+                            rec[dConstants.CURSOR_TMPKEY_FIELD] = keyFieldValue
                 elif self._compoundKey:
                     keyFieldValue = tuple([rec[k] for k in keyField])
                 else:
@@ -1114,7 +1086,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 else:
                     self._clearMemento(row)
             else:
-                dabo.log.info(
+                dabo_module.info(
                     "Field value changed, but the memento"
                     " can't be saved, because there is no valid KeyField."
                 )
@@ -1134,32 +1106,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             tbl = self.Table
         if pkCol is None:
             pkCol = self.KeyField
-        sql = self._qMarkToParamPlaceholder(
-            "select %s from %s where %s = ?" % (pkCol, tbl, field)
-        )
+        sql = self._qMarkToParamPlaceholder("select %s from %s where %s = ?" % (pkCol, tbl, field))
         try:
-            dabo.dbActivityLog.info(
+            dbActivityLog.info(
                 "lookupPKWithAdd() SQL: %s, PARAMS: %s"
                 % (sql.decode(self.Encoding).replace("\n", " "), "(%s, )" % val)
             )
         except Exception:
             # A problem with writing to the log, most likely due to encoding issues
             try:
-                dabo.dbActivityLog.info(
-                    "lookupPKWithAdd() SQL (failed to log PARAMS): %r" % sql
-                )
+                dbActivityLog.info("lookupPKWithAdd() SQL (failed to log PARAMS): %r" % sql)
             except Exception:
-                dabo.dbActivityLog.info(
-                    "lookupPKWithAdd() (failed to log SQL and PARAMS)"
-                )
+                dbActivityLog.info("lookupPKWithAdd() (failed to log SQL and PARAMS)")
         aux.execute(sql, (val,))
         if aux.RowCount:
             return aux.getFieldVal(pkCol)
         else:
             # Add the record
-            sql = self._qMarkToParamPlaceholder(
-                "insert into %s (%s) values (?)" % (tbl, field)
-            )
+            sql = self._qMarkToParamPlaceholder("insert into %s (%s) values (?)" % (tbl, field))
             aux.execute(sql, (val,))
             return aux.getLastInsertID()
 
@@ -1194,16 +1158,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         otherTable = self._mmOtherTable
         thisPK = self.getPK()
         for otherVal in listOfValues:
-            otherPK = self.lookupPKWithAdd(
-                otherField, otherVal, otherTable, self._mmOtherPKCol
-            )
+            otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable, self._mmOtherPKCol)
             aux = self.AuxCursor
             sql = self._qMarkToParamPlaceholder(
                 "delete from %s where %s = ? and %s = ?"
                 % (self._assocTable, self._assocPKColThis, self._assocPKColOther)
             )
             try:
-                dabo.dbActivityLog.info(
+                dbActivityLog.info(
                     "mmDissociateValues() SQL: %s, PARAMS: %s"
                     % (
                         sql.decode(self.Encoding).replace("\n", " "),
@@ -1219,13 +1181,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             except Exception:
                 # A problem with writing to the log, most likely due to encoding issues
                 try:
-                    dabo.dbActivityLog.info(
-                        "mmDissociateValues() SQL (failed to log PARAMS): %r" % sql
-                    )
+                    dbActivityLog.info("mmDissociateValues() SQL (failed to log PARAMS): %r" % sql)
                 except Exception:
-                    dabo.dbActivityLog.info(
-                        "mmDissociateValues() (failed to log SQL and PARAMS)"
-                    )
+                    dbActivityLog.info("mmDissociateValues() (failed to log SQL and PARAMS)")
             try:
                 aux.execute(sql, (thisPK, otherPK))
             except dException.NoRecordsException:
@@ -1241,12 +1199,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             "delete from %s where %s = ?" % (self._assocTable, self._assocPKColThis)
         )
         try:
-            dabo.dbActivityLog.info(
-                "mmDissociateAll() SQL: %s"
-                % (sql.decode(self.Encoding).replace("\n", " "))
+            dbActivityLog.info(
+                "mmDissociateAll() SQL: %s" % (sql.decode(self.Encoding).replace("\n", " "))
             )
         except Exception:
-            dabo.dbActivityLog.info("mmDissociateAll() (failed to log SQL")
+            dbActivityLog.info("mmDissociateAll() (failed to log SQL")
         try:
             aux.execute(sql, (self.getPK(),))
         except dException.NoRecordsException:
@@ -1270,27 +1227,23 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         thisTable = self.Table
         otherTable = self._mmOtherTable
         thisPK = self.lookupPKWithAdd(thisField, thisVal, thisTable)
-        otherPK = self.lookupPKWithAdd(
-            otherField, otherVal, otherTable, self._mmOtherPKCol
-        )
+        otherPK = self.lookupPKWithAdd(otherField, otherVal, otherTable, self._mmOtherPKCol)
         aux = self.AuxCursor
         sql = self._qMarkToParamPlaceholder(
             "select * from %s where %s = ? and %s = ?"
             % (self._assocTable, self._assocPKColThis, self._assocPKColOther)
         )
         try:
-            dabo.dbActivityLog.info(
+            dbActivityLog.info(
                 "mmAddToBoth() SQL: %s, PARAMS: %s"
                 % (sql.decode(self.Encoding).replace("\n", " "), str((thisPK, otherPK)))
             )
         except Exception:
             # A problem with writing to the log, most likely due to encoding issues
             try:
-                dabo.dbActivityLog.info(
-                    "mmAddToBoth() SQL (failed to log PARAMS): %r" % sql
-                )
+                dbActivityLog.info("mmAddToBoth() SQL (failed to log PARAMS): %r" % sql)
             except Exception:
-                dabo.dbActivityLog.info("mmAddToBoth() (failed to log SQL and PARAMS)")
+                dbActivityLog.info("mmAddToBoth() (failed to log SQL and PARAMS)")
         aux.execute(sql, (thisPK, otherPK))
         if not aux.RowCount:
             sql = self._qMarkToParamPlaceholder(
@@ -1320,9 +1273,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         aux.setJoinClause(join)
         aux.setFieldClause(fldNames)
         aux.setWhereClause(
-            self._qMarkToParamPlaceholder(
-                "%s.%s = ?" % (self._assocTable, self._assocPKColThis)
-            )
+            self._qMarkToParamPlaceholder("%s.%s = ?" % (self._assocTable, self._assocPKColThis))
         )
         params = (self.getPK(),)
         aux.requery(params)
@@ -1440,11 +1391,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
         if not flds:
             vflds = vFieldKeys
-            flds = [
-                f
-                for f in _records[rowStart]
-                if returnInternals or f not in cursor_flags
-            ]
+            flds = [f for f in _records[rowStart] if returnInternals or f not in cursor_flags]
         else:
             vflds = [f for f in flds if f in vFieldKeys]
             flds = [f for f in flds if f not in vFieldKeys]
@@ -1454,9 +1401,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             _correctFieldTypesIfNeeded(rec)
             tmprec = dict([(k, rec[k]) for k in flds if k in rec])
             for v in vflds:
-                tmprec.update(
-                    {v: getFieldVal(v, row, _rowChangeCallback=_rowChangeCallback)}
-                )
+                tmprec.update({v: getFieldVal(v, row, _rowChangeCallback=_rowChangeCallback)})
             ds.append(tmprec)
         self.RowNumber = _currentRow
         return dDataSet(ds)
@@ -1485,9 +1430,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
     def cloneRecord(self):
         """Creates a copy of the current record and adds it to the dataset."""
         if not self.RowCount:
-            raise dException.NoRecordsException(
-                _("No records in dataset '%s'.") % self.Table
-            )
+            raise dException.NoRecordsException(_("No records in dataset '%s'.") % self.Table)
         rec = self._records[self.RowNumber].copy()
         if self.AutoPopulatePK:
             kf = self.KeyField
@@ -1496,7 +1439,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 kf = (kf,)
             for fld in kf:
                 rec[fld] = blank[fld]
-        for delfld in (kons.CURSOR_TMPKEY_FIELD, kons.CURSOR_FIELD_TYPES_CORRECTED):
+        for delfld in (dConstants.CURSOR_TMPKEY_FIELD, dConstants.CURSOR_FIELD_TYPES_CORRECTED):
             try:
                 del rec[delfld]
             except KeyError:
@@ -1575,9 +1518,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         if self.RowCount > 0:
             self.RowNumber = 0
         else:
-            raise dException.NoRecordsException(
-                _("No records in dataset '%s'.") % self.Table
-            )
+            raise dException.NoRecordsException(_("No records in dataset '%s'.") % self.Table)
 
     def prior(self):
         """Move the record pointer back one position in the recordset."""
@@ -1589,9 +1530,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                     _("Already at the beginning of the data set.")
                 )
         else:
-            raise dException.NoRecordsException(
-                _("No records in dataset '%s'.") % self.Table
-            )
+            raise dException.NoRecordsException(_("No records in dataset '%s'.") % self.Table)
 
     def __next__(self):
         """Move the record pointer forward one position in the recordset."""
@@ -1599,22 +1538,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             if self.RowNumber < (self.RowCount - 1):
                 self.RowNumber += 1
             else:
-                raise dException.EndOfFileException(
-                    _("Already at the end of the data set.")
-                )
+                raise dException.EndOfFileException(_("Already at the end of the data set."))
         else:
-            raise dException.NoRecordsException(
-                _("No records in dataset '%s'.") % self.Table
-            )
+            raise dException.NoRecordsException(_("No records in dataset '%s'.") % self.Table)
 
     def last(self):
         """Move the record pointer to the last record in the recordset."""
         if self.RowCount > 0:
             self.RowNumber = self.RowCount - 1
         else:
-            raise dException.NoRecordsException(
-                _("No records in dataset '%s'.") % self.Table
-            )
+            raise dException.NoRecordsException(_("No records in dataset '%s'.") % self.Table)
 
     def save(self, allRows=False, includeNewUnchanged=False):
         """Save any changes to the current record back to the data store."""
@@ -1634,16 +1567,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                     errMsg = ustr(e).decode(self.Encoding)
                 except UnicodeError:
                     errMsg = ustr(e)
-                dabo.dbActivityLog.info(
-                    _("DBQueryException encountered in save(): %s") % errMsg
-                )
+                dbActivityLog.info(_("DBQueryException encountered in save(): %s") % errMsg)
                 raise e
             except Exception as e:
                 errMsg = ustr(e)
                 if "connect" in errMsg.lower():
-                    dabo.dbActivityLog.info(
-                        _("Connection Lost exception encountered in saverow(): %s")
-                        % errMsg
+                    dbActivityLog.info(
+                        _("Connection Lost exception encountered in saverow(): %s") % errMsg
                     )
                     raise dException.ConnectionLostException(errMsg)
                 else:
@@ -1670,7 +1600,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
     def __saverow(self, row):
         rec = self._records[row]
         recKey = self.pkExpression(rec)
-        newrec = kons.CURSOR_TMPKEY_FIELD in rec
+        newrec = dConstants.CURSOR_TMPKEY_FIELD in rec
 
         newPKVal = None
         if newrec and self.AutoPopulatePK:
@@ -1831,7 +1761,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             # didn't exist
             pass
         # Remove the temp key field column, if still present.
-        rec.pop(kons.CURSOR_TMPKEY_FIELD, None)
+        rec.pop(dConstants.CURSOR_TMPKEY_FIELD, None)
 
     def getDataDiff(self, allRows=False):
         """
@@ -1847,7 +1777,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             else:
                 ret = self.getRecordStatus(pk=pk)
             ret[self._keyField] = pk
-            ret[kons.CURSOR_TMPKEY_FIELD] = newrec
+            ret[dConstants.CURSOR_TMPKEY_FIELD] = newrec
             return ret
 
         if allRows:
@@ -2055,7 +1985,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             field_name = field[4]
             field_scale = field[5]
 
-            typ = dabo.db.getPythonType(field_type)
+            typ = db.getPythonType(field_type)
             # Handle the non-standard cases
             if typ is Decimal:
                 newval = Decimal()
@@ -2078,10 +2008,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 try:
                     newval = typ()
                 except Exception as e:
-                    dabo.log.error(
-                        _("Failed to create newval for field '%s'") % field_alias
-                    )
-                    dabo.log.error(ustr(e))
+                    dabo_module.error(_(f"Failed to create newval for field '%s'") % field_alias)
+                    dabo_module.error(ustr(e))
                     newval = ""
 
             self._blank[field_alias] = newval
@@ -2108,8 +2036,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         if raiseRowNotFound:
             tbl, rc = self.Table, self.RowCount
             raise dException.RowNotFoundException(
-                _("PK '%(pk)s' not found in table '%(tbl)s' (RowCount: %(rc)s)")
-                % locals()
+                _("PK '%(pk)s' not found in table '%(tbl)s' (RowCount: %(rc)s)") % locals()
             )
         return (None, None)
 
@@ -2145,8 +2072,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             rc = self.RowCount
             tbl = self.Table
             raise dException.dException(
-                _("Invalid row specified: %(rownum)s. RowCount=%(rc)s Table='%(tbl)s'")
-                % locals()
+                _("Invalid row specified: %(rownum)s. RowCount=%(rc)s Table='%(tbl)s'") % locals()
             )
         self.RowNumber = rownum
 
@@ -2221,9 +2147,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
         badflds = []
         for fldname in flds:
-            if (fldname not in self._records[0]) and (
-                fldname not in self.VirtualFields
-            ):
+            if (fldname not in self._records[0]) and (fldname not in self.VirtualFields):
                 badflds.append(fldname)
         if badflds:
             raise dException.FieldNotFoundException(
@@ -2316,9 +2240,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                             break
                 else:
                     # Find the first row greater than the match value
-                    numSmaller = len(
-                        [testVal for testVal in searchList if testVal < matchVal]
-                    )
+                    numSmaller = len([testVal for testVal in searchList if testVal < matchVal])
                     try:
                         ret = sortList[numSmaller][1]
                     except IndexError:
@@ -2334,9 +2256,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         # First, make sure that there is *something* in the field
         kf = self.KeyField
         if not kf:
-            raise dException.MissingPKException(
-                _("checkPK failed; no primary key specified")
-            )
+            raise dException.MissingPKException(_("checkPK failed; no primary key specified"))
 
         if isinstance(kf, str):
             kf = [kf]
@@ -2384,9 +2304,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 ret.append(" AND ")
             pkVal = getPkVal(fld)
             if isinstance(pkVal, str):
-                ret.extend(
-                    [tblPrefix, fldSafe, "='", pkVal.encode(self.Encoding), "' "]
-                )
+                ret.extend([tblPrefix, fldSafe, "='", pkVal.encode(self.Encoding), "' "])
             elif isinstance(pkVal, (datetime.date, datetime.datetime)):
                 ret.extend([tblPrefix, fldSafe, "=", self.formatDateTime(pkVal), " "])
             else:
@@ -2540,9 +2458,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
     def setFieldClause(self, clause):
         """Set the field clause of the sql statement."""
-        self.sqlManager._fieldClause = self.sqlManager.BackendObject.setFieldClause(
-            clause
-        )
+        self.sqlManager._fieldClause = self.sqlManager.BackendObject.setFieldClause(clause)
 
     def addField(self, exp, alias=None):
         """Add a field to the field clause."""
@@ -2675,9 +2591,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
     def prepareWhere(self, clause):
         """Modifies WHERE clauses as needed for each backend."""
-        return self.sqlManager.BackendObject.prepareWhere(
-            clause, autoQuote=self.AutoQuoteNames
-        )
+        return self.sqlManager.BackendObject.prepareWhere(clause, autoQuote=self.AutoQuoteNames)
 
     def setChildFilter(self, fld):
         """This method sets the appropriate WHERE filter for dependent child queries."""
@@ -2710,10 +2624,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         if not isinstance(fld, (list, tuple)):
             fld = (fld,)
         filtExpr = "and".join(
-            [
-                " %s.%s = %s " % (alias, fldExpr, self.ParamPlaceholder)
-                for fldExpr in fld
-            ]
+            [" %s.%s = %s " % (alias, fldExpr, self.ParamPlaceholder) for fldExpr in fld]
         )
         self.setChildFilterClause(filtExpr)
 
@@ -2730,8 +2641,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
     def setChildFilterClause(self, clause):
         """Set the child filter clause of the sql statement."""
-        self.sqlManager._childFilterClause = (
-            self.sqlManager.BackendObject.setChildFilterClause(clause)
+        self.sqlManager._childFilterClause = self.sqlManager.BackendObject.setChildFilterClause(
+            clause
         )
 
     def getGroupByClause(self):
@@ -2740,9 +2651,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
     def setGroupByClause(self, clause):
         """Set the group-by clause of the sql statement."""
-        self.sqlManager._groupByClause = self.sqlManager.BackendObject.setGroupByClause(
-            clause
-        )
+        self.sqlManager._groupByClause = self.sqlManager.BackendObject.setGroupByClause(clause)
 
     def addGroupBy(self, exp):
         """Add an expression to the group-by clause."""
@@ -2758,9 +2667,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
     def setOrderByClause(self, clause):
         """Set the order-by clause of the sql statement."""
-        self.sqlManager._orderByClause = self.sqlManager.BackendObject.setOrderByClause(
-            clause
-        )
+        self.sqlManager._orderByClause = self.sqlManager.BackendObject.setOrderByClause(clause)
 
     def addOrderBy(self, exp):
         """Add an expression to the order-by clause."""
@@ -2880,7 +2787,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
     def oldVal(self, fieldName, row=None):
         """Returns the value of the field as it existed after the last requery."""
         if self.RowCount < 1:
-            raise dabo.dException.NoRecordsException
+            raise dException.NoRecordsException
         if row is None:
             row = self.RowNumber
         rec = self._records[row]
@@ -3035,7 +2942,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 field_name,
                 field_scale,
             )
-            self._types[field_name] = dabo.db.getPythonType(field_type)
+            self._types[field_name] = db.getPythonType(field_type)
         self._dataStructure = self.AuxCursor._dataStructure = tuple(val)
 
     def _getEncoding(self):
@@ -3049,7 +2956,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         if self.RowCount <= 0:
             return False
         try:
-            return kons.CURSOR_TMPKEY_FIELD in self._records[self.RowNumber]
+            return dConstants.CURSOR_TMPKEY_FIELD in self._records[self.RowNumber]
         except IndexError:
             return False
 
@@ -3092,7 +2999,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         try:
             ret = self._cursorRecord
         except AttributeError:
-            ret = self._cursorRecord = dabo.db._getRecord(self)
+            ret = self._cursorRecord = db._getRecord(self)
         return ret
 
     def _getRowCount(self):
@@ -3180,18 +3087,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         _getBackendObject,
         _setBackendObject,
         None,
-        _(
-            "Returns a reference to the object defining backend-specific behavior (dBackend)"
-        ),
+        _("Returns a reference to the object defining backend-specific behavior (dBackend)"),
     )
 
     CurrentSQL = property(
         _getCurrentSQL,
         None,
         None,
-        _(
-            "Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."
-        ),
+        _("Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."),
     )
 
     DataStructure = property(
@@ -3249,9 +3152,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         ),
     )
 
-    LastSQL = property(
-        _getLastSQL, None, None, _("Returns the last executed SQL statement.")
-    )
+    LastSQL = property(_getLastSQL, None, None, _("Returns the last executed SQL statement."))
 
     KeyField = property(
         _getKeyField,
@@ -3283,9 +3184,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         ),
     )
 
-    RowNumber = property(
-        _getRowNumber, _setRowNumber, None, _("Current row in the recordset.")
-    )
+    RowNumber = property(_getRowNumber, _setRowNumber, None, _("Current row in the recordset."))
 
     RowCount = property(
         _getRowCount,

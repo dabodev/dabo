@@ -5,16 +5,27 @@
 http://dabodev.com
 """
 
+import asyncio
+import builtins
 import importlib
 import locale
 import os
 import sys
+from functools import partial
+from pathlib import Path
 
-from .settings import *
+from . import settings
+from . import main
+from . import version
 
 
-# dApp will change the following values upon its __init__:
-dAppRef = None
+# Reference to the running application object
+application = None
+
+
+# Current version
+def get_version():
+    return version.get_version()
 
 
 # Method to create a standard Dabo directory structure layout
@@ -23,14 +34,90 @@ def makeDaboDirectories(homedir=None):
     directory. Otherwise, it is assumed that they should be created
     in the current directory location.
     """
-    currLoc = os.getcwd()
+    currLoc = Path.cwd()
     if homedir is not None:
         os.chdir(homedir)
-    # 'standardDirs' is defined in settings.py
-    for d in standardDirs:
-        if not os.path.exists(d):
-            os.mkdir(d)
+    for d in settings.standardDirs:
+        dirpath = Path(d)
+        dirpath.mkdir(parents=True, exist_ok=True)
     os.chdir(currLoc)
+
+
+# Ensure that the minimal structure is present
+makeDaboDirectories()
+
+
+def _load_base_modules():
+    from . import dConstants
+    from . import events
+    from . import dObject
+    from . import dException
+
+
+def _load_remaining_modules():
+    from . import db
+    from . import dPref
+    from . import ui
+
+    ui.load_namespace()
+    from . import dApp
+    from . import biz
+    from . import dColors
+    from . import events
+
+
+# if settings.implicitImports:
+#     asyncio.ensure_future(_load_modules())
+
+# Logging configuration
+logger = None
+dbActivityLog = None
+fileFormatter = None
+fileLogHandler = None
+dbFileLogHandler = None
+dbFileFormatter = None
+main.setup_logging()
+debug = logger.debug
+info = logger.info
+error = logger.error
+
+
+# Load the base modules first
+_load_base_modules()
+# Now load the rest
+_load_remaining_modules()
+
+if settings.localizeDabo:
+    # Install localization service for dabo. dApp will install localization service
+    # for the user application separately.
+    from . import dLocalize
+
+    dLocalize.install("dabo")
+
+if settings.importDebugger:
+    from .dBug import logPoint
+
+    try:
+        import pudb as pdb
+    except ImportError:
+        import pdb
+    trace = pdb.set_trace
+
+    def debugout(*args):
+        from .lib.utils import ustr
+
+        txtargs = [ustr(arg) for arg in args]
+        txt = " ".join(txtargs)
+        log = logging.getLogger("Debug")
+        log.debug(txt)
+
+    # Mangle the namespace so that developers can add lines like:
+    #         debugo("Some Message")
+    # or
+    #         debugout("Another Message", self.Caption)
+    # to their code for debugging.
+    # (I added 'debugo' as an homage to Whil Hentzen!)
+    builtins.debugo = builtins.debugout = debugout
 
 
 def quickStart(homedir=None):

@@ -36,9 +36,7 @@ class TestPanel(dPanel):
         )
         sz.append(lbl, "x", halign="center")
         sz.appendSpacer(10)
-        txt = dDateTextBox(
-            self, Value=datetime.date.today(), FontSize=18, Height=36, Width=180
-        )
+        txt = dDateTextBox(self, Value=datetime.date.today(), FontSize=18, Height=36, Width=180)
         sz.append(txt, halign="center")
         dabo.ui.callAfter(self.layout)
 

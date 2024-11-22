@@ -8,10 +8,12 @@ from ..lib.utils import ustr
 from .. import lib
 from .. import ui
 from .. import events
+from .. import main
 from . import dControlMixin
 from . import dPage
 from . import makeDynamicProperty
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 MSG_SMART_FOCUS_ABUSE = _(
@@ -22,12 +24,8 @@ MSG_SMART_FOCUS_ABUSE = _(
 class dPageFrameMixin(dControlMixin):
     """Creates a container for an unlimited number of pages."""
 
-    def __init__(
-        self, preClass, parent, properties=None, attProperties=None, *args, **kwargs
-    ):
-        kwargs["style"] = (
-            self._extractKey((properties, kwargs), "style", 0) | wx.CLIP_CHILDREN
-        )
+    def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
+        kwargs["style"] = self._extractKey((properties, kwargs), "style", 0) | wx.CLIP_CHILDREN
         super(dPageFrameMixin, self).__init__(
             preClass,
             parent,
@@ -38,7 +36,7 @@ class dPageFrameMixin(dControlMixin):
         )
 
     def _beforeInit(self, pre):
-        from ui import dSizer
+        from ..ui import dSizer
 
         self._imageList = {}
         self._pageSizerClass = dSizer
@@ -64,10 +62,8 @@ class dPageFrameMixin(dControlMixin):
             try:
                 self.Pages[oldPageNum]._saveLastActiveControl()
             except AttributeError:
-                log.error(MSG_SMART_FOCUS_ABUSE % self.Name)
-        self.raiseEvent(
-            events.PageChanging, oldPageNum=oldPageNum, newPageNum=newPageNum
-        )
+                dabo_module.error(MSG_SMART_FOCUS_ABUSE % self.Name)
+        self.raiseEvent(events.PageChanging, oldPageNum=oldPageNum, newPageNum=newPageNum)
 
     def _beforePageChange(self, old, new):
         return self.beforePageChange(old, new)
@@ -123,7 +119,7 @@ class dPageFrameMixin(dControlMixin):
                 try:
                     newPage._restoreLastActiveControl()
                 except AttributeError:
-                    log.warn(MSG_SMART_FOCUS_ABUSE % self.Name)
+                    dabo_module.warn(MSG_SMART_FOCUS_ABUSE % self.Name)
 
     # Image-handling function
     def addImage(self, img, key=None):
@@ -185,9 +181,7 @@ class dPageFrameMixin(dControlMixin):
         """
         return self.insertPage(self.GetPageCount(), pgCls, caption, imgKey, **kwargs)
 
-    def insertPage(
-        self, pos, pgCls=None, caption="", imgKey=None, ignoreOverride=False, **kwargs
-    ):
+    def insertPage(self, pos, pgCls=None, caption="", imgKey=None, ignoreOverride=False, **kwargs):
         """
         Insert the page into the pageframe at the specified position,
         and optionally sets the page caption and image. The image
@@ -451,9 +445,7 @@ class dPageFrameMixin(dControlMixin):
         elif val == "Bottom":
             self._addWindowStyleFlag(self._tabposBottom)
         else:
-            raise ValueError(
-                _("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'")
-            )
+            raise ValueError(_("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'"))
 
     def _getUpdateInactivePages(self):
         return getattr(self, "_updateInactivePages", True)
@@ -491,9 +483,7 @@ class dPageFrameMixin(dControlMixin):
         ),
     )
 
-    Pages = property(
-        _getPages, None, None, _("Returns a list of the contained pages.  (list)")
-    )
+    Pages = property(_getPages, None, None, _("Returns a list of the contained pages.  (list)"))
 
     PageSizerClass = property(
         _getPageSizerClass,

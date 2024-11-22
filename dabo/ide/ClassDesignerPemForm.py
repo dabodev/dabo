@@ -138,9 +138,7 @@ class PemForm(dForm):
 
         mp.SelectedPage = pp
 
-        ps.Controller = ms.Controller = self._tree.Controller = ops.Controller = (
-            self.Controller
-        )
+        ps.Controller = ms.Controller = self._tree.Controller = ops.Controller = self.Controller
         self.layout()
         dabo.ui.callAfter(self.mainContainer.expand, self.propPage)
 

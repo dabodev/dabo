@@ -57,9 +57,7 @@ class About(dDialog):
             )
         )
         eg.addColumn(
-            dColumn(
-                eg, DataField="value", Sortable=False, Searchable=False, FontBold=True
-            )
+            dColumn(eg, DataField="value", Sortable=False, Searchable=False, FontBold=True)
         )
         eg.autoSizeCol("all")
         eg.sizeToColumns()

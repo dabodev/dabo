@@ -98,9 +98,7 @@ class TestPanel(dPanel):
 
     def onOrientationChange(self, evt):
         self.displaySizer.Orientation = self.ddOrientation.StringValue
-        self.Form.logit(
-            _("Overall Orientation changed to %s") % self.displaySizer.Orientation
-        )
+        self.Form.logit(_("Overall Orientation changed to %s") % self.displaySizer.Orientation)
         self.layout()
 
 
@@ -141,16 +139,12 @@ class SizerController(dPanel):
 
         # Add a dropdown to select Horiz. and Vert. alignment
         sz.append(dLabel(self, Caption=_("Horiz. Align:")), halign="right")
-        self.ddHAlign = dDropdownList(
-            self, ValueMode="String", Choices=["Left", "Center", "Right"]
-        )
+        self.ddHAlign = dDropdownList(self, ValueMode="String", Choices=["Left", "Center", "Right"])
         self.ddHAlign.bindEvent(dEvents.Hit, self.onAlignChange)
         self.ddHAlign.sizerProp = "HAlign"
         sz.append(self.ddHAlign)
         sz.append(dLabel(self, Caption=_("Vert. Align:")), halign="right")
-        self.ddVAlign = dDropdownList(
-            self, ValueMode="String", Choices=["Top", "Middle", "Bottom"]
-        )
+        self.ddVAlign = dDropdownList(self, ValueMode="String", Choices=["Top", "Middle", "Bottom"])
         self.ddVAlign.bindEvent(dEvents.Hit, self.onAlignChange)
         self.ddVAlign.sizerProp = "VAlign"
         sz.append(self.ddVAlign)

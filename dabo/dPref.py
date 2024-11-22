@@ -4,11 +4,13 @@ import datetime
 import os
 import warnings
 
+from . import main
 from .dLocalize import _
 from .lib import utils
 from .lib.utils import ustr
 from . import db
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 # We don't want to deal with these as preferences.
@@ -145,9 +147,7 @@ class dPref(object):
                     param = att
                 crs = self._cursor
                 try:
-                    crs.execute(
-                        "select ctype, cvalue from daboprefs where ckey = ? ", (param,)
-                    )
+                    crs.execute("select ctype, cvalue from daboprefs where ckey = ? ", (param,))
                     rec = crs.getCurrentRecord()
                 except Exception as e:
                     print("QUERY ERR", e)
@@ -256,7 +256,7 @@ class dPref(object):
         baseKey = self._getKey()
         if not baseKey:
             if not self._persistAll:
-                log.error(_("No base key set; preference will not be persisted."))
+                dabo_module.error(_("No base key set; preference will not be persisted."))
                 return
             else:
                 key = att
@@ -266,7 +266,7 @@ class dPref(object):
         try:
             typ = self._typeDict[type(val)]
         except KeyError:
-            log.error(_("BAD TYPE: %s") % type(val))
+            dabo_module.error(_("BAD TYPE: %s") % type(val))
             typ = "?"
         # Convert it to a string that can be properly converted back
         val = self._encodeType(val, typ)
@@ -404,19 +404,11 @@ class dPref(object):
         rs = crs.getDataSet()
         tmpDict = {}
         for rec in rs:
-            tmpDict[
-                rec["ckey"][keylen : keylen + len(rec["ckey"].split(".")[keydots])]
-            ] = None
+            tmpDict[rec["ckey"][keylen : keylen + len(rec["ckey"].split(".")[keydots])]] = None
         # Now add any cached entries
         ret = list(
             set(tmpDict)
-            | set(
-                [
-                    kk
-                    for kk in self._cache
-                    if kk.startswith(key) and not isinstance(kk, dPref)
-                ]
-            )
+            | set([kk for kk in self._cache if kk.startswith(key) and not isinstance(kk, dPref)])
         )
         return ret
 
@@ -436,11 +428,7 @@ class dPref(object):
         sql = "select ckey from daboprefs where ckey like ?"
         crs.execute(sql, ("%s.%%" % key,))
         rs = crs.getDataSet()
-        retList = [
-            rec["ckey"].split(".")[keydots]
-            for rec in rs
-            if len(rec["ckey"].split(".")) > 2
-        ]
+        retList = [rec["ckey"].split(".")[keydots] for rec in rs if len(rec["ckey"].split(".")) > 2]
         tmp = {}
         for itm in retList:
             tmp[itm] = None
@@ -530,9 +518,7 @@ class dPref(object):
         _getAutoPersist,
         _setAutoPersist,
         None,
-        _(
-            "Do property assignments automatically save themselves? Default=True  (bool)"
-        ),
+        _("Do property assignments automatically save themselves? Default=True  (bool)"),
     )
 
     FullPath = property(

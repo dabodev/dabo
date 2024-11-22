@@ -5,12 +5,13 @@ import wx
 
 from .. import ui
 from .. import events
+from .. import main
 from . import makeDynamicProperty
 from . import dDataControlMixin
 from . import dControlItemMixin
 from ..dLocalize import _
 
-# import log
+dabo_module = main.get_dabo_package()
 
 
 class _dRadioButton(dDataControlMixin, wx.RadioButton):
@@ -194,9 +195,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
     def _checkSizer(self):
         """Makes sure the sizer is created before setting props that need it."""
         if self.Sizer is None:
-            self.Sizer = self.SizerClass(
-                self, orientation=self.Orientation, Caption=self.Caption
-            )
+            self.Sizer = self.SizerClass(self, orientation=self.Orientation, Caption=self.Caption)
 
     def _onWxHit(self, evt):
         pos = self._items.index(evt.GetEventObject())
@@ -270,16 +269,14 @@ class dRadioList(dControlItemMixin, wx.Panel):
     def enableString(self, itm, val=True):
         """Enables or disables an individual button, referenced by string display value."""
         mtch = [
-            btn
-            for btn in self.Children
-            if isinstance(btn, _dRadioButton) and btn.Caption == itm
+            btn for btn in self.Children if isinstance(btn, _dRadioButton) and btn.Caption == itm
         ]
         try:
             itm = mtch[0]
             idx = self._items.index(itm)
             self._items[idx].Enabled = val
         except IndexError:
-            log.error(_("Could not find a button with Caption of '%s'") % itm)
+            dabo_module.error(_("Could not find a button with Caption of '%s'") % itm)
 
     def enable(self, itm, val=True):
         """
@@ -560,9 +557,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
             except IndexError:
                 if val is not None:
                     # No such string.
-                    raise ValueError(
-                        _("No radio button matching '%s' was found.") % val
-                    )
+                    raise ValueError(_("No radio button matching '%s' was found.") % val)
         else:
             self._properties["StringValue"] = val
 
@@ -623,9 +618,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
         ),
     )
 
-    ShowBox = property(
-        _getShowBox, _setShowBox, None, _("Is the surrounding box visible?  (bool)")
-    )
+    ShowBox = property(_getShowBox, _setShowBox, None, _("Is the surrounding box visible?  (bool)"))
 
     SizerClass = property(
         _getSizerClass,
@@ -683,6 +676,6 @@ class _dRadioList_test(dRadioList):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dRadioList_test)

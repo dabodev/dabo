@@ -6,6 +6,7 @@ PaneInfo = aui.AuiPaneInfo
 
 from ..dLocalize import _
 from .. import events
+from .. import main
 from .. import ui
 from . import dButton
 from . import dCheckBox
@@ -15,7 +16,8 @@ from . import dShellForm
 from . import dSizer
 from . import dStatusBar
 from . import makeDynamicProperty
-# import log
+
+dabo_module = main.get_dabo_package()
 
 flag_allow_float = aui.AUI_MGR_ALLOW_FLOATING
 flag_show_active = aui.AUI_MGR_ALLOW_ACTIVE_PANE
@@ -31,10 +33,7 @@ class _dDockManager(aui.AuiManager):
     def __init__(self, win):
         self._managedWindow = win
         flags = (
-            flag_allow_float
-            | flag_transparent_drag
-            | flag_rectangle_hint
-            | flag_transparent_hint
+            flag_allow_float | flag_transparent_drag | flag_rectangle_hint | flag_transparent_hint
         )
         try:
             super(_dDockManager, self).__init__(win, flags=flags)
@@ -164,13 +163,11 @@ class dDockPanel(dPanel):
         inf = self._PaneInfo
         if side is not None:
             s = side[0].lower()
-            func = {"l": inf.Left, "r": inf.Right, "t": inf.Top, "b": inf.Bottom}.get(
-                s, None
-            )
+            func = {"l": inf.Left, "r": inf.Right, "t": inf.Top, "b": inf.Bottom}.get(s, None)
             if func:
                 func()
             else:
-                log.error(_("Invalid dock position: '%s'.") % side)
+                dabo_module.error(_("Invalid dock position: '%s'.") % side)
         inf.Dock()
         self._updateAUI()
 
@@ -286,7 +283,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingBottom = val
             else:
-                log.error(_("Cannot set the position of a docked panel"))
+                dabo_module.error(_("Cannot set the position of a docked panel"))
         else:
             self._properties["Bottom"] = val
 
@@ -328,17 +325,14 @@ class dDockPanel(dPanel):
 
     def _getDockable(self):
         return (
-            self._bottomDockable
-            or self._leftDockable
-            or self._rightDockable
-            or self._topDockable
+            self._bottomDockable or self._leftDockable or self._rightDockable or self._topDockable
         )
 
     def _setDockable(self, val):
         if self._constructed():
-            self._dockable = self._bottomDockable = self._leftDockable = (
-                self._rightDockable
-            ) = self._topDockable = val
+            self._dockable = self._bottomDockable = self._leftDockable = self._rightDockable = (
+                self._topDockable
+            ) = val
             self._PaneInfo.Dockable(val)
             if self.Docked:
                 self.Docked = val
@@ -365,9 +359,7 @@ class dDockPanel(dPanel):
             self._properties["Docked"] = val
 
     def _getDockSide(self):
-        return {1: "Top", 2: "Right", 3: "Bottom", 4: "Left"}[
-            self._PaneInfo.dock_direction
-        ]
+        return {1: "Top", 2: "Right", 3: "Bottom", 4: "Left"}[self._PaneInfo.dock_direction]
 
     def _setDockSide(self, val):
         if self._constructed():
@@ -507,9 +499,7 @@ class dDockPanel(dPanel):
         if self._constructed():
             val = val[0].lower()
             if not val in ("l", "t"):
-                raise ValueError(
-                    _("Only valid GripperPosition values are 'Top' or 'Left'.")
-                )
+                raise ValueError(_("Only valid GripperPosition values are 'Top' or 'Left'."))
             self._gripperPosition = {"l": "Left", "t": "Top"}[val]
             self._PaneInfo.GripperTop(val == "t")
             self._updateAUI()
@@ -524,7 +514,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingHeight = val
             else:
-                log.error(_("Cannot set the Size of a docked panel"))
+                dabo_module.error(_("Cannot set the Size of a docked panel"))
         else:
             self._properties["Height"] = val
 
@@ -536,7 +526,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingLeft = val
             else:
-                log.error(_("Cannot set the position of a docked panel"))
+                dabo_module.error(_("Cannot set the position of a docked panel"))
         else:
             self._properties["Left"] = val
 
@@ -594,7 +584,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingRight = val
             else:
-                log.error(_("Cannot set the position of a docked panel"))
+                dabo_module.error(_("Cannot set the position of a docked panel"))
         else:
             self._properties["Right"] = val
 
@@ -702,7 +692,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingTop = val
             else:
-                log.error(_("Cannot set the position of a docked panel"))
+                dabo_module.error(_("Cannot set the position of a docked panel"))
         else:
             self._properties["Top"] = val
 
@@ -734,7 +724,7 @@ class dDockPanel(dPanel):
             if self.Floating:
                 self.FloatingWidth = val
             else:
-                log.error(_("Cannot set the Size of a docked panel"))
+                dabo_module.error(_("Cannot set the Size of a docked panel"))
         else:
             self._properties["Width"] = val
 
@@ -751,9 +741,7 @@ class dDockPanel(dPanel):
         _getBottomDockable,
         _setBottomDockable,
         None,
-        _(
-            "Can the panel be docked to the bottom edge of the form? Default=True  (bool)"
-        ),
+        _("Can the panel be docked to the bottom edge of the form? Default=True  (bool)"),
     )
 
     Caption = property(
@@ -798,9 +786,7 @@ class dDockPanel(dPanel):
         _getFloatable,
         _setFloatable,
         None,
-        _(
-            "Can the panel be undocked from the form and float independently? Default=True  (bool)"
-        ),
+        _("Can the panel be undocked from the form and float independently? Default=True  (bool)"),
     )
 
     Floating = property(
@@ -911,18 +897,14 @@ class dDockPanel(dPanel):
         _getMovable,
         _setMovable,
         None,
-        _(
-            "Can the panel be moved (True, default), or is it in a fixed position (False).  (bool)"
-        ),
+        _("Can the panel be moved (True, default), or is it in a fixed position (False).  (bool)"),
     )
 
     _PaneInfo = property(
         _getPaneInfo,
         None,
         None,
-        _(
-            "Reference to the AUI PaneInfo object (for internal use only).  (wx.aui.PaneInfo)"
-        ),
+        _("Reference to the AUI PaneInfo object (for internal use only).  (wx.aui.PaneInfo)"),
     )
 
     Resizable = property(
@@ -945,9 +927,7 @@ class dDockPanel(dPanel):
         _getRightDockable,
         _setRightDockable,
         None,
-        _(
-            "Can the panel be docked to the right edge of the form? Default=True  (bool)"
-        ),
+        _("Can the panel be docked to the right edge of the form? Default=True  (bool)"),
     )
 
     ShowBorder = property(
@@ -961,9 +941,7 @@ class dDockPanel(dPanel):
         _getShowCaption,
         _setShowCaption,
         None,
-        _(
-            "Should the panel's Caption be shown when it is docked? Default=True  (bool)"
-        ),
+        _("Should the panel's Caption be shown when it is docked? Default=True  (bool)"),
     )
 
     ShowCloseButton = property(
@@ -984,18 +962,14 @@ class dDockPanel(dPanel):
         _getShowMaximizeButton,
         _setShowMaximizeButton,
         None,
-        _(
-            "Does the panel display a maximize button when floating? Default=False  (bool)"
-        ),
+        _("Does the panel display a maximize button when floating? Default=False  (bool)"),
     )
 
     ShowMinimizeButton = property(
         _getShowMinimizeButton,
         _setShowMinimizeButton,
         None,
-        _(
-            "Does the panel display a minimize button when floating? Default=False  (bool)"
-        ),
+        _("Does the panel display a minimize button when floating? Default=False  (bool)"),
     )
 
     ShowPinButton = property(
@@ -1068,7 +1042,7 @@ class dDockForm(dForm):
         ok = isinstance(evt.child, (dDockPanel, dStatusBar, dShellForm))
         if not ok:
             # This should never happen; if so, log the error
-            log.error(_("Unmanaged object added to a Dock Form: %s") % evt.child)
+            dabo_module.error(_("Unmanaged object added to a Dock Form: %s") % evt.child)
 
     def addObject(self, classRef, Name=None, *args, **kwargs):
         """
@@ -1114,9 +1088,7 @@ class dDockForm(dForm):
         """Save the panel layout info, then call the default behavior."""
         if self.Application:
             if self.SaveRestorePosition and not self.TempForm:
-                self.Application.setUserSetting(
-                    "perspective", self._mgr.SavePerspective()
-                )
+                self.Application.setUserSetting("perspective", self._mgr.SavePerspective())
                 if not self._finito:
                     super(dDockForm, self).saveSizeAndPosition()
 
@@ -1174,9 +1146,7 @@ class dDockForm(dForm):
         _getShowActivePanel,
         _setShowActivePanel,
         None,
-        _(
-            "When True, the title bar of the active pane is highlighted. Default=False  (bool)"
-        ),
+        _("When True, the title bar of the active pane is highlighted. Default=False  (bool)"),
     )
 
     TransparentDrag = property(
@@ -1276,6 +1246,6 @@ ui.dDockForm = dDockForm
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dDockForm_test)

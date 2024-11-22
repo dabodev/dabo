@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-# import log
+from .. import main
+
+
+dabo_module = main.get_dabo_package()
+
 
 try:
     import wx.lib.plot as plot
@@ -18,7 +22,7 @@ except ImportError:
     numpy = False
 except Exception as e:
     # Report the error, and abandon the import
-    log.error(_("Error importing numpy.oldnumeric: %s") % e)
+    dabo_module.error(_("Error importing numpy.oldnumeric: %s") % e)
     numpy = False
 
 from ..dLocalize import _
@@ -74,9 +78,7 @@ class _TraceMixin(object):
         _getTraceColor,
         _setTraceColor,
         None,
-        _(
-            "The color of the plotted trace.  Must be a wx.NamedColour (default='black') (str)"
-        ),
+        _("The color of the plotted trace.  Must be a wx.NamedColour (default='black') (str)"),
     )
 
     TraceWidth = property(
@@ -110,9 +112,7 @@ class PlotLine(_TraceMixin, plot.PolyLine):
         _getLineStyle,
         _setLineStyle,
         None,
-        _(
-            "The drawn style of the plotted line (default='solid') ('solid', 'dot', or 'dash')"
-        ),
+        _("The drawn style of the plotted line (default='solid') ('solid', 'dot', or 'dash')"),
     )
 
 
@@ -127,9 +127,9 @@ class PlotMarkers(_TraceMixin, plot.PolyMarker):
 
     def _setFillStyle(self, val):
         if val in ["solid", "empty"]:
-            self.attributes["style"] = dict(
-                solid=wx.PENSTYLE_SOLID, empty=wx.PENSTYLE_TRANSPARENT
-            )[val]
+            self.attributes["style"] = dict(solid=wx.PENSTYLE_SOLID, empty=wx.PENSTYLE_TRANSPARENT)[
+                val
+            ]
             self._fillStyle = val
         else:
             raise ValueError("LineStyle must be either 'solid' or 'empty'")
@@ -198,9 +198,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         if not numpy:
-            raise ImportError(
-                "numpy.oldnumeric is not present, so dLinePlot cannot instantiate."
-            )
+            raise ImportError("numpy.oldnumeric is not present, so dLinePlot cannot instantiate.")
         self._plotManager = plot.PlotGraphics([])
 
         self._baseClass = dLinePlot
@@ -525,9 +523,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         _getEnableZoom, _setEnableZoom, None, _("Determines whether zoom is enabled")
     )
 
-    FontSize = property(
-        _getFontSize, _setFontSize, None, _("The font size of the caption")
-    )
+    FontSize = property(_getFontSize, _setFontSize, None, _("The font size of the caption"))
 
     LegendFontSize = property(
         _getLegendFontSize,
@@ -589,14 +585,10 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         _getUseScientificNotation,
         _setUseScientificNotation,
         None,
-        _(
-            "Determines if scientific notation is used for the display (default=False) (bool)"
-        ),
+        _("Determines if scientific notation is used for the display (default=False) (bool)"),
     )
 
-    XAxisLabel = property(
-        _getXAxisLabel, _setXAxisLabel, None, _("Label for the x-axis (string)")
-    )
+    XAxisLabel = property(_getXAxisLabel, _setXAxisLabel, None, _("Label for the x-axis (string)"))
 
     XAxisType = property(
         _getXAxisType,
@@ -611,9 +603,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         ),
     )
 
-    YAxisLabel = property(
-        _getYAxisLabel, _setYAxisLabel, None, _("Label for the y-axis (string)")
-    )
+    YAxisLabel = property(_getYAxisLabel, _setYAxisLabel, None, _("Label for the y-axis (string)"))
 
     YAxisType = property(
         _getYAxisType,
@@ -678,6 +668,6 @@ class _dLinePlot_test(dLinePlot):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dLinePlot_test)

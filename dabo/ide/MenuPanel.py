@@ -30,9 +30,7 @@ class MenuItemContainer(dPanel):
     def __init__(self, *args, **kwargs):
         kwargs["AlwaysResetSizer"] = True
         super(MenuItemContainer, self).__init__(*args, **kwargs)
-        self.Sizer = dSizerV(
-            DefaultBorder=8, DefaultBorderLeft=True, DefaultBorderRight=True
-        )
+        self.Sizer = dSizerV(DefaultBorder=8, DefaultBorderLeft=True, DefaultBorderRight=True)
 
 
 class AbstractMenuPanel(MenuSaverMixin, dPanel):
@@ -412,9 +410,7 @@ class AbstractMenuPanel(MenuSaverMixin, dPanel):
         _("Is the Shift key part of the hotkey combo?  (bool)"),
     )
 
-    Icon = property(
-        _getIcon, _setIcon, None, _("Specifies the icon for the menu item.  (str)")
-    )
+    Icon = property(_getIcon, _setIcon, None, _("Specifies the icon for the menu item.  (str)"))
 
     ItemID = property(
         _getItemID,
@@ -434,9 +430,7 @@ class AbstractMenuPanel(MenuSaverMixin, dPanel):
         _("The logical 'parent' for this item (not the panel container it sits in.)"),
     )
 
-    MRU = property(
-        _getMRU, _setMRU, None, _("Should this menu be tracked for MRU lists  (bool)")
-    )
+    MRU = property(_getMRU, _setMRU, None, _("Should this menu be tracked for MRU lists  (bool)"))
 
     Selected = property(
         _getSelected,
@@ -561,10 +555,7 @@ class MenuBarPanel(AbstractMenuPanel):
         menuExists = bool(self.Children)
         if menuExists:
             if not dabo.ui.areYouSure(
-                _(
-                    "Proceeding will destroy the exising menu. "
-                    "Do you really want to do that?"
-                ),
+                _("Proceeding will destroy the exising menu. " "Do you really want to do that?"),
                 "Menu Exists",
                 defaultNo=True,
                 cancelButton=False,
@@ -825,9 +816,7 @@ class MenuItemPanel(AbstractMenuPanel):
 
     def _initCaptions(self):
         self.lblCaption = dLabel(self, Caption=self.Caption, _EventTarget=self)
-        self.lblHotKey = dLabel(
-            self, Caption=self.HotKey, _EventTarget=self, ForeColor="sienna"
-        )
+        self.lblHotKey = dLabel(self, Caption=self.HotKey, _EventTarget=self, ForeColor="sienna")
         self.lblCaption.FontSize += FONT_SIZE_DIFF
         self.lblHotKey.FontSize += FONT_SIZE_DIFF - 2
         hsz = self.capSizer = dSizerH()

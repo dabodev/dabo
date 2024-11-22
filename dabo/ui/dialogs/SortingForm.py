@@ -49,9 +49,7 @@ class SortingForm(dOkCancelDialog):
         _getListCaption, _setListCaption, None, _("Caption for the sorting list  (str)")
     )
 
-    Choices = property(
-        _getChoices, _setChoices, None, _("Items in the list to sort.   (list)")
-    )
+    Choices = property(_getChoices, _setChoices, None, _("Items in the list to sort.   (list)"))
 
 
 if __name__ == "__main__":

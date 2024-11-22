@@ -54,7 +54,7 @@ class SplitterPanelMixin(object):
         else:
             newDir = "h"
         if self.Sizer is None:
-            from ui import dSizer
+            from .sizer import dSizer
 
             self.Sizer = dSizer(newDir)
         if dir_ is None:
@@ -92,9 +92,7 @@ class SplitterPanelMixin(object):
         _getShowSplitMenu,
         _setShowSplitMenu,
         None,
-        _(
-            "Determines if the Split/Unsplit context menu is shown (default=True)  (bool)"
-        ),
+        _("Determines if the Split/Unsplit context menu is shown (default=True)  (bool)"),
     )
 
 
@@ -107,30 +105,22 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dSplitter
-        unsplitAtt = self._extractKey(
-            (kwargs, properties, attProperties), "CanUnsplit", "True"
-        )
+        unsplitAtt = self._extractKey((kwargs, properties, attProperties), "CanUnsplit", "True")
         self._canUnsplit = unsplitAtt.upper()[0] == "T"
         baseStyle = wx.SP_3D | wx.SP_LIVE_UPDATE
         if self._canUnsplit:
             baseStyle = baseStyle | wx.SP_PERMIT_UNSPLIT
-        style = self._extractKey(
-            (kwargs, properties, attProperties), "style", baseStyle
-        )
+        style = self._extractKey((kwargs, properties, attProperties), "style", baseStyle)
         self._createPanes = self._extractKey(attProperties, "createPanes", None)
         if self._createPanes is not None:
             self._createPanes = self._createPanes == "True"
         else:
-            self._createPanes = self._extractKey(
-                (kwargs, properties), "createPanes", False
-            )
+            self._createPanes = self._extractKey((kwargs, properties), "createPanes", False)
         self._createSizers = self._extractKey(attProperties, "createSizers", None)
         if self._createSizers is not None:
             self._createSizers = self._createSizers == "True"
         else:
-            self._createSizers = self._extractKey(
-                (kwargs, properties), "createSizers", False
-            )
+            self._createSizers = self._extractKey((kwargs, properties), "createSizers", False)
         self._splitOnInit = self._extractKey(attProperties, "splitOnInit", None)
         if self._splitOnInit is not None:
             self._splitOnInit = self._splitOnInit == "True"
@@ -143,9 +133,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         if mp is not None:
             mp = int(mp)
         else:
-            mp = self._extractKey(
-                (kwargs, properties, attProperties), "MinimumPanelSize", 200
-            )
+            mp = self._extractKey((kwargs, properties, attProperties), "MinimumPanelSize", 200)
         kwargs["MinimumPanelSize"] = mp
 
         # Default to vertical split
@@ -209,7 +197,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             p1 = pane == 1
             p2 = pane == 2
-        from ui import dSizer
+        from .sizer import dSizer
 
         if p1 and (force or self.Panel1 is None):
             self.Panel1 = spCls(self)
@@ -380,7 +368,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             self._properties["Panel2"] = pnl
 
     def _getPanelClass(self):
-        from ui import dPanel
+        from .panel import dPanel
 
         try:
             ret = self._panelClass
@@ -474,13 +462,9 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         _("Determines if the window splits Horizontally or Vertically.  (string)"),
     )
 
-    Panel1 = property(
-        _getPanel1, _setPanel1, None, _("Returns the Top/Left panel.  (dPanel)")
-    )
+    Panel1 = property(_getPanel1, _setPanel1, None, _("Returns the Top/Left panel.  (dPanel)"))
 
-    Panel2 = property(
-        _getPanel2, _setPanel2, None, _("Returns the Bottom/Right panel.  (dPanel)")
-    )
+    Panel2 = property(_getPanel2, _setPanel2, None, _("Returns the Bottom/Right panel.  (dPanel)"))
 
     PanelClass = property(
         _getPanelClass,
@@ -555,6 +539,6 @@ class _dSplitter_test(dSplitter):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dSplitter_test)

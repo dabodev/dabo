@@ -17,9 +17,7 @@ class TestPanel(dPanel):
         sz = self.Sizer = dSizer("v", DefaultBorder=20, DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
-        lbl = dLabel(
-            self, Alignment="Center", ForeColor="darkblue", Width=500, WordWrap=True
-        )
+        lbl = dLabel(self, Alignment="Center", ForeColor="darkblue", Width=500, WordWrap=True)
         lbl.FontSize -= 3
         lbl.Caption = (
             "Below are three dBitmapButtons. They will normally "

@@ -119,9 +119,7 @@ class TestPanel(dPanel):
         sz.append(hsz, halign="center")
         sz.appendSpacer(8)
 
-        bsz = dBorderSizer(
-            self, "h", Caption="Color Settings (click a box to set the color)"
-        )
+        bsz = dBorderSizer(self, "h", Caption="Color Settings (click a box to set the color)")
         hsz = dSizer("h")
         lblATC = dLabel(self, Caption="ActiveTabColor:")
         pnlATC = dPanel(
@@ -189,9 +187,7 @@ class TestPanel(dPanel):
         sz.appendSpacer(12)
 
     def onPageChanged(self, evt):
-        self.Form.logit(
-            "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
-        )
+        self.Form.logit("Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum))
 
     def onStyle(self, evt):
         self.update()

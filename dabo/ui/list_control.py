@@ -5,12 +5,13 @@ import wx.lib.mixins.listctrl as ListMixin
 from .. import ui
 from .. import dColors
 from .. import events
+from .. import main
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import dControlItemMixin
 from . import makeDynamicProperty
 
-# import log
+dabo_module = main.get_dabo_package()
 
 
 class _ListColumnAccessor(object):
@@ -35,9 +36,7 @@ class _ListColumnAccessor(object):
         def _setCaption(self, val):
             self._dabo_listcontrol.setCaptionForColumn(self._dabo_column_number, val)
 
-        Caption = property(
-            _getCaption, _setCaption, None, _("Caption for the column.  (str)")
-        )
+        Caption = property(_getCaption, _setCaption, None, _("Caption for the column.  (str)"))
         setattr(ret.__class__, "Caption", Caption)
         return ret
 
@@ -58,9 +57,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
     elements, you should use a dGrid.
     """
 
-    def __init__(
-        self, parent, properties=None, attProperties=None, style=None, *args, **kwargs
-    ):
+    def __init__(self, parent, properties=None, attProperties=None, style=None, *args, **kwargs):
         self._baseClass = dListControl
 
         self._lastSelectedIndex = None
@@ -117,9 +114,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         self.bindEvent(events.ListColumnResize, self.__onColumnResize)
 
     def _getInitPropertiesList(self):
-        return super(dListControl, self)._getInitPropertiesList() + (
-            "ColumnsAlignment",
-        )
+        return super(dListControl, self)._getInitPropertiesList() + ("ColumnsAlignment",)
 
     def _doResize(self):
         if self and self.ExpandToFit:
@@ -209,7 +204,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         if row < self.RowCount:
             self.SetItemState(row, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
         else:
-            log.error("An attempt was made to select a non-existent row")
+            dabo_module.error("An attempt was made to select a non-existent row")
 
     def selectOnly(self, row):
         """
@@ -236,7 +231,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
             for row in range(self.RowCount):
                 self.select(row)
         else:
-            log.error(
+            dabo_module.error(
                 "'selectAll()' may only be called on List Controls that designated as MultipleSelect"
             )
 
@@ -349,7 +344,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
             self.DeleteItem(row)
             self._restoreRowSelection(row)
         else:
-            log.error("An attempt was made to remove a non-existent row")
+            dabo_module.error("An attempt was made to remove a non-existent row")
 
     def _restoreRowSelection(self, row):
         """
@@ -566,7 +561,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
             self._properties["AutoConvertToString"] = val
 
     def _getChoices(self):
-        log.warn(_("'Choices' is not a valid property for a dListControl."))
+        dabo_module.warn(_("'Choices' is not a valid property for a dListControl."))
         return []
 
     def _getColumnCount(self):
@@ -605,8 +600,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
             else:
                 if val >= columnCount and columnCount > 0:
                     raise IndexError(
-                        _("Invalid column %s specified for dListControl.ExpandColumn")
-                        % val
+                        _("Invalid column %s specified for dListControl.ExpandColumn") % val
                     )
             if self._expandColumn != val:
                 if columnCount == 0:
@@ -836,9 +830,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         _("Specifies whether the header is shown or not."),
     )
 
-    HitIndex = property(
-        _getHitIndex, None, None, _("Returns the index of the last hit item.")
-    )
+    HitIndex = property(_getHitIndex, None, None, _("Returns the index of the last hit item."))
 
     HorizontalRules = property(
         _getHorizontalRules,
@@ -950,15 +942,13 @@ class _dListControl_test(dListControl):
         print("Value: ", self.Value)
 
     def onListSelection(self, evt):
-        print(
-            "List Selection!", self.Value, self.LastSelectedIndex, self.SelectedIndices
-        )
+        print("List Selection!", self.Value, self.LastSelectedIndex, self.SelectedIndices)
 
     def onListDeselection(self, evt):
         print("Row deselected:", evt.EventData["index"])
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dListControl_test)

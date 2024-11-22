@@ -5,9 +5,11 @@ import wx
 
 from .. import ui
 from .. import events
+from .. import main
+from .. import settings
 from ..dLocalize import _
-# import firstDayOfWeek
-# import log
+
+dabo_module = main.get_dabo_package()
 
 # import locale
 # lc = locale.getlocale()
@@ -30,7 +32,7 @@ class CalPanel(ui.dPanel):
         to the calendar's size.
         """
         calClass = {True: ui.dExtendedCalendar, False: ui.dCalendar}[self.extended]
-        self.cal = calClass(self, Position=(6, 5), FirstDayOfWeek=firstDayOfWeek)
+        self.cal = calClass(self, Position=(6, 5), FirstDayOfWeek=settings.firstDayOfWeek)
         self.cal.Date = self.date
         self.cal.bindEvent(events.Hit, self.onCalSelection)
         self.cal.bindEvent(events.KeyChar, self.onCalKey)
@@ -89,7 +91,9 @@ class dDateTextBox(ui.dTextBox):
         if not self.Value:
             self.update()  ## First try to get it from the db
         if not self.Value and self.Value is not None:
-            self.Value = None  ## If it is still blank, default to None so the control works correctly
+            self.Value = (
+                None  ## If it is still blank, default to None so the control works correctly
+            )
         if self.showCalButton:
             # Create a button that will display the calendar
             self.calButton = ui.dButton(
@@ -176,10 +180,8 @@ C: Popup Calendar to Select
             month_number = monthNames[month_name]
             year = result[3]
             new_date = str(month_number) + "/" + str(day) + "/" + str(year)
-            # self.log.WriteText('Date Selected: %s\n' % new_date)
             self.Value = new_date
         else:
-            # self.log.WriteText('No Date Selected')
             return
 
     def __onChar(self, evt):
@@ -264,7 +266,7 @@ C: Popup Calendar to Select
                 orig = None
             else:
                 nm, tv = self.Name, type(val)
-                log.error(
+                dabo_module.error(
                     _("Non-date value in %(nm)s: '%(val)s' is type '%(tv)s'") % locals()
                 )
                 return
@@ -368,7 +370,7 @@ C: Popup Calendar to Select
             # checkBoundary = False
         else:
             # This shouldn't happen, because onChar would have filtered it out.
-            log.info("Warning in dDateTextBox.adjustDate: %s key sent." % key)
+            dabo_module.info("Warning in dDateTextBox.adjustDate: %s key sent." % key)
             return
 
         if not self.dateOK:
@@ -462,9 +464,7 @@ C: Popup Calendar to Select
 
     def _getCalendarPanel(self):
         fp = self.Form.FloatingPanel
-        if not isinstance(self._calendarPanel, CalPanel) or not (
-            self._calendarPanel.Parent is fp
-        ):
+        if not isinstance(self._calendarPanel, CalPanel) or not (self._calendarPanel.Parent is fp):
             fp.clear()
             self._calendarPanel = CalPanel(
                 fp, dt=self.Value, ctrl=self, extended=self.ExtendedCalendar
@@ -504,6 +504,6 @@ ui.dDateTextBox = dDateTextBox
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest((dDateTextBox, dDateTextBox))
