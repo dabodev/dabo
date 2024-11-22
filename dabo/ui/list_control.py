@@ -949,6 +949,6 @@ class _dListControl_test(dListControl):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dListControl_test)

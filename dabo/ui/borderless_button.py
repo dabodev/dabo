@@ -131,7 +131,7 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
             self._properties["DefaultButton"] = val
 
     def _getFont(self):
-        from ui import dFont
+        from ..ui import dFont
 
         if hasattr(self, "_font") and isinstance(self._font, dFont):
             v = self._font

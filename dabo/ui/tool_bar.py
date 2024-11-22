@@ -701,6 +701,6 @@ class _dToolBar_test(dToolBar):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dToolBar_test)

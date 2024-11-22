@@ -174,6 +174,6 @@ class _dCheckBox_test3_b(dCheckBox):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest((_dCheckBox_test, _dCheckBox_test3_a, _dCheckBox_test3_b))

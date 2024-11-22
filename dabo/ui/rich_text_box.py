@@ -737,7 +737,7 @@ Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit ame
 
 
 if __name__ == "__main__":
-    from dApp import dApp
+    from .. import dApp
 
     app = dApp(MainFormClass=RichTextTestForm)
     app.start()

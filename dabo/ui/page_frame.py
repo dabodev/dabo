@@ -911,7 +911,7 @@ class _dPageStyled_test(TestMixin, dPageStyled):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dPageFrame_test)
     test.Test().runTest(_dPageToolBar_test)

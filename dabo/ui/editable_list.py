@@ -267,6 +267,6 @@ class _dEditableList_test(dEditableList):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dEditableList_test)

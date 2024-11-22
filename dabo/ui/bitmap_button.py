@@ -294,6 +294,6 @@ class _dBitmapButton_test(dBitmapButton):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dBitmapButton_test)

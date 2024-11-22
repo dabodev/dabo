@@ -17,7 +17,7 @@ class dPageFrameNoTabs(dPanel):
     """
 
     def __init__(self, *args, **kwargs):
-        from ui import dSizer
+        from ..ui import dSizer
 
         self._pageClass = dPage
         self._pageSizerClass = dSizer
@@ -27,7 +27,7 @@ class dPageFrameNoTabs(dPanel):
         self._baseClass = dPageFrameNoTabs
 
     def _afterInit(self):
-        from ui import dSizer
+        from ..ui import dSizer
 
         if self.Sizer is None:
             self.Sizer = dSizer()
@@ -366,7 +366,7 @@ class TestForm(dForm):
 
 
 def main():
-    from dApp import dApp
+    from .. import dApp
 
     app = dApp()
     app.MainFormClass = TestForm

@@ -125,12 +125,11 @@ class dFont(dObject):
         return ret
 
     def _setSize(self, val):
-        if int(val) != val:
-            # cast to float
-            val = float(val)
+        # Round to closest int
+        val = round(val)
         if self._useMacFontScaling():
             self._macNonScaledSize = val
-            val = round(val / 0.75, 0)
+            val = round(val / 0.75)
         try:
             self._nativeFont.SetPointSize(val)
         except ValueError:

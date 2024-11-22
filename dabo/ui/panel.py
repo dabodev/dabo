@@ -550,8 +550,8 @@ class _dScrollPanel_test(dScrollPanel):
 
 
 if __name__ == "__main__":
-    from ui import test
-    from ui import dForm
+    from . import test
+    from ..ui import dForm
 
     class SquarePanel(dPanel):
         def afterInit(self):

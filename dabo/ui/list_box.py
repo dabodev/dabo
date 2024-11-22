@@ -112,6 +112,6 @@ class _dListBox_test(dListBox):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dListBox_test)

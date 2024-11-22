@@ -234,7 +234,7 @@ class _dGlWindow_test2(dGlWindow):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dGlWindow_test)
     test.Test().runTest(_dGlWindow_test2)

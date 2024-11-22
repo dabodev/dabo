@@ -54,7 +54,7 @@ class SplitterPanelMixin(object):
         else:
             newDir = "h"
         if self.Sizer is None:
-            from ui import dSizer
+            from .sizer import dSizer
 
             self.Sizer = dSizer(newDir)
         if dir_ is None:
@@ -197,7 +197,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         else:
             p1 = pane == 1
             p2 = pane == 2
-        from ui import dSizer
+        from .sizer import dSizer
 
         if p1 and (force or self.Panel1 is None):
             self.Panel1 = spCls(self)
@@ -368,7 +368,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             self._properties["Panel2"] = pnl
 
     def _getPanelClass(self):
-        from ui import dPanel
+        from .panel import dPanel
 
         try:
             ret = self._panelClass
@@ -539,6 +539,6 @@ class _dSplitter_test(dSplitter):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dSplitter_test)

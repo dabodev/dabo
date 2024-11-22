@@ -410,13 +410,13 @@ ui.dMaskedTextBox = dMaskedTextBox
 
 
 if __name__ == "__main__":
-    from ui import test
-    from ui import dCheckBox
-    from ui import dForm
-    from ui import dGridSizer
-    from ui import dLabel
-    from ui import dPageFrame
-    from ui import dSizer
+    from . import test
+    from ..ui import dCheckBox
+    from ..ui import dForm
+    from ..ui import dGridSizer
+    from ..ui import dLabel
+    from ..ui import dPageFrame
+    from ..ui import dSizer
 
     class MaskedForm(dForm):
         def afterInit(self):

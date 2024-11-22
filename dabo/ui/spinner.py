@@ -473,8 +473,8 @@ class _dSpinner_test(dSpinner):
 
 
 if __name__ == "__main__":
-    from dApp import dApp
-    from ui import dForm
+    from .. import dApp
+    from ..ui import dForm
 
     class Test(dForm):
         def OH(self, evt):

@@ -6005,7 +6005,7 @@ class _dGrid_test(dGrid):
 
 
 if __name__ == "__main__":
-    from dApp import dApp
+    from ..dApp import dApp
 
     class TestForm(dForm):
         def afterInit(self):

@@ -139,7 +139,7 @@ It's the Love Boat
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dEditBox_test, WordWrap=True)
     test.Test().runTest(_dEditBox_test, WordWrap=False)

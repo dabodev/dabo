@@ -7,6 +7,7 @@ import wx.stc as stc
 import wx.py
 from wx.py import pseudo
 
+from .. import db
 from .. import ui
 from .. import events
 from ..dLocalize import _
@@ -706,6 +707,7 @@ Ctrl-Up/Down to scroll through history."""
         self._sashPct = float(self.SashPosition) / self.Height
 
     def fillMenu(self):
+        import pudb ; pudb.set_trace()
         viewMenu = self.MenuBar.getMenu("base_view")
         if viewMenu.Children:
             viewMenu.appendSeparator()
@@ -863,7 +865,7 @@ ui.dShellForm = dShellForm
 
 
 def main():
-    from dApp import dApp
+    from ..dApp import dApp
 
     app = dApp(BasePrefKey="ui.dShellForm")
     app.MainFormClass = dShellForm

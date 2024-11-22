@@ -36,7 +36,7 @@ class dPageFrameMixin(dControlMixin):
         )
 
     def _beforeInit(self, pre):
-        from ui import dSizer
+        from ..ui import dSizer
 
         self._imageList = {}
         self._pageSizerClass = dSizer

@@ -254,6 +254,6 @@ class _dHyperLink_test(dHyperLink):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dHyperLink_test)

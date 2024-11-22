@@ -676,6 +676,6 @@ class _dRadioList_test(dRadioList):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dRadioList_test)

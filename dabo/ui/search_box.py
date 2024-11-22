@@ -178,7 +178,7 @@ ui.dSearchBox = dSearchBox
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
     import datetime
 
     # This test sets up several textboxes, each editing different data types.

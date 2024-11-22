@@ -426,7 +426,7 @@ ui.dDatePicker = dDatePicker
 
 if __name__ == "__main__":
     import datetime
-    from ui import test
+    from . import test
 
     class TestBase(dDatePicker):
         def onValueChanged(self, evt):

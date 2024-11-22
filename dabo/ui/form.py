@@ -1307,7 +1307,7 @@ class _dBorderlessForm_test(dBorderlessForm):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dForm_test)
     test.Test().runTest(_dBorderlessForm_test)

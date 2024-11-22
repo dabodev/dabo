@@ -19,6 +19,7 @@ import warnings
 from .. import events
 from .. import main
 from .. import settings
+from .. import ui
 from ..dException import dException
 from ..dLocalize import _
 from ..lib import utils
@@ -27,7 +28,6 @@ from .. import dConstants
 from .uiApp import uiApp
 
 dabo_module = main.get_dabo_package()
-
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
 # wx hasn't already been imported, and if we aren't running frozen:
@@ -908,11 +908,8 @@ def getMouseObject():
     development when testing changes to classes 'in the wild' of a
     live application.
     """
-    import pudb
-
-    pudb.set_trace()
     actwin = main.get_application().ActiveForm
-    if isinstance(actwin, dabo.ui.dShell):
+    if isinstance(actwin, ui.dShell):
         actwin.lockDisplay()
         actwin.sendToBack()
     else:
@@ -921,7 +918,7 @@ def getMouseObject():
     if actwin is not None:
         actwin.bringToFront()
         actwin.unlockDisplay()
-    while not isinstance(win, dabo.ui.dPemMixin):
+    while not isinstance(win, ui.dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -938,7 +935,7 @@ def getObjectAtPosition(x, y=None):
     if y is None:
         x, y = x
     win = wx.FindWindowAtPoint((x, y))
-    while not isinstance(win, dabo.ui.dPemMixin):
+    while not isinstance(win, ui.dPemMixin):
         try:
             win = win.GetParent()
         except AttributeError:
@@ -1058,19 +1055,19 @@ def getString(message=_("Please enter a string:"), caption="Dabo", defaultValue=
     is instantiated. Some useful examples::
 
         # Give the textbox a default value:
-        txt = dabo.ui.getString(defaultValue="initial string value")
+        txt = ui.getString(defaultValue="initial string value")
 
         # Password Entry (asterisks instead of the actual text)
-        txt = dabo.ui.getString(PasswordEntry=True)
+        txt = ui.getString(PasswordEntry=True)
 
     """
 
-    class StringDialog(dabo.ui.dOkCancelDialog):
+    class StringDialog(ui.dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dabo.ui.dLabel(self, Caption=message)
-            self.strVal = dabo.ui.dTextBox(self, **kwargs)
-            hs = dabo.ui.dSizer("h")
+            lbl = ui.dLabel(self, Caption=message)
+            self.strVal = ui.dTextBox(self, **kwargs)
+            hs = ui.dSizer("h")
             hs.append(lbl, halign="Right")
             hs.appendSpacer(5)
             hs.append(self.strVal, 1)
@@ -1092,12 +1089,12 @@ def getString(message=_("Please enter a string:"), caption="Dabo", defaultValue=
 def getInt(message=_("Enter an integer value:"), caption="Dabo", defaultValue=0, **kwargs):
     """Simple dialog for returning an integer value from the user."""
 
-    class IntDialog(dabo.ui.dOkCancelDialog):
+    class IntDialog(ui.dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dabo.ui.dLabel(self, Caption=message)
-            self.spnVal = dabo.ui.dSpinner(self, **kwargs)
-            hs = dabo.ui.dSizer("h")
+            lbl = ui.dLabel(self, Caption=message)
+            self.spnVal = ui.dSpinner(self, **kwargs)
+            hs = ui.dSizer("h")
             hs.append(lbl, halign="Right")
             hs.appendSpacer(5)
             hs.append(self.spnVal)
@@ -1144,11 +1141,11 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
     if mult is None:
         mult = False
 
-    class ChoiceDialog(dabo.ui.dOkCancelDialog):
+    class ChoiceDialog(ui.dOkCancelDialog):
         def addControls(self):
             self.Caption = caption
-            lbl = dabo.ui.dLabel(self, Caption=message)
-            self.lst = dabo.ui.dListBox(
+            lbl = ui.dLabel(self, Caption=message)
+            self.lst = ui.dListBox(
                 self,
                 Choices=choices,
                 PositionValue=defaultPos,
@@ -1161,10 +1158,10 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
             sz.appendSpacer(5)
             sz.append(self.lst, 4, halign="center")
             if mult:
-                hsz = dabo.ui.dSizer("h")
-                btnAll = dabo.ui.dButton(self, Caption=_("Select All"), OnHit=self.selectAll)
-                btnNone = dabo.ui.dButton(self, Caption=_("Unselect All"), OnHit=self.unselectAll)
-                btnInvert = dabo.ui.dButton(
+                hsz = ui.dSizer("h")
+                btnAll = ui.dButton(self, Caption=_("Select All"), OnHit=self.selectAll)
+                btnNone = ui.dButton(self, Caption=_("Unselect All"), OnHit=self.unselectAll)
+                btnInvert = ui.dButton(
                     self, Caption=_("Invert Selection"), OnHit=self.invertSelection
                 )
                 hsz.append(btnAll)
@@ -1175,7 +1172,7 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
                 sz.appendSpacer(16)
                 sz.append(hsz, halign="center", border=20)
                 sz.appendSpacer(8)
-                sz.append(dabo.ui.dLine(self), "x", border=44, borderSides=("left", "right"))
+                sz.append(ui.dLine(self), "x", border=44, borderSides=("left", "right"))
             sz.appendSpacer(24)
 
         def onMouseLeftDoubleClick(self, evt):
@@ -1207,7 +1204,7 @@ def getColor(color=None):
     no selection was made.
     """
     ret = None
-    dlg = dabo.ui.dColorDialog(_getActiveForm(), color)
+    dlg = ui.dColorDialog(_getActiveForm(), color)
     if dlg.show() == dConstants.DLG_OK:
         ret = dlg.getColor()
     dlg.release()
@@ -1225,7 +1222,7 @@ def getDate(dt=None):
     try:
         mm, dd, yy = dt.month, dt.day, dt.year
     except AttributeError:
-        dabo.log.error(_("Invalid date value passed to getDate(): %s") % dt)
+        dabo_module.log.error(_("Invalid date value passed to getDate(): %s") % dt)
         return None
     dlg = wx.lib.calendar.CalenDlg(_getActiveForm(), mm, dd, yy)
     dlg.Centre()
@@ -1268,15 +1265,15 @@ def getFont(font=None):
     else:
         if not isinstance(font, dFont):
             # This will help identify older code
-            dabo.log.error("Invalid font class passed to getFont")
+            dabo_module.log.error("Invalid font class passed to getFont")
             return None
         param = font._nativeFont
-    dlg = dabo.ui.dFontDialog(_getActiveForm(), param)
+    dlg = ui.dFontDialog(_getActiveForm(), param)
     if dlg.show() == dConstants.DLG_OK:
         fnt = dlg.getFont()
     dlg.release()
     if fnt is not None:
-        ret = dabo.ui.dFont(_nativeFont=fnt)
+        ret = ui.dFont(_nativeFont=fnt)
     return ret
 
 
@@ -1292,7 +1289,7 @@ def _getPath(cls, wildcard, **kwargs):
     pth = None
     idx = None
     if isinstance(cls, str):
-        cls = getattr(dabo.ui, cls)
+        cls = getattr(ui, cls)
     fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
     if fd.show() == dConstants.DLG_OK:
         pth = fd.Path
@@ -1551,7 +1548,7 @@ def _checkForRawXML(srcFile):
         try:
             srcFile = utils.resolvePathAndUpdate(srcFile)
         except IOError as e:
-            dabo.log.error(_("Class file '%s' not found") % srcFile)
+            dabo_module.error(_("Class file '%s' not found") % srcFile)
             raise
     return srcFile, isRawXML
 
@@ -1582,7 +1579,7 @@ def createForm(srcFile, show=False, *args, **kwargs):
     A common question on the dabo-users mailing list is how to
     instantiate a cdxml form as a child of another form. Easy! ::
 
-        frm = dabo.ui.createForm("my.cdxml", parent=self)
+        frm = ui.createForm("my.cdxml", parent=self)
 
     """
     cls = createClass(srcFile)
@@ -1606,10 +1603,10 @@ def createMenuBar(src, form=None, previewFunc=None):
     def addMenu(mb, menuDict, form, previewFunc):
         if form is None:
             form = main.get_application().ActiveForm
-        if isinstance(mb, dabo.ui.dMenuBar):
-            menu = dabo.ui.dMenu(mb)
+        if isinstance(mb, ui.dMenuBar):
+            menu = ui.dMenu(mb)
         else:
-            menu = dabo.ui.dMenu()
+            menu = ui.dMenu()
         atts = menuDict["attributes"]
         menu.Caption = menu._extractKey(atts, "Caption")
         menu.MRU = menu._extractKey(atts, "MRU")
@@ -1677,7 +1674,7 @@ def createMenuBar(src, form=None, previewFunc=None):
                 stop(e, _("File Not Found"))
                 return
         mnd = dabo.lib.xmltodict.xmltodict(src)
-    mb = dabo.ui.dMenuBar()
+    mb = ui.dMenuBar()
     for mn in mnd["children"]:
         addMenu(mb, mn, form, previewFunc)
     return mb
@@ -1901,10 +1898,10 @@ def browse(
 
     parentPassed = True
     if parent is None:
-        parent = dabo.ui.dForm(None, Caption=cap)
+        parent = ui.dForm(None, Caption=cap)
         parentPassed = False
 
-    grd = dabo.ui.dGrid(parent, AlternateRowColoring=True)
+    grd = ui.dGrid(parent, AlternateRowColoring=True)
     grd.buildFromDataSet(
         dataSet,
         keyCaption=keyCaption,
@@ -1946,7 +1943,7 @@ def getPositionInSizer(obj):
                 if szitem.GetWindow() == obj:
                     return pos
         # If we reached here, something's wrong!
-        dabo.log.error(_("Containing sizer did not match item %s") % obj.Name)
+        dabo_module.error(_("Containing sizer did not match item %s") % obj.Name)
         return None
     elif isinstance(sz, wx.GridBagSizer):
         # Return a row,col tuple
@@ -1964,7 +1961,7 @@ def setPositionInSizer(obj, pos):
 
 
 def fontMetricFromFont(txt, font):
-    if isinstance(font, dabo.ui.dFont):
+    if isinstance(font, ui.dFont):
         font = font._nativeFont
     wind = wx.Frame(None)
     dc = wx.ClientDC(wind)
@@ -2022,7 +2019,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None, italic=None
     if italic is not None:
         fnt.SetStyle(wx.FONTSTYLE_ITALIC)
 
-    if not isinstance(wind, (dabo.ui.dForm, wx.Frame)):
+    if not isinstance(wind, (ui.dForm, wx.Frame)):
         try:
             wind = wind.Form
         except AttributeError:
@@ -2135,24 +2132,23 @@ def strToBmp(val, scale=None, width=None, height=None):
             ret = pathToBmp(val)
         else:
             # Include all the pathing possibilities
-            iconpaths = [os.path.join(pth, val) for pth in dabo.icons.__path__]
-            dabopaths = [os.path.join(pth, val) for pth in dabo.__path__]
-            localpaths = [os.path.join(cwd, pth, val) for pth in ("icons", "resources")]
+            module_path = settings.root_path
+            icon_path = module_path / "icons"
+            resource_path = module_path / "resources"
             # Create a list of the places to search for the image, with
             # the most likely choices first.
-            paths = [val] + iconpaths + dabopaths + localpaths
+            paths = [(module_path / val), (icon_path / val), (resource_path / val)]
             # See if it's running as a Mac application
             macAppIndicator = "/Contents/Resources"
-            dpth = dabo.__path__[0]
-            if macAppIndicator in dpth:
+            if macAppIndicator in str(module_path):
                 # Running as a py2app application
-                resPth = "%s%s" % (dpth.split(macAppIndicator)[0], macAppIndicator)
-                macPaths = [os.path.join(resPth, pth, val) for pth in ("icons", "resources")]
+                resPth = Path(f"{dpth.split(macAppIndicator)[0]}{macAppIndicator}")
+                macPaths = [(resPth / "icons" / val), (resPth / "resources" / val)]
                 paths += macPaths
 
             # See if it's a standard icon
             for pth in paths:
-                ret = dabo.ui.dIcons.getIconBitmap(pth, noEmptyBmp=True)
+                ret = ui.dIcons.getIconBitmap(pth, noEmptyBmp=True)
                 if ret:
                     break
             if not ret and len(val) > 0:

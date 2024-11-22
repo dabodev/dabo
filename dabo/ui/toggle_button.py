@@ -135,6 +135,6 @@ class _dToggleButton_test(dToggleButton):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dToggleButton_test)

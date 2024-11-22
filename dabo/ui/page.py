@@ -167,6 +167,6 @@ class _dPage_test(dPage):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dPage_test)

@@ -3,6 +3,7 @@ import os.path
 
 import wx
 from .. import icons
+from .. import ui
 
 _bmpCache = {}
 

@@ -84,11 +84,11 @@ class Test(object):
 
     def testAll(self):
         """Create a dForm and populate it with example dWidgets."""
-        from ui import dEditBox
-        from ui import dForm
-        from ui import dLabel
-        from ui import dScrollPanel
-        from ui import dSizer
+        from ..ui import dEditBox
+        from ..ui import dForm
+        from ..ui import dLabel
+        from ..ui import dScrollPanel
+        from ..ui import dSizer
 
         frame = dForm(Name="formTestAll")
         frame.Caption = "Test of all the dControls"

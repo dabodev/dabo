@@ -1248,7 +1248,7 @@ try again when it is running.
         self.uiApp.copyToClipboard(txt)
 
     def onHelpAbout(self, evt):
-        from ui import dDockForm
+        from .dock_form import dDockForm
 
         about = self.AboutFormClass
         if about is None:
@@ -1369,7 +1369,7 @@ try again when it is running.
         try:
             cls = self._defaultMenuBarClass
         except AttributeError:
-            from ui import dBaseMenuBar
+            from .base_menu_bar import dBaseMenuBar
 
             cls = self._defaultMenuBarClass = dBaseMenuBar
         return cls

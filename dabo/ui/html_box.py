@@ -364,7 +364,7 @@ def resetHTML(evt):
 
 
 if __name__ == "__main__":
-    from dApp import dApp
+    from .. import dApp
 
     app = dApp(MainFormClass=None)
     app.setup()

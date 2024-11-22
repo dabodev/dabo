@@ -500,7 +500,7 @@ ui.dNumericBox = dNumericBox
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     class _testDecimal2(dNumericBox):
         def initProperties(self):
