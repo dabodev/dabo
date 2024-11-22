@@ -11,6 +11,7 @@ from .. import db
 from .. import ui
 from .. import events
 from ..dLocalize import _
+from . import dBaseMenuBar
 from . import dKeys
 from . import makeDynamicProperty
 from . import dButton
@@ -505,6 +506,7 @@ Ctrl-Up/Down to scroll through history."""
 
         self.Caption = _("dShellForm: self is %s") % ns.Name
         self.setStatusText(_("Use this shell to interact with the runtime environment"))
+        self.MenuBar = dBaseMenuBar()
         self.fillMenu()
         self.shell.SetFocus()
 
@@ -707,7 +709,6 @@ Ctrl-Up/Down to scroll through history."""
         self._sashPct = float(self.SashPosition) / self.Height
 
     def fillMenu(self):
-        import pudb ; pudb.set_trace()
         viewMenu = self.MenuBar.getMenu("base_view")
         if viewMenu.Children:
             viewMenu.appendSeparator()

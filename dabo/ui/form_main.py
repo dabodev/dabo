@@ -3,10 +3,9 @@ import time
 
 import wx
 
+from .. import settings
 from .. import ui
 from . import dFormMixin
-
-# import MDI
 
 
 class dFormMainBase(dFormMixin):
@@ -37,7 +36,7 @@ class dFormMain(dFormMainBase, wx.Frame):
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dFormMain
 
-        if MDI:
+        if settings.MDI:
             # Hack this into an MDI Parent:
             dFormMain.__bases__ = (dFormMainBase, wx.MDIParentFrame)
             preClass = wx.MDIParentFrame
