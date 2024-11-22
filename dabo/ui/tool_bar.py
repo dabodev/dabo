@@ -101,9 +101,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
         self.insertItem(0, itm)
         return itm
 
-    def appendButton(
-        self, caption, pic, toggle=False, tip="", help="", *args, **kwargs
-    ):
+    def appendButton(self, caption, pic, toggle=False, tip="", help="", *args, **kwargs):
         """
         Adds a tool (button) to the toolbar.
 
@@ -113,13 +111,9 @@ class dToolBar(dControlMixin, wx.ToolBar):
         function you want to be called when this button is clicked in an
         'OnHit' param.
         """
-        return self._appendInsertButton(
-            None, caption, pic, toggle, tip, help, *args, **kwargs
-        )
+        return self._appendInsertButton(None, caption, pic, toggle, tip, help, *args, **kwargs)
 
-    def insertButton(
-        self, pos, caption, pic, toggle=False, tip="", help="", *args, **kwargs
-    ):
+    def insertButton(self, pos, caption, pic, toggle=False, tip="", help="", *args, **kwargs):
         """
         Inserts a tool (button) to the toolbar at the specified position.
 
@@ -129,13 +123,9 @@ class dToolBar(dControlMixin, wx.ToolBar):
         function you want to be called when this button is clicked in an
         'OnHit' param.
         """
-        return self._appendInsertButton(
-            pos, caption, pic, toggle, tip, help, *args, **kwargs
-        )
+        return self._appendInsertButton(pos, caption, pic, toggle, tip, help, *args, **kwargs)
 
-    def prependButton(
-        self, caption, pic, toggle=False, tip="", help="", *args, **kwargs
-    ):
+    def prependButton(self, caption, pic, toggle=False, tip="", help="", *args, **kwargs):
         """
         Inserts a tool (button) to the beginning of the toolbar.
 
@@ -147,9 +137,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
         """
         return self.insertButton(0, caption, pic, toggle, tip, help, *args, **kwargs)
 
-    def _appendInsertButton(
-        self, pos, caption, pic, toggle, tip, help, *args, **kwargs
-    ):
+    def _appendInsertButton(self, pos, caption, pic, toggle, tip, help, *args, **kwargs):
         """Common code for the append|insert|prependButton() functions."""
         if isinstance(pic, str):
             # path was passed
@@ -481,9 +469,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
         _getToolbarItemClass,
         _setToolbarItemClass,
         None,
-        _(
-            """Class to instantiate for toolbar items. Default=dToolBarItem.  (varies)"""
-        ),
+        _("""Class to instantiate for toolbar items. Default=dToolBarItem.  (varies)"""),
     )
 
     DynamicShowCaptions = makeDynamicProperty(ShowCaptions)

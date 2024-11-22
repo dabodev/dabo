@@ -126,9 +126,7 @@ class ObjectPropertySheet(dPanel):
                 return
             else:
                 obj = obj[0]
-        self.addButton.Enabled = self.editButton.Enabled = (
-            self.delButton.Enabled
-        ) = not isinstance(
+        self.addButton.Enabled = self.editButton.Enabled = self.delButton.Enabled = not isinstance(
             obj,
             (
                 LayoutPanel,

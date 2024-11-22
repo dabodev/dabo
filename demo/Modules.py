@@ -93,9 +93,7 @@ class DemoModules:
             source = self.modules[modID][1]
             if source.strip().startswith("# -*- coding:"):
                 srclines = [
-                    ln
-                    for ln in source.strip().splitlines()
-                    if not ln.startswith("# -*- coding:")
+                    ln for ln in source.strip().splitlines() if not ln.startswith("# -*- coding:")
                 ]
                 source = "\n".join(srclines)
             # description = self.modules[modID][3]
@@ -264,22 +262,14 @@ class DemoErrorPanel(dPanel):
 
         bs = dabo.ui.dBorderSizer(self, "v", Caption=_("Exception Info"))
         gs = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=2)
-        gs.append(
-            dabo.ui.dLabel(self, Caption=_("Type:"), FontBold=True), halign="right"
-        )
+        gs.append(dabo.ui.dLabel(self, Caption=_("Type:"), FontBold=True), halign="right")
         gs.append(dabo.ui.dLabel(self, Caption=demoError.exception_type), halign="left")
-        gs.append(
-            dabo.ui.dLabel(self, Caption=_("Details:"), FontBold=True), halign="right"
-        )
-        gs.append(
-            dabo.ui.dLabel(self, Caption=demoError.exception_details), halign="left"
-        )
+        gs.append(dabo.ui.dLabel(self, Caption=_("Details:"), FontBold=True), halign="right")
+        gs.append(dabo.ui.dLabel(self, Caption=demoError.exception_details), halign="left")
         bs.append(gs, border=8)
         sz.append(bs, halign="center", border=5)
 
-        lst = self.tbList = dabo.ui.dListControl(
-            self, BorderStyle="sunken", MultipleSelect=False
-        )
+        lst = self.tbList = dabo.ui.dListControl(self, BorderStyle="sunken", MultipleSelect=False)
         lst.bindEvent(dEvents.MouseLeftDoubleClick, self.onListDoubleClick)
         lst.addColumn(_("Filename"))
         lst.addColumn(_("Line"))
@@ -305,17 +295,13 @@ Double-click on them to go to the offending line."""),
         # Add the traceback data
         for tbNum in range(len(traceback)):
             data = traceback[tbNum]
-            lst.append(
-                (os.path.basename(data[0]), ustr(data[1]), ustr(data[2]), ustr(data[3]))
-            )
+            lst.append((os.path.basename(data[0]), ustr(data[1]), ustr(data[2]), ustr(data[3])))
 
             # Check whether this entry is from the demo module
             pth = os.path.split(data[0])[0]
             codeDirs = (DemoModules.getOrigDir(), DemoModules.getModDir())
             if pth in codeDirs:
-                lst.setItemData(
-                    tbNum, int(data[1])
-                )  # Store line number for easy access
+                lst.setItemData(tbNum, int(data[1]))  # Store line number for easy access
                 # Give it a blue colour
                 lst.setItemForeColor(tbNum, "blue")
             else:

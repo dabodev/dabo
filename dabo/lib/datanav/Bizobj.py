@@ -86,7 +86,5 @@ class Bizobj(dabo.biz.dBizobj):
         getBaseWhereClause,
         _setBaseWhereClause,
         None,
-        _(
-            """A where-clause stub that will get prepended to whatever the user chooses."""
-        ),
+        _("""A where-clause stub that will get prepended to whatever the user chooses."""),
     )

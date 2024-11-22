@@ -83,9 +83,7 @@ class Form(dui.dForm):
         vs = self.Sizer
         hs = dui.dSizer("h")
         hs.append(
-            dui.dButton(
-                self, Caption=_("Save Changes"), DefaultButton=True, OnHit=self.onSave
-            )
+            dui.dButton(self, Caption=_("Save Changes"), DefaultButton=True, OnHit=self.onSave)
         )
         hs.appendSpacer((3, 0))
         hs.append(
@@ -368,9 +366,7 @@ class Form(dui.dForm):
             grid = self.PageFrame.Pages[1].BrowseGrid
             ds = grid.DataSet
         except:
-            dui.info(
-                _("Sorry, there are no records in the grid, please requery first.")
-            )
+            dui.info(_("Sorry, there are no records in the grid, please requery first."))
             return
 
         # cols
@@ -593,9 +589,7 @@ class Form(dui.dForm):
     def onQuickReport(self, evt):
         # May not have records if called via toolbar button
         if not self.enableQuickReport():
-            dui.exclaim(
-                _("Sorry, there are no records to report on."), title=_("No Records")
-            )
+            dui.exclaim(_("Sorry, there are no records to report on."), title=_("No Records"))
             return
 
         showAdvancedQuickReport = self.ShowAdvancedQuickReport
@@ -624,7 +618,9 @@ class Form(dui.dForm):
 
                 if not showExpandedQuickReport:
                     self.radMode.enableKey("expanded", False)
-                    self.radMode.Value = "list"  ## in case the setting was saved at 'expanded' previously.
+                    self.radMode.Value = (
+                        "list"  ## in case the setting was saved at 'expanded' previously.
+                    )
 
                 self.addObject(
                     dui.dRadioList,
@@ -683,9 +679,7 @@ class Form(dui.dForm):
                     "reports",
                     "datanav-%s-%s.rfxml" % (biz.DataSource, mode),
                 )
-                if not os.path.exists(
-                    os.path.join(self.Application.HomeDirectory, "reports")
-                ):
+                if not os.path.exists(os.path.join(self.Application.HomeDirectory, "reports")):
                     os.mkdir(os.path.join(self.Application.HomeDirectory, "reports"))
                 open(filename, "w").write(rfxml)
 
@@ -719,8 +713,7 @@ class Form(dui.dForm):
                     "other than UTF-8. Sorry, but currently we don't have a resolution to "
                     "the problem, other than to recommend that you convert your data to "
                     "UTF-8 encoding. Here's the exact error message received:\n\n%s"
-                    "\n\nThis occurred in Record %s of your cursor."
-                    % (ustr(e), row_number)
+                    "\n\nThis occurred in Record %s of your cursor." % (ustr(e), row_number)
                 )
                 return
 

@@ -45,9 +45,7 @@ class TestPanel(dPanel):
         # Add each image to the control, along with a string to use as a key value.
         self.pgf.addImage("themes/tango/32x32/actions/go-home.png", "First")
         self.pgf.addImage("themes/tango/32x32/actions/edit-clear.png", "Second")
-        self.pgf.addImage(
-            "themes/tango/32x32/actions/software-update-available.png", "Third"
-        )
+        self.pgf.addImage("themes/tango/32x32/actions/software-update-available.png", "Third")
         self.pgf.addImage("themes/tango/32x32/actions/dialog-information.png", "Fourth")
         # Now add the pages, specifying which image key is displayed for each page.
         self.pgf.appendPage(caption="First", imgKey="First", BackColor="blue")
@@ -59,9 +57,7 @@ class TestPanel(dPanel):
         return self.pgf
 
     def onPageChanged(self, evt):
-        self.Form.logit(
-            "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
-        )
+        self.Form.logit("Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum))
 
     def onNewPosition(self, evt):
         newpos = evt.EventObject.StringValue

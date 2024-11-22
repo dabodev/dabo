@@ -62,21 +62,13 @@ class TestPanel(dPanel):
 
         hsz = dSizer("H")
         hsz.DefaultSpacing = 10
-        btn = dBitmapButton(
-            self, Picture="rotateCW", OnHit=self.onRotateCW, Size=(36, 36)
-        )
+        btn = dBitmapButton(self, Picture="rotateCW", OnHit=self.onRotateCW, Size=(36, 36))
         hsz.append(btn)
-        btn = dBitmapButton(
-            self, Picture="rotateCCW", OnHit=self.onRotateCCW, Size=(36, 36)
-        )
+        btn = dBitmapButton(self, Picture="rotateCCW", OnHit=self.onRotateCCW, Size=(36, 36))
         hsz.append(btn)
-        btn = dBitmapButton(
-            self, Picture="flip_horiz", OnHit=self.onFlipHoriz, Size=(36, 36)
-        )
+        btn = dBitmapButton(self, Picture="flip_horiz", OnHit=self.onFlipHoriz, Size=(36, 36))
         hsz.append(btn)
-        btn = dBitmapButton(
-            self, Picture="flip_vert", OnHit=self.onFlipVert, Size=(36, 36)
-        )
+        btn = dBitmapButton(self, Picture="flip_vert", OnHit=self.onFlipVert, Size=(36, 36))
         hsz.append(btn)
 
         self.ddScale = dDropdownList(

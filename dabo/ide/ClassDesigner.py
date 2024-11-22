@@ -105,9 +105,7 @@ class PageInfoDialog(dOkCancelDialog):
         self.Caption = _("Paged Control Settings")
         gsz = dGridSizer(MaxCols=2, HGap=5, VGap=12)
         lbl = dLabel(self, Caption=_("Number of pages:"))
-        spn = dSpinner(
-            self, DataSource="form", DataField="pageCount", Min=1, Max=20, Value=3
-        )
+        spn = dSpinner(self, DataSource="form", DataField="pageCount", Min=1, Max=20, Value=3)
         gsz.append(lbl, halign="right")
         gsz.append(spn)
 
@@ -311,9 +309,7 @@ class ClassDesigner(dApp):
                 dabo.ui.stop(message=msg, title=_("Invalid XML File"))
             except IOError as e:
                 msg = _("'%s' does not exist. Create it?") % clsFile
-                if dabo.ui.areYouSure(
-                    message=msg, title=_("File Not Found"), cancelButton=False
-                ):
+                if dabo.ui.areYouSure(message=msg, title=_("File Not Found"), cancelButton=False):
                     frm = self.onNewDesign(evt=None, pth=clsFile)
                     clsOK = True
 
@@ -445,11 +441,7 @@ class ClassDesigner(dApp):
                 except (AttributeError, NameError):
                     return False
 
-            ret = [
-                "on%s" % k
-                for k, v in list(dEvents.__dict__.items())
-                if safeApplies(v, cls)
-            ]
+            ret = ["on%s" % k for k, v in list(dEvents.__dict__.items()) if safeApplies(v, cls)]
             ret.sort()
             return ret
 
@@ -458,9 +450,7 @@ class ClassDesigner(dApp):
             mthds = inspect.getmembers(cls, inspect.ismethod)
             # We only want Dabo public methods, which will all begin with
             # a lower-case letter.
-            ret = [
-                mthd[0] for mthd in mthds if mthd[0][0] in "abcdefghijklmnopqrstuvwxyz"
-            ]
+            ret = [mthd[0] for mthd in mthds if mthd[0][0] in "abcdefghijklmnopqrstuvwxyz"]
             return ret
 
         for cls in classes:
@@ -714,9 +704,7 @@ class ClassDesigner(dApp):
         """Convenience method for other classes that hides the details of
         MRUs from them. All we need is the path.
         """
-        self.Application.addToMRU(
-            _("Open Recent"), os.path.realpath(pth), self.onMRUSelection
-        )
+        self.Application.addToMRU(_("Open Recent"), os.path.realpath(pth), self.onMRUSelection)
 
     def onMRUSelection(self, evt):
         """The user selected an MRU menu item. Translate that prompt to the
@@ -725,9 +713,7 @@ class ClassDesigner(dApp):
         # The prompt will have a number prepended to the actual path,
         # separated by a space.
         pth = evt.prompt.split(" ", 1)[-1]
-        openDesigns = [
-            frm for frm in self.getDesignerWindows() if frm._classFile == pth
-        ]
+        openDesigns = [frm for frm in self.getDesignerWindows() if frm._classFile == pth]
         if openDesigns:
             openDesigns[0].bringToFront()
         else:
@@ -901,9 +887,7 @@ class ClassDesigner(dApp):
         try:
             superClassDict = converter.dictFromStoredText(pth)
         except:
-            raise IOError(
-                _("The file '%s' does not appear to be a valid class file.") % pth
-            )
+            raise IOError(_("The file '%s' does not appear to be a valid class file.") % pth)
         # Traverse the dct, looking for superclass information
         sup = converter.flattenClassDict(superClassDict)
         # Store the base code so that we can determine if instances have
@@ -1095,9 +1079,7 @@ class ClassDesigner(dApp):
         isGrid = rv["isGrid"] = issubclass(newClass, dGrid)
         isTree = rv["isTree"] = issubclass(newClass, dTreeView)
         isSplitter = rv["isSplitter"] = issubclass(newClass, dSplitter)
-        isSlidePanelControl = rv["isSlidePanelControl"] = issubclass(
-            newClass, dSlidePanelControl
-        )
+        isSlidePanelControl = rv["isSlidePanelControl"] = issubclass(newClass, dSlidePanelControl)
         isPageControl = rv["isPageControl"] = issubclass(newClass, self.pagedControls)
         noTabs = rv["noTabs"] = issubclass(newClass, dPageFrameNoTabs)
 
@@ -1107,9 +1089,7 @@ class ClassDesigner(dApp):
         # Name value, so change it to NameBase.
         nm = self._extractKey(atts, "Name", clsname)
         props["NameBase"] = nm
-        obj = self.addNewControl(
-            None, newClass, props=props, skipUpdate=True, attProperties=atts
-        )
+        obj = self.addNewControl(None, newClass, props=props, skipUpdate=True, attProperties=atts)
         ret = obj
         if isSplitter:
             obj.setPropertiesFromAtts({"Orientation": rv["ornt"]})
@@ -1345,9 +1325,7 @@ class ClassDesigner(dApp):
                 if cid and (not "-" in cid):
                     # This is a custom class; make sure that the relative path is correct
                     if not os.path.exists(clsname):
-                        clsname = dabo.lib.utils.locateRelativeTo(
-                            self._basePath, clsname
-                        )
+                        clsname = dabo.lib.utils.locateRelativeTo(self._basePath, clsname)
                     isCustomClass = True
                     customClassPath = clsname
                     # Start with the custom class, and then update it with the current stuff
@@ -1372,9 +1350,7 @@ class ClassDesigner(dApp):
                 sizerInfoDict = sizerInfo
             rv["sizerInfoDict"] = sizerInfoDict
 
-            rowColAtts = rv["rowColAtts"] = self._extractKey(
-                atts, "rowColPos", "(None,None)"
-            )
+            rowColAtts = rv["rowColAtts"] = self._extractKey(atts, "rowColPos", "(None,None)")
             # Refactored these calls to make this method a little less lengthy.
             if clsname == "LayoutPanel":
                 ret = self._recreateLayoutPanel()
@@ -1464,9 +1440,7 @@ class ClassDesigner(dApp):
                     self.edtSuper = dEditor(self)
                     self.Sizer.append1x(self.edtSuper, border=12)
 
-            dlg = SuperCodeDialog(
-                None, BasePrefKey=self.BasePrefKey + ".SuperCodeDialog"
-            )
+            dlg = SuperCodeDialog(None, BasePrefKey=self.BasePrefKey + ".SuperCodeDialog")
             dlg.edtSuper.Text = code
             dlg.edtSuper.ReadOnly = True
             dlg.show()
@@ -1487,9 +1461,7 @@ class ClassDesigner(dApp):
                 self.AutoSize = False
                 self.Caption = _("Import Declarations")
                 self.Size = (400, 300)
-                self.edtImport = dEditor(
-                    self, ShowLineNumbers=False, ShowCodeFolding=False
-                )
+                self.edtImport = dEditor(self, ShowLineNumbers=False, ShowCodeFolding=False)
                 self.Sizer.append1x(self.edtImport, border=12)
 
         dlg = ImportEditDialog(None, BasePrefKey=self.BasePrefKey + ".ImportEditDialog")
@@ -1646,18 +1618,14 @@ class ClassDesigner(dApp):
                 prefix = ""
                 szProps = list(csz.ItemDesignerProps.keys())
             else:
-                szProps = [
-                    prop for prop in obj.DesignerProps if prop.startswith(prefix)
-                ]
+                szProps = [prop for prop in obj.DesignerProps if prop.startswith(prefix)]
             szProps.sort()
         else:
             szProps = []
         if isSpacer:
             szProps.append("Spacing")
         if isSizer:
-            selfProps = [
-                prop for prop in obj.DesignerProps if not prop.startswith(prefix)
-            ]
+            selfProps = [prop for prop in obj.DesignerProps if not prop.startswith(prefix)]
         else:
             selfProps = []
 
@@ -1850,17 +1818,13 @@ class ClassDesigner(dApp):
             else:
                 frm = dForm(None, Visible=False, NameBase="DEFA")
                 # We need to handle all the dependent class types
-                if issubclass(cls, dPage) and isinstance(
-                    srcObj.Parent, self.pagedControls
-                ):
+                if issubclass(cls, dPage) and isinstance(srcObj.Parent, self.pagedControls):
                     pgf = srcObj.Parent
                     pp = pgf.PageCount
                     pgf.PageCount += 1
                     obj = pgf.Pages[-1]
                     cleanup = "pgf.PageCount = %s" % pp
-                if issubclass(cls, dSlidePanel) and isinstance(
-                    srcObj.Parent, dSlidePanelControl
-                ):
+                if issubclass(cls, dSlidePanel) and isinstance(srcObj.Parent, dSlidePanelControl):
                     spc = srcObj.Parent
                     pp = spc.PanelCount
                     spc.PanelCount += 1
@@ -2083,9 +2047,7 @@ class ClassDesigner(dApp):
                         self._onOK(None)
 
                 # Give the option of opening an existing class.
-                self.openButton = dButton(
-                    self, Caption=_("Open Saved Class"), OnHit=onOpenSaved
-                )
+                self.openButton = dButton(self, Caption=_("Open Saved Class"), OnHit=onOpenSaved)
 
                 self.Sizer.append(self.openButton, halign="center")
                 self.Sizer.appendSpacer(20)
@@ -2151,15 +2113,11 @@ class ClassDesigner(dApp):
                 except AttributeError:
                     # dMediaControl was not imported; some earlier wx versions don't include this
                     pass
-                self.dd = dDropdownList(
-                    self, Choices=names, Keys=classes, ValueMode="key"
-                )
+                self.dd = dDropdownList(self, Choices=names, Keys=classes, ValueMode="key")
                 self.dd.StringValue = "Form"
                 self.dd.bindEvent(dEvents.Hit, self.onClassSel)
                 self.Sizer.appendSpacer(25)
-                lbl = dLabel(
-                    self, Caption=_("Select the class to create:"), FontBold=True
-                )
+                lbl = dLabel(self, Caption=_("Select the class to create:"), FontBold=True)
                 self.Sizer.append(lbl, halign="left")
                 self.Sizer.appendSpacer(3)
                 self.Sizer.append(self.dd, 1, halign="Center")
@@ -2191,9 +2149,7 @@ class ClassDesigner(dApp):
                     dSplitter,
                 ) + pcs
                 self.szChk.Visible = cls in sizerClasses
-                self.baseChk.Visible = (
-                    cls in (dForm, dFormMain, dDialog) and self.szChk.Value
-                )
+                self.baseChk.Visible = cls in (dForm, dFormMain, dDialog) and self.szChk.Value
 
             def onSzChk(self, evt):
                 self.baseChk.Visible = self.szChk.Value
@@ -2212,9 +2168,7 @@ class ClassDesigner(dApp):
         newClass = self._selectedClass = dlg.dd.Value
         if newClass is dDockForm:
             dabo.ui.exclaim(
-                _(
-                    "Sorry, the Dock Form class does not currently work in the Class Designer."
-                ),
+                _("Sorry, the Dock Form class does not currently work in the Class Designer."),
                 title=_("Class not implemented"),
             )
             return
@@ -2461,9 +2415,7 @@ class ClassDesigner(dApp):
         try:
             del self._classPropDict[obj][prop]
         except Exception as e:
-            dabo.log.error(
-                _("Could not delete custom property '%(prop)s': %(e)s") % locals()
-            )
+            dabo.log.error(_("Could not delete custom property '%(prop)s': %(e)s") % locals())
 
     def editObjectProperty(self, prop):
         """Run the editor for the selected custom class property. If
@@ -2703,9 +2655,7 @@ class ClassDesigner(dApp):
                 try:
                     ret = lps[0]
                 except:
-                    dabo.log.error(
-                        _("Problem adding to a page: no ClassDesigner information.")
-                    )
+                    dabo.log.error(_("Problem adding to a page: no ClassDesigner information."))
             else:
                 ret = obj.mainPanel
         return ret
@@ -3053,9 +3003,7 @@ class ClassDesigner(dApp):
             except KeyError:
                 try:
                     newCols = int(
-                        dabo.ui.getString(
-                            _("How many columns?"), _("New Grid Control"), "3"
-                        )
+                        dabo.ui.getString(_("How many columns?"), _("New Grid Control"), "3")
                     )
                 except ValueError:
                     newCols = 3
@@ -3067,9 +3015,7 @@ class ClassDesigner(dApp):
             if not cnt:
                 try:
                     newPanels = int(
-                        dabo.ui.getString(
-                            _("How many panels?"), _("New Slide Container"), "3"
-                        )
+                        dabo.ui.getString(_("How many panels?"), _("New Slide Container"), "3")
                     )
                 except ValueError:
                     newPanels = 3
@@ -3143,13 +3089,9 @@ class ClassDesigner(dApp):
         elif issubclass(cls, WizardPage):
             self._afterAddNewControlWizardPage(obj)
         elif isPageControl:
-            pg0panel = self._afterAddNewControlPaged(
-                obj, pcount, classFlagProp, pgCls, useSizers
-            )
+            pg0panel = self._afterAddNewControlPaged(obj, pcount, classFlagProp, pgCls, useSizers)
         elif isSlidePanelControl:
-            pnl0 = self._afterAddNewControlSlidePanel(
-                obj, classFlagProp, pcount, useSizers
-            )
+            pnl0 = self._afterAddNewControlSlidePanel(obj, classFlagProp, pcount, useSizers)
 
         if isinstance(obj, dPage) and not isinstance(obj.Parent, self.pagedControls):
             # This is a free standing page being designed. Add the sizer, if required.
@@ -3166,9 +3108,7 @@ class ClassDesigner(dApp):
                 chkWd = chkHt = True
             else:
                 chkWd = ("Size" not in attProperties) and ("Width" not in attProperties)
-                chkHt = ("Size" not in attProperties) and (
-                    "Height" not in attProperties
-                )
+                chkHt = ("Size" not in attProperties) and ("Height" not in attProperties)
             dabo.ui.callAfter(self.checkMinSize, obj, chkWd, chkHt)
 
         try:
@@ -3478,9 +3418,7 @@ class ClassDesigner(dApp):
         isMainPanel = self._extractKey(clsd["attributes"], "mainPanel", "False")
         ac = self._addingClass
         self._addingClass = True
-        mainObj = self.recreateChildren(
-            self._srcObj, clsd, szr, fromSizer=(szr is not None)
-        )
+        mainObj = self.recreateChildren(self._srcObj, clsd, szr, fromSizer=(szr is not None))
         self._addingClass = ac
         self._basePath = None
         # This is the key that marks it as a class, and not a base object.
@@ -3534,8 +3472,7 @@ class ClassDesigner(dApp):
                         exec("obj.%s = '%s'" % (att, escVal))
                     except:
                         raise ValueError(
-                            _("Could not set attribute '%(att)s' to value: %(val)s")
-                            % locals()
+                            _("Could not set attribute '%(att)s' to value: %(val)s") % locals()
                         )
         # If the item has children, set their atts, too.
         isSizer = isinstance(obj, dSizerMixin)
@@ -3558,11 +3495,7 @@ class ClassDesigner(dApp):
                         # Not a class member
                         continue
                     try:
-                        kidDct = [
-                            cd
-                            for cd in childList
-                            if cd["attributes"]["classID"] == kidID
-                        ][0]
+                        kidDct = [cd for cd in childList if cd["attributes"]["classID"] == kidID][0]
                         self.setCustomChanges(kid, kidDct)
                     except Exception as e:
                         dabo.log.error(_("Error locating sizer: %s") % e)
@@ -3571,9 +3504,7 @@ class ClassDesigner(dApp):
                 childList = dct["children"]
                 szID = obj.Sizer.classID
                 try:
-                    szDct = [
-                        cd for cd in childList if cd["attributes"]["classID"] == szID
-                    ][0]
+                    szDct = [cd for cd in childList if cd["attributes"]["classID"] == szID][0]
                     self.setCustomChanges(obj.Sizer, szDct)
                 except Exception as e:
                     dabo.log.error(_("Error locating sizer: %s") % e)
@@ -3586,9 +3517,7 @@ class ClassDesigner(dApp):
                         kidID = kid.classID
                         try:
                             kidDct = [
-                                cd
-                                for cd in childList
-                                if cd["attributes"]["classID"] == kidID
+                                cd for cd in childList if cd["attributes"]["classID"] == kidID
                             ][0]
                             self.setCustomChanges(kid, kidDct)
                         except Exception as e:
@@ -3955,9 +3884,7 @@ class ClassDesigner(dApp):
                 self.boxcaption.Enabled = self.chkBox.Value
                 self.layout()
 
-        dlg = BoxSizerInfo(
-            self.CurrentForm, BasePrefKey=self.BasePrefKey + ".BoxSizerInfo"
-        )
+        dlg = BoxSizerInfo(self.CurrentForm, BasePrefKey=self.BasePrefKey + ".BoxSizerInfo")
         dlg.show()
         ret = (None, None, None)
         if dlg.Accepted:
@@ -4180,9 +4107,7 @@ class ClassDesigner(dApp):
                 order += 10
                 colInfo[fld] = coldata
 
-            grd = self.addNewControl(
-                pnl, dGrid, props={"ColumnCount": 0}, skipUpdate=True
-            )
+            grd = self.addNewControl(pnl, dGrid, props={"ColumnCount": 0}, skipUpdate=True)
 
             grd.ColumnCount = len(flds)
             grd.DataSource = table
@@ -4365,9 +4290,7 @@ if __name__ == '__main__':
                     obj = evt.EventObject
                     if obj.Value:
                         # Toggle the others off
-                        for btn in [
-                            bb for bb in self.mainPanel.Children if not bb is obj
-                        ]:
+                        for btn in [bb for bb in self.mainPanel.Children if not bb is obj]:
                             btn.Value = False
 
                 def clear(self):
@@ -4391,11 +4314,7 @@ if __name__ == '__main__':
 
                 def _getSelectedClass(self):
                     try:
-                        ret = [
-                            btn.ControlClass
-                            for btn in self.mainPanel.Children
-                            if btn.Value
-                        ][0]
+                        ret = [btn.ControlClass for btn in self.mainPanel.Children if btn.Value][0]
                     except:
                         ret = None
                     return ret
@@ -4651,9 +4570,7 @@ if __name__ == '__main__':
         ),
     )
 
-    PropSheet = property(
-        _getPropSht, None, None, _("Reference to the Property Sheet (PropSheet)")
-    )
+    PropSheet = property(_getPropSht, None, None, _("Reference to the Property Sheet (PropSheet)"))
 
     SelectedClass = property(
         _getSelectedClass,
@@ -4683,9 +4600,7 @@ if __name__ == '__main__':
         _("Reference to the text file editing form  (TextEditorForm)"),
     )
 
-    Tree = property(
-        _getTree, None, None, _("Reference to the Layout Tree form (TreeSheet)")
-    )
+    Tree = property(_getTree, None, None, _("Reference to the Layout Tree form (TreeSheet)"))
 
     UseSizers = property(
         _getUseSizers,

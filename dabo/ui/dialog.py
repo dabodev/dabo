@@ -45,9 +45,7 @@ class dDialog(dFormMixin, wx.Dialog):
             kwargs["style"] = defaultStyle
 
         preClass = wx.Dialog
-        dFormMixin.__init__(
-            self, preClass, parent, properties=properties, *args, **kwargs
-        )
+        dFormMixin.__init__(self, preClass, parent, properties=properties, *args, **kwargs)
 
         # Hook method, so that we add the buttons last
         self._addControls()
@@ -170,9 +168,7 @@ class dDialog(dFormMixin, wx.Dialog):
 
     def _setBorderless(self, val):
         if self._constructed():
-            raise ValueError(
-                _("Cannot set the Borderless property once the dialog is created.")
-            )
+            raise ValueError(_("Cannot set the Borderless property once the dialog is created."))
         else:
             self._properties["Borderless"] = val
 
@@ -299,13 +295,7 @@ class dStandardButtonDialog(dDialog):
         yes = self._yes
         no = self._no
         help = self._help
-        if (
-            ok is None
-            and cancel is None
-            and yes is None
-            and no is None
-            and help is None
-        ):
+        if ok is None and cancel is None and yes is None and no is None and help is None:
             ok = True
 
         flags = 0
@@ -441,9 +431,7 @@ class dStandardButtonDialog(dDialog):
             self.onCancel()
         except TypeError:
             warnings.warn(
-                _(
-                    "The onCancel() handler is deprecated. Use the runCancel() method instead"
-                ),
+                _("The onCancel() handler is deprecated. Use the runCancel() method instead"),
                 Warning,
             )
             self.onCancel(None)
@@ -577,9 +565,7 @@ class dStandardButtonDialog(dDialog):
         _getButtonSizer,
         None,
         None,
-        _(
-            "Returns a reference to the sizer controlling the Ok/Cancel buttons.  (dSizer)"
-        ),
+        _("Returns a reference to the sizer controlling the Ok/Cancel buttons.  (dSizer)"),
     )
 
     ButtonSizerPosition = property(

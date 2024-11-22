@@ -5,6 +5,7 @@ import traceback
 
 from .dLocalize import _
 from . import events
+from . import settings
 
 
 class EventMixin(object):
@@ -66,12 +67,10 @@ class EventMixin(object):
         eventData = kwargs.pop("eventData", None)
         evtObject = kwargs.pop("eventObject", self)
 
-        event = eventClass(
-            evtObject, uiEvent=uiEvent, eventData=eventData, *args, **kwargs
-        )
+        event = eventClass(evtObject, uiEvent=uiEvent, eventData=eventData, *args, **kwargs)
 
         # Now iterate the bindings, and execute the callbacks:
-        if dabo.reverseEventsOrder:
+        if settings.reverseEventsOrder:
             bindings = reversed(self._EventBindings)
         else:
             bindings = self._EventBindings
@@ -91,12 +90,12 @@ class EventMixin(object):
 
         if uiEvent is not None:
             # Let the UI lib know whether to do the default event behavior
-            from dabo import ui as dui
+            from . import ui
 
             if event.Continue:
-                r = dui.continueEvent(uiEvent)
+                r = ui.continueEvent(uiEvent)
             else:
-                r = dui.discontinueEvent(uiEvent)
+                r = ui.discontinueEvent(uiEvent)
         else:
             r = None
 
@@ -166,7 +165,7 @@ class EventMixin(object):
         If you want to bind your events explicitly, you can turn off auto event
         binding by issuing::
 
-             dabo.autoBindEvents = False
+             settings.autoBindEvents = False
 
         This feature is inspired by PythonCard.
         """
@@ -196,7 +195,7 @@ class EventMixin(object):
         whether the calling process should stop searching for objects auto-bind
         opportunities.
         """
-        if not (force or dabo.autoBindEvents):
+        if not (force or settings.autoBindEvents):
             # autobinding is switched off globally
             return True
         if context is None:
@@ -258,9 +257,7 @@ class EventMixin(object):
 
             if type(funcObj) in (types.FunctionType, types.MethodType):
                 evtObj = events.__dict__[parsedEvtName]
-                funcObj = eval(
-                    "context.%s" % funcName
-                )  ## (can't use __class__.dict...)
+                funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
                 self.bindEvent(evtObj, funcObj, _auto=True)
 
     def getEventList(cls):

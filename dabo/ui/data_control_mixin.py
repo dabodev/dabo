@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 from .. import biz
 from .. import events
+from .. import main
+from .. import settings
 from .. import dException
 from .. import ui
 from ..dLocalize import _
 from ..dObject import dObject
 from ..dPref import dPref
 from ..lib.utils import ustr
-# import dTextBox_DeriveTextLengthFromSource
-# import autoDisableDataControls
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dDataControlMixin(ui.dControlMixin):
     def __init__(self, *args, **kwargs):
         # TODO: Refactor these references
-        self._deriveTextLengthFromSource = dTextBox_DeriveTextLengthFromSource
-        self._disableOnEmptyDataSource = autoDisableDataControls
+        self._deriveTextLengthFromSource = settings.dTextBox_DeriveTextLengthFromSource
+        self._disableOnEmptyDataSource = settings.autoDisableDataControls
         ####
         self._fldValidFailed = False
         # Control enabling/disabling on empty data source helper attribute.
@@ -116,9 +117,7 @@ class dDataControlMixin(ui.dControlMixin):
 
     def __dataUpdate(self):
         """This handles all the value updating from the data source."""
-        if not self.DataField or not (
-            self.DataSource or isinstance(self.DataSource, dPref)
-        ):
+        if not self.DataField or not (self.DataSource or isinstance(self.DataSource, dPref)):
             return
         if self._DesignerMode:
             return
@@ -222,9 +221,7 @@ class dDataControlMixin(ui.dControlMixin):
             # To prevent such situation we have to check the _from_flushValue attribute at the beginning.
             self._from_flushValue = True
             if not self._DesignerMode:
-                if (
-                    self.DataSource or isinstance(self.DataSource, dPref)
-                ) and self.DataField:
+                if (self.DataSource or isinstance(self.DataSource, dPref)) and self.DataField:
                     src = self.Source
                     if self._srcIsBizobj:
                         try:
@@ -252,16 +249,14 @@ class dDataControlMixin(ui.dControlMixin):
                             if isinstance(self.DataSource, str):
                                 self._srcIsInstanceMethod = False
                             else:
-                                self._srcIsInstanceMethod = callable(
-                                    getattr(src, self.DataField)
-                                )
+                                self._srcIsInstanceMethod = callable(getattr(src, self.DataField))
                         if self._srcIsInstanceMethod:
                             return
                         if isinstance(src, str):
                             try:
                                 exec("src.%s = curVal" % self.DataField)
                             except Exception as e:
-                                log.error(
+                                dabo_module.error(
                                     "Could not bind to '%s.%s'\nReason: %s"
                                     % (self.DataSource, self.DataField, e)
                                 )
@@ -274,7 +269,7 @@ class dDataControlMixin(ui.dControlMixin):
                                     nm = self.DataSource._name
                                 else:
                                     nm = ustr(self.DataSource)
-                                log.error(
+                                dabo_module.error(
                                     "Could not bind to '%s.%s'\nReason: %s"
                                     % (nm, self.DataField, e)
                                 )
@@ -325,7 +320,7 @@ class dDataControlMixin(ui.dControlMixin):
                 try:
                     self.Value = value
                 except (ValueError, TypeError) as e:
-                    log.error(e)
+                    dabo_module.error(e)
 
     def getShortDataType(self, value):
         if isinstance(value, int):
@@ -337,7 +332,7 @@ class dDataControlMixin(ui.dControlMixin):
         elif isinstance(value, bool):
             return "L"
         else:
-            log.info(_("getShortDataType - unknown type: %s") % (value,))
+            dabo_module.info(_("getShortDataType - unknown type: %s") % (value,))
             return "?"
 
     def _afterValueChanged(self):
@@ -362,9 +357,7 @@ class dDataControlMixin(ui.dControlMixin):
         if self._inDataUpdate or self._from_flushValue:
             return
 
-        if self.Form.ActiveControl != self or not getattr(
-            self, "_flushOnLostFocus", False
-        ):
+        if self.Form.ActiveControl != self or not getattr(self, "_flushOnLostFocus", False):
             # Value was changed programatically, and flushValue won't ever be
             # called automatically (either the control won't flush itself upon
             # LostFocus, or the control isn't the active control so the GotFocus/
@@ -372,9 +365,7 @@ class dDataControlMixin(ui.dControlMixin):
             self.flushValue()
 
     def _onWxHit(self, evt, *args, **kwargs):
-        self._userChanged = (
-            True  ## set the dirty flag so that InteractiveChange can be raised.
-        )
+        self._userChanged = True  ## set the dirty flag so that InteractiveChange can be raised.
         super(dDataControlMixin, self)._onWxHit(evt, *args, **kwargs)
 
     def select(self, position, length):
@@ -556,7 +547,7 @@ class dDataControlMixin(ui.dControlMixin):
                     self.__src = ds
                     if not isinstance(ds, (dObject, dPref)):
                         # Warn about possible unsupported behavior.
-                        log.info(
+                        dabo_module.info(
                             _(
                                 "DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems."
                             )
@@ -598,10 +589,8 @@ class dDataControlMixin(ui.dControlMixin):
                     setter(val)
                 except (TypeError, ValueError) as e:
                     nm = self._name
-                    log.error(
-                        _(
-                            "Could not set value of %(nm)s to %(val)s. Error message: %(e)s"
-                        )
+                    dabo_module.error(
+                        _("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
                         % locals()
                     )
             self._afterValueChanged()
@@ -690,9 +679,7 @@ class dDataControlMixin(ui.dControlMixin):
         _getValue,
         _setValue,
         None,
-        _(
-            """Specifies the current state of the control (the value of the field).  (varies)"""
-        ),
+        _("""Specifies the current state of the control (the value of the field).  (varies)"""),
     )
 
     DynamicValue = ui.makeDynamicProperty(Value)

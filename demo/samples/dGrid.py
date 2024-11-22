@@ -161,9 +161,7 @@ class TestPanel(dPanel):
             + "You can also drag the columns to re-arrange their order. Right-clicking on a column header gives you auto-size "
             + "choices. You can also drag the lines between columns or rows to manually change their size."
         )
-        lbl = self.gridCaption = dLabel(
-            self, Alignment="center", Caption=txt, WordWrap=True
-        )
+        lbl = self.gridCaption = dLabel(self, Alignment="center", Caption=txt, WordWrap=True)
         # Keep the label 80% of the panel
         lbl.DynamicWidth = lambda: self.Width * 0.8
         lbl.FontSize -= 1
@@ -176,9 +174,7 @@ class TestPanel(dPanel):
         sz.appendSpacer(20)
         gsz = dGridSizer(HGap=15)
 
-        chk = dCheckBox(
-            self, Caption="Allow Editing?", DataSource=self.grid, DataField="Editable"
-        )
+        chk = dCheckBox(self, Caption="Allow Editing?", DataSource=self.grid, DataField="Editable")
         chk.refresh()
         gsz.append(chk, row=0, col=0)
 
@@ -340,9 +336,7 @@ class TestPanel(dPanel):
 
     def onSetSelColor(self, evt):
         isText = evt.EventObject.Caption == "Text"
-        clr = {True: self.grid.SelectionForeColor, False: self.grid.SelectionBackColor}[
-            isText
-        ]
+        clr = {True: self.grid.SelectionForeColor, False: self.grid.SelectionBackColor}[isText]
         new = dabo.ui.getColor(clr)
         if new:
             if isText:

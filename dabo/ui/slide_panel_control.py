@@ -5,6 +5,7 @@ import wx.lib.agw.foldpanelbar as fpb
 from .. import dColors
 from .. import ui
 from .. import events
+from .. import main
 from . import makeDynamicProperty
 from ..dLocalize import _
 from . import dCheckBox
@@ -13,7 +14,8 @@ from . import dForm
 from . import dGridSizer
 from . import dLabel
 from . import dSizer
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
@@ -176,9 +178,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         try:
             ret = self._barColor1
         except AttributeError:
-            ret = self._barColor1 = (
-                self._captionBar.GetCaptionStyle().GetFirstColour().Get()
-            )
+            ret = self._barColor1 = self._captionBar.GetCaptionStyle().GetFirstColour().Get()
         return ret
 
     def _setBarColor1(self, val):
@@ -192,9 +192,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         try:
             ret = self._barColor2
         except AttributeError:
-            ret = self._barColor2 = (
-                self._captionBar.GetCaptionStyle().GetSecondColour().Get()
-            )
+            ret = self._barColor2 = self._captionBar.GetCaptionStyle().GetSecondColour().Get()
         return ret
 
     def _setBarColor2(self, val):
@@ -206,19 +204,15 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
 
     def _getBarStyle(self):
         wxbs = self._captionBar.GetCaptionStyle()._captionStyle
-        lowerStyle = [k for k, v in list(self._barStyleConstants.items()) if v == wxbs][
-            0
-        ]
+        lowerStyle = [k for k, v in list(self._barStyleConstants.items()) if v == wxbs][0]
         return self._barStyles[list(self._barStylesLow).index(lowerStyle)]
 
     def _setBarStyle(self, val):
         if self._constructed():
             if val.lower().strip() not in self._barStylesLow:
                 bs = ", ".join(self._barStyles)
-                log.error(
-                    _(
-                        "Unknown BarStyle passed: %(val)s. BarStyle must be one of: %(bs)s"
-                    )
+                dabo_module.error(
+                    _("Unknown BarStyle passed: %(val)s. BarStyle must be one of: %(bs)s")
                     % locals()
                 )
             else:
@@ -403,9 +397,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         _getExpanded, _setExpanded, None, _("Is the panel main area visible?  (bool)")
     )
 
-    Parent = property(
-        _getParent, None, None, _("Reference to the containing dSlidePanelControl.")
-    )
+    Parent = property(_getParent, None, None, _("Reference to the containing dSlidePanelControl."))
 
     PanelPosition = property(
         _getPanelPosition,
@@ -482,9 +474,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
         pnl.Reposition(pos)
         self._panels.append(pnl)
         self.raiseEvent(events.SlidePanelChange, self._createCapBarEvt(pnl))
-        pnl.bindEvent(
-            events.SlidePanelCaptionClick, self.__onSlidePanelCaptionClick, pnl
-        )
+        pnl.bindEvent(events.SlidePanelCaptionClick, self.__onSlidePanelCaptionClick, pnl)
         #         print "PANEL CAP CLICK BOUND"
         return pnl
 
@@ -533,12 +523,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
         if self.CollapseToBottom:
             rect = self.RepositionCollapsedToBottom()
             vertical = self.IsVertical()
-            if (
-                vertical
-                and rect.GetHeight() > 0
-                or not vertical
-                and rect.GetWidth() > 0
-            ):
+            if vertical and rect.GetHeight() > 0 or not vertical and rect.GetWidth() > 0:
                 self.RefreshRect(rect)
 
     def layout(self):
@@ -781,9 +766,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
         else:
             self._properties["StyleAttribute"] = val
 
-    Children = property(
-        _getChildren, None, None, _("List of all panels in the control  (list))")
-    )
+    Children = property(_getChildren, None, None, _("List of all panels in the control  (list))"))
 
     CollapseToBottom = property(
         _getCollapseToBottom,
@@ -838,9 +821,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
         _getChildren,
         None,
         None,
-        _(
-            "List of contained panels. Same as the 'Children' property.  (read-only) (list)"
-        ),
+        _("List of contained panels. Same as the 'Children' property.  (read-only) (list)"),
     )
 
     SingleClick = property(
@@ -885,13 +866,9 @@ if __name__ == "__main__":
 
     class TestForm(dForm):
         def afterInit(self):
-            dSlidePanelControl(
-                self, RegID="slideControl", ExpandContent=False, SingleClick=True
-            )
+            dSlidePanelControl(self, RegID="slideControl", ExpandContent=False, SingleClick=True)
             self.Sizer.append1x(self.slideControl)
-            self.p1 = dSlidePanel(
-                self.slideControl, Caption="First", BackColor="orange"
-            )
+            self.p1 = dSlidePanel(self.slideControl, Caption="First", BackColor="orange")
             self.p2 = dSlidePanel(
                 self.slideControl,
                 Caption="Second",

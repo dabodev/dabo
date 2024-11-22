@@ -33,15 +33,11 @@ class ContentBoxSizerPanel(dPanel):
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("HAlign"))
-        ctl = dDropdownList(
-            self, DataField="Sizer_HAlign", Choices=["Left", "Right", "Center"]
-        )
+        ctl = dDropdownList(self, DataField="Sizer_HAlign", Choices=["Left", "Right", "Center"])
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("VAlign"))
-        ctl = dDropdownList(
-            self, DataField="Sizer_VAlign", Choices=["Top", "Bottom", "Middle"]
-        )
+        ctl = dDropdownList(self, DataField="Sizer_VAlign", Choices=["Top", "Bottom", "Middle"])
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("Spacing"))
@@ -90,15 +86,11 @@ class ContentGridSizerPanel(dPanel):
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("HAlign"))
-        ctl = dDropdownList(
-            self, DataField="Sizer_HAlign", Choices=["Left", "Right", "Center"]
-        )
+        ctl = dDropdownList(self, DataField="Sizer_HAlign", Choices=["Left", "Right", "Center"])
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("VAlign"))
-        ctl = dDropdownList(
-            self, DataField="Sizer_VAlign", Choices=["Top", "Bottom", "Middle"]
-        )
+        ctl = dDropdownList(self, DataField="Sizer_VAlign", Choices=["Top", "Bottom", "Middle"])
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("Spacing"))
@@ -119,9 +111,7 @@ class BoxSizerSelfPanel(dPanel):
     def afterInit(self):
         sz = dGridSizer(VGap=5, HGap=8, MaxCols=2)
         lbl = dLabel(self, Caption=_("Orientation"))
-        ctl = dDropdownList(
-            self, DataField="Orientation", Choices=["Horizontal", "Vertical"]
-        )
+        ctl = dDropdownList(self, DataField="Orientation", Choices=["Horizontal", "Vertical"])
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("SlotCount"))
@@ -174,9 +164,7 @@ class GridSizerSelfPanel(dPanel):
         sz.append(lbl, halign="right")
         sz.append(ctl)
         lbl = dLabel(self, Caption=_("MaxDimension"))
-        ctl = dDropdownList(
-            self, DataField="MaxDimension", Choices=["C", "R"], Value="C"
-        )
+        ctl = dDropdownList(self, DataField="MaxDimension", Choices=["C", "R"], Value="C")
         sz.append(lbl, halign="right")
         sz.append(ctl)
 

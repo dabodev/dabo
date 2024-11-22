@@ -30,9 +30,7 @@ class AlignmentMixin(object):
         elif value == "right":
             self._addWindowStyleFlag(wx.ALIGN_RIGHT)
         else:
-            raise ValueError(
-                "The only possible values are " "'Left', 'Center', and 'Right'."
-            )
+            raise ValueError("The only possible values are " "'Left', 'Center', and 'Right'.")
 
     Alignment = property(
         _getAlignment,

@@ -8,12 +8,14 @@ import datetime
 import wx
 from wx import adv as wx_adv
 
+from .. import main
 from .. import ui
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import dDataControlMixin
 from . import makeDynamicProperty
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 def dateTimePy2Wx(date):
@@ -71,16 +73,11 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         if pickerMode not in "ds":
             pickerMode = "d"
         kwargs["style"] = (
-            kwargs.get("style", 0)
-            | {"d": wx.adv.DP_DROPDOWN, "s": wx.adv.DP_SPIN}[pickerMode]
+            kwargs.get("style", 0) | {"d": wx.adv.DP_DROPDOWN, "s": wx.adv.DP_SPIN}[pickerMode]
         )
-        if self._extractKey(
-            (properties, attProperties, kwargs), "AllowNullDate", False
-        ):
+        if self._extractKey((properties, attProperties, kwargs), "AllowNullDate", False):
             kwargs["style"] |= wx.adv.DP_ALLOWNONE
-        if self._extractKey(
-            (properties, attProperties, kwargs), "ForceShowCentury", False
-        ):
+        if self._extractKey((properties, attProperties, kwargs), "ForceShowCentury", False):
             kwargs["style"] |= wx.adv.DP_SHOWCENTURY
         dDataControlMixin.__init__(
             self, preClass, parent, properties, attProperties, *args, **kwargs
@@ -192,9 +189,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
             print(key)
 
     def _setCustomDate(self):
-        days = ui.getInt(
-            message=_("Day shift:"), caption=_("Reschedule day"), Min=-365, Max=365
-        )
+        days = ui.getInt(message=_("Day shift:"), caption=_("Reschedule day"), Min=-365, Max=365)
         if days:
             self.dayInterval(days)
 
@@ -281,7 +276,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
         except ValueError as e:
             nm = self.Name
             ue = ustr(e)
-            log.error(_("Object '%(nm)s' has the following error: %(ue)s") % locals())
+            dabo_module.error(_("Object '%(nm)s' has the following error: %(ue)s") % locals())
 
     def _getAllowNullDate(self):
         return self._hasWindowStyleFlag(wx.adv.DP_ALLOWNONE)
@@ -437,9 +432,5 @@ if __name__ == "__main__":
         def onValueChanged(self, evt):
             print("onValueChanged")
 
-    test.Test().runTest(
-        TestBase, AllowNullDate=True, Value=datetime.date(1970, 12, 0o3)
-    )
-    test.Test().runTest(
-        TestBase, BackColor="orange", PickerMode="Spin", AllowNullDate=True
-    )
+    test.Test().runTest(TestBase, AllowNullDate=True, Value=datetime.date(1970, 12, 0o3))
+    test.Test().runTest(TestBase, BackColor="orange", PickerMode="Spin", AllowNullDate=True)

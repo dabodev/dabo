@@ -35,9 +35,7 @@ class TestPanel(dPanel):
 
         gs = dGridSizer(MaxCols=2)
         lbl = dLabel(self, Caption="BezelWidth")
-        spn = dSpinner(
-            self, Min=0, Max=25, DataSource="self.Parent.togg", DataField="BezelWidth"
-        )
+        spn = dSpinner(self, Min=0, Max=25, DataSource="self.Parent.togg", DataField="BezelWidth")
         gs.append(lbl, halign="right")
         gs.append(spn)
 

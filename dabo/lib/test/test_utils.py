@@ -65,9 +65,7 @@ class Test_Utils(unittest.TestCase):
         self.assertEqual(utils.resolvePath(pth2, "a1/b1"), "../../file2")
         self.assertEqual(utils.relativePath(pth), "a/b/file2")
         self.assertEqual(utils.relativePath(pth2), "../../file2")
-        self.assertEqual(
-            utils.relativePath(pth, pth2), "../tmp/relpath_tests_dir/a/b/file2"
-        )
+        self.assertEqual(utils.relativePath(pth, pth2), "../tmp/relpath_tests_dir/a/b/file2")
         self.assertEqual(
             utils.relativePathList(pth, pth2),
             ["..", "tmp", "relpath_tests_dir", "a", "b", "file2"],

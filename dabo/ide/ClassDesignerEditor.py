@@ -104,9 +104,7 @@ class EditorControl(dEditor):
         obj = self.Form.getEditedObject()
         if not obj:
             # Should never happen!
-            dabo.log.error(
-                _("Bad object ref returned to _makeContainingClassIntoSelf()")
-            )
+            dabo.log.error(_("Bad object ref returned to _makeContainingClassIntoSelf()"))
             return None
         try:
             args = "dabo.ui.%s" % ustr(obj.BaseClass).split("'")[1].split(".")[-1]
@@ -228,9 +226,7 @@ class EditorForm(dForm):
         dDropdownList(pnl, RegID="ddObject", OnHit=self.onHitDDObject)
         dLabel(pnl, Caption=_("Method:"), RegID="lblMethod")
         dDropdownList(pnl, RegID="ddMethod", OnHit=self.onHitDDMethod)
-        hs = dSizer(
-            "h", DefaultBorder=8, DefaultBorderTop=True, DefaultBorderBottom=True
-        )
+        hs = dSizer("h", DefaultBorder=8, DefaultBorderTop=True, DefaultBorderBottom=True)
         hs.appendSpacer(8)
         hs.append(self.btnNavigate, 0, valign="bottom")
         hs.appendSpacer(6)
@@ -555,9 +551,7 @@ class EditorForm(dForm):
         self.showContextMenu(pop, pos=pos)
 
     def onSuperCode(self, evt):
-        self.Controller.onShowSuper(
-            self.ddObject.KeyValue.classID, self.ddMethod.StringValue
-        )
+        self.Controller.onShowSuper(self.ddObject.KeyValue.classID, self.ddMethod.StringValue)
 
     def onNewMethod(self, evt):
         nm = dabo.ui.getString(_("Name of method?"))

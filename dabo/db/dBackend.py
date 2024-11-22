@@ -191,9 +191,7 @@ class dBackend(dObject):
     def getFieldInfoFromDescription(self, cursorDescription):
         """Return field information from the cursor description."""
         # Default: return all the field names and "?", None for type and pkid.
-        return tuple(
-            [(d[0], self.getDaboFieldType(d[1]), None) for d in cursorDescription]
-        )
+        return tuple([(d[0], self.getDaboFieldType(d[1]), None) for d in cursorDescription])
 
     def beginTransaction(self, cursor):
         """Begin a SQL transaction. Override in subclasses if needed."""
@@ -265,9 +263,7 @@ class dBackend(dObject):
                 qtd = [delim + pt.strip() + delim for pt in part.split(".") if pt]
                 return ".".join(qtd)
 
-            exp = " %s ".join(
-                [encPart(pt) for pt in parts if pt.lower() not in lowkeys]
-            )
+            exp = " %s ".join([encPart(pt) for pt in parts if pt.lower() not in lowkeys])
             return exp % subs
         return exp
 
@@ -478,9 +474,7 @@ class dBackend(dObject):
             auxCrs._whereClause = holdWhere
         descFlds = auxCrs.FieldDescription
         # Get the raw version of the table
-        sql = "select * from %s where 1=0 " % self.encloseNames(
-            cursor.Table, autoQuote=autoQuote
-        )
+        sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table, autoQuote=autoQuote)
         auxCrs.execute(sql)
         # This is the clean version of the table.
         stdFlds = auxCrs.FieldDescription
@@ -592,9 +586,7 @@ class dBackend(dObject):
     def createJustIndexes(self, tabledef, cursor):
         self.createTableAndIndexes(tabledef, cursor, createTable=False)
 
-    def createTableAndIndexes(
-        self, tabledef, cursor, createTable=True, createIndex=True
-    ):
+    def createTableAndIndexes(self, tabledef, cursor, createTable=True, createIndex=True):
         """Creates a table and/or indexes based on the dTable passed to it."""
         # OVERRIDE IN SUBCLASSES!
         pass

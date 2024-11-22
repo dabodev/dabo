@@ -120,9 +120,7 @@ def autoCreateTables(noAccessDialog=None):
                     b.bindEvent(dEvents.Hit, self.onHitOK)
                     s.append(b, border=3)
 
-                    b = self.addObject(
-                        dui.dButton, CancelButton=True, Caption=_("Cancel")
-                    )
+                    b = self.addObject(dui.dButton, CancelButton=True, Caption=_("Cancel"))
                     b.bindEvent(dEvents.Hit, self.onHitCancel)
                     s.append(b, border=3)
 
@@ -181,9 +179,7 @@ def autoCreateTables(noAccessDialog=None):
                         tempConn = dabo.db.dConnection(ci)
                     except dException.DBNoAccessException:
                         dui.stop(
-                            _(
-                                "Could not access the database with the given username and password."
-                            )
+                            _("Could not access the database with the given username and password.")
                         )
                         _writeQueriesToFile(g._toExc)
                         raise dException.DBNoAccessException
@@ -195,11 +191,7 @@ def autoCreateTables(noAccessDialog=None):
                             try:
                                 cur.execute(query)
                             except dException.DBNoAccessExeption:
-                                dui.stop(
-                                    _(
-                                        "Could not setup the database. Access was denied."
-                                    )
-                                )
+                                dui.stop(_("Could not setup the database. Access was denied."))
                                 _writeQueriesToFile(g._toExc)
                                 raise dException.DBNoAccessException
 
@@ -350,6 +342,4 @@ class dAutoBizobj(dBizobj):
     def _getTable(self):
         return self._table
 
-    Table = property(
-        _getTable, None, None, _("The table definition for this bizobj.  (object)")
-    )
+    Table = property(_getTable, None, None, _("The table definition for this bizobj.  (object)"))

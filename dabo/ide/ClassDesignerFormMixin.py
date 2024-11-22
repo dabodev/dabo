@@ -256,9 +256,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         ttt = dlg.tooltip_text.Value
         hlp = dlg.help_text.Value
         dlg.release()
-        self.Controller.addNewToolbarButton(
-            self, name=nm, pic=pic, toggle=tog, tip=ttt, help=hlp
-        )
+        self.Controller.addNewToolbarButton(self, name=nm, pic=pic, toggle=tog, tip=ttt, help=hlp)
 
     def beforeClose(self, evt):
         ret = True
@@ -809,9 +807,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         module, the original code of the class, and the methods
         of that class to internal attributes.
         """
-        dlg = ocd.OpenClassDialog(
-            self, className=self._className, classFile=self._classFile
-        )
+        dlg = ocd.OpenClassDialog(self, className=self._className, classFile=self._classFile)
         if not dlg.ClassName:
             # User bailed
             return
@@ -913,13 +909,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         tq = '"' * 3
         bizcode = bizCodeTemplate % locals()
         # Get the biz directory
-        bizdir = self.Application.getStandardAppDirectory(
-            "biz", os.path.abspath(self._classFile)
-        )
+        bizdir = self.Application.getStandardAppDirectory("biz", os.path.abspath(self._classFile))
         if not bizdir:
-            bizdir = dabo.ui.getDirectory(
-                message=_("Please select your bizobj directory")
-            )
+            bizdir = dabo.ui.getDirectory(message=_("Please select your bizobj directory"))
         if not bizdir:
             if dabo.ui.areYouSure(
                 message=_(
@@ -931,13 +923,11 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 self.Application.copyToClipboard(bizcode)
         else:
             fname = "%(tblTitle)sBizobj.py" % locals()
-            codecs.open(os.path.join(bizdir, fname), "w", encoding="utf-8").write(
-                bizcode
-            )
+            codecs.open(os.path.join(bizdir, fname), "w", encoding="utf-8").write(bizcode)
             clsname = fname.strip(".py")
-            codecs.open(
-                os.path.join(bizdir, "__init__.py"), "a", encoding="utf-8"
-            ).write("\nfrom %(clsname)s import %(clsname)s\n" % locals())
+            codecs.open(os.path.join(bizdir, "__init__.py"), "a", encoding="utf-8").write(
+                "\nfrom %(clsname)s import %(clsname)s\n" % locals()
+            )
 
         # Now create the import code for the form.
         loadcode = loadCodeTemplate % locals()
@@ -1675,9 +1665,7 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
         _("List of all control(s) in the designer.   (list)"),
     )
 
-    Children = property(
-        _getChildren, None, None, _("""Children of the main panel of this form.""")
-    )
+    Children = property(_getChildren, None, None, _("""Children of the main panel of this form."""))
 
     DesignerEvents = property(
         _getDesEvents,
@@ -1707,9 +1695,7 @@ class %(tblTitle)sBizobj(dabo.biz.dBizobj):
         _getDragObject,
         _setDragObject,
         None,
-        _(
-            "Reference to the object being dragged on the form  (ClassDesignerControlMixin)"
-        ),
+        _("Reference to the object being dragged on the form  (ClassDesignerControlMixin)"),
     )
 
     IsContainer = property(

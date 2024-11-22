@@ -44,9 +44,7 @@ class MenuDesignerForm(dForm):
         self._dragObjOffset = (0, 0)
         self._dragDrawPos = (0, 0)
         self.bindEvent(dEvents.MouseMove, self.handleMouseMove)
-        self.previewButton = btn = dButton(
-            self.mainPanel, Caption="Preview", OnHit=self.onPreview
-        )
+        self.previewButton = btn = dButton(self.mainPanel, Caption="Preview", OnHit=self.onPreview)
         sz.append(btn, border=10, halign="center")
         dabo.ui.callAfter(self.layout)
 
@@ -561,9 +559,7 @@ class MenuDesignerForm(dForm):
         if itemType == "separator":
             msg = "Are you sure you want to delete this separator?"
         else:
-            msg = (
-                "Are you sure you want to delete the %(itemType)s '%(cap)s'?" % locals()
-            )
+            msg = "Are you sure you want to delete the %(itemType)s '%(cap)s'?" % locals()
         if dabo.ui.areYouSure(msg, "Delete", defaultNo=True, cancelButton=False):
             sel.onDelete(evt)
 
@@ -817,9 +813,7 @@ class MenuDesignerForm(dForm):
         _getDragObject,
         _setDragObject,
         None,
-        _(
-            "Reference to the object being dragged on the form  (MenuPanel/MenuItemPanel)"
-        ),
+        _("Reference to the object being dragged on the form  (MenuPanel/MenuItemPanel)"),
     )
 
     PropForm = property(

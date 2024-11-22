@@ -56,9 +56,7 @@ class Wizard(dDialog):
         self._blankPage = None
         self._defaultPicture = ""
         self.wizardIcon = None
-        super(Wizard, self).__init__(
-            parent=parent, properties=properties, *args, **kwargs
-        )
+        super(Wizard, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 
         # Add the main panel
         mp = self.mainPanel = dPanel(self)
@@ -155,9 +153,7 @@ class Wizard(dDialog):
     def onCancel(self, evt):
         # User clicked the Cancel button
         if self.verifyCancel:
-            if not ui.areYouSure(
-                self.confirmCancelMsg, _("Cancel Received"), cancelButton=False
-            ):
+            if not ui.areYouSure(self.confirmCancelMsg, _("Cancel Received"), cancelButton=False):
                 return
         ui.callAfter(self.closeWizard, k.DLG_CANCEL)
 
@@ -309,9 +305,7 @@ class Wizard(dDialog):
         if val == self._currentPage:
             # No change
             return
-        self.raiseEvent(
-            events.PageChanging, oldPageNum=self._currentPage, newPageNum=val
-        )
+        self.raiseEvent(events.PageChanging, oldPageNum=self._currentPage, newPageNum=val)
         if self._currentPage < 0:
             direction = "forward"
         else:
@@ -332,9 +326,7 @@ class Wizard(dDialog):
         self._currentPage = val
         self._pages[self._currentPage].onEnterPage(direction)
         self.showPage()
-        ui.callAfter(
-            self.raiseEvent, events.PageChanged, oldPageNum=oldPg, newPageNum=newPg
-        )
+        ui.callAfter(self.raiseEvent, events.PageChanged, oldPageNum=oldPg, newPageNum=newPg)
 
     def _getPageCount(self):
         return len(self._pages)
@@ -394,9 +386,7 @@ class Wizard(dDialog):
         _("Index of the current page in the wizard  (WizardPage)"),
     )
 
-    PageCount = property(
-        _getPageCount, None, None, _("Number of pages in this wizard  (int)")
-    )
+    PageCount = property(_getPageCount, None, None, _("Number of pages in this wizard  (int)"))
 
     Picture = property(
         _getPicture,
@@ -487,15 +477,11 @@ the box on Page Two.
             )
             self.Sizer.append(lbl, alignment="center")
             self.txt = dTextBox(self)
-            lbl = dLabel(
-                self, Caption=_("You cannot move forward if this textbox is empty")
-            )
+            lbl = dLabel(self, Caption=_("You cannot move forward if this textbox is empty"))
             self.Sizer.appendSpacer(16)
             self.Sizer.append(self.txt, alignment="center")
             self.Sizer.append(lbl, alignment="center")
-            lbl = dLabel(
-                self, Caption=_("Also note that this page has a different icon!")
-            )
+            lbl = dLabel(self, Caption=_("Also note that this page has a different icon!"))
             self.Sizer.appendSpacer(5)
             self.Sizer.append(lbl, alignment="center")
 

@@ -381,9 +381,7 @@ class Board(dPanel):
         ret = self.Form.getObjectByRegID(id)
         if ret is None:
             try:
-                ret = [
-                    cd for cd in self.deck if (cd.Rank == rank) and (cd.Suit == suit)
-                ][0]
+                ret = [cd for cd in self.deck if (cd.Rank == rank) and (cd.Suit == suit)][0]
             except Exception:
                 ret = None
         return ret
@@ -407,13 +405,9 @@ class Board(dPanel):
     def _getTotScore(self):
         return self._priorHandScore + self._score
 
-    Redeals = property(
-        _getRedeals, _setRedeals, None, _("Number of remaining redeals  (int)")
-    )
+    Redeals = property(_getRedeals, _setRedeals, None, _("Number of remaining redeals  (int)"))
 
-    Score = property(
-        _getScore, _setScore, None, _("Score of the game for the current hand  (int)")
-    )
+    Score = property(_getScore, _setScore, None, _("Score of the game for the current hand  (int)"))
 
     TotalScore = property(
         _getTotScore,
@@ -504,16 +498,12 @@ class MontanaForm(dForm):
 
         tb.appendControl(dabo.ui.dLabel(tb, Caption="Hand Score:", Width=50, Height=20))
         self.txtHandScore = tb.appendControl(
-            dabo.ui.dTextBox(
-                tb, Value=0, FontBold=True, Width=40, ReadOnly=True, Alignment="Right"
-            )
+            dabo.ui.dTextBox(tb, Value=0, FontBold=True, Width=40, ReadOnly=True, Alignment="Right")
         )
         tb.appendSeparator()
         tb.appendControl(dabo.ui.dLabel(tb, Caption="Game Score:", Width=50, Height=20))
         self.txtGameScore = tb.appendControl(
-            dabo.ui.dTextBox(
-                tb, Value=0, FontBold=True, Width=40, ReadOnly=True, Alignment="Right"
-            )
+            dabo.ui.dTextBox(tb, Value=0, FontBold=True, Width=40, ReadOnly=True, Alignment="Right")
         )
 
     def updateRedealCaption(self):
@@ -585,9 +575,7 @@ class MontanaForm(dForm):
 
     def onNewGame(self, evt):
         # Check for a game in progress.
-        if self.gameBoard.historyStack and (
-            not self.gameBoard.isStuck or self.gameBoard.Redeals
-        ):
+        if self.gameBoard.historyStack and (not self.gameBoard.isStuck or self.gameBoard.Redeals):
             if not dabo.ui.areYouSure(
                 message="Your game is not over. Are "
                 + "you sure you want to end it and start a new game?"

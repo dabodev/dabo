@@ -17,12 +17,16 @@ import urllib.request, urllib.parse, urllib.error
 import warnings
 
 from .. import events
+from .. import main
+from .. import settings
 from ..dException import dException
 from ..dLocalize import _
 from ..lib import utils
 from ..lib.utils import ustr
 from .. import dConstants
 from .uiApp import uiApp
+
+dabo_module = main.get_dabo_package()
 
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
@@ -91,7 +95,7 @@ if wx.PlatformInfo[0] == "__WXGTK__":
     _platform += " (%s)" % wx.PlatformInfo[5]
 uiType["platform"] = _platform
 
-# Add these to the dabo.ui namespace
+# Add these to the ui namespace
 assertionException = wx.wxAssertionError
 nativeScrollBar = wx.ScrollBar
 
@@ -103,8 +107,9 @@ dKeys = None
 dIcons = None
 dUICursors = None
 
+
 def load_namespace():
-    """Add all the UI classes to the dabo.ui namespace.
+    """Add all the UI classes to the ui namespace.
 
     This must be called before any UI work can be done. This is done automatically when `import
     dabo` is called, so you should never have to call it manually.
@@ -118,6 +123,7 @@ def load_namespace():
         return
     namespace_loaded = True
     from . import keys
+
     dKeys = keys
     from . import icons
 
@@ -196,7 +202,8 @@ def load_namespace():
     from . import ui_calendar
     from . import dialogs
     from . import grid_renderers
-#     from . import object_inspector
+
+    #     from . import object_inspector
     from . import dock_form
     from .dialogs import WizardPage
     from .dialogs import Wizard
@@ -433,7 +440,7 @@ def callAfter(fnc, *args, **kwargs):
     Call the passed function with the passed arguments in the next
     event loop.
     """
-    if dabo.saveCallAfterStack:
+    if settings.saveCallAfterStack:
         lastCallAfterStack = "".join(traceback.format_stack())
     wx.CallAfter(fnc, *args, **kwargs)
 
@@ -452,7 +459,7 @@ def callAfterInterval(interval, func, *args, **kwargs):
     high.
     """
     global lastCallAfterStack
-    if dabo.saveCallAfterStack:
+    if settings.saveCallAfterStack:
         lastCallAfterStack = "".join(traceback.format_stack())
     if isinstance(func, int):
         # Arguments are in the old order
@@ -486,9 +493,8 @@ def setAfter(obj, prop, val):
         fnc = getattr(obj.__class__, prop).fset
         wx.CallAfter(fnc, obj, val)
     except Exception as e:
-        dabo.log.error(
-            _("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
-            % locals()
+        dabo_module.log.error(
+            _("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.") % locals()
         )
 
 
@@ -501,10 +507,8 @@ def setAfterInterval(interval, obj, prop, val):
         fnc = getattr(obj.__class__, prop).fset
         callAfterInterval(interval, fnc, obj, val)
     except Exception as e:
-        dabo.log.error(
-            _(
-                "setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s."
-            )
+        dabo_module.log.error(
+            _("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
             % locals()
         )
 
@@ -515,11 +519,12 @@ def callEvery(interval, func, *args, **kwargs):
     at the specified interval. Interval is given in milliseconds. It will pass along
     any additional arguments to the function when it is called.
     """
+    from .dTimer import dTimer
 
     def _onHit(evt):
         func(*args, **kwargs)
 
-    ret = dabo.ui.dTimer(Interval=interval)
+    ret = dTimer(Interval=interval)
     ret.bindEvent(events.Hit, _onHit)
     ret.start()
     return ret
@@ -549,7 +554,7 @@ def busyInfo(msg="Please wait...", *args, **kwargs):
     Assign the return value to a local object, and the message will stay until the
     object is explicitly unbound. For example::
 
-        bi = dabo.ui.busyInfo("Please wait while I count to 10000...")
+        bi = ui.busyInfo("Please wait while I count to 10000...")
         for i in range(10000):
             pass
         bi = None
@@ -573,7 +578,7 @@ def continueEvent(evt):
         if isinstance(evt, events.dEvent):
             pass
         else:
-            dabo.log.error(
+            dabo_module.log.error(
                 "Incorrect event class (%s) passed to continueEvent. Error: %s"
                 % (ustr(evt), ustr(e))
             )
@@ -587,15 +592,15 @@ def discontinueEvent(evt):
         if isinstance(evt, events.dEvent):
             pass
         else:
-            dabo.log.error(
+            dabo_module.log.error(
                 "Incorrect event class (%s) passed to continueEvent. Error: %s"
                 % (ustr(evt), ustr(e))
             )
 
 
 def getEventData(wxEvt):
-    from dabo.ui import dMenu
-    from dabo.ui import dTreeView
+    from . import dMenu
+    from . import dTreeView
     import wx.grid
 
     ed = {}
@@ -619,7 +624,7 @@ def getEventData(wxEvt):
             wx.SplitterEvent,
         ),
     ):
-        if dabo.allNativeEventInfo:
+        if settings.allNativeEventInfo:
             # Cycle through all the attributes of the wx events, and evaluate them
             # for insertion into the dEvent.EventData dict.
             d = dir(wxEvt)
@@ -889,7 +894,7 @@ def getFormMousePosition():
     Returns the position of the mouse relative to the top left
     corner of the form.
     """
-    actwin = dabo.dAppRef.ActiveForm
+    actwin = main.get_application().ActiveForm
     if actwin is not None:
         return actwin.relativeCoordinates(wx.GetMousePosition())
     else:
@@ -903,10 +908,10 @@ def getMouseObject():
     development when testing changes to classes 'in the wild' of a
     live application.
     """
-    #     print "MOUSE POS:", getMousePosition()
-    #     win = wx.FindWindowAtPoint(getMousePosition())
-    actwin = dabo.dAppRef.ActiveForm
-    #     print "ACTWIN", actwin
+    import pudb
+
+    pudb.set_trace()
+    actwin = main.get_application().ActiveForm
     if isinstance(actwin, dabo.ui.dShell):
         actwin.lockDisplay()
         actwin.sendToBack()
@@ -1039,15 +1044,13 @@ def getDisplaySize():
 
 
 def _getActiveForm():
-    app = dabo.dAppRef
+    app = main.get_application()
     if app is not None:
         return app.ActiveForm
     return None
 
 
-def getString(
-    message=_("Please enter a string:"), caption="Dabo", defaultValue="", **kwargs
-):
+def getString(message=_("Please enter a string:"), caption="Dabo", defaultValue="", **kwargs):
     """
     Simple dialog for returning a small bit of text from the user.
 
@@ -1086,9 +1089,7 @@ def getString(
     return val
 
 
-def getInt(
-    message=_("Enter an integer value:"), caption="Dabo", defaultValue=0, **kwargs
-):
+def getInt(message=_("Enter an integer value:"), caption="Dabo", defaultValue=0, **kwargs):
     """Simple dialog for returning an integer value from the user."""
 
     class IntDialog(dabo.ui.dOkCancelDialog):
@@ -1161,12 +1162,8 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
             sz.append(self.lst, 4, halign="center")
             if mult:
                 hsz = dabo.ui.dSizer("h")
-                btnAll = dabo.ui.dButton(
-                    self, Caption=_("Select All"), OnHit=self.selectAll
-                )
-                btnNone = dabo.ui.dButton(
-                    self, Caption=_("Unselect All"), OnHit=self.unselectAll
-                )
+                btnAll = dabo.ui.dButton(self, Caption=_("Select All"), OnHit=self.selectAll)
+                btnNone = dabo.ui.dButton(self, Caption=_("Unselect All"), OnHit=self.unselectAll)
                 btnInvert = dabo.ui.dButton(
                     self, Caption=_("Invert Selection"), OnHit=self.invertSelection
                 )
@@ -1178,9 +1175,7 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
                 sz.appendSpacer(16)
                 sz.append(hsz, halign="center", border=20)
                 sz.appendSpacer(8)
-                sz.append(
-                    dabo.ui.dLine(self), "x", border=44, borderSides=("left", "right")
-                )
+                sz.append(dabo.ui.dLine(self), "x", border=44, borderSides=("left", "right"))
             sz.appendSpacer(24)
 
         def onMouseLeftDoubleClick(self, evt):
@@ -1386,9 +1381,7 @@ def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
     Returns the path to the selected folder, or None if no selection
     was made.
     """
-    return _getPath(
-        "dFolderDialog", message=message, defaultPath=defaultPath, wildcard=wildcard
-    )[0]
+    return _getPath("dFolderDialog", message=message, defaultPath=defaultPath, wildcard=wildcard)[0]
 
 
 # Create an alias that uses 'directory' instead of 'folder'
@@ -1430,7 +1423,7 @@ def getSystemInfo(returnType=None):
     if returnType is None:
         returnType = "string"
     rType = returnType.lower()[0]
-    app = dabo.dAppRef
+    app = main.get_application()
     ds = []
     if app:
         plat = app.Platform
@@ -1612,7 +1605,7 @@ def createMenuBar(src, form=None, previewFunc=None):
 
     def addMenu(mb, menuDict, form, previewFunc):
         if form is None:
-            form = dabo.dAppRef.ActiveForm
+            form = main.get_application().ActiveForm
         if isinstance(mb, dabo.ui.dMenuBar):
             menu = dabo.ui.dMenu(mb)
         else:
@@ -1622,16 +1615,14 @@ def createMenuBar(src, form=None, previewFunc=None):
         menu.MRU = menu._extractKey(atts, "MRU")
         menu.HelpText = menu._extractKey(atts, "HelpText")
         if atts:
-            menu.setPropertiesFromAtts(
-                atts, context={"form": form, "app": dabo.dAppRef}
-            )
+            menu.setPropertiesFromAtts(atts, context={"form": form, "app": main.get_application()})
         mb.appendMenu(menu)
         try:
             items = menuDict["children"]
         except KeyError:
             # No children defined for this menu
             return
-        app = dabo.dAppRef
+        app = main.get_application()
         for itm in items:
             if "Separator" in itm["name"]:
                 menu.appendSeparator()
@@ -1666,7 +1657,7 @@ def createMenuBar(src, form=None, previewFunc=None):
                 menuItem._bindingText = "%s" % fnc
                 if itmatts:
                     menuItem.setPropertiesFromAtts(
-                        itmatts, context={"form": form, "app": dabo.dAppRef}
+                        itmatts, context={"form": form, "app": main.get_application()}
                     )
                 menuItem.bindEvent(events.Hit, binding)
 
@@ -1710,9 +1701,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
 
             """
             if not self._controlClass:
-                raise TypeError(
-                    _("Cannot create custom editor without a control class specified.")
-                )
+                raise TypeError(_("Cannot create custom editor without a control class specified."))
             self._control = self._controlClass(parent, **controlProps)
             self._grid = parent.GetParent()
             self._control.bindEvent(events.KeyDown, self._onKeyDown)
@@ -1826,10 +1815,7 @@ def makeGridEditor(controlClass, minWidth=None, minHeight=None, **controlProps):
             version only checks that the event has no modifiers.  F2 is special
             and will always start the editor.
             """
-            return (
-                not (evt.ControlDown() or evt.AltDown())
-                and evt.GetKeyCode() != wx.WXK_SHIFT
-            )
+            return not (evt.ControlDown() or evt.AltDown()) and evt.GetKeyCode() != wx.WXK_SHIFT
 
         def StartingKey(self, evt):
             """
@@ -2015,7 +2001,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None, italic=None
     active form. If no form is active, the app's MainForm is used.
     """
     if wind is None:
-        wind = dabo.dAppRef.ActiveForm
+        wind = main.get_application().ActiveForm
     needToRelease = False
     if wind is None:
         # Need to create one
@@ -2069,7 +2055,7 @@ def saveScreenShot(obj=None, imgType=None, pth=None, delaySeconds=None):
 
 def _saveScreenShot(obj, imgType, pth):
     if obj is None:
-        obj = dabo.dAppRef.ActiveForm
+        obj = main.get_application().ActiveForm
     if obj is None:
         # Nothing active!
         stop(_("There is no active form to capture."), _("No Active Form"))
@@ -2138,7 +2124,7 @@ def strToBmp(val, scale=None, width=None, height=None):
     """
     ret = None
     cwd = os.getcwd()
-    app = dabo.dAppRef
+    app = main.get_application()
     if app:
         cwd = app.HomeDirectory
 
@@ -2161,9 +2147,7 @@ def strToBmp(val, scale=None, width=None, height=None):
             if macAppIndicator in dpth:
                 # Running as a py2app application
                 resPth = "%s%s" % (dpth.split(macAppIndicator)[0], macAppIndicator)
-                macPaths = [
-                    os.path.join(resPth, pth, val) for pth in ("icons", "resources")
-                ]
+                macPaths = [os.path.join(resPth, pth, val) for pth in ("icons", "resources")]
                 paths += macPaths
 
             # See if it's a standard icon
@@ -2257,7 +2241,7 @@ def getImagePath(nm, url=False):
     ret = dabo.icons.getIconFileName(nm)
     if not ret:
         # Try other locations:
-        trials = [dabo.dAppRef.HomeDirectory, os.getcwd()]
+        trials = [main.get_application().HomeDirectory, os.getcwd()]
         trials.extend([p for p in sys.path])
 
         for trial in trials:

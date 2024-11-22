@@ -18,6 +18,8 @@ from wx._core import PyAssertionError
 
 from .. import ui
 from .. import events
+from .. import main
+from .. import settings
 from .. import dException
 from .. import biz
 from .. import dColors
@@ -44,11 +46,7 @@ from . import dTimer
 from . import dUICursors
 from . import makeDynamicProperty
 
-# import log
-# import copyValueSeparator
-# import copyStringSeparator
-# import copyLineSeparator
-# import getEncoding
+dabo_module = main.get_dabo_package()
 
 # Make this locale-independent
 # JK: We can't set this up on module load because locale
@@ -167,7 +165,7 @@ class dGridDataTable(wx.grid.GridTableBase):
                         col.DataType = ustr(col.DataType).split("'")[1].lower()
                     except IndexError:
                         # Something's odd. Print an error message and move on.
-                        log.error(
+                        dabo_module.error(
                             "Unknown data type found in setColumns(): %s" % col.DataType
                         )
                         col.DataType = ustr(col.DataType)
@@ -384,15 +382,15 @@ class dGridDataTable(wx.grid.GridTableBase):
 
 class GridListEditor(wx.grid.GridCellChoiceEditor):
     def __init__(self, *args, **kwargs):
-        log.info("GridListEditor: Init ")
-        log.info(ustr(args))
-        log.info(ustr(kwargs))
+        dabo_module.info("GridListEditor: Init ")
+        dabo_module.info(ustr(args))
+        dabo_module.info(ustr(kwargs))
         super(GridListEditor, self).__init__(*args, **kwargs)
 
     def Create(self, parent, id, evtHandler, *args, **kwargs):
-        log.info("GridListEditor: Create")
-        log.info(ustr(args))
-        log.info(ustr(kwargs))
+        dabo_module.info("GridListEditor: Create")
+        dabo_module.info(ustr(args))
+        dabo_module.info(ustr(kwargs))
         self.control = dDropdownList(parent=parent, id=id, ValueMode="String")
         self.SetControl(self.control)
         if evtHandler:
@@ -404,22 +402,22 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         return self.__class__()
 
     def SetParameters(self, paramStr):
-        log.info("GridListEditor: SetParameters: %s" % paramStr)
+        dabo_module.info("GridListEditor: SetParameters: %s" % paramStr)
         self.control.Choices = eval(paramStr)
 
     def BeginEdit(self, row, col, grid):
-        log.info("GridListEditor: BeginEdit (%d,%d)" % (row, col))
+        dabo_module.info("GridListEditor: BeginEdit (%d,%d)" % (row, col))
         self.value = grid.GetTable().GetValue(row, col)
-        log.info("GridListEditor: Value=%s" % self.value)
-        log.info("GridListEditor: Choices=%s" % self.control.Choices)
+        dabo_module.info("GridListEditor: Value=%s" % self.value)
+        dabo_module.info("GridListEditor: Choices=%s" % self.control.Choices)
         try:
             self.control.Value = self.value
         except ValueError:
-            log.info("GridListEditor: Value not in Choices")
+            dabo_module.info("GridListEditor: Value not in Choices")
         self.control.SetFocus()
 
     def EndEdit(self, row, col, grid):
-        log.info("GridListEditor: EndEdit (%d,%d)" % (row, col))
+        dabo_module.info("GridListEditor: EndEdit (%d,%d)" % (row, col))
         changed = False
         v = self.control.Value
         if v != self.value:
@@ -431,18 +429,18 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         return changed
 
     def Reset(self):
-        log.info("GridListEditor: Reset")
+        dabo_module.info("GridListEditor: Reset")
         self.control.Value = self.value
 
     #    def SetSize(self, rectorig):
-    #        log.info("GridListEditor: SetSize: %s" % rectorig)
-    #        log.info("GridListEditor: type of rectorig: %s" % type(rectorig))
+    #        dabo_module.info("GridListEditor: SetSize: %s" % rectorig)
+    #        dabo_module.info("GridListEditor: type of rectorig: %s" % type(rectorig))
     # #            rect = wx.Rect(rectorig)
-    # #            log.info("GridListEditor RECT: %s" % rect)
+    # #            dabo_module.info("GridListEditor RECT: %s" % rect)
     #        super(GridListEditor, self).SetSize(rectorig)
 
     def IsAcceptedKey(self, key):
-        log.info("GridListEditor: check key: %d" % (key))
+        dabo_module.info("GridListEditor: check key: %d" % (key))
         return True
 
 
@@ -598,9 +596,7 @@ class dColumn(wx._core.Object, dPemMixin):
             self._rendererClass = custom
         else:
             typ = self.getDataTypeForColumn()
-            self._rendererClass = self.defaultRenderers.get(
-                typ, self.stringRendererClass
-            )
+            self._rendererClass = self.defaultRenderers.get(typ, self.stringRendererClass)
 
     @ui.deadCheck
     def _updateDynamicProps(self):
@@ -658,9 +654,7 @@ class dColumn(wx._core.Object, dPemMixin):
             pass
 
     def _setAbsoluteFontZoom(self, newZoom):
-        origFontSize = self._origFontSize = getattr(
-            self, "_origFontSize", self.FontSize
-        )
+        origFontSize = self._origFontSize = getattr(self, "_origFontSize", self.FontSize)
         origHeaderFontSize = self._origHeaderFontSize = getattr(
             self, "_origHeaderFontSize", self.HeaderFontSize
         )
@@ -776,11 +770,7 @@ class dColumn(wx._core.Object, dPemMixin):
         form = grid.Form
         colName = "column_%s" % self.DataField
 
-        if (
-            app is not None
-            and form is not None
-            and not hasattr(grid, "isDesignerControl")
-        ):
+        if app is not None and form is not None and not hasattr(grid, "isDesignerControl"):
             settingName = "%s.%s.%s.%s" % (form.Name, grid.Name, colName, prop)
             return app.getUserSetting(settingName)
         return None
@@ -792,11 +782,7 @@ class dColumn(wx._core.Object, dPemMixin):
         form = grid.Form
         colName = "column_%s" % self.DataField
 
-        if (
-            app is not None
-            and form is not None
-            and not hasattr(grid, "isDesignerControl")
-        ):
+        if app is not None and form is not None and not hasattr(grid, "isDesignerControl"):
             settingName = "%s.%s.%s.%s" % (form.Name, grid.Name, colName, prop)
             app.setUserSetting(settingName, val)
 
@@ -1301,9 +1287,7 @@ class dColumn(wx._core.Object, dPemMixin):
 
     def _setHorizontalAlignment(self, val, _autoAlign=False):
         if self._constructed():
-            val = self._expandPropStringValue(
-                val, ("Automatic", "Left", "Right", "Center")
-            )
+            val = self._expandPropStringValue(val, ("Automatic", "Left", "Right", "Center"))
             if val == "Automatic" and not _autoAlign:
                 self._autoHorizontalAlignment = True
                 self._setAutoHorizontalAlignment()
@@ -1683,9 +1667,7 @@ class dColumn(wx._core.Object, dPemMixin):
         _getFontBold,
         _setFontBold,
         None,
-        _(
-            "Specifies if the cell font (for all cells in the column) is bold-faced. (bool)"
-        ),
+        _("Specifies if the cell font (for all cells in the column) is bold-faced. (bool)"),
     )
 
     FontDescription = property(
@@ -1706,9 +1688,7 @@ class dColumn(wx._core.Object, dPemMixin):
         _getFontInfo,
         None,
         None,
-        _(
-            "Specifies the platform-native font info string for the column cells. Read-only. (str)"
-        ),
+        _("Specifies the platform-native font info string for the column cells. Read-only. (str)"),
     )
 
     FontItalic = property(
@@ -1778,9 +1758,7 @@ class dColumn(wx._core.Object, dPemMixin):
         _getHeaderFontInfo,
         None,
         None,
-        _(
-            "Specifies the platform-native font info string for the column header. Read-only. (str)"
-        ),
+        _("Specifies the platform-native font info string for the column header. Read-only. (str)"),
     )
 
     HeaderFontItalic = property(
@@ -1815,18 +1793,14 @@ class dColumn(wx._core.Object, dPemMixin):
         _getHeaderHorizontalAlignment,
         _setHeaderHorizontalAlignment,
         None,
-        _(
-            "Specifies the horizontal alignment of the header caption. ('Left', 'Center', 'Right')"
-        ),
+        _("Specifies the horizontal alignment of the header caption. ('Left', 'Center', 'Right')"),
     )
 
     HeaderVerticalAlignment = property(
         _getHeaderVerticalAlignment,
         _setHeaderVerticalAlignment,
         None,
-        _(
-            "Specifies the vertical alignment of the header caption. ('Top', 'Center', 'Bottom')"
-        ),
+        _("Specifies the vertical alignment of the header caption. ('Top', 'Center', 'Bottom')"),
     )
 
     HorizontalAlignment = property(
@@ -1942,9 +1916,7 @@ class dColumn(wx._core.Object, dPemMixin):
         _getValue,
         None,
         None,
-        _(
-            """Returns the current value of the column from the underlying dataset or bizobj."""
-        ),
+        _("""Returns the current value of the column from the underlying dataset or bizobj."""),
     )
 
     VerticalAlignment = property(
@@ -1970,9 +1942,7 @@ class dColumn(wx._core.Object, dPemMixin):
         _getWordWrap,
         _setWordWrap,
         None,
-        _(
-            "When True, text longer than the column width will wrap to the next line    (bool)"
-        ),
+        _("When True, text longer than the column width will wrap to the next line    (bool)"),
     )
 
     # Dynamic Property Declarations
@@ -2275,9 +2245,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.bindEvent(events.GridHeaderMouseMove, self._onGridHeaderMouseMove)
         self.bindEvent(events.GridHeaderMouseLeftUp, self._onGridHeaderMouseLeftUp)
         self.bindEvent(events.GridHeaderMouseRightUp, self._onGridHeaderMouseRightUp)
-        self.bindEvent(
-            events.GridHeaderMouseRightClick, self._onGridHeaderMouseRightClick
-        )
+        self.bindEvent(events.GridHeaderMouseRightClick, self._onGridHeaderMouseRightClick)
 
     def update(self):
         """
@@ -2306,9 +2274,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self._Table._clearCache()  ## Make sure the proper values are filled into the cells
 
         # Force invisible column dynamic properties to update (possible to make Visible again):
-        invisible_cols = [
-            c._updateDynamicProps() for c in self.Columns if not c.Visible
-        ]
+        invisible_cols = [c._updateDynamicProps() for c in self.Columns if not c.Visible]
 
         super(dGrid, self).refresh()
         self.__inRefresh = False
@@ -2353,7 +2319,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             else:
                 self.DataSet[row][fld] = val
         except Exception as e:
-            log.error("Cannot update data set: %s" % e)
+            dabo_module.error("Cannot update data set: %s" % e)
 
     # Wrapper methods to Dabo-ize these calls.
     def getValue(self, row=None, col=None):
@@ -2412,7 +2378,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         try:
             pyType = biz.getDataTypeForField(df)
         except ValueError as e:
-            log.error(e)
+            dabo_module.error(e)
             return None
         return pyType
 
@@ -2489,9 +2455,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def _updateDaboVisibleColumns(self):
         try:
-            self._daboVisibleColumns = [
-                e[0] for e in enumerate(self._columns) if e[1].Visible
-            ]
+            self._daboVisibleColumns = [e[0] for e in enumerate(self._columns) if e[1].Visible]
         except wx._core.PyAssertionError as e:
             # Can happen when an editor is active and columns resize
             vis = []
@@ -2645,9 +2609,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             firstRec = ds[0]
 
         colKeys = [
-            key
-            for key in list(firstRec.keys())
-            if (includeFields is None or key in includeFields)
+            key for key in list(firstRec.keys()) if (includeFields is None or key in includeFields)
         ]
 
         # Add the columns
@@ -2851,9 +2813,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
             autoWidth = self.GetColSize(idx)
 
             # Account for the width of the header caption:
-            cw = ui.fontMetricFromFont(colObj.Caption, colObj.HeaderFont._nativeFont)[
-                0
-            ] + int(capBuffer)
+            cw = ui.fontMetricFromFont(colObj.Caption, colObj.HeaderFont._nativeFont)[0] + int(
+                capBuffer
+            )
             w = max(autoWidth, cw)
             w = min(w, maxWidth)
             colObj.Width = w
@@ -2861,9 +2823,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 colObj._persist("Width")
 
         try:
-            self.AutoSizeColumn(
-                self._convertDaboColNumToWxColNum(colNum), setAsMin=False
-            )
+            self.AutoSizeColumn(self._convertDaboColNumToWxColNum(colNum), setAsMin=False)
         except (TypeError, wx.PyAssertionError):
             pass
         if colNum > -1:
@@ -3242,16 +3202,10 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
                 if colObj.SortKey:
                     sortKey = colObj.SortKey
-                elif (
-                    sortingStrings and not caseSensitive
-                ):  # Begin guessing at sort keys.
+                elif sortingStrings and not caseSensitive:  # Begin guessing at sort keys.
                     sortKey = caseInsensitiveSortKey
                 # elif dataType in ("date", "datetime", 'boolean'):
-                elif (
-                    isinstance(f, datetime.date)
-                    or isinstance(f, bool)
-                    or isinstance(f, bool)
-                ):
+                elif isinstance(f, datetime.date) or isinstance(f, bool) or isinstance(f, bool):
                     # can't compare NoneType to these types:
                     sortKey = noneSortKey
                 else:
@@ -3302,9 +3256,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def saveDataSet(self):
         if self.SaveRestoreDataSet:
-            self.Application.setUserSetting(
-                "%s.DataSet" % self.getAbsoluteName(), self.DataSet
-            )
+            self.Application.setUserSetting("%s.DataSet" % self.getAbsoluteName(), self.DataSet)
 
     def runIncSearch(self):
         """Run the incremental search."""
@@ -3371,9 +3323,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if compString:
             if caseSensitive:
                 mtchs = [
-                    vv
-                    for vv in sortList
-                    if isinstance(vv[0], str) and vv[0].startswith(srchVal)
+                    vv for vv in sortList if isinstance(vv[0], str) and vv[0].startswith(srchVal)
                 ]
             else:
                 srchVal = srchVal.lower()
@@ -3446,9 +3396,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             self.Form.setStatusText("Search: '%s'" % self.currSearchStr)
         self.incSearchTimer.start(searchDelay)
 
-    def findReplace(
-        self, action, findString, replaceString, downwardSearch, wholeWord, matchCase
-    ):
+    def findReplace(self, action, findString, replaceString, downwardSearch, wholeWord, matchCase):
         """Called from the 'Find' dialog."""
         ret = False
         rowcol = currRow, currCol = (self.CurrentRow, self.CurrentColumn)
@@ -3471,8 +3419,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                     (r, c)
                     for r in range(self.RowCount)
                     for c in range(self.ColumnCount)
-                    if op((r, c), rowcol)
-                    and re.search(srch, ustr(self.GetValue(r, c)).lower())
+                    if op((r, c), rowcol) and re.search(srch, ustr(self.GetValue(r, c)).lower())
                 )
         else:
             if matchCase:
@@ -3530,9 +3477,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                     self.SetValue(currRow, currCol, newval)
                     ret = True
                 else:
-                    log.error(
-                        _("Invalid boolean replacement value: %s") % replaceString
-                    )
+                    dabo_module.error(_("Invalid boolean replacement value: %s") % replaceString)
                     ret = False
             else:
                 # Try the numeric types
@@ -3545,7 +3490,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                         self.SetValue(currRow, currCol, newval)
                         ret = True
                     except errors:
-                        log.error(_("Invalid replacement value: %s") % replaceString)
+                        dabo_module.error(_("Invalid replacement value: %s") % replaceString)
                         ret = False
             if ret:
                 self.ForceRefresh()
@@ -3553,9 +3498,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def getColNumByX(self, x):
         """Given the x-coordinate, return the column index in self.Columns."""
-        col = self.XToCol(
-            x + (self.GetViewStart()[0] * self.GetScrollPixelsPerUnit()[0])
-        )
+        col = self.XToCol(x + (self.GetViewStart()[0] * self.GetScrollPixelsPerUnit()[0]))
         if col == wx.NOT_FOUND:
             col = -1
         else:
@@ -3564,9 +3507,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def getRowNumByY(self, y):
         """Given the y-coordinate, return the row number."""
-        row = self.YToRow(
-            y + (self.GetViewStart()[1] * self.GetScrollPixelsPerUnit()[1])
-        )
+        row = self.YToRow(y + (self.GetViewStart()[1] * self.GetScrollPixelsPerUnit()[1]))
         if row == wx.NOT_FOUND:
             row = -1
         return row
@@ -3654,7 +3595,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             # as when adding columns with inBatch=True, this can throw an error
             if not inBatch:
                 # For now, just log it
-                log.info(_("Cannot set width of column %s") % col.Order)
+                dabo_module.info(_("Cannot set width of column %s") % col.Order)
         return col
 
     def _resolveColumns(self, columns):
@@ -3682,14 +3623,11 @@ class dGrid(dControlMixin, wx.grid.Grid):
         else:
             typcoi = type(colOrIdx)
             msg = (
-                _(
-                    "Values must be a dColumn or an int; received '%(colOrIdx)s' "
-                    "(%(typcoi)s)"
-                )
+                _("Values must be a dColumn or an int; received '%(colOrIdx)s' " "(%(typcoi)s)")
                 % locals()
             )
             if logOnly:
-                log.error(msg)
+                dabo_module.error(msg)
                 return None
             else:
                 raise ValueError(msg)
@@ -3740,9 +3678,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
         return GridCell(self, row, col)
 
     def copy(self):
-        valSep = copyValueSeparator
-        strSep = copyStringSeparator
-        lnSep = copyLineSeparator
+        valSep = settings.copyValueSeparator
+        strSep = settings.copyStringSeparator
+        lnSep = settings.copyLineSeparator
 
         def valEscape(val):
             if isinstance(val, str):
@@ -3826,7 +3764,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         else:
             if row >= self.RowCount:
                 rcm = self.RowCount - 1
-                log.error(
+                dabo_module.error(
                     _(
                         "Specified row is out of range for setRowHeight(). "
                         "Attempted: %(row)s; max row: %(rcm)s"
@@ -3915,11 +3853,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         app = self.Application
         form = self.Form
         ret = None
-        if (
-            app is not None
-            and form is not None
-            and not hasattr(self, "isDesignerControl")
-        ):
+        if app is not None and form is not None and not hasattr(self, "isDesignerControl"):
             settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
             ret = app.getUserSetting(settingName)
         return ret
@@ -3928,11 +3862,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         """Persist the value of prop to the user settings table."""
         app = self.Application
         form = self.Form
-        if (
-            app is not None
-            and form is not None
-            and not hasattr(self, "isDesignerControl")
-        ):
+        if app is not None and form is not None and not hasattr(self, "isDesignerControl"):
             settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
             app.setUserSetting(settingName, val)
 
@@ -3981,9 +3911,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             x, y = self._lastHeaderMousePosition
 
             if not headerIsSizing and (
-                self.getColNumByX(x)
-                == self.getColNumByX(x - 5)
-                == self.getColNumByX(x + 5)
+                self.getColNumByX(x) == self.getColNumByX(x - 5) == self.getColNumByX(x + 5)
             ):
                 if not headerIsDragging:
                     curCol = self.getColByX(x)
@@ -4057,9 +3985,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
         # Fill the default menu item(s):
         def _autosizeColumn(evt):
-            self.autoSizeCol(
-                self.getColNumByX(self.getMousePosition()[0]), persist=True
-            )
+            self.autoSizeCol(self.getColNumByX(self.getMousePosition()[0]), persist=True)
 
         def _autosizeAllColumns(evt):
             self.autoSizeCol("All")
@@ -4249,9 +4175,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             if bizobj and not self._dataSourceBeingSet:
                 # Don't run any of this code if this is the initial setting of the DataSource
                 if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
-                    if self._mediateRowNumberThroughForm and isinstance(
-                        self.Form, dForm
-                    ):
+                    if self._mediateRowNumberThroughForm and isinstance(self.Form, dForm):
                         # run it through the form:
                         if not self.Form.moveToRowNumber(newRow, bizobj):
                             ui.callAfter(self.refresh)
@@ -4422,9 +4346,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             self._refreshHeader()
 
     def __onWxGridSelectCell(self, evt):
-        if getattr(self, "_inSelect", False) or getattr(
-            self, "_inUpdateSelection", False
-        ):
+        if getattr(self, "_inSelect", False) or getattr(self, "_inUpdateSelection", False):
             # Avoid recursion
             return
         if self.ColumnCount == 0:
@@ -4937,7 +4859,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         try:
             ret = self.getBizobj().Encoding
         except AttributeError:
-            ret = getEncoding()
+            ret = settings.getEncoding()
         return ret
 
     def _getHeaderBackColor(self):
@@ -5404,9 +5326,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         _getActivateEditorOnSelect,
         _setActivateEditorOnSelect,
         None,
-        _(
-            "Specifies whether the cell editor, if any, is activated upon cell selection."
-        ),
+        _("Specifies whether the cell editor, if any, is activated upon cell selection."),
     )
 
     AlternateRowColoring = property(
@@ -5480,9 +5400,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         _("Field for the currently selected column    (str)"),
     )
 
-    CurrentRow = property(
-        _getCurrentRow, _setCurrentRow, None, _("Currently selected row  (int)")
-    )
+    CurrentRow = property(_getCurrentRow, _setCurrentRow, None, _("Currently selected row  (int)"))
 
     DataSet = property(
         _getDataSet,
@@ -5527,9 +5445,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         ),
     )
 
-    Encoding = property(
-        _getEncoding, None, None, _("Name of encoding to use for unicode    (str)")
-    )
+    Encoding = property(_getEncoding, None, None, _("Name of encoding to use for unicode    (str)"))
 
     HeaderBackColor = property(
         _getHeaderBackColor,
@@ -5597,18 +5513,14 @@ class dGrid(dControlMixin, wx.grid.Grid):
         _getMovableColumns,
         _setMovableColumns,
         None,
-        _(
-            "When False, the user cannot re-order the columns by dragging the headers     (bool)"
-        ),
+        _("When False, the user cannot re-order the columns by dragging the headers     (bool)"),
     )
 
     MultipleSelection = property(
         _getMultipleSelection,
         _setMultipleSelection,
         None,
-        _(
-            "When True (default), more than one cell/row/col can be selected at once    (bool)"
-        ),
+        _("When True (default), more than one cell/row/col can be selected at once    (bool)"),
     )
 
     NoneDisplay = property(
@@ -5652,9 +5564,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         ),
     )
 
-    RowCount = property(
-        _getRowCount, None, None, _("Number of rows in the grid.    (int)")
-    )
+    RowCount = property(_getRowCount, None, None, _("Number of rows in the grid.    (int)"))
 
     RowHeight = property(
         _getRowHeight,
@@ -5663,9 +5573,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         _("Row Height for all rows of the grid    (int)"),
     )
 
-    RowLabels = property(
-        _getRowLabels, _setRowLabels, None, _("List of the row labels.    (list)")
-    )
+    RowLabels = property(_getRowLabels, _setRowLabels, None, _("List of the row labels.    (list)"))
 
     RowLabelWidth = property(
         _getRowLabelWidth,
@@ -6179,9 +6087,7 @@ if __name__ == "__main__":
                 else:
                     but.Caption = "Make Celebrity Visible"
 
-            butVisible = dButton(
-                self, Caption="Toggle Celebrity Visibility", OnHit=setVisible
-            )
+            butVisible = dButton(self, Caption="Toggle Celebrity Visibility", OnHit=setVisible)
             gsz.append(butVisible, row=5, col=0)
 
             self.Sizer.append(gsz, halign="Center", border=10)

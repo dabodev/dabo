@@ -216,9 +216,7 @@ class PropSheet(dPanel):
                         if prop in restProps:
                             # already added; make sure the values are in sync
                             rp = restProps[prop]
-                            rp["readonly"] = (
-                                rp["readonly"] and indivDict[prop]["readonly"]
-                            )
+                            rp["readonly"] = rp["readonly"] and indivDict[prop]["readonly"]
                             # If the value is already None, no need to test
                             if rp["val"] is None:
                                 continue
@@ -333,9 +331,7 @@ class PropSheet(dPanel):
                 self.updateGridValues()
         except PropertyUpdateException as e:
             dabo.ui.stop(
-                _(
-                    "Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'"
-                )
+                _("Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'")
                 % locals()
             )
             self.updateGridValues()
@@ -437,9 +433,7 @@ class PropSheet(dPanel):
                 sz.append(dLine(self), border=25, borderSides=("left", "right"))
                 sz.append(dLabel(self, Caption="- or -"), halign="center")
                 lbl = dLabel(self, Caption=_("Select a standard image:"))
-                dd = dDropdownList(
-                    self, RegID="ddIcons", Choices=defIcons, OnHit=self.updImage
-                )
+                dd = dDropdownList(self, RegID="ddIcons", Choices=defIcons, OnHit=self.updImage)
                 hsz = dSizer("h")
                 hsz.append(lbl)
                 hsz.appendSpacer(5)
@@ -567,14 +561,10 @@ class PropSheet(dPanel):
         class MultiListDialog(dOkCancelDialog):
             def addControls(self):
                 self.Caption = _("Border Sides")
-                lbl = dLabel(
-                    self, Caption=_("Select the sides to which the border will apply:")
-                )
+                lbl = dLabel(self, Caption=_("Select the sides to which the border will apply:"))
                 self.Sizer.append(lbl, halign="center")
                 choices = ["All", "Top", "Bottom", "Left", "Right", "None"]
-                self.editor = dCheckList(
-                    self, Choices=choices, ValueMode="String", Height=200
-                )
+                self.editor = dCheckList(self, Choices=choices, ValueMode="String", Height=200)
                 self.editor.bindEvent(dEvents.Hit, self.onSidesChanged)
                 self.editor.Value = self._currVal = val
                 self.Sizer.append1x(self.editor)
@@ -706,9 +696,9 @@ class PropertyGrid(dGrid):
         bold = c0.FontBold
         italic = c0.FontItalic
         rh = (
-            dabo.ui.fontMetric(
-                "M", wind=self.Form, face=face, size=size, bold=bold, italic=italic
-            )[1]
+            dabo.ui.fontMetric("M", wind=self.Form, face=face, size=size, bold=bold, italic=italic)[
+                1
+            ]
             + 7
         )
         if 0 < rh < 999:
@@ -762,10 +752,7 @@ class PropertyGrid(dGrid):
                     print("PROPNAME", prop_name)
                     print("SELEC", selection)
                     dabo.log.error(
-                        _(
-                            "Property Grid out of sync for property "
-                            "'%s' of object '%'"
-                        )
+                        _("Property Grid out of sync for property " "'%s' of object '%'")
                         % (prop_name, selection)
                     )
                 continue

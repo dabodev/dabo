@@ -11,12 +11,13 @@
 #    utils.foo()
 
 import os
+from locale import getpreferredencoding
+import sys
 
 osp = os.path
-import sys
-import dabo
-from dabo.dLocalize import _
-from locale import getpreferredencoding
+
+from .. import main
+from ..dLocalize import _
 
 try:
     from win32com.shell import shell, shellcon
@@ -122,9 +123,7 @@ def getUserAppDataDirectory(appName="Dabo"):
             try:
                 os.makedirs(dd)
             except OSError:
-                sys.stderr.write(
-                    "Couldn't create the user setting directory (%s)." % dd
-                )
+                sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
                 dd = None
     return dd
 
@@ -172,9 +171,7 @@ def getSharedAppDataDirectory(appName="Dabo"):
             try:
                 os.makedirs(dd)
             except OSError:
-                sys.stderr.write(
-                    "Couldn't create the user setting directory (%s)." % dd
-                )
+                sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
                 dd = None
     return dd
 
@@ -268,7 +265,7 @@ def relativePathList(toLoc, fromLoc=None):
     """
     if fromLoc is None:
         try:
-            fromLoc = dabo.dAppRef.HomeDirectory
+            fromLoc = main.get_application().HomeDirectory
         except AttributeError:
             # No app object
             fromLoc = os.getcwd()
@@ -294,9 +291,7 @@ def relativePathList(toLoc, fromLoc=None):
     while len(toList) > 0 and not toList[0]:
         toList.pop(0)
     lev = 0
-    while (
-        (len(fromList) > lev) and (len(toList) > lev) and (fromList[lev] == toList[lev])
-    ):
+    while (len(fromList) > lev) and (len(toList) > lev) and (fromList[lev] == toList[lev]):
         lev += 1
 
     # 'lev' now contains the first level where they differ
@@ -333,9 +328,7 @@ def resolveAttributePathing(atts, pth=None, abspath=False):
     """
     prfx = getPathAttributePrefix()
     pathsToConvert = (
-        (kk, vv)
-        for kk, vv in list(atts.items())
-        if isinstance(vv, str) and vv.startswith(prfx)
+        (kk, vv) for kk, vv in list(atts.items()) if isinstance(vv, str) and vv.startswith(prfx)
     )
     for convKey, convVal in pathsToConvert:
         # Strip the path designator
@@ -384,7 +377,7 @@ def locateRelativeTo(containerPath, itemPath):
         # Look in the standard Dabo app directories. We may not be
         # running with an active app reference, so the try/except
         # will handle that.
-        appPaths = dabo.dAppRef.getStandardDirectories()
+        appPaths = main.get_application().getStandardDirectories()
         dirsToCheck.extend(appPaths)
     except AttributeError:
         pass
@@ -403,7 +396,7 @@ def locateRelativeTo(containerPath, itemPath):
 
 
 def resolvePathAndUpdate(srcFile):
-    app = dabo.dAppRef
+    app = main.get_application()
     try:
         hd = app.HomeDirectory
     except AttributeError:

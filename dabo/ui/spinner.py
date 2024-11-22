@@ -8,6 +8,7 @@ import wx
 
 from .. import ui
 from .. import events
+from .. import main
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import dDataControlMixin
@@ -17,7 +18,8 @@ from . import dSizer
 from . import dTextBox
 from . import makeDynamicProperty
 from . import makeProxyProperty
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class _dSpinButton(dDataControlMixin, wx.SpinButton):
@@ -63,9 +65,7 @@ class dSpinner(dDataPanel, wx.Control):
         self._increment = 1
         nm = self._extractKey((properties, attProperties, kwargs), "NameBase", "")
         if not nm:
-            nm = self._extractKey(
-                (properties, attProperties, kwargs), "Name", "dSpinner"
-            )
+            nm = self._extractKey((properties, attProperties, kwargs), "Name", "dSpinner")
         super(dSpinner, self).__init__(
             parent=parent,
             properties=properties,
@@ -362,7 +362,7 @@ class dSpinner(dDataPanel, wx.Control):
             else:
                 numVal = self._numericStringVal(val)
                 if numVal is None:
-                    log.error(_("Spinner values must be numeric. Invalid:'%s'") % val)
+                    dabo_module.error(_("Spinner values must be numeric. Invalid:'%s'") % val)
                 else:
                     self._proxy_textbox.Value = val
             self._proxy_textbox._inDataUpdate = False
@@ -373,9 +373,7 @@ class dSpinner(dDataPanel, wx.Control):
         _getButtonWidth,
         _setButtonWidth,
         None,
-        _(
-            """Allows the developer to explicitly specify the width of the up/down buttons."""
-        ),
+        _("""Allows the developer to explicitly specify the width of the up/down buttons."""),
     )
 
     Children = property(
@@ -393,18 +391,12 @@ class dSpinner(dDataPanel, wx.Control):
         _getIncrement,
         _setIncrement,
         None,
-        _(
-            "Amount the control's value changes when the spinner buttons are clicked  (int/float)"
-        ),
+        _("Amount the control's value changes when the spinner buttons are clicked  (int/float)"),
     )
 
-    Max = property(
-        _getMax, _setMax, None, _("Maximum value for the control  (int/float)")
-    )
+    Max = property(_getMax, _setMax, None, _("Maximum value for the control  (int/float)"))
 
-    Min = property(
-        _getMin, _setMin, None, _("Minimum value for the control  (int/float)")
-    )
+    Min = property(_getMin, _setMin, None, _("Minimum value for the control  (int/float)"))
 
     SpinnerWrap = property(
         _getSpinnerWrap,
@@ -429,9 +421,7 @@ class dSpinner(dDataPanel, wx.Control):
         "_proxy_textbox",
     )
     BackColor = makeProxyProperty(_proxyDict, "BackColor", ("_proxy_textbox", "self"))
-    Enabled = makeProxyProperty(
-        _proxyDict, "Enabled", ("self", "_proxy_spinner", "_proxy_textbox")
-    )
+    Enabled = makeProxyProperty(_proxyDict, "Enabled", ("self", "_proxy_spinner", "_proxy_textbox"))
     Font = makeProxyProperty(_proxyDict, "Font", "_proxy_textbox")
     FontInfo = makeProxyProperty(_proxyDict, "FontInfo", "_proxy_textbox")
     FontSize = makeProxyProperty(_proxyDict, "FontSize", "_proxy_textbox")
@@ -440,17 +430,13 @@ class dSpinner(dDataPanel, wx.Control):
     FontItalic = makeProxyProperty(_proxyDict, "FontItalic", "_proxy_textbox")
     FontUnderline = makeProxyProperty(_proxyDict, "FontUnderline", "_proxy_textbox")
     ForeColor = makeProxyProperty(_proxyDict, "ForeColor", "_proxy_textbox")
-    Height = makeProxyProperty(
-        _proxyDict, "Height", ("self", "_proxy_spinner", "_proxy_textbox")
-    )
+    Height = makeProxyProperty(_proxyDict, "Height", ("self", "_proxy_spinner", "_proxy_textbox"))
     ReadOnly = makeProxyProperty(_proxyDict, "ReadOnly", "_proxy_textbox")
     SelectOnEntry = makeProxyProperty(_proxyDict, "SelectOnEntry", "_proxy_textbox")
     ToolTipText = makeProxyProperty(
         _proxyDict, "ToolTipText", ("self", "_proxy_spinner", "_proxy_textbox")
     )
-    Visible = makeProxyProperty(
-        _proxyDict, "Visible", ("self", "_proxy_spinner", "_proxy_textbox")
-    )
+    Visible = makeProxyProperty(_proxyDict, "Visible", ("self", "_proxy_spinner", "_proxy_textbox"))
 
 
 ui.dSpinner = dSpinner

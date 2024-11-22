@@ -43,12 +43,8 @@ class Test_Many_To_Many(unittest.TestCase):
         self.crs.execute(
             "create table employees (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, company_id INT);"
         )
-        self.crs.execute(
-            "insert into person (first_name, last_name) values ('Ed', 'Leafe')"
-        )
-        self.crs.execute(
-            "insert into person (first_name, last_name) values ('Paul', 'McNett')"
-        )
+        self.crs.execute("insert into person (first_name, last_name) values ('Ed', 'Leafe')")
+        self.crs.execute("insert into person (first_name, last_name) values ('Paul', 'McNett')")
         self.crs.execute("insert into company (company) values ('Acme Manufacturing')")
 
         self.crs.execute(
@@ -163,9 +159,7 @@ class Test_Many_To_Many(unittest.TestCase):
         )
         emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
         self.assertEqual(emp_count, 3)
-        pbiz.mmDisssociateValues(
-            cbiz, "company", ["Acme Manufacturing", "Amalgamated Industries"]
-        )
+        pbiz.mmDisssociateValues(cbiz, "company", ["Acme Manufacturing", "Amalgamated Industries"])
         emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
         self.assertEqual(emp_count, 1)
 

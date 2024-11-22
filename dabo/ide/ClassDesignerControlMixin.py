@@ -143,9 +143,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             # Kill cell editing
             self._vetoAllEditing = True
             self.bindEvent(dEvents.GridCellSelected, self.Controller.onGridCellSelected)
-            self.bindEvent(
-                dEvents.GridHeaderMouseLeftUp, self.Controller.onGridHeaderSelected
-            )
+            self.bindEvent(dEvents.GridHeaderMouseLeftUp, self.Controller.onGridHeaderSelected)
         elif isinstance(self, dSplitter):
             pass
         elif isinstance(self, dImage):
@@ -180,9 +178,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             self.setRootNode("Tree")
             # Bind the selected node to the current selection
             self.bindEvent(dEvents.TreeSelection, self.desSelectNode)
-        elif isinstance(
-            self, (dPageFrame, dPageList, dPageSelect, dPageStyled, dPageFrameNoTabs)
-        ):
+        elif isinstance(self, (dPageFrame, dPageList, dPageSelect, dPageStyled, dPageFrameNoTabs)):
             self.defaultWd = 400
             self.defaultHt = 300
             # Bind the active page to the current selection
@@ -372,11 +368,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             pop = dMenu()
         if len(pop.Children):
             pop.prependSeparator()
-        if (
-            not self.UsingSizers
-            and self.IsContainer
-            and not self is self.Form.ActiveContainer
-        ):
+        if not self.UsingSizers and self.IsContainer and not self is self.Form.ActiveContainer:
             pop.prepend(_("Edit Contents"), OnHit=self.onEditContainer)
         if len(pop.Children):
             pop.prependSeparator()
@@ -393,9 +385,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             # Add option to delete the page or the entire pageframe
             pop.prependSeparator()
             sepAdded = True
-            pop.prepend(
-                _("Delete the entire Paged Control"), OnHit=self.Parent.onDelete
-            )
+            pop.prepend(_("Delete the entire Paged Control"), OnHit=self.Parent.onDelete)
             pop.prepend(_("Delete this Page"), OnHit=self.onDelete)
 
         if isinstance(self, dTreeView):
@@ -1307,9 +1297,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             ret.update(fontProps)
             ret.update(pageFrameProps)
             ret.update(pageListProps)
-        elif isinstance(
-            self, (dPageFrame, dPageList, dPageSelect, dPageStyled, dPageFrameNoTabs)
-        ):
+        elif isinstance(self, (dPageFrame, dPageList, dPageSelect, dPageStyled, dPageFrameNoTabs)):
             ret.update(colorProps)
             ret.update(fontProps)
             ret.update(pageFrameProps)
@@ -1483,9 +1471,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         self._isMain = val
 
     def _getContainerState(self):
-        return isinstance(
-            self, (dPanel, dScrollPanel, dPage, dForm, dFormMain, dDialog)
-        )
+        return isinstance(self, (dPanel, dScrollPanel, dPage, dForm, dFormMain, dDialog))
 
     def _getRegID(self):
         ret = self._tmpRegID
@@ -1535,9 +1521,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Border", val)
 
     def _getSzBorderSides(self):
-        return self.ControllingSizer.getItemProp(
-            self.ControllingSizerItem, "BorderSides"
-        )
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "BorderSides")
 
     def _setSzBorderSides(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "BorderSides", val)
@@ -1583,9 +1567,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             raise PropertyUpdateException(ustr(e))
 
     def _getSzProp(self):
-        return self.ControllingSizer.getItemProp(
-            self.ControllingSizerItem, "Proportion"
-        )
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Proportion")
 
     def _setSzProp(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Proportion", val)

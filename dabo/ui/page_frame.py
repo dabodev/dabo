@@ -8,6 +8,7 @@ from .. import dColors
 from .. import lib
 from .. import ui
 from .. import events
+from .. import main
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import dPageFrameMixin
@@ -19,7 +20,7 @@ from . import dLabel
 from . import dDropdownList
 from . import dSizer
 
-# import log
+dabo_module = main.get_dabo_package()
 
 _USE_AGW = True
 try:
@@ -197,9 +198,7 @@ class dPageList(dPageFrameMixin, wx.Listbook):
             except AttributeError:
                 # Changed this to write to the info log to avoid error messages that
                 #  unnecessarily exaggerate the problem.
-                log.info(
-                    _("ListSpacing is not supported in wxPython %s") % wx.__version__
-                )
+                dabo_module.info(_("ListSpacing is not supported in wxPython %s") % wx.__version__)
         else:
             self._properties["ListSpacing"] = val
 
@@ -286,9 +285,7 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
             **kwargs,
         )
 
-    def insertPage(
-        self, pos, pgCls=None, caption="", imgKey=None, ignoreOverride=False
-    ):
+    def insertPage(self, pos, pgCls=None, caption="", imgKey=None, ignoreOverride=False):
         """
         Insert the page into the pageframe at the specified position,
         and optionally sets the page caption and image. The image
@@ -645,9 +642,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
             self._tabStyle = cleanStyles[lowval]
         except KeyError:
             raise ValueError(
-                _(
-                    "The only possible values are 'Default' and 'VC8', 'VC71', 'Fancy', or 'Firefox'"
-                )
+                _("The only possible values are 'Default' and 'VC8', 'VC71', 'Fancy', or 'Firefox'")
             )
         if flagToSet:
             self._addWindowStyleFlag(flagToSet)
@@ -708,9 +703,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         _getShowMenuCloseButton,
         _setShowMenuCloseButton,
         None,
-        _(
-            "Specifies whether the close button is visible in the menu (bool) (Default=True)"
-        ),
+        _("Specifies whether the close button is visible in the menu (bool) (Default=True)"),
     )
 
     ShowMenuOnSingleTab = property(
@@ -736,9 +729,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         _getShowPageCloseButtons,
         _setShowPageCloseButtons,
         None,
-        _(
-            "Specifies whether the close button is visible on the page tab (bool) (Default=False)"
-        ),
+        _("Specifies whether the close button is visible on the page tab (bool) (Default=False)"),
     )
 
     TabAreaColor = property(
@@ -893,9 +884,7 @@ class _dPageStyled_test(TestMixin, dPageStyled):
             pnl, Caption="Show Nav Buttons", DataSource=self, DataField="ShowNavButtons"
         )
         szr.append(chk, halign="center")
-        chk = dCheckBox(
-            pnl, Caption="Show Menu Close", DataSource=self, DataField="ShowMenuClose"
-        )
+        chk = dCheckBox(pnl, Caption="Show Menu Close", DataSource=self, DataField="ShowMenuClose")
         szr.append(chk, halign="center")
         lbl = dLabel(pnl, Caption="Tab Style:")
         dd = dDropdownList(
@@ -909,9 +898,7 @@ class _dPageStyled_test(TestMixin, dPageStyled):
         hsz.append(dd)
         szr.append(hsz, halign="center")
         lbl = dLabel(pnl, Caption="Tab Position:")
-        dd = dDropdownList(
-            pnl, Choices=["Top", "Bottom"], DataSource=self, DataField="TabPosition"
-        )
+        dd = dDropdownList(pnl, Choices=["Top", "Bottom"], DataSource=self, DataField="TabPosition")
         hsz = dSizer("h")
         hsz.append(lbl)
         hsz.append(dd)

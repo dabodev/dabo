@@ -12,13 +12,18 @@ from os.path import join as pathjoin
 from zipfile import ZipFile
 from io import StringIO
 
-import dabo
-from dabo import dException as dException
-from dabo.dApp import dApp
-from dabo.dObject import dObject
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.lib.manifest import Manifest
+from .. import dException
+from .. import main
+from .. import settings
+from ..dApp import dApp
+from ..dObject import dObject
+from ..dLocalize import _
+from . import utils
+from .utils import ustr
+from .manifest import Manifest
+
+
+dabo_module = main.get_dabo_package()
 
 
 class RemoteConnector(object):
@@ -31,7 +36,7 @@ class RemoteConnector(object):
         self._baseURL = None
         self._authHandler = None
         self._urlOpener = None
-        appDir = dabo.lib.utils.getUserAppDataDirectory()
+        appDir = utils.getUserAppDataDirectory()
         self._dataDir = pathjoin(appDir, "webapps")
 
     def _join(self, pth):
@@ -40,9 +45,7 @@ class RemoteConnector(object):
 
     def _getFullUrl(self, mthd, *args):
         hashstr = "%s" % hash(self.obj)
-        ret = pathjoin(
-            self.UrlBase, "bizservers", "biz", hashstr, self.obj.DataSource, mthd, *args
-        )
+        ret = pathjoin(self.UrlBase, "bizservers", "biz", hashstr, self.obj.DataSource, mthd, *args)
         ret = ret.replace(os.sep, "/")
         return ret
 
@@ -60,7 +63,7 @@ class RemoteConnector(object):
         except urllib.error.HTTPError as e:
             if reRaise:
                 raise
-            dabo.log.error("HTTPError: %s" % e)
+            dabo_module.error("HTTPError: %s" % e)
             return None
         ret = res.read()
         return ret
@@ -73,7 +76,7 @@ class RemoteConnector(object):
             try:
                 ret = pickle.loads(val)
             except UnicodeEncodeError:
-                for enctype in (dabo.getEncoding(), "utf-8", "iso8859-1"):
+                for enctype in (settings.getEncoding(), "utf-8", "iso8859-1"):
                     try:
                         ret = pickle.loads(val.encode(enctype))
                     except KeyError:
@@ -165,13 +168,13 @@ class RemoteConnector(object):
         """Check with the server for available apps if no app name is passed.
         If an app name is passed, run it directly if it exists on the server.
         """
-        from dabo import ui as dui
+        from .. import ui as ui
 
         # Just use the first 3 split parts.
         scheme, host, path = urllib.parse.urlsplit(url)[:3]
         path = path.lstrip("/")
-        self._baseURL = "%s://%s" % (scheme, host)
-        listURL = "%s://%s/manifest" % (scheme, host)
+        self._baseURL = f"{scheme}://{host}"
+        listURL = f"{scheme}://{host}/manifest" % (scheme, host)
         res = None
         try:
             res = json.loads(self._read(listURL, reRaise=True))
@@ -192,7 +195,7 @@ class RemoteConnector(object):
             print(dir(e))
             errText = e.read()
             errMsg = "\n".join(errText.splitlines()[4:])
-            dabo.log.error(_("HTTP Error getting app list: %s") % e)
+            dabo_module.error(_("HTTP Error getting app list: %s") % e)
             raise
         # If they passed an app name, and it's in the returned app list, run it
         if path and (path in res):
@@ -201,17 +204,15 @@ class RemoteConnector(object):
             return res
 
         # We have a list of available apps. Let the user select one
-        class AppPicker(dui.dOkCancelDialog):
+        class AppPicker(ui.dOkCancelDialog):
             def addControls(self):
                 self.AutoSize = False
                 self.Width = 400
                 self.Height = 300
                 self.Caption = _("Select Application")
                 sz = self.Sizer
-                lbl = dui.dLabel(
-                    self, Caption=_("The server has the following app(s):")
-                )
-                lst = dui.dListBox(self, RegID="appList")
+                lbl = ui.dLabel(self, Caption=_("The server has the following app(s):"))
+                lst = ui.dListBox(self, RegID="appList")
                 sz.DefaultBorder = 30
                 sz.DefaultBorderSides = ["left", "right"]
                 sz.DefaultSpacing = 20
@@ -261,7 +262,7 @@ class RemoteConnector(object):
                 # Nothing has changed on the server, so we're cool...
                 return homedir
             else:
-                dabo.log.error(_("HTTP Error syncing files: %s") % e)
+                dabo_module.error(_("HTTP Error syncing files: %s") % e)
                 return
         except urllib.error.URLError:
             # Right now re-raise it and let the UI handle it
@@ -294,7 +295,7 @@ class RemoteConnector(object):
             try:
                 res = self.UrlOpener.open(url)
             except urllib.error.HTTPError as e:
-                dabo.log.error(_("HTTP Error retrieving files: %s") % e)
+                dabo_module.error(_("HTTP Error retrieving files: %s") % e)
             # res holds a zip file
             f = StringIO(res.read())
             zip = ZipFile(f)
@@ -367,7 +368,7 @@ class RemoteConnector(object):
         if self._baseURL:
             # Set explicitly by the launch() method
             return self._baseURL
-        app = dabo.dAppRef
+        app = main.get_application()
         if app:
             ret = app.SourceURL
         else:
@@ -383,9 +384,7 @@ class RemoteConnector(object):
         if self._urlOpener is None:
             # Create an OpenerDirector with support for HTTP Digest Authentication...
             auth_handler = urllib.request.HTTPDigestAuthHandler()
-            auth_handler.add_password(
-                None, self.RemoteHost, self.UserName, self.Password
-            )
+            auth_handler.add_password(None, self.RemoteHost, self.UserName, self.Password)
             self._urlOpener = urllib.request.build_opener(auth_handler)
         return self._urlOpener
 
@@ -399,9 +398,7 @@ class RemoteConnector(object):
         _getConnection,
         None,
         None,
-        _(
-            "Reference to the connection object for the bizobj being decorated  (dabo.db.dConnection)"
-        ),
+        _("Reference to the connection object for the bizobj being decorated  (db.dConnection)"),
     )
 
     Password = property(
@@ -418,9 +415,7 @@ class RemoteConnector(object):
         _("Host to use as the remote server  (read-only) (str)"),
     )
 
-    UrlBase = property(
-        _getUrlBase, None, None, _("URL for the remote server  (read-only) (str)")
-    )
+    UrlBase = property(_getUrlBase, None, None, _("URL for the remote server  (read-only) (str)"))
 
     UrlOpener = property(
         _getUrlOpener,

@@ -5,6 +5,9 @@ import time
 import wx
 
 from .. import events
+from .. import main
+from .. import settings
+from .. import biz
 from .. import ui
 from .. import dException
 from ..dLocalize import _
@@ -13,10 +16,8 @@ from . import dButton
 from . import dFormMixin
 from . import dSizer
 from . import makeDynamicProperty
-# import biz
-# import eatBizExceptions
-# import log
-# import MDI
+
+dabo_module = main.get_dabo_package()
 
 
 class BaseForm(dFormMixin):
@@ -89,7 +90,7 @@ class BaseForm(dFormMixin):
         Displays an alert messagebox for the user. You can customize
         this in your own classes if you prefer a different display.
         """
-        if exception and not eatBizExceptions:
+        if exception and not settings.eatBizExceptions:
             raise exception
         if severe:
             func = ui.stop
@@ -156,24 +157,24 @@ class BaseForm(dFormMixin):
             bizList = bizobjs
         changedBizList = []
 
-        for biz in bizList:
-            if biz and biz.isAnyChanged(withChildren=self.SaveChildren):
-                changedBizList.append(biz)
+        for biz_item in bizList:
+            if biz_item and biz_item.isAnyChanged(withChildren=self.SaveChildren):
+                changedBizList.append(biz_item)
 
         if changedBizList:
             queryMessage = self.getConfirmChangesQueryMessage(changedBizList)
             response = ui.areYouSure(queryMessage, parent=self)
-            if response == None:  ## cancel
+            if response is None:  ## cancel
                 # Don't let the form close, or requery happen
                 return False
-            elif response == True:  ## yes
-                for biz in changedBizList:
+            elif response is True:  ## yes
+                for biz_item in changedBizList:
                     self.save(dataSource=biz.DataSource)
-            elif response == False:  ## no
+            elif response is False:  ## no
                 pass
                 # why bother cancelling when the bizobj will just go away?
-                # for biz in changedBizList:
-                # if biz.RowCount:
+                # for biz_item in changedBizList:
+                # if biz_item.RowCount:
                 # self.cancel(dataSource=biz.DataSource)
         return True
 
@@ -230,15 +231,15 @@ class BaseForm(dFormMixin):
             bizobj.moveToRowNumber, dataSource=bizobj, rowNumber=rowNumber
         )
 
-    def _afterPointerMoveUpdate(self, biz):
+    def _afterPointerMoveUpdate(self, bizobj):
         self.update(0)
         self.refresh()
         # Notify listeners that the row number changed:
         self.raiseEvent(
             events.RowNumChanged,
-            newRowNumber=biz.RowNumber,
+            newRowNumber=bizobj.RowNumber,
             oldRowNumber=self.__oldRowNum,
-            bizobj=biz,
+            bizobj=bizobj,
         )
         self.afterPointerMove()
 
@@ -246,10 +247,10 @@ class BaseForm(dFormMixin):
         """Move the record pointer using the specified function."""
         self.dataSourceParameter = dataSource
         if isinstance(dataSource, biz.dBizobj):
-            biz = dataSource
+            bizobj = dataSource
         else:
-            biz = self.getBizobj(dataSource)
-        oldRowNum = self.__oldRowNum = biz.RowNumber
+            bizobj = self.getBizobj(dataSource)
+        oldRowNum = self.__oldRowNum = bizobj.RowNumber
 
         if self.activeControlValid() is False:
             # Field validation failed
@@ -280,7 +281,7 @@ class BaseForm(dFormMixin):
             bail(ustr(e), meth=self.notifyUser, exception=e)
             return False
         else:
-            if biz.RowNumber != oldRowNum:
+            if bizobj.RowNumber != oldRowNum:
                 curTime = time.time()
                 if curTime - getattr(self, "_lastNavigationTime", 0) > 0.5:
                     delay = 0
@@ -288,11 +289,11 @@ class BaseForm(dFormMixin):
                     delay = self.RowNavigationDelay
                 self._lastNavigationTime = curTime
                 self._afterRowNavigation()
-                self.raiseEvent(events.RowNavigation, biz=biz)
+                self.raiseEvent(events.RowNavigation, biz=bizobj)
                 if delay:
-                    ui.callAfterInterval(delay, self._afterPointerMoveUpdate, biz)
+                    ui.callAfterInterval(delay, self._afterPointerMoveUpdate, bizobj)
                 else:
-                    self._afterPointerMoveUpdate(biz)
+                    self._afterPointerMoveUpdate(bizobj)
         return True
 
     def _afterRowNavigation(self):
@@ -419,9 +420,7 @@ class BaseForm(dFormMixin):
 
         except dException.ConnectionLostException as e:
             msg = self._connectionLostMsg(ustr(e))
-            self.notifyUser(
-                msg, title=_("Data Connection Lost"), severe=True, exception=e
-            )
+            self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
             sys.exit()
 
         except dException.NoRecordsException as e:
@@ -477,9 +476,9 @@ class BaseForm(dFormMixin):
                 % (self.SaveAllRows and "all records" or "current record",)
             )
         except dException.NoRecordsException as e:
-            log.error(_("Cancel failed; no records to cancel."))
+            dabo_module.error(_("Cancel failed; no records to cancel."))
         except dException.dException as e:
-            log.error(_("Cancel failed with response: %s") % e)
+            dabo_module.error(_("Cancel failed with response: %s") % e)
             self.notifyUser(ustr(e), title=_("Cancel Not Allowed"), exception=e)
         self.afterCancel()
         self.refresh()
@@ -539,36 +538,27 @@ class BaseForm(dFormMixin):
             plcnt = bizobj.RowCount == 1 and " " or "s "
             plelap = elapsed == 1 and "." or "s."
             self.StatusText = (
-                _("%(rc)s record%(plcnt)sselected in %(elapsed)s second%(plelap)s")
-                % locals()
+                _("%(rc)s record%(plcnt)sselected in %(elapsed)s second%(plelap)s") % locals()
             )
 
         except dException.MissingPKException as e:
-            self.notifyUser(
-                ustr(e), title=_("Requery Failed"), severe=True, exception=e
-            )
+            self.notifyUser(ustr(e), title=_("Requery Failed"), severe=True, exception=e)
             self.StatusText = ""
 
         except dException.ConnectionLostException as e:
             msg = self._connectionLostMsg(ustr(e))
-            self.notifyUser(
-                msg, title=_("Data Connection Lost"), severe=True, exception=e
-            )
+            self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
             self.StatusText = ""
             sys.exit()
 
         except dException.DBQueryException as e:
-            log.error(_("Database Execution failed with response: %s") % e)
-            self.notifyUser(
-                ustr(e), title=_("Database Action Failed"), severe=True, exception=e
-            )
+            dabo_module.error(_("Database Execution failed with response: %s") % e)
+            self.notifyUser(ustr(e), title=_("Database Action Failed"), severe=True, exception=e)
             self.StatusText = ""
 
         except dException.dException as e:
-            log.error(_("Requery failed with response: %s") % e)
-            self.notifyUser(
-                ustr(e), title=_("Requery Not Allowed"), severe=True, exception=e
-            )
+            dabo_module.error(_("Requery failed with response: %s") % e)
+            self.notifyUser(ustr(e), title=_("Requery Not Allowed"), severe=True, exception=e)
             self.StatusText = ""
 
         self.afterRequery()
@@ -615,16 +605,12 @@ class BaseForm(dFormMixin):
                 self.raiseEvent(events.RowNumChanged)
             except dException.ConnectionLostException as e:
                 msg = self._connectionLostMsg(ustr(e))
-                self.notifyUser(
-                    msg, title=_("Data Connection Lost"), severe=True, exception=e
-                )
+                self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
                 sys.exit()
             except dException.dException as e:
                 msg = ustr(e)
-                log.error(_("Delete failed with response: %s") % msg)
-                self.notifyUser(
-                    msg, title=_("Deletion Not Allowed"), severe=True, exception=e
-                )
+                dabo_module.error(_("Delete failed with response: %s") % msg)
+                self.notifyUser(msg, title=_("Deletion Not Allowed"), severe=True, exception=e)
             self.update()
             self.afterDelete()
             self.refresh()
@@ -655,15 +641,11 @@ class BaseForm(dFormMixin):
                 self.raiseEvent(events.RowNumChanged)
             except dException.ConnectionLostException as e:
                 msg = self._connectionLostMsg(ustr(e))
-                self.notifyUser(
-                    msg, title=_("Data Connection Lost"), severe=True, exception=e
-                )
+                self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
                 sys.exit()
             except dException.dException as e:
-                log.error(_("Delete All failed with response: %s") % e)
-                self.notifyUser(
-                    ustr(e), title=_("Deletion Not Allowed"), severe=True, exception=e
-                )
+                dabo_module.error(_("Delete All failed with response: %s") % e)
+                self.notifyUser(ustr(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
         self.update()
         self.afterDeleteAll()
         self.refresh()
@@ -924,19 +906,19 @@ Database error message: %s"""
         if not ds or not df:
             # DataSource/Field is missing; nothing to validate.
             return True
-        biz = self.getBizobj(ds)
-        if not biz:
+        bizobj = self.getBizobj(ds)
+        if not bizobj:
             # Now that DataSources are not always bizobjs, just return
             ## No bizobj for that DataSource; record the error
-            # log.error("No business object found for DataSource: '%s', DataField: '%s' "
+            # dabo_module.error("No business object found for DataSource: '%s', DataField: '%s' "
             #        % (ds, df))
             return True
-        if not isinstance(biz, biz.dBizobj):
+        if not isinstance(bizobj, biz.dBizobj):
             # DataSource isn't a bizobj, so no need to validate
             return True
         ret = False
         try:
-            biz.fieldValidation(df, val)
+            bizobj.fieldValidation(df, val)
             ret = True
         except dException.BusinessRuleViolation as e:
             self.onFieldValidationFailed(ctrl, ds, df, val, e)
@@ -1014,9 +996,7 @@ Database error message: %s"""
                 self._primaryBizobj = bo
                 self.afterSetPrimaryBizobj()
             else:
-                log.info(
-                    _("bizobj for data source %s does not exist.") % bizOrDataSource
-                )
+                dabo_module.info(_("bizobj for data source %s does not exist.") % bizOrDataSource)
 
     def _getRequeryOnLoad(self):
         try:
@@ -1056,9 +1036,7 @@ Database error message: %s"""
         _getCancelChildren,
         _setCancelChildren,
         None,
-        _(
-            "Specifies whether changes are canceled from child bizobjs. (bool; default:True)"
-        ),
+        _("Specifies whether changes are canceled from child bizobjs. (bool; default:True)"),
     )
 
     CheckForChanges = property(
@@ -1136,9 +1114,7 @@ Database error message: %s"""
         _getSaveAllRows,
         _setSaveAllRows,
         None,
-        _(
-            "Specifies whether changes are saved to all rows, or just the current row. (bool)"
-        ),
+        _("Specifies whether changes are saved to all rows, or just the current row. (bool)"),
     )
 
     SaveChildren = property(
@@ -1150,9 +1126,7 @@ Database error message: %s"""
 
 
 class dForm(BaseForm, wx.Frame):
-    def __init__(
-        self, parent=None, properties=None, attProperties=None, *args, **kwargs
-    ):
+    def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dForm
         self._mdi = False
 
@@ -1163,7 +1137,7 @@ class dForm(BaseForm, wx.Frame):
             self._modal = True
         else:
             # Normal dForm
-            if MDI and isinstance(parent, wx.MDIParentFrame):
+            if settings.MDI and isinstance(parent, wx.MDIParentFrame):
                 # Hack this into an MDI Child:
                 preClass = wx.MDIChildFrame
                 self._mdi = True
@@ -1192,7 +1166,7 @@ class dForm(BaseForm, wx.Frame):
     _hackToDialog = classmethod(_hackToDialog)
 
     def _hackToFrame(cls):
-        if MDI:
+        if settings.MDI:
             dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
         else:
             dForm.__bases__ = (BaseForm, wx.Frame)
@@ -1259,20 +1233,13 @@ class dForm(BaseForm, wx.Frame):
 
 
 class dToolForm(BaseForm, wx.MiniFrame):
-    def __init__(
-        self, parent=None, properties=None, attProperties=None, *args, **kwargs
-    ):
+    def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dToolForm
         preClass = wx.MiniFrame
         self._mdi = False
         style = kwargs.get("style", 0)
         kwargs["style"] = (
-            style
-            | wx.RESIZE_BORDER
-            | wx.CAPTION
-            | wx.MINIMIZE_BOX
-            | wx.MAXIMIZE_BOX
-            | wx.CLOSE_BOX
+            style | wx.RESIZE_BORDER | wx.CAPTION | wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.CLOSE_BOX
         )
         kwargs["TinyTitleBar"] = True
         kwargs["ShowStatusBar"] = False
@@ -1289,9 +1256,7 @@ class dToolForm(BaseForm, wx.MiniFrame):
 
 
 class dBorderlessForm(BaseForm, wx.Frame):
-    def __init__(
-        self, parent=None, properties=None, attProperties=None, *args, **kwargs
-    ):
+    def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dBorderlessForm
         style = kwargs.get("style", 0)
         kwargs["style"] = style | wx.NO_BORDER

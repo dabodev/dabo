@@ -9,13 +9,15 @@ import wx
 from .. import dColors
 from .. import ui
 from .. import events
+from .. import main
 from .. import settings
 from ..lib import utils
 from ..dObject import dObject
 from ..dLocalize import _, n_
 from ..lib.utils import cleanMenuCaption
-# import loadUserLocale
-# import log
+
+
+dabo_module = main.get_dabo_package()
 
 
 class SplashScreen(wx.Frame):
@@ -132,7 +134,7 @@ class uiApp(dObject, wx.App):
             self._platform = _("Mac")
         elif wx.PlatformInfo[0] == "__WXMSW__":
             self._platform = _("Win")
-        log.info(txt)
+        dabo_module.info(txt)
         self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
         self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
         self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
@@ -188,7 +190,7 @@ class uiApp(dObject, wx.App):
         app = self.dApp
 
         # Set User locale here using wx, rather than in dApp using locale.
-        if loadUserLocale:
+        if settings.loadUserLocale:
             # the wx.Locale object will revert its locale changes when its destroyed
             # So keep a handle on it for the lifespan of the uiApp.
             self._locale_handle = wx.Locale(wx.LANGUAGE_DEFAULT)
@@ -220,8 +222,7 @@ class uiApp(dObject, wx.App):
             ### 2014-10-04, Koczian, using ustr to avoid crash
             check_uni = utils.ustr(checkResult)
             ui.stop(
-                _("There was an error encountered when checking Web Update: %s")
-                % check_uni,
+                _("There was an error encountered when checking Web Update: %s") % check_uni,
                 _("Web Update Problem"),
             )
             ### 2014-10-04, Koczian, end of change
@@ -327,7 +328,7 @@ these automatic updates."""
                 try:
                     success = self.dApp._updateFramework()
                 except IOError as e:
-                    log.error(_("Cannot update files; Error: %s") % e)
+                    dabo_module.error(_("Cannot update files; Error: %s") % e)
                     ui.info(
                         _(
                             "You do not have permission to update the necessary files. "
@@ -355,9 +356,7 @@ these automatic updates."""
                 elif success is False:
                     # There were no changed files available.
                     ui.info(
-                        _(
-                            "There were no changed files available - your system is up-to-date!"
-                        ),
+                        _("There were no changed files available - your system is up-to-date!"),
                         title=_("No Update Needed"),
                     )
                     answer = False
@@ -385,16 +384,12 @@ these automatic updates."""
             def addControls(self):
                 gsz = ui.dGridSizer(MaxCols=3)
                 lbl = ui.dLabel(self, Caption=_("IDE Directory:"))
-                txt = ui.dTextBox(
-                    self, Enabled=False, Value=loc_ide, RegID="txtIDE", Width=200
-                )
+                txt = ui.dTextBox(self, Enabled=False, Value=loc_ide, RegID="txtIDE", Width=200)
                 btn = ui.dButton(self, Caption="...", OnHit=self.onGetIdeDir)
                 gsz.appendItems((lbl, txt, btn), border=5)
                 gsz.appendSpacer(10, colSpan=3)
                 lbl = ui.dLabel(self, Caption=_("Demo Directory:"))
-                txt = ui.dTextBox(
-                    self, Enabled=False, Value=loc_demo, RegID="txtDemo", Width=200
-                )
+                txt = ui.dTextBox(self, Enabled=False, Value=loc_demo, RegID="txtDemo", Width=200)
                 btn = ui.dButton(self, Caption="...", OnHit=self.onGetDemoDir)
                 gsz.appendItems((lbl, txt, btn), border=5)
                 gsz.setColExpand(True, 1)
@@ -405,9 +400,7 @@ these automatic updates."""
                 default = loc_ide
                 if default is None:
                     default = settings.root_path
-                f = ui.getDirectory(
-                    _("Select the location of the IDE folder"), defaultPath=default
-                )
+                f = ui.getDirectory(_("Select the location of the IDE folder"), defaultPath=default)
                 if f:
                     self.txtIDE.Value = f
 
@@ -673,9 +666,7 @@ these automatic updates."""
             orphans = [
                 frm
                 for frm in frms
-                if frm
-                and (frm.Parent is not app.MainForm)
-                and (frm is not app.MainForm)
+                if frm and (frm.Parent is not app.MainForm) and (frm is not app.MainForm)
             ]
             for orphan in orphans:
                 if orphan:
@@ -856,9 +847,7 @@ these automatic updates."""
                         af.fillPreferenceDialog(dlgPref)
                     # Turn off AutoPersist for any of the dialog's preferenceKeys. Track those that
                     # previously had it on, so we know which ones to revert afterwards.
-                    keysToRevert = [
-                        pk for pk in dlgPref.preferenceKeys if pk.AutoPersist
-                    ]
+                    keysToRevert = [pk for pk in dlgPref.preferenceKeys if pk.AutoPersist]
                     for k in keysToRevert:
                         k.AutoPersist = False
 
@@ -886,7 +875,7 @@ these automatic updates."""
                 except RuntimeError:
                     pass
             else:
-                log.info(_("Stub: dApp.onEditPreferences()"))
+                dabo_module.info(_("Stub: dApp.onEditPreferences()"))
 
     def onEditUndo(self, evt):
         if self.ActiveForm:
@@ -896,7 +885,7 @@ these automatic updates."""
                 try:
                     win.Undo()
                 except AttributeError:
-                    log.error(_("No apparent way to undo."))
+                    dabo_module.error(_("No apparent way to undo."))
 
     def onEditRedo(self, evt):
         if self.ActiveForm:
@@ -906,7 +895,7 @@ these automatic updates."""
                 try:
                     win.Redo()
                 except AttributeError:
-                    log.error(_("No apparent way to redo."))
+                    dabo_module.error(_("No apparent way to redo."))
 
     def onEditFindAlone(self, evt):
         self.onEditFind(evt, False)
@@ -934,9 +923,7 @@ these automatic updates."""
                     data.SetReplaceString(self._replaceString)
                     self.findReplaceData = data
                 if replace:
-                    dlg = wx.FindReplaceDialog(
-                        win, data, _("Find/Replace"), wx.FR_REPLACEDIALOG
-                    )
+                    dlg = wx.FindReplaceDialog(win, data, _("Find/Replace"), wx.FR_REPLACEDIALOG)
                 else:
                     dlg = wx.FindReplaceDialog(win, data, _("Find"))
 
@@ -1136,7 +1123,7 @@ these automatic updates."""
                 except AttributeError:
                     value = None
                 if not isinstance(value, str):
-                    log.error(_("Active control isn't text-based."))
+                    dabo_module.error(_("Active control isn't text-based."))
                     return
 
                 if action == "Replace":
@@ -1171,7 +1158,7 @@ these automatic updates."""
                     win.SetSelection(selStart, selEnd)
                     win.ShowPosition(win.GetSelection()[1])
                 else:
-                    log.info(_("Not found"))
+                    dabo_module.info(_("Not found"))
                 return ret
 
     def addToMRU(self, menuOrCaption, prompt, bindfunc=None):
@@ -1268,7 +1255,7 @@ these automatic updates."""
         try:
             pth = frm._sourceFilePath
         except AttributeError:
-            log.error(_("Only .cdxml forms can be re-loaded"))
+            dabo_module.error(_("Only .cdxml forms can be re-loaded"))
             return
         self.dApp.resyncFiles()
         frm.lockDisplay()
@@ -1327,7 +1314,5 @@ these automatic updates."""
         _getPreferenceDialogClass,
         _setPreferenceDialogClass,
         None,
-        _(
-            "Class to instantiate for the application's preference editing  (dForm/dDialog)"
-        ),
+        _("Class to instantiate for the application's preference editing  (dForm/dDialog)"),
     )

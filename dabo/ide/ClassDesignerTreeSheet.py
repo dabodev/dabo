@@ -334,9 +334,7 @@ class TreeSheet(dPanel):
             elif itm.__module__.startswith("wx"):
                 # A native wx control; skip it
                 return
-            elif isinstance(itm, LayoutPanel) and not isinstance(
-                itm.Parent, WizardPage
-            ):
+            elif isinstance(itm, LayoutPanel) and not isinstance(itm.Parent, WizardPage):
                 return
             elif isinstance(itm, NoSizerBasePanel):
                 self._recurseChildren(itm.Children, node, noDisplay=False)

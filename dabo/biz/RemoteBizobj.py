@@ -152,9 +152,7 @@ class RemoteBizobj(dBizobj):
                     except dException.RowNotFoundException:
                         ds = self.DataSource
                         raise dException.WebServerException(
-                            _(
-                                "PK '%(pk)s' not present in dataset for DataSource '%(ds)s'"
-                            )
+                            _("PK '%(pk)s' not present in dataset for DataSource '%(ds)s'")
                             % locals()
                         )
                 for col, vals in list(rec.items()):

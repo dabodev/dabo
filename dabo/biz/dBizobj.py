@@ -51,9 +51,7 @@ class dBizobj(dObject):
         # properties will have been set at this point.
         # It will be set to None in the _afterInit() code, to indicate that it is no longer relevant.
         self.__cursorsToRequery = []
-        self._requeryOnLoad = self._extractKey(
-            (properties, kwargs), "RequeryOnLoad", False
-        )
+        self._requeryOnLoad = self._extractKey((properties, kwargs), "RequeryOnLoad", False)
         self.setConnection(conn)
         # We need to make sure the cursor is created *before* the call to
         # initProperties()
@@ -214,9 +212,7 @@ class dBizobj(dObject):
         the requery arg is False.
         """
         cf = self._cursorFactory
-        cursorClass = self._getCursorClass(
-            self.dCursorMixinClass, self.dbapiCursorClass
-        )
+        cursorClass = self._getCursorClass(self.dCursorMixinClass, self.dbapiCursorClass)
         crs = cf.getCursor(cursorClass)
         crs.BackendObject = cf.getBackendObject()
         crs.setCursorFactory(cf.getCursor, cursorClass)
@@ -245,9 +241,7 @@ class dBizobj(dObject):
         if self.__cursors:
             cursorKey = list(self.__cursors.keys())[0]
             _dataStructure = getattr(self.__cursors[cursorKey], "_dataStructure", None)
-            self._virtualFields = getattr(
-                self.__cursors[cursorKey], "_virtualFields", {}
-            )
+            self._virtualFields = getattr(self.__cursors[cursorKey], "_virtualFields", {})
         else:
             # The first cursor is being created, before DataStructure is assigned.
             _dataStructure = None
@@ -258,9 +252,7 @@ class dBizobj(dObject):
 
         if not self.dbapiCursorClass:
             return
-        cursorClass = self._getCursorClass(
-            self.dCursorMixinClass, self.dbapiCursorClass
-        )
+        cursorClass = self._getCursorClass(self.dCursorMixinClass, self.dbapiCursorClass)
 
         if key is None:
             key = self.__currentCursorKey
@@ -442,9 +434,7 @@ class dBizobj(dObject):
         try:
             ret = self.Application.hasTransactionToken(self)
         except AttributeError:
-            ret = hasattr(dabo, "_bizTransactionToken") and (
-                dabo._bizTransactionToken is self
-            )
+            ret = hasattr(dabo, "_bizTransactionToken") and (dabo._bizTransactionToken is self)
         return ret
 
     def _releaseTransactionToken(self):
@@ -456,10 +446,7 @@ class dBizobj(dObject):
             self.Application.releaseTransactionToken(self)
         except AttributeError:
             # No Application in play: fake it.
-            if (
-                hasattr(dabo, "_bizTransactionToken")
-                and dabo._bizTransactionToken == self
-            ):
+            if hasattr(dabo, "_bizTransactionToken") and dabo._bizTransactionToken == self:
                 del dabo._bizTransactionToken
 
     def saveAll(self, startTransaction=True, saveTheChildren=True):
@@ -529,9 +516,7 @@ class dBizobj(dObject):
         if rp:
             return rp.save(startTransaction=startTransaction)
         if not self.RowCount:
-            dabo.log.error(
-                _("Abort attempt to save an empty cursor of %s.") % self.Name
-            )
+            dabo.log.error(_("Abort attempt to save an empty cursor of %s.") % self.Name)
             return
         if not self.isChanged():
             return
@@ -688,9 +673,7 @@ class dBizobj(dObject):
             raise dException.BusinessRuleViolation(errMsg)
 
         if self.KeyField is None:
-            raise dException.dException(
-                _("No key field defined for table: ") + self.DataSource
-            )
+            raise dException.dException(_("No key field defined for table: ") + self.DataSource)
 
         if self.deleteChildLogic == kons.REFINTEG_RESTRICT:
             # See if there are any child records
@@ -710,10 +693,7 @@ class dBizobj(dObject):
             # ensure that any changed data they may have is reverted. They are then requeried to
             # populate them with data for the current record in this bizobj.
             for child in self._children:
-                if (
-                    self.deleteChildLogic == kons.REFINTEG_CASCADE
-                    and child.CascadeDeleteFromParent
-                ):
+                if self.deleteChildLogic == kons.REFINTEG_CASCADE and child.CascadeDeleteFromParent:
                     child.deleteAll(startTransaction=False)
             if startTransaction:
                 self.commitTransaction()
@@ -858,9 +838,7 @@ class dBizobj(dObject):
             del ret[self]
         return ret
 
-    def bizIterator(
-        self, reversed=False, restorePointer=False, flushUnchangedCursors=False
-    ):
+    def bizIterator(self, reversed=False, restorePointer=False, flushUnchangedCursors=False):
         """
         Returns an iterator that moves the bizobj's record pointer from
         the first record to the last, and returns the current record number.
@@ -878,9 +856,7 @@ class dBizobj(dObject):
             flushUnchangedCursors=flushUnchangedCursors,
         )
 
-    def bizDataIterator(
-        self, reversed=False, restorePointer=False, flushUnchangedCursors=False
-    ):
+    def bizDataIterator(self, reversed=False, restorePointer=False, flushUnchangedCursors=False):
         """
         Returns an iterator that moves the bizobj's record pointer from
         the first record to the last, and returns a dict of the columns/values
@@ -995,9 +971,7 @@ class dBizobj(dObject):
             self.__setCurrentStatus(currentStatus)
         return ret
 
-    def scanChangedRows(
-        self, func, allCursors=False, includeNewUnchanged=False, *args, **kwargs
-    ):
+    def scanChangedRows(self, func, allCursors=False, includeNewUnchanged=False, *args, **kwargs):
         """
         Move the record pointer to each changed row, and call func.
 
@@ -1036,9 +1010,7 @@ class dBizobj(dObject):
             if self._logScanException(e):
                 nm = self.Name
                 ue = ustr(e)
-                dabo.log.error(
-                    _("Error in scanChangedRows of %(nm)s: %(ue)s") % locals()
-                )
+                dabo.log.error(_("Error in scanChangedRows of %(nm)s: %(ue)s") % locals())
             self.__setCurrentStatus(currentStatus)
             raise
 
@@ -1122,9 +1094,7 @@ class dBizobj(dObject):
                     else:
                         nm = self.Name
                         ue = ustr(e)
-                        dabo.log.error(
-                            _("Failed to set RowNumber of %(nm)s: %(ue)s") % locals()
-                        )
+                        dabo.log.error(_("Failed to set RowNumber of %(nm)s: %(ue)s") % locals())
 
     def replace(self, field, valOrExpr, scope=None):
         """
@@ -1235,10 +1205,7 @@ class dBizobj(dObject):
         # Since the FK value can't be None, we don't need to run non matching
         # parameters requery in such situation.
         if not (
-            self.Parent
-            and self.LinkField
-            and _childParamTuple
-            and max(_childParamTuple) is None
+            self.Parent and self.LinkField and _childParamTuple and max(_childParamTuple) is None
         ):
             # Record this in case we need to restore the record position
             try:
@@ -1296,9 +1263,7 @@ class dBizobj(dObject):
             # It's not necessary to requery if parent has no records
             # or parent row is new and child is linked with parent PK.
             # Use of setNonMatchChildFilterClause is no more necessary.
-            if not self.Parent.RowCount or (
-                self.Parent.IsAdding and not self.ParentLinkField
-            ):
+            if not self.Parent.RowCount or (self.Parent.IsAdding and not self.ParentLinkField):
                 ret = tuple((None,)) * len(links)
             else:
                 ret = self.getParentLinkValue()
@@ -1596,9 +1561,7 @@ class dBizobj(dObject):
 
     def moveToPK(self, pk):
         """Move to the row with the specified pk value, or raise RowNotFoundException."""
-        row = self.seek(
-            pk, self.KeyField, caseSensitive=True, near=False, runRequery=True
-        )
+        row = self.seek(pk, self.KeyField, caseSensitive=True, near=False, runRequery=True)
         if row == -1:
             # Need to use ustr(pk) because pk might be a tuple.
             upk = ustr(pk)
@@ -1611,9 +1574,7 @@ class dBizobj(dObject):
         """Return True if the passed PK value is present in the dataset."""
         return self._CurrentCursor.hasPK(pk)
 
-    def locate(
-        self, val, fld=None, caseSensitive=False, movePointer=True, runRequery=True
-    ):
+    def locate(self, val, fld=None, caseSensitive=False, movePointer=True, runRequery=True):
         """
         Search for a value in a field, and optionally move the record pointer to the first
         matching record. Returns the True or False, depending on whether the value was found.
@@ -1750,9 +1711,7 @@ class dBizobj(dObject):
         Return True if data has changed in the current row
         of this bizobj, without any children.
         """
-        return self.isChanged(
-            includeNewUnchanged=includeNewUnchanged, withChildren=False
-        )
+        return self.isChanged(includeNewUnchanged=includeNewUnchanged, withChildren=False)
 
     def onDeleteLastRecord(self):
         """Hook called when the last record has been deleted from the data set."""
@@ -1881,9 +1840,7 @@ class dBizobj(dObject):
             child = self._children.pop()
             child.Parent = None
 
-    def addMMBizobj(
-        self, mmBizobj, assocTable, assocPKColThis, assocPKColOther, mmPkCol=None
-    ):
+    def addMMBizobj(self, mmBizobj, assocTable, assocPKColThis, assocPKColOther, mmPkCol=None):
         """
         Add the passed bizobj to this bizobj in a Many-to-Many relationship.
 
@@ -1985,9 +1942,7 @@ class dBizobj(dObject):
     def getPK(self):
         """Return the value of the PK field."""
         if self.KeyField is None:
-            raise dException.dException(
-                _("No key field defined for table: ") + self.DataSource
-            )
+            raise dException.dException(_("No key field defined for table: ") + self.DataSource)
         cc = self._CurrentCursor
         return cc.pkExpression()
 
@@ -2100,9 +2055,7 @@ class dBizobj(dObject):
         if rows is None:
             self.scan(self._xmlForRow, level=level + 1, callback=addToBody)
         else:
-            self.scanRows(
-                self._xmlForRow, self.RowNumber, level=level + 1, callback=addToBody
-            )
+            self.scanRows(self._xmlForRow, self.RowNumber, level=level + 1, callback=addToBody)
         return self._xmlBody
 
     def _xmlForRow(self, level, callback):
@@ -2310,20 +2263,13 @@ class dBizobj(dObject):
             return self._associations[bizOrDS]
         except KeyError:
             # Try the bizobj
-            keys = [
-                k
-                for k in self._associations
-                if self._associations[k]["bizobj"] == bizOrDS
-            ]
+            keys = [k for k in self._associations if self._associations[k]["bizobj"] == bizOrDS]
             try:
                 ds = keys[0]
                 return self._associations[ds]
             except IndexError:
                 raise dException.DataSourceNotFoundException(
-                    _(
-                        "No many-to-many association found for DataSource: '%s'."
-                        % bizOrDS
-                    )
+                    _("No many-to-many association found for DataSource: '%s'." % bizOrDS)
                 )
         return None
 
@@ -2351,18 +2297,14 @@ class dBizobj(dObject):
         current record in the bizobj. If that value doesn't exist in the other
         table, it is added.
         """
-        return self._mmAssociatedDbCall(
-            bizOrDS, "mmAssociateValue", otherField, otherVal
-        )
+        return self._mmAssociatedDbCall(bizOrDS, "mmAssociateValue", otherField, otherVal)
 
     def mmAssociateValues(self, bizOrDS, otherField, listOfValues):
         """
         Adds association records so that the current record in this bizobj is associated
         with every item in listOfValues. Other existing relationships are unaffected.
         """
-        return self._mmAssociatedDbCall(
-            bizOrDS, "mmAssociateValues", otherField, listOfValues
-        )
+        return self._mmAssociatedDbCall(bizOrDS, "mmAssociateValues", otherField, listOfValues)
 
     def mmDissociateValue(self, bizOrDS, otherField, otherVal):
         """
@@ -2370,9 +2312,7 @@ class dBizobj(dObject):
         in the 'other' table of a M-M relationship. If no such association exists,
         nothing happens.
         """
-        return self._mmAssociatedDbCall(
-            bizOrDS, "mmDissociateValue", otherField, otherVal
-        )
+        return self._mmAssociatedDbCall(bizOrDS, "mmDissociateValue", otherField, otherVal)
 
     def mmDissociateValues(self, bizOrDS, otherField, listOfValues):
         """
@@ -2380,9 +2320,7 @@ class dBizobj(dObject):
         in the 'other' table of a M-M relationship. If no such association exists,
         nothing happens.
         """
-        return self._mmAssociatedDbCall(
-            bizOrDS, "mmDissociateValues", otherField, listOfValues
-        )
+        return self._mmAssociatedDbCall(bizOrDS, "mmDissociateValues", otherField, listOfValues)
 
     def mmDissociateAll(self, bizOrDS):
         """
@@ -2396,9 +2334,7 @@ class dBizobj(dObject):
         Adds and/or removes association records so that the current record in this
         bizobj is associated with every item in listOfValues, and none other.
         """
-        return self._mmAssociatedDbCall(
-            bizOrDS, "mmSetFullAssociation", otherField, listOfValues
-        )
+        return self._mmAssociatedDbCall(bizOrDS, "mmSetFullAssociation", otherField, listOfValues)
 
     def mmAddToBoth(self, bizOrDS, thisField, thisVal, otherField, otherVal):
         """
@@ -2599,18 +2535,12 @@ of the string will be displayed to the user."""
     beforeDeleteAllChildren = _makeHookMethod(
         "beforeDeleteAllChildren", "all child records are deleted"
     )
-    beforeSetRowNumber = _makeHookMethod(
-        "beforeSetRowNumber", "the RowNumber property is set"
-    )
+    beforeSetRowNumber = _makeHookMethod("beforeSetRowNumber", "the RowNumber property is set")
     beforeSave = _makeHookMethod("beforeSave", "the current record is saved.")
-    beforeSaveAll = _makeHookMethod(
-        "beforeSaveAll", "all the changed records are saved."
-    )
+    beforeSaveAll = _makeHookMethod("beforeSaveAll", "all the changed records are saved.")
     beforeCancel = _makeHookMethod("beforeCancel", "the changed records are canceled.")
     beforeRequery = _makeHookMethod("beforeRequery", "the cursor is requeried")
-    beforeChildRequery = _makeHookMethod(
-        "beforeChildRequery", "the child bizobjs are requeried"
-    )
+    beforeChildRequery = _makeHookMethod("beforeChildRequery", "the child bizobjs are requeried")
     beforeCreateCursor = _makeHookMethod(
         "beforeCreateCursor", "the underlying cursor object is created"
     )
@@ -2632,25 +2562,17 @@ values and not trigger the memento system, override onNew() instead.
     afterNext = _makeHookMethod("afterNext", "navigating to the next record")
     afterFirst = _makeHookMethod("afterFirst", "navigating to the next record")
     afterLast = _makeHookMethod("afterLast", "navigating to the last record")
-    afterSetCurrentParent = _makeHookMethod(
-        "afterSetCurrentParent", "the parent cursor changes"
-    )
+    afterSetCurrentParent = _makeHookMethod("afterSetCurrentParent", "the parent cursor changes")
     afterPointerMove = _makeHookMethod("afterPointerMove", "the record pointer moves")
     afterDeleteAllChildren = _makeHookMethod(
         "afterDeleteAllChildren", "all child records are deleted"
     )
-    afterSetRowNumber = _makeHookMethod(
-        "afterSetRowNumber", "the RowNumber property is set"
-    )
+    afterSetRowNumber = _makeHookMethod("afterSetRowNumber", "the RowNumber property is set")
     afterSave = _makeHookMethod("afterSave", "the current record is saved.")
-    afterSaveAll = _makeHookMethod(
-        "afterSaveAll", "all the the changed records are saved."
-    )
+    afterSaveAll = _makeHookMethod("afterSaveAll", "all the the changed records are saved.")
     afterCancel = _makeHookMethod("afterCancel", "the changed records are canceled.")
     afterRequery = _makeHookMethod("afterRequery", "the cursor is requeried")
-    afterChildRequery = _makeHookMethod(
-        "afterChildRequery", "the child bizobjs are requeried"
-    )
+    afterChildRequery = _makeHookMethod("afterChildRequery", "the child bizobjs are requeried")
     afterChange = _makeHookMethod(
         "afterChange",
         "a record is changed",
@@ -2837,10 +2759,7 @@ afterDelete() which is only called after a delete().""",
             val = tuple(val)
         if not isinstance(val, (type(None), tuple)):
             raise TypeError(
-                _(
-                    "Invalid type '%s' for property DataStructure. "
-                    "An tuple value is required."
-                )
+                _("Invalid type '%s' for property DataStructure. " "An tuple value is required.")
                 % type(val)
             )
         for key, cursor in list(self.__cursors.items()):
@@ -3088,9 +3007,7 @@ afterDelete() which is only called after a delete().""",
 
     def _getSqlMgr(self):
         if self._sqlMgrCursor is None:
-            cursorClass = self._getCursorClass(
-                self.dCursorMixinClass, self.dbapiCursorClass
-            )
+            cursorClass = self._getCursorClass(self.dCursorMixinClass, self.dbapiCursorClass)
             cf = self._cursorFactory
             crs = self._sqlMgrCursor = cf.getCursor(cursorClass)
             crs.setCursorFactory(cf.getCursor, cursorClass)
@@ -3172,18 +3089,14 @@ afterDelete() which is only called after a delete().""",
         _getCurrentSQL,
         None,
         None,
-        _(
-            "Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."
-        ),
+        _("Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."),
     )
 
     _CurrentCursor = property(
         _getCurrentCursor,
         _setCurrentCursor,
         None,
-        _(
-            "The cursor object for the currently selected key value. (dCursorMixin child)"
-        ),
+        _("The cursor object for the currently selected key value. (dCursorMixin child)"),
     )
 
     _CurrentCursorKey = property(
@@ -3299,9 +3212,7 @@ afterDelete() which is only called after a delete().""",
         ),
     )
 
-    LastSQL = property(
-        _getLastSQL, None, None, _("Returns the last executed SQL statement.")
-    )
+    LastSQL = property(_getLastSQL, None, None, _("Returns the last executed SQL statement."))
 
     LinkField = property(
         _getLinkField,
@@ -3314,18 +3225,14 @@ afterDelete() which is only called after a delete().""",
         _getNewChildOnNew,
         _setNewChildOnNew,
         None,
-        _(
-            "Should new child records be added when a new parent record is added? (bool)"
-        ),
+        _("Should new child records be added when a new parent record is added? (bool)"),
     )
 
     NewRecordOnNewParent = property(
         _getNewRecordOnNewParent,
         _setNewRecordOnNewParent,
         None,
-        _(
-            "If this bizobj's parent has NewChildOnNew==True, do we create a record here? (bool)"
-        ),
+        _("If this bizobj's parent has NewChildOnNew==True, do we create a record here? (bool)"),
     )
 
     NonUpdateFields = property(

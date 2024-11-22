@@ -30,9 +30,7 @@ class TestPanel(dPanel):
 
         hsz = dBorderSizer(self, "h", Caption="Vertical Gauge")
         self.gaugeV = dGauge(self, Orientation="v")
-        hsz.append(
-            self.gaugeV, "x", border=30, borderSides=("Left", "Right"), halign="center"
-        )
+        hsz.append(self.gaugeV, "x", border=30, borderSides=("Left", "Right"), halign="center")
         hsz.appendSpacer(10)
 
         self.lblV = dLabel(self)

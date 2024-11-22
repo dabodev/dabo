@@ -161,9 +161,7 @@ class LayoutSaverMixin(dObject):
         else:
             ra["designerClass"] = self.getClassName()
 
-        hasSizer = bool(
-            hasattr(self, "ControllingSizerItem") and self.ControllingSizerItem
-        )
+        hasSizer = bool(hasattr(self, "ControllingSizerItem") and self.ControllingSizerItem)
         # We want to include some props whether they are the
         # default or not.
         if insideClass:
@@ -191,9 +189,7 @@ class LayoutSaverMixin(dObject):
         desProps = list(self.DesignerProps.keys())
         if isinstance(self, (dForm, dFormMain)) and hasattr(self, "UseSizers"):
             desProps += ["UseSizers"]
-        elif isinstance(self, self.Controller.pagedControls) and isinstance(
-            self.PageClass, str
-        ):
+        elif isinstance(self, self.Controller.pagedControls) and isinstance(self.PageClass, str):
             desProps += ["PageClass"]
         elif isinstance(self, Wizard):
             desProps += ["PageCount"]
@@ -222,11 +218,7 @@ class LayoutSaverMixin(dObject):
                 and ((csz is not None) and csz.getItemProp(self, "Expand"))
             ):
                 continue
-            if (
-                isinstance(self, dLabel)
-                and prop in ("Width", "Height")
-                and csz is not None
-            ):
+            if isinstance(self, dLabel) and prop in ("Width", "Height") and csz is not None:
                 # If the width/height is controlled by the sizer, don't save it.
                 szornt = csz.Orientation
                 exp = csz.getItemProp(self, "Expand")
@@ -252,9 +244,7 @@ class LayoutSaverMixin(dObject):
                     if isDefaultSize:
                         # ignore it
                         continue
-            if prop == "BackColor" and isinstance(
-                self, (LayoutPanel, LayoutSpacerPanel)
-            ):
+            if prop == "BackColor" and isinstance(self, (LayoutPanel, LayoutSpacerPanel)):
                 continue
             if isinstance(self, dImage) and (prop == "Value") and self.Picture:
                 # Don't save the byte stream if there is an image path
@@ -340,9 +330,7 @@ class LayoutSaverMixin(dObject):
         try:
             itmProps = self.ControllingSizer.getItemProps(self.ControllingSizerItem)
             if insideClass:
-                itmDiffProps = self._diffSizerItemProps(
-                    itmProps, classDict, direct=True
-                )
+                itmDiffProps = self._diffSizerItemProps(itmProps, classDict, direct=True)
             else:
                 itmDiffProps = self._diffSizerItemProps(itmProps, self.ControllingSizer)
             ret["attributes"]["sizerInfo"] = itmDiffProps
@@ -465,9 +453,7 @@ class LayoutSaverMixin(dObject):
         insideClass = clsChildren is not None
         if insideClass:
             childDict = clsChildren.get("children", [])
-        if isinstance(
-            self, (dPageFrame, dPageList, dPageSelect, dPageStyled, dPageFrameNoTabs)
-        ):
+        if isinstance(self, (dPageFrame, dPageList, dPageSelect, dPageStyled, dPageFrameNoTabs)):
             nonSizerKids = kids
         elif isinstance(self, dGrid):
             # Grid children are Columns
@@ -484,8 +470,7 @@ class LayoutSaverMixin(dObject):
             nonSizerKids = [
                 kk
                 for kk in kids
-                if not hasattr(kk, "ControllingSizerItem")
-                or kk.ControllingSizerItem is None
+                if not hasattr(kk, "ControllingSizerItem") or kk.ControllingSizerItem is None
             ]
 
         for kid in nonSizerKids:
@@ -510,11 +495,9 @@ class LayoutSaverMixin(dObject):
                 try:
                     kidID = kid.classID
                     try:
-                        kidDict = [
-                            cd
-                            for cd in childDict
-                            if cd["attributes"]["classID"] == kidID
-                        ][0]
+                        kidDict = [cd for cd in childDict if cd["attributes"]["classID"] == kidID][
+                            0
+                        ]
                     except Exception as e:
                         kidDict = {}
                 except AttributeError:
@@ -553,9 +536,7 @@ class LayoutSaverMixin(dObject):
                     try:
                         sz = self.Sizer
                     except AttributeError:
-                        dabo.log.error(
-                            _("No sizer information available for %s") % self
-                        )
+                        dabo.log.error(_("No sizer information available for %s") % self)
                         sz = None
         if sz:
             szDict = None
@@ -563,11 +544,7 @@ class LayoutSaverMixin(dObject):
                 try:
                     szID = sz.classID
                     try:
-                        szDict = [
-                            cd
-                            for cd in childDict
-                            if cd["attributes"]["classID"] == szID
-                        ][0]
+                        szDict = [cd for cd in childDict if cd["attributes"]["classID"] == szID][0]
                     except Exception as e:
                         szDict = {}
                 except AttributeError:
@@ -740,9 +717,7 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         pop.appendSeparator()
         pop.append(_("Edit Sizer Settings"), OnHit=self.onEditSizer)
         pop.appendSeparator()
-        pop.append(
-            _("Add Controls from Data Environment"), OnHit=self.Form.onRunLayoutWiz
-        )
+        pop.append(_("Add Controls from Data Environment"), OnHit=self.Form.onRunLayoutWiz)
         return pop
 
     def onEditSizer(self, evt):
@@ -836,9 +811,7 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Border", val)
 
     def _getSzBorderSides(self):
-        return self.ControllingSizer.getItemProp(
-            self.ControllingSizerItem, "BorderSides"
-        )
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "BorderSides")
 
     def _setSzBorderSides(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "BorderSides", val)
@@ -886,9 +859,7 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
             raise PropertyUpdateException(ustr(e))
 
     def _getSzProp(self):
-        return self.ControllingSizer.getItemProp(
-            self.ControllingSizerItem, "Proportion"
-        )
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Proportion")
 
     def _setSzProp(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Proportion", val)
@@ -1015,16 +986,12 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
 
 
 class LayoutSpacerPanel(LayoutPanel):
-    def __init__(
-        self, parent, properties=None, orient=None, inGrid=False, *args, **kwargs
-    ):
+    def __init__(self, parent, properties=None, orient=None, inGrid=False, *args, **kwargs):
         kwargs["AutoSizer"] = False
         self._spacing = 10
         self._orient = orient
         self._inGrid = inGrid
-        super(LayoutSpacerPanel, self).__init__(
-            parent, properties=properties, *args, **kwargs
-        )
+        super(LayoutSpacerPanel, self).__init__(parent, properties=properties, *args, **kwargs)
 
     def afterInit(self):
         super(LayoutSpacerPanel, self).afterInit()
@@ -1197,9 +1164,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
                 found = False
                 for pos, szitm in enumerate(kids):
                     itm = self.getItem(szitm)
-                    if (itm in actualKids) or isinstance(
-                        itm, (LayoutGridSizer, LayoutSizer)
-                    ):
+                    if (itm in actualKids) or isinstance(itm, (LayoutGridSizer, LayoutSizer)):
                         found = True
                         kids = kids[pos:]
                         break
@@ -1224,9 +1189,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
                 itmDict[prop] = self.getItemProp(kid, prop)
             kidItem = self.getItem(kid)
             try:
-                defProps = self.Controller.getDefaultSizerProps(
-                    kidItem.superControl, szType
-                )
+                defProps = self.Controller.getDefaultSizerProps(kidItem.superControl, szType)
                 itmDiffDict = self._diffSizerItemProps(itmDict, defProps, direct=True)
             except AttributeError:
                 itmDiffDict = self._diffSizerItemProps(itmDict, self)
@@ -1237,9 +1200,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
                         winID = kidItem.classID
                         try:
                             winDict = [
-                                cd
-                                for cd in childDict
-                                if cd["attributes"]["classID"] == winID
+                                cd for cd in childDict if cd["attributes"]["classID"] == winID
                             ][0]
                         except Exception as e:
                             winDict = {}
@@ -1254,9 +1215,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
                         szrID = kidItem.classID
                         try:
                             szrDict = [
-                                cd
-                                for cd in childDict
-                                if cd["attributes"]["classID"] == szrID
+                                cd for cd in childDict if cd["attributes"]["classID"] == szrID
                             ][0]
                         except Exception as e:
                             szrDict = {}
@@ -1290,9 +1249,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
 
     def createContextMenu(self):
         pop = dMenu()
-        isMain = self.ControllingSizer is None and isinstance(
-            self.Parent, (dForm, dFormMain)
-        )
+        isMain = self.ControllingSizer is None and isinstance(self.Parent, (dForm, dFormMain))
         if not isMain:
             pop.append(_("Cut"), OnHit=self.Controller.onTreeCut)
         pop.append(_("Copy"), OnHit=self.Controller.onTreeCopy)
@@ -1558,9 +1515,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Border", val)
 
     def _getSzBorderSides(self):
-        return self.ControllingSizer.getItemProp(
-            self.ControllingSizerItem, "BorderSides"
-        )
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "BorderSides")
 
     def _setSzBorderSides(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "BorderSides", val)
@@ -1606,9 +1561,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
             raise PropertyUpdateException(ustr(e))
 
     def _getSzProp(self):
-        return self.ControllingSizer.getItemProp(
-            self.ControllingSizerItem, "Proportion"
-        )
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Proportion")
 
     def _setSzProp(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Proportion", val)
@@ -1934,9 +1887,7 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
 
     def createContextMenu(self):
         pop = dMenu()
-        isMain = self.ControllingSizer is None and isinstance(
-            self.Parent, (dForm, dFormMain)
-        )
+        isMain = self.ControllingSizer is None and isinstance(self.Parent, (dForm, dFormMain))
         if not isMain:
             pop.append(_("Cut"), OnHit=self.Controller.onTreeCut)
         pop.append(_("Copy"), OnHit=self.Controller.onTreeCopy)
@@ -2004,9 +1955,7 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         try:
             objID = obj.classID
             try:
-                ret = [cd for cd in childDict if cd["attributes"]["classID"] == objID][
-                    0
-                ]
+                ret = [cd for cd in childDict if cd["attributes"]["classID"] == objID][0]
             except Exception as e:
                 ret = None
         except AttributeError:
@@ -2199,9 +2148,7 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Border", val)
 
     def _getSzBorderSides(self):
-        return self.ControllingSizer.getItemProp(
-            self.ControllingSizerItem, "BorderSides"
-        )
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "BorderSides")
 
     def _setSzBorderSides(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "BorderSides", val)
@@ -2247,9 +2194,7 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             raise PropertyUpdateException(ustr(e))
 
     def _getSzProp(self):
-        return self.ControllingSizer.getItemProp(
-            self.ControllingSizerItem, "Proportion"
-        )
+        return self.ControllingSizer.getItemProp(self.ControllingSizerItem, "Proportion")
 
     def _setSzProp(self, val):
         self.ControllingSizer.setItemProp(self.ControllingSizerItem, "Proportion", val)
@@ -2313,9 +2258,7 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
         ),
     )
 
-    Rows = property(
-        _getRowCount, _setRowCount, None, _("Number of rows in this sizer.  (int)")
-    )
+    Rows = property(_getRowCount, _setRowCount, None, _("Number of rows in this sizer.  (int)"))
 
     Sizer_Border = property(
         _getSzBorder,
@@ -2468,9 +2411,7 @@ class NoSizerBasePanel(LayoutBasePanel):
             pop.prependSeparator()
             pop.prepend(_("Paste"), OnHit=self.onPaste)
         pop.appendSeparator()
-        pop.append(
-            _("Add Controls from Data Environment"), OnHit=self.Form.onRunLayoutWiz
-        )
+        pop.append(_("Add Controls from Data Environment"), OnHit=self.Form.onRunLayoutWiz)
         return pop
 
     def onPaste(self, evt):
@@ -2483,9 +2424,7 @@ class NoSizerBasePanel(LayoutBasePanel):
         ret = [ch for ch in self.GetChildren() if not isinstance(ch, DragHandle)]
         return ret
 
-    Children = property(
-        _getChildren, None, None, _("Includes all relevant child objects  (list)")
-    )
+    Children = property(_getChildren, None, None, _("Includes all relevant child objects  (list)"))
 
     DesignerEvents = property(
         _getDesEvents,

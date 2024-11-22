@@ -17,6 +17,7 @@ import warnings
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
+from . import main
 from . import db
 from . import lib
 from . import ui
@@ -32,11 +33,10 @@ from .dPref import dPref
 from .dSecurityManager import dSecurityManager
 from .lib.utils import ustr
 from .lib.utils import cleanMenuCaption
-# import dAppRef
-# import checkForWebUpdates
-# import webupdate_urlbase
 # import __version__
-# import log
+
+
+dabo_module = main.get_dabo_package()
 
 
 class Collection(list):
@@ -172,9 +172,7 @@ class dApp(dObject):
     # distinguish between the two states.
     isDesigner = False
 
-    def __init__(
-        self, selfStart=False, ignoreScriptDir=False, properties=None, *args, **kwargs
-    ):
+    def __init__(self, selfStart=False, ignoreScriptDir=False, properties=None, *args, **kwargs):
         # Defer setting locale until the wx.App can do so (otherwise you can create a split-state between
         # the OS and wx, which wx does not like.
         #  if loadUserLocale:
@@ -185,7 +183,6 @@ class dApp(dObject):
         self._ignoreScriptDir = ignoreScriptDir
 
         self._uiAlreadySet = False
-        dAppRef = self
         self._beforeInit()
 
         # If we are displaying a splash screen, these attributes control
@@ -283,6 +280,9 @@ try again when it is running.
         self._afterInit()
         self.autoBindEvents()
 
+        # Set this instance as the main application object
+        dabo_module.application = self
+
     def resyncFiles(self):
         """
         In the middle of an app's lifetime, files on the remote server may
@@ -294,7 +294,7 @@ try again when it is running.
                 rp.syncFiles()
             except urllib.error.URLError as e:
                 # Cannot sync; record the error and move on
-                log.error(_("File re-sync failed. Reason: %s") % e)
+                dabo_module.error(_("File re-sync failed. Reason: %s") % e)
 
     def __del__(self):
         """Make sure that temp files are removed"""
@@ -318,9 +318,7 @@ try again when it is running.
         # If there's a locale directory for the app and it looks valid, install it:
         localeDir = os.path.join(self.HomeDirectory, "locale")
         localeDomain = self.getAppInfo("appShortName").replace(" ", "_").lower()
-        if os.path.isdir(localeDir) and dLocalize.isValidDomain(
-            localeDomain, localeDir
-        ):
+        if os.path.isdir(localeDir) and dLocalize.isValidDomain(localeDomain, localeDir):
             lang = getattr(self, "_language", None)
             charset = getattr(self, "_charset", None)
             dLocalize.install(localeDomain, localeDir)
@@ -362,9 +360,7 @@ try again when it is running.
         in self.DefaultForm. If form names were passed on the command line,
         they will be opened instead of the default one as long as they exist.
         """
-        form_names = [
-            class_name[3:] for class_name in dir(self.ui) if class_name[:3] == "Frm"
-        ]
+        form_names = [class_name[3:] for class_name in dir(self.ui) if class_name[:3] == "Frm"]
         for arg in sys.argv[1:]:
             arg = arg.lower()
             for form_name in form_names:
@@ -418,7 +414,7 @@ try again when it is running.
         self.uiApp.finish()
         self.closeConnections()
         self._tempFileHolder.release()
-        log.info(_("Application finished."))
+        dabo_module.info(_("Application finished."))
         self._finished = True
         self.afterFinish()
 
@@ -471,9 +467,7 @@ try again when it is running.
 
         Return a tuple of (user, pass).
         """
-        loginDialog = getattr(
-            self, "_loginDialog", self.LoginDialogClass(self.MainForm)
-        )
+        loginDialog = getattr(self, "_loginDialog", self.LoginDialogClass(self.MainForm))
         self._loginDialog = loginDialog
         loginDialog.setMessage(message)
         # Allow the developer to customize the login dialog:
@@ -539,7 +533,7 @@ try again when it is running.
         """
         if not force:
             # Check for cases where we absolutely will not Web Update.
-            update = checkForWebUpdates
+            update = settings.checkForWebUpdates
             if update:
                 # Frozen App:
                 if hasattr(sys, "frozen") and inspect.stack()[-1][1] != "daborun.py":
@@ -575,14 +569,14 @@ try again when it is running.
 
         if runCheck:
             # See if there is a later version
-            url = "%s/check/%s" % (webupdate_urlbase, __version__)
+            url = "%s/check/%s" % (settings.webupdate_urlbase, __version__)
             try:
                 resp = urllib.request.urlopen(url).read()
             except urllib.error.URLError as e:
                 # Could not connect
                 ### 2014-10-04, Koczian, using ustr to avoid crash
                 e_uni = ustr(e)
-                log.error(_("Could not connect to the Dabo servers: %s") % e_uni)
+                dabo_module.error(_("Could not connect to the Dabo servers: %s") % e_uni)
                 ### 2014-10-04, Koczian, end of change
                 return e
             except ValueError:
@@ -590,9 +584,7 @@ try again when it is running.
             except Exception as e:
                 ### 2014-10-04, Koczian, using ustr to avoid crash
                 e_uni = ustr(e)
-                log.error(
-                    _("Failed to open URL '%(url)s'. Error: %(e_uni)s") % locals()
-                )
+                dabo_module.error(_("Failed to open URL '%(url)s'. Error: %(e_uni)s") % locals())
                 ### 2014-10-04, Koczian, end of change
                 return e
             resp = json.loads(resp)
@@ -604,12 +596,12 @@ try again when it is running.
         Get any changed files from the dabodev.com server, and replace
         the local copies with them.
         """
-        fileurl = "%s/files/%s" % (webupdate_urlbase, __version__)
+        fileurl = "%s/files/%s" % (settings.webupdate_urlbase, __version__)
         try:
             resp = urllib.request.urlopen(fileurl)
         except Exception as e:
             # No internet access, or Dabo site is down.
-            log.error(_("Cannot access the Dabo site. Error: %s") % e)
+            dabo_module.error(_("Cannot access the Dabo site. Error: %s") % e)
             self._resetWebUpdateCheck()
             return None
 
@@ -626,7 +618,7 @@ try again when it is running.
             delfiles = []
         if not zipfiles:
             # No updates available
-            log.info(_("No changed files available."))
+            dabo_module.info(_("No changed files available."))
             return
         projects = ("dabo", "demo", "ide")
         prf = self._frameworkPrefs
@@ -731,7 +723,7 @@ try again when it is running.
         if newFile:
             with open(pth, "w") as ff:
                 ff.write(newFile)
-            log.info(_("File %s updated") % pth)
+            dabo_module.info(_("File %s updated") % pth)
 
     def updateFromSource(self, fileOrFiles):
         """
@@ -903,11 +895,8 @@ try again when it is running.
                         cn = self.getConnectionsFromFile(f)
                     except Exception as ex:
                         uex = ustr(ex)
-                        log.error(
-                            _(
-                                "Error loading database connection "
-                                "info from file %(f)s:\n%(uex)s"
-                            )
+                        dabo_module.error(
+                            _("Error loading database connection " "info from file %(f)s:\n%(uex)s")
                             % locals()
                         )
                     else:
@@ -921,9 +910,7 @@ try again when it is running.
             defs = dbConnectionDefs.getDefs()
             connDefs.update(defs)
             for kk in defs:
-                self.dbConnectionNameToFiles[kk] = os.path.abspath(
-                    "dbConnectionDefs.py"
-                )
+                self.dbConnectionNameToFiles[kk] = os.path.abspath("dbConnectionDefs.py")
         except ImportError:
             pass
 
@@ -933,9 +920,8 @@ try again when it is running.
         for k, v in list(connDefs.items()):
             self.dbConnectionDefs[k] = v
 
-        log.info(
-            _("%s database connection definition(s) loaded.")
-            % (len(self.dbConnectionDefs))
+        dabo_module.info(
+            _("%s database connection definition(s) loaded.") % (len(self.dbConnectionDefs))
         )
 
     def _initModuleNames(self):
@@ -980,7 +966,7 @@ try again when it is running.
         try:
             connDefs = connParser.importConnections(filePath, useHomeDir=True)
         except SAXParseException as e:
-            log.error(_("Error parsing '%(filePath)s': %(e)s") % locals())
+            dabo_module.error(_("Error parsing '%(filePath)s': %(e)s") % locals())
             return {}
         # Convert the connect info dicts to dConnectInfo instances:
         for k, v in list(connDefs.items()):
@@ -1056,10 +1042,7 @@ try again when it is running.
                 self.dbConnectionDefs[k] = v
                 self.dbConnectionNameToFiles[k] = connFile
         else:
-            raise IOError(
-                _("File '%s' passed to dApp.addConnectFile() does not exist.")
-                % origFile
-            )
+            raise IOError(_("File '%s' passed to dApp.addConnectFile() does not exist.") % origFile)
 
     def getStandardAppDirectory(self, dirname, start=None):
         """
@@ -1069,7 +1052,7 @@ try again when it is running.
         """
         stdDirs = settings.standardDirs + ("main.py",)
         if dirname not in stdDirs:
-            log.error(_("Non-standard directory '%s' requested") % dirname)
+            dabo_module.error(_("Non-standard directory '%s' requested") % dirname)
             return None
         osp = os.path
         if start is not None:
@@ -1303,9 +1286,7 @@ try again when it is running.
         prefKey = "display_info_messages.%s" % msgId
         if not self.getUserSetting(prefKey, True):
             return
-        future = self.uiApp.displayInfoMessage(
-            msg, defaultShowInFuture=defaultShowInFuture
-        )
+        future = self.uiApp.displayInfoMessage(msg, defaultShowInFuture=defaultShowInFuture)
         self.setUserSetting(prefKey, future)
 
     def clearActiveForm(self, frm):
@@ -1354,7 +1335,7 @@ try again when it is running.
             except AttributeError:
                 pass
         if not ret:
-            log.info(_("WARNING: No BasePrefKey has been set for this application."))
+            dabo_module.info(_("WARNING: No BasePrefKey has been set for this application."))
             try:
                 f = inspect.stack()[-1][1]
                 pth = os.path.abspath(f)
@@ -1432,9 +1413,7 @@ try again when it is running.
                 hd = sys._daboRunHomeDir
             except AttributeError:
                 calledScript = None
-                appDir = os.path.realpath(
-                    os.path.split(inspect.getabsfile(self.__class__))[0]
-                )
+                appDir = os.path.realpath(os.path.split(inspect.getabsfile(self.__class__))[0])
 
                 def issubdir(d1, d2):
                     while True:
@@ -1478,7 +1457,7 @@ try again when it is running.
                             # instance of a raw dApp. So the only thing we can really do is make the
                             # HomeDirectory the location of the main script, since we can't guess at
                             # the application's directory structure.
-                            log.info(
+                            dabo_module.info(
                                 "Can't deduce HomeDirectory:setting to the script directory."
                             )
                             hd = scriptDir
@@ -1494,7 +1473,7 @@ try again when it is running.
         if os.path.exists(val):
             self._homeDirectory = os.path.abspath(val)
         else:
-            log.error(_("Setting App HomeDirectory: Path does not exist. '%s'") % val)
+            dabo_module.error(_("Setting App HomeDirectory: Path does not exist. '%s'") % val)
 
     def _getIcon(self):
         return getattr(self, "_icon", "daboIcon.ico")
@@ -1563,9 +1542,7 @@ try again when it is running.
         self._preferenceDialogClass = val
 
     def _getReleasePreferenceDialog(self):
-        ret = self._releasePreferenceDialog = getattr(
-            self, "_releasePreferenceDialog", True
-        )
+        ret = self._releasePreferenceDialog = getattr(self, "_releasePreferenceDialog", True)
         return ret
 
     def _setReleasePreferenceDialog(self, val):
@@ -1651,9 +1628,7 @@ try again when it is running.
         try:
             ret = self._userSettingProviderClass
         except AttributeError:
-            ret = self._userSettingProviderClass = (
-                dUserSettingProvider.dUserSettingProvider
-            )
+            ret = self._userSettingProviderClass = dUserSettingProvider.dUserSettingProvider
         return ret
 
     def _setUserSettingProviderClass(self, val):
@@ -1677,9 +1652,7 @@ try again when it is running.
         _getAutoImportConnections,
         _setAutoImportConnections,
         None,
-        _(
-            "Specifies whether .cnxml connection files are automatically imported. (Default True)"
-        ),
+        _("Specifies whether .cnxml connection files are automatically imported. (Default True)"),
     )
 
     BasePrefKey = property(
@@ -1739,17 +1712,13 @@ try again when it is running.
         _("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"),
     )
 
-    Encoding = property(
-        _getEncoding, None, None, _("Name of encoding to use for unicode  (str)")
-    )
+    Encoding = property(_getEncoding, None, None, _("Name of encoding to use for unicode  (str)"))
 
     FormsToOpen = property(
         _getFormsToOpen,
         _setFormsToOpen,
         None,
-        _(
-            """List of forms to open after App instantiation.  (list of form class references)"""
-        ),
+        _("""List of forms to open after App instantiation.  (list of form class references)"""),
     )
     formsToOpen = FormsToOpen  ## backwards-compatibility
 

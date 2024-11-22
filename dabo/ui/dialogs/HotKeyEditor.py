@@ -113,9 +113,7 @@ class HotKeyEditor(dOkCancelDialog):
         _getAlt,
         None,
         None,
-        _(
-            "Reflects the presence of the Alt key in the selected key combo. Default=False.  (bool)"
-        ),
+        _("Reflects the presence of the Alt key in the selected key combo. Default=False.  (bool)"),
     )
 
     Changed = property(
@@ -140,29 +138,21 @@ class HotKeyEditor(dOkCancelDialog):
         _getKeyChar,
         None,
         None,
-        _(
-            "The non-modifier key in the selected key combo. Default="
-            ". (read-only) (str)"
-        ),
+        _("The non-modifier key in the selected key combo. Default=" ". (read-only) (str)"),
     )
 
     KeyCode = property(
         _getKeyCode,
         None,
         None,
-        _(
-            "Underlying key code of the key/modifier combo. Default=-1 (read-only) (int)"
-        ),
+        _("Underlying key code of the key/modifier combo. Default=-1 (read-only) (int)"),
     )
 
     KeyText = property(
         _getKeyText,
         None,
         None,
-        _(
-            "The displayed text for the key/modifier combo. Default="
-            " (read-only) (str)"
-        ),
+        _("The displayed text for the key/modifier combo. Default=" " (read-only) (str)"),
     )
 
     Shift = property(

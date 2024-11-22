@@ -65,9 +65,7 @@ class TestPanel(dPanel):
                     BorderColor="black",
                     DynamicBackColor=self.getColor,
                 )
-                lbl = self.lbl = dLabel(
-                    self, Width=100, DynamicCaption=lambda: self._colorProp
-                )
+                lbl = self.lbl = dLabel(self, Width=100, DynamicCaption=lambda: self._colorProp)
                 txt = dTextBox(self, DynamicValue=self.getColor)
                 btn = dButton(self, Width=30, Caption="...", OnHit=self.changeColor)
                 hs.append(lbl, valign="middle")

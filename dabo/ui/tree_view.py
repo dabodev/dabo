@@ -7,12 +7,14 @@ import wx
 from .. import dColors
 from .. import ui
 from .. import events
+from .. import main
 from ..dObject import dObject
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import dControlMixin
 from . import makeDynamicProperty
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dNode(dObject):
@@ -256,9 +258,7 @@ class dNode(dObject):
         _("Background color of this node  (str, 3-tuple, or wx.Colour)"),
     )
 
-    Caption = property(
-        _getCap, _setCap, None, _("Returns/sets the text of this node.  (str)")
-    )
+    Caption = property(_getCap, _setCap, None, _("Returns/sets the text of this node.  (str)"))
 
     Children = property(
         _getChildren,
@@ -271,9 +271,7 @@ class dNode(dObject):
         _getDescendents,
         None,
         None,
-        _(
-            "List of all nodes for which this node is a direct ancestor.  (list of dNodes)"
-        ),
+        _("List of all nodes for which this node is a direct ancestor.  (list of dNodes)"),
     )
 
     Expanded = property(
@@ -283,9 +281,7 @@ class dNode(dObject):
         _("Represents whether the node is Expanded (True) or collapsed.  (bool)"),
     )
 
-    Font = property(
-        _getFont, _setFont, None, _("The font properties of the node. (obj)")
-    )
+    Font = property(_getFont, _setFont, None, _("The font properties of the node. (obj)"))
 
     FontBold = property(
         _getFontBold,
@@ -312,9 +308,7 @@ class dNode(dObject):
         _getFontInfo,
         None,
         None,
-        _(
-            "Specifies the platform-native font info string for the node. Read-only. (str)"
-        ),
+        _("Specifies the platform-native font info string for the node. Read-only. (str)"),
     )
 
     FontItalic = property(
@@ -547,9 +541,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         self.lockDisplay()
         sel = self.Selection
         ndExp = (
-            (nd, nd.Expanded)
-            for nd in self.nodes
-            if ((not nd.IsRootNode) or self.ShowRootNode)
+            (nd, nd.Expanded) for nd in self.nodes if ((not nd.IsRootNode) or self.ShowRootNode)
         )
         self.collapseAll()
         for nd, exp in ndExp:
@@ -876,9 +868,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    def makeDirTree(
-        self, dirPath, wildcard=None, ignored=None, showHidden=False, expand=False
-    ):
+    def makeDirTree(self, dirPath, wildcard=None, ignored=None, showHidden=False, expand=False):
         """
         Make this dTreeView show a filesystem directory hierarchy. You
         can specify a wildcard pattern: e.g., "\*py" will only include files
@@ -980,9 +970,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
     def _setAbsoluteFontZoom(self, newZoom):
         self._currFontZoom = newZoom
         for node in self.nodes:
-            origFontSize = node._origFontSize = getattr(
-                node, "_origFontSize", node.FontSize
-            )
+            origFontSize = node._origFontSize = getattr(node, "_origFontSize", node.FontSize)
             fontSize = origFontSize + newZoom
             if fontSize > 1:
                 node.FontSize = fontSize
@@ -1083,9 +1071,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         mp = self.getMousePosition()
         idval, flag = self.HitTest(mp)
         overFlags = (
-            wx.TREE_HITTEST_ONITEMICON
-            | wx.TREE_HITTEST_ONITEMINDENT
-            | wx.TREE_HITTEST_ONITEMLABEL
+            wx.TREE_HITTEST_ONITEMICON | wx.TREE_HITTEST_ONITEMINDENT | wx.TREE_HITTEST_ONITEMLABEL
         )
         if includeSpace:
             overFlags = overFlags | wx.TREE_HITTEST_ONITEMRIGHT
@@ -1133,11 +1119,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         if self.ShowRootNode:
             return [self._rootNode]
         else:
-            return [
-                nd
-                for nd in self.nodes
-                if nd.parent is not None and nd.parent.IsRootNode
-            ]
+            return [nd for nd in self.nodes if nd.parent is not None and nd.parent.IsRootNode]
 
     def _getEditable(self):
         return self._hasWindowStyleFlag(wx.TR_EDIT_LABELS)
@@ -1214,10 +1196,8 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
                         self.SelectItem(itm.itemID, True)
                 else:
                     if len(node) > 1:
-                        log.error(
-                            _(
-                                "Attempting to select multiple nodes when MultipleSelect is False"
-                            )
+                        dabo_module.error(
+                            _("Attempting to select multiple nodes when MultipleSelect is False")
                         )
                     self.SelectItem(node[0].itemID)
             else:
@@ -1471,9 +1451,7 @@ if __name__ == "__main__":
             sz.DefaultBorder = 7
             sz.DefaultBorderLeft = sz.DefaultBorderTop = True
 
-            chk = dCheckBox(
-                mp, Caption="Editable", DataSource=tree, DataField="Editable"
-            )
+            chk = dCheckBox(mp, Caption="Editable", DataSource=tree, DataField="Editable")
             sz.append(chk, halign="Left")
 
             chk = dCheckBox(
@@ -1484,19 +1462,13 @@ if __name__ == "__main__":
             )
             sz.append(chk, halign="Left")
 
-            chk = dCheckBox(
-                mp, Caption="ShowButtons", DataSource=tree, DataField="ShowButtons"
-            )
+            chk = dCheckBox(mp, Caption="ShowButtons", DataSource=tree, DataField="ShowButtons")
             sz.append(chk, halign="Left")
 
-            chk = dCheckBox(
-                mp, Caption="ShowLines", DataSource=tree, DataField="ShowLines"
-            )
+            chk = dCheckBox(mp, Caption="ShowLines", DataSource=tree, DataField="ShowLines")
             sz.append(chk, halign="Left")
 
-            chk = dCheckBox(
-                mp, Caption="ShowRootNode", DataSource=tree, DataField="ShowRootNode"
-            )
+            chk = dCheckBox(mp, Caption="ShowRootNode", DataSource=tree, DataField="ShowRootNode")
             sz.append(chk, halign="Left")
 
             chk = dCheckBox(

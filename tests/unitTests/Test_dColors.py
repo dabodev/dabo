@@ -152,9 +152,7 @@ class TestTupleHexConversion(unittest.TestCase):
                 random.choice(list(range(256))),
                 random.choice(list(range(256))),
             )
-            self.assertEqual(
-                (a, b, c), dColors.colorTupleFromHex(dColors.tupleToHex((a, b, c)))
-            )
+            self.assertEqual((a, b, c), dColors.colorTupleFromHex(dColors.tupleToHex((a, b, c))))
 
     # Test Errors
     def testTupleToHexNegativeInput(self):
@@ -175,21 +173,13 @@ class TestTupleHexConversion(unittest.TestCase):
 
     def testTupleToHexNonIntegerInput(self):
         """tupleToHex should fail if anyone of the elements is a non-integer"""
-        self.assertRaises(
-            dColors.IntegerTypeError, dColors.tupleToHex, ("string", 1, 1)
-        )
-        self.assertRaises(
-            dColors.IntegerTypeError, dColors.tupleToHex, (1, "string", 1)
-        )
-        self.assertRaises(
-            dColors.IntegerTypeError, dColors.tupleToHex, (1, 1, "string")
-        )
+        self.assertRaises(dColors.IntegerTypeError, dColors.tupleToHex, ("string", 1, 1))
+        self.assertRaises(dColors.IntegerTypeError, dColors.tupleToHex, (1, "string", 1))
+        self.assertRaises(dColors.IntegerTypeError, dColors.tupleToHex, (1, 1, "string"))
 
     def testHexToTupleBadHexInput(self):
         """colorTupleFromHex should fail when a non-hex character is entered"""
-        self.assertRaises(
-            dColors.InvalidCharError, dColors.colorTupleFromHex, "#$%uidkxb"
-        )
+        self.assertRaises(dColors.InvalidCharError, dColors.colorTupleFromHex, "#$%uidkxb")
 
     def testHexToTupleCaseInsensitive(self):
         """colorTupleFromHex should accept and give same result for both upper and lowercase input"""
@@ -240,9 +230,7 @@ class TestColorTupleFromName(unittest.TestCase):
     def testColorNameError(self):
         """colorTupleFromName should fail when given a string that is not a valid color name, hex string,
         or color tuple string"""
-        self.assertRaises(
-            KeyError, dColors.colorTupleFromName, "Some Invalid Color Name"
-        )
+        self.assertRaises(KeyError, dColors.colorTupleFromName, "Some Invalid Color Name")
 
 
 class TestColorTupleFromString(unittest.TestCase):

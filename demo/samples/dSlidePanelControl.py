@@ -17,14 +17,10 @@ class TestPanel(dPanel):
     def afterInit(self):
         self.Sizer = dSizer("v")
 
-        self.slideControl = dSlidePanelControl(
-            self, ExpandContent=False, SingleClick=True
-        )
+        self.slideControl = dSlidePanelControl(self, ExpandContent=False, SingleClick=True)
         self.Sizer.append1x(self.slideControl)
 
-        self.slidePanel1 = dSlidePanel(
-            self.slideControl, Caption="First", BackColor="orange"
-        )
+        self.slidePanel1 = dSlidePanel(self.slideControl, Caption="First", BackColor="orange")
         self.slidePanel2 = dSlidePanel(
             self.slideControl,
             Caption="Second",
@@ -52,9 +48,7 @@ class TestPanel(dPanel):
 
         self.slidePanel2.Sizer = dSizer("v")
         self.slidePanel2.Sizer.append(
-            dLabel(
-                self.slidePanel2, Caption="Tea For Two", FontItalic=True, FontSize=24
-            )
+            dLabel(self.slidePanel2, Caption="Tea For Two", FontItalic=True, FontSize=24)
         )
 
         def collapse3(evt):

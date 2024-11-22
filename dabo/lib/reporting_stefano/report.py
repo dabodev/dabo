@@ -62,9 +62,7 @@ class Page(Serializable):
 
     def __init__(self, **args):
         super(Page, self).__init__(**args)
-        self.header = self.footer = self.background = self.foreground = self.detail = (
-            None
-        )
+        self.header = self.footer = self.background = self.foreground = self.detail = None
 
     def height(self):
         return self.size[1]
@@ -89,16 +87,12 @@ class Page(Serializable):
     def _drawBackground(self, canvas, env):
         if self.background:
             self.background.evaluateObjects(env)
-            self.background.draw(
-                canvas, "background"
-            )  # bandOutline * self.ShowBandOutlines)
+            self.background.draw(canvas, "background")  # bandOutline * self.ShowBandOutlines)
 
     def _drawForeground(self, canvas, env):
         if self.foreground:
             self.foreground.evaluateObjects(env)
-            self.foreground.draw(
-                canvas, "foreground"
-            )  # bandOutline * self.ShowBandOutlines)
+            self.foreground.draw(canvas, "foreground")  # bandOutline * self.ShowBandOutlines)
 
     def _placeStaticBands(self, env):
         if self.background:
@@ -153,9 +147,7 @@ class Page(Serializable):
             self._placeDetailBand()
             self.detail.evaluateObjects(detailEnv)
             bandOutline = "%s (record %s)" % ("detail", recordNumber)
-            self.detail.draw(
-                canvas, bandOutline
-            )  # bandOutline * self.ShowBandOutlines)
+            self.detail.draw(canvas, bandOutline)  # bandOutline * self.ShowBandOutlines)
         self._drawForeground(canvas, env)
 
     def _beginPage(self, canvas, env):

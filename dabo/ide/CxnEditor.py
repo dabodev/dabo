@@ -103,9 +103,7 @@ class EditorForm(dForm):
             RegID="connectionSelector",
             OnHit=self.onConnectionChange,
         )
-        btn = dButton(
-            self.bg, Caption=_("Edit Name"), RegID="cxnEdit", OnHit=self.onCxnEdit
-        )
+        btn = dButton(self.bg, Caption=_("Edit Name"), RegID="cxnEdit", OnHit=self.onCxnEdit)
         hsz = dSizer("h")
         hsz.append(ctl)
         hsz.appendSpacer(10)
@@ -179,9 +177,7 @@ class EditorForm(dForm):
 
         # Password
         cap = dLabel(self.bg, Caption=_("Password"))
-        ctl = dTextBox(
-            self.bg, PasswordEntry=True, DataSource="form", DataField="password"
-        )
+        ctl = dTextBox(self.bg, PasswordEntry=True, DataSource="form", DataField="password")
         gbsz.append(cap, halign="right")
         gbsz.append(ctl, "expand")
         self.pwText = ctl
@@ -189,12 +185,8 @@ class EditorForm(dForm):
         # Open Button
         btnSizer1 = dSizer("h")
         btnSizer2 = dSizer("h")
-        btnTest = dButton(
-            self.bg, RegID="btnTest", Caption=_("Test..."), OnHit=self.onTest
-        )
-        btnSave = dButton(
-            self.bg, RegID="btnSave", Caption=_("Save"), OnHit=self.onSave
-        )
+        btnTest = dButton(self.bg, RegID="btnTest", Caption=_("Test..."), OnHit=self.onTest)
+        btnSave = dButton(self.bg, RegID="btnSave", Caption=_("Save"), OnHit=self.onSave)
         btnNewConn = dButton(
             self.bg,
             RegID="btnNewConn",
@@ -204,9 +196,7 @@ class EditorForm(dForm):
         btnNewFile = dButton(
             self.bg, RegID="btnNewFile", Caption=_("New File"), OnHit=self.onNewFile
         )
-        btnOpen = dButton(
-            self.bg, RegID="btnOpen", Caption=_("Open File..."), OnHit=self.onOpen
-        )
+        btnOpen = dButton(self.bg, RegID="btnOpen", Caption=_("Open File..."), OnHit=self.onOpen)
         btnSizer1.append(btnTest, 0, border=3)
         btnSizer1.append(btnSave, 0, border=3)
         btnSizer2.append(btnNewConn, 0, border=3)
@@ -504,9 +494,7 @@ class EditorForm(dForm):
         if self.connFile:
             # Make sure that the passed file exists!
             if not os.path.exists(self.connFile):
-                dabo.log.error(
-                    _("The connection file '%s' does not exist.") % self.connFile
-                )
+                dabo.log.error(_("The connection file '%s' does not exist.") % self.connFile)
                 self.connFile = None
 
         if self.connFile is None:
@@ -529,9 +517,7 @@ class EditorForm(dForm):
             # Set the current connection
             self.currentConn = list(self.connDict.keys())[0]
             # Set the form caption
-            self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(
-                self.connFile
-            )
+            self.Caption = _("Dabo Connection Editor: %s") % os.path.basename(self.connFile)
             # Fill the controls
             self._opening = True
             self.populate()
@@ -549,9 +535,7 @@ class EditorForm(dForm):
             # Could be relative path differences
             self.relPaths(list(self.connDict.values()))
         if self._origConnDict != self.connDict:
-            response = dabo.ui.areYouSure(
-                _("Do you wish to save your changes?"), cancelButton=True
-            )
+            response = dabo.ui.areYouSure(_("Do you wish to save your changes?"), cancelButton=True)
             if response is None:
                 return False
             elif response:
@@ -561,9 +545,7 @@ class EditorForm(dForm):
     def writeChanges(self):
         if self.connFile == self.newFileName:
             # Ask for a file name
-            pth = dabo.ui.getSaveAs(
-                message=_("Save File As..."), wildcard=self.fileExtension
-            )
+            pth = dabo.ui.getSaveAs(message=_("Save File As..."), wildcard=self.fileExtension)
             if pth is None:
                 return
             else:
@@ -595,9 +577,7 @@ class EditorForm(dForm):
             if self.isFileBasedBackend(val["dbtype"]):
                 db = val["database"]
                 if os.path.exists(db):
-                    val["database"] = utils.relativePath(
-                        db, self.Application.HomeDirectory
-                    )
+                    val["database"] = utils.relativePath(db, self.Application.HomeDirectory)
         return vals
 
     def _getCrypto(self):
@@ -610,9 +590,7 @@ class EditorForm(dForm):
         _getCrypto,
         None,
         None,
-        _(
-            "A reference to the application-supplied encryption object (dabo.lib.SimpleCrypt)"
-        ),
+        _("A reference to the application-supplied encryption object (dabo.lib.SimpleCrypt)"),
     )
 
 

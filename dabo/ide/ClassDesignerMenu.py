@@ -124,9 +124,7 @@ def mkDesignerMenu(parent, target=None):
             _("Single &File for Layout and Code"),
             OnHit=app.onToggleSaveType,
             ItemID="file_singlefile",
-            help=_(
-                "Toggle whether you want code saved in the XML or in a separate file"
-            ),
+            help=_("Toggle whether you want code saved in the XML or in a separate file"),
             menutype="check",
         )
         itm.Checked = target.Application.getUserSetting("saveCodeInXML", False)

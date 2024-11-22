@@ -52,9 +52,7 @@ class TestPanel(dPanel):
         return self.pgf
 
     def onPageChanged(self, evt):
-        self.Form.logit(
-            "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
-        )
+        self.Form.logit("Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum))
 
     def onNewPosition(self, evt):
         newpos = evt.EventObject.StringValue

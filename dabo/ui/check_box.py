@@ -141,9 +141,7 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
         _getValue,
         _setValue,
         None,
-        _(
-            "Specifies the current state of the control (the value of the field). (varies)"
-        ),
+        _("Specifies the current state of the control (the value of the field). (varies)"),
     )
 
     DynamicAlignment = makeDynamicProperty(Alignment)

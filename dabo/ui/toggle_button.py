@@ -31,10 +31,7 @@ class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButto
         else:
             bw = self._extractKey((properties, kwargs), "BezelWidth", 5)
         kwargs["BezelWidth"] = bw
-        style = (
-            self._extractKey((properties, attProperties, kwargs), "style", 0)
-            | wx.BORDER_NONE
-        )
+        style = self._extractKey((properties, attProperties, kwargs), "style", 0) | wx.BORDER_NONE
         kwargs["style"] = style
         dImageMixin.__init__(self)
         dDataControlMixin.__init__(

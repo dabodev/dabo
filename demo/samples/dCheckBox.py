@@ -17,9 +17,7 @@ class TestPanel(dPanel):
         sz = self.Sizer = dSizer("v", DefaultBorder=20, DefaultBorderLeft=True)
         sz.appendSpacer(25)
 
-        chk = dCheckBox(
-            self, Caption="Left-Aligned Check Box", Alignment="Left", Name="LeftCheck"
-        )
+        chk = dCheckBox(self, Caption="Left-Aligned Check Box", Alignment="Left", Name="LeftCheck")
         chk.bindEvent(dEvents.Hit, self.onCheckHit)
         sz.append(chk, halign="center")
         sz.appendSpacer(10)

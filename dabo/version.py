@@ -1,4 +1,15 @@
-__version__ = "3.1.0"
+from pathlib import Path
+
+import tomllib as toml
+
+
+def get_version():
+    # pyproject.toml is in the directory above this file
+    pyproj_file = Path(__file__).parent.parent / "pyproject.toml"
+    with open(pyproj_file, "rb") as ff:
+        config = toml.load(ff)
+    return config.get("project", {}).get("version", "0.0.0")
+
 
 if __name__ == "__main__":
-    print(__version__)
+    print(get_version())

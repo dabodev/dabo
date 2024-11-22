@@ -2,10 +2,11 @@
 import logging
 import time
 
-from . import biz
+from . import main
+from . import settings
 from .dLocalize import _
-# import eventLogging
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dEvent(object):
@@ -34,7 +35,7 @@ class dEvent(object):
         if eventData:
             self._eventData.update(eventData)
 
-        if eventLogging:
+        if settings.eventLogging:
             self._logEvent()
 
     def appliesToClass(eventClass, objectClass):
@@ -57,6 +58,7 @@ class dEvent(object):
         """Place ui-specific stuff into the ui-agnostic EventData dictionary."""
         # Need to do this here to avoid circular import
         from . import ui
+
         eventData = {}
         nativeEvent = self._uiEvent
         kwargs = self._kwargs
@@ -95,16 +97,16 @@ class dEvent(object):
         if eventName not in noLogEvents:
             for logEventName in logEvents:
                 if logEventName.lower() == "all" or logEventName == eventName:
-                    holdLevel = log.level
-                    log.setLevel(logging.INFO)
-                    log.info(
+                    holdLevel = dabo_module.level
+                    dabo_module.setLevel(logging.INFO)
+                    dabo_module.info(
                         "dEvent Fired: %s %s"
                         % (
                             self._eventObject,
                             self.__class__.__name__,
                         )
                     )
-                    log.setLevel(holdLevel)
+                    dabo_module.setLevel(holdLevel)
                     break
 
     def __getattr__(self, att):
@@ -168,6 +170,8 @@ Event = dEvent
 
 class DataEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import biz
+
         return issubclass(objectClass, biz.dBizobj)
 
     appliesToClass = classmethod(appliesToClass)
@@ -255,6 +259,7 @@ class SpinnerEvent(dEvent):
 class ReportEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
         from ..dReportWriter import dReportWriter
+
         try:
             return issubclass(objectClass, dReportWriter)
         except AttributeError:

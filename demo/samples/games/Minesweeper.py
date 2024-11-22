@@ -393,11 +393,7 @@ class Board(dPanel):
         if bd[square]["adjacent"] == 0:
             bd[square]["obj"].Visible = False
             for sq in self.getAdjacentSquares(square):
-                if (
-                    bd[sq]["adjacent"] == 0
-                    and bd[sq]["mine"] == False
-                    and bd[sq]["obj"].Visible
-                ):
+                if bd[sq]["adjacent"] == 0 and bd[sq]["mine"] == False and bd[sq]["obj"].Visible:
                     bd[sq]["obj"].Visible = False
                     self.clearZeros(sq)
                 else:
@@ -684,9 +680,7 @@ class MinesweeperForm(dForm):
         self.lblGameInfo.Caption = "%sx%s,%s" % (s[0], s[1], m)
 
     def onEditPreferences(self, evt):
-        if self.board._GameInProgress and (
-            self.pausebutton.Value or self.board.StopWatch.Running
-        ):
+        if self.board._GameInProgress and (self.pausebutton.Value or self.board.StopWatch.Running):
             dabo.ui.stop("Please end your game before changing the preferences.")
             return
         dlg = PreferenceDialog(self)
@@ -730,9 +724,7 @@ class MinesweeperForm(dForm):
         if gameId < 0 or gameId is None:
             dabo.ui.stop("Please select a preset game in Preferences first.")
             return
-        if dabo.ui.areYouSure(
-            "Viewing the high scores requires an internet connection. Continue?"
-        ):
+        if dabo.ui.areYouSure("Viewing the high scores requires an internet connection. Continue?"):
             conn = dabo.db.dConnection(MinesweeperCI())
             biz = MinesweeperBO_scores(conn)
             biz.GameId = gameId
@@ -742,9 +734,7 @@ class MinesweeperForm(dForm):
                 print("\nTop %d Scores for %s:" % (biz.Limit, biz.Record.gamename))
                 for idx, r in enumerate(ds):
                     r["row"] = idx + 1
-                    print(
-                        "\t%(row)d) %(playername)s: %(timestamp)s: %(time).3f sec." % r
-                    )
+                    print("\t%(row)d) %(playername)s: %(timestamp)s: %(time).3f sec." % r)
                 print("\n")
             else:
                 print("No high scores for this game yet.")
@@ -852,9 +842,7 @@ this to work."""
                     biz.Record.gamedefid = self.preset["Id"]
                     biz.Record.time = self.board.StopWatch.Value
                     biz.save()
-                    self.Application.PreferenceManager.playername = (
-                        biz.Record.playername
-                    )
+                    self.Application.PreferenceManager.playername = biz.Record.playername
                     break
                 except dabo.dException.BusinessRuleViolation as e:
                     dabo.ui.exclaim(ustr(e))

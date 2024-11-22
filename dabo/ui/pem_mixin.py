@@ -12,13 +12,14 @@ from ..dObject import dObject
 from .. import lib
 from .. import ui
 from .. import events
+from .. import main
+from .. import settings
 from ..dLocalize import _
 from ..lib.utils import ustr
 from ..lib.utils import dictStringify
 from ..ui import makeDynamicProperty
 
-# import fastNameSet
-# import log
+dabo_module = main.get_dabo_package()
 
 
 class dPemMixin(dObject):
@@ -225,7 +226,7 @@ class dPemMixin(dObject):
 
         dObject.__init__(self)
 
-        if fastNameSet:
+        if settings.fastNameSet:
             # Event AutoBinding is set to happen when the Name property changes, but
             # with fastNameSet on, that never happened. Call it manually:
             self.autoBindEvents()
@@ -377,7 +378,7 @@ class dPemMixin(dObject):
         If a Name is given explicitly, a NameError will be raised if
         the given Name isn't unique among siblings.
         """
-        if not fastNameSet:
+        if not settings.fastNameSet:
             name, _explicitName = self._processName(kwargs, self.__class__.__name__)
             self._initName(name, _explicitName=_explicitName)
 
@@ -635,16 +636,12 @@ class dPemMixin(dObject):
                 # Empty method string; this is a sign of a bug in the UI code.
                 # Log it and continue
                 nm = self.Name
-                log.error(
-                    _("Empty Event Binding: Object: %(nm)s; Event: %(evt)s") % locals()
-                )
+                dabo_module.error(_(f"Empty Event Binding: Object: {nm}; Event: {evt}"))
                 continue
             try:
                 mthd = eval(mthdString)
             except (AttributeError, NameError) as e:
-                log.error(
-                    _("Could not evaluate method '%(mthdString)s': %(e)s") % locals()
-                )
+                dabo_module.error(_(f"Could not evaluate method '{mthdString}': {e}"))
                 continue
             self.bindEvent(evt, mthd)
 
@@ -838,10 +835,7 @@ class dPemMixin(dObject):
         # Hide a problem on Windows where a single context event will
         # be raised twice.
         now = time.time()
-        if (
-            not hasattr(self, "_lastContextMenuTime")
-            or (now - self._lastContextMenuTime) > 0.001
-        ):
+        if not hasattr(self, "_lastContextMenuTime") or (now - self._lastContextMenuTime) > 0.001:
             self._lastContextMenuTime = time.time()
             self.raiseEvent(events.ContextMenu, evt)
 
@@ -1076,7 +1070,7 @@ class dPemMixin(dObject):
             except ui.assertionException:
                 # Too many 'unlockDisplay' calls to the same object were made. Log
                 # the mistake, but don't throw a Python error.
-                log.error(_("Extra call to unlockDisplay() for object %s") % self)
+                dabo_module.error(_("Extra call to unlockDisplay() for object %s") % self)
 
     def unlockDisplayAll(self):
         """
@@ -1111,7 +1105,7 @@ class dPemMixin(dObject):
                     # Create an error log message. We can't record the obj reference,
                     # since it is most likely deleted, but the presence of these messages
                     # will ensure that possible problems will not be silenced.
-                    log.error(_("Failed to unlock display: %s") % e)
+                    dabo_module.error(_("Failed to unlock display: %s") % e)
 
             release = __del__
 
@@ -1381,9 +1375,7 @@ class dPemMixin(dObject):
                 pass
 
         for kid in kids:
-            ok = hasattr(kid, prop) and (
-                not instancesOf or isinstance(kid, instancesOf)
-            )
+            ok = hasattr(kid, prop) and (not instancesOf or isinstance(kid, instancesOf))
             if ok:
                 if filt:
                     for ff in filt:
@@ -1399,9 +1391,7 @@ class dPemMixin(dObject):
                     setProp(kid, "Header%s" % prop, val)
             if recurse:
                 if hasattr(kid, "setAll"):
-                    kid.setAll(
-                        prop, val, recurse=recurse, filt=filt, instancesOf=instancesOf
-                    )
+                    kid.setAll(prop, val, recurse=recurse, filt=filt, instancesOf=instancesOf)
 
     def recreate(self, child=None):
         """
@@ -2251,9 +2241,7 @@ class dPemMixin(dObject):
             # Mac bug: need to clear the font from the control first
             # (Thanks Peter Damoc):
             self.SetFont(
-                wx.Font(
-                    12, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL
-                )
+                wx.Font(12, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
             )
         self.SetFont(self.Font._nativeFont)
         # Re-raise it so that the object can respond to the event.
@@ -2283,8 +2271,7 @@ class dPemMixin(dObject):
                     nameError = [
                         win
                         for win in children
-                        if win != self
-                        and kid_name_mapping.get(win, win.GetName()) == candidate
+                        if win != self and kid_name_mapping.get(win, win.GetName()) == candidate
                     ]
             i += 1
         return candidate
@@ -2314,9 +2301,7 @@ class dPemMixin(dObject):
         if self._constructed():
             mechanics[2](mechanics[1]() | flag)
         else:
-            self._preInitProperties[mechanics[0]] = (
-                self._preInitProperties[mechanics[0]] | flag
-            )
+            self._preInitProperties[mechanics[0]] = self._preInitProperties[mechanics[0]] | flag
 
     def _delWindowStyleFlag(self, flag, advanced=False):
         """Remove the flag from the window style."""
@@ -2324,9 +2309,7 @@ class dPemMixin(dObject):
         if self._constructed():
             mechanics[2](mechanics[1]() & (~flag))
         else:
-            self._preInitProperties[mechanics[0]] = self._preInitProperties[
-                mechanics[0]
-            ] & (~flag)
+            self._preInitProperties[mechanics[0]] = self._preInitProperties[mechanics[0]] & (~flag)
 
     # Property get/set/delete methods follow.
     def _getBackColor(self):
@@ -2602,7 +2585,7 @@ class dPemMixin(dObject):
             try:
                 self.SetFont(val._nativeFont)
             except AttributeError:
-                log.error(_("Error setting font for %s") % self.Name)
+                dabo_module.error(_("Error setting font for %s") % self.Name)
             val.bindEvent(events.FontPropertiesChanged, self._onFontPropsChanged)
         else:
             self._properties["Font"] = val
@@ -2832,7 +2815,7 @@ class dPemMixin(dObject):
                         try:
                             crsName = eval("uic.%s%s" % (prfx, valTitle))
                         except AttributeError:
-                            log.error(_("Invalid MousePointer value: '%s'") % val)
+                            dabo_module.error(_("Invalid MousePointer value: '%s'") % val)
                             return
                 crs = uic.getStockCursor(crsName)
             else:
@@ -2863,7 +2846,7 @@ class dPemMixin(dObject):
                 self._properties["NameBase"] = name
         else:
             currentName = self._getName()
-            if fastNameSet:
+            if settings.fastNameSet:
                 # The user is responsible for setting and unsetting the global fastNameSet
                 # flag. It means that they are initializing a bunch of objects and want good
                 # performance, and that they are taking responsibility for making sure the
@@ -2997,11 +2980,8 @@ class dPemMixin(dObject):
         try:
             self.Form.registerObject(self)
         except KeyError:
-            err = (
-                _("Attempt in object '%(self)s' to set duplicate RegID: '%(val)s'")
-                % locals()
-            )
-            log.error(err)
+            err = _("Attempt in object '%(self)s' to set duplicate RegID: '%(val)s'") % locals()
+            dabo_module.error(err)
             raise KeyError(err)
 
         # When the object's RegID is set, we need to autobind again:
@@ -3156,7 +3136,7 @@ class dPemMixin(dObject):
         try:
             return self.IsShown()
         except AttributeError:
-            log.error(_("The object %s does not support the Visible property.") % self)
+            dabo_module.error(_("The object %s does not support the Visible property.") % self)
             return None
 
     def _setVisible(self, val):
@@ -3164,9 +3144,7 @@ class dPemMixin(dObject):
             try:
                 self.Show(bool(val))
             except AttributeError:
-                log.error(
-                    _("The object %s does not support the Visible property.") % self
-                )
+                dabo_module.error(_("The object %s does not support the Visible property.") % self)
             try:
                 ui.callAfterInterval(100, self.Parent.layout)
             except AttributeError:
@@ -3271,9 +3249,7 @@ class dPemMixin(dObject):
         ),
     )
 
-    Caption = property(
-        _getCaption, _setCaption, None, _("The caption of the object. (str)")
-    )
+    Caption = property(_getCaption, _setCaption, None, _("The caption of the object. (str)"))
 
     Children = property(
         _getChildren,
@@ -3374,9 +3350,7 @@ class dPemMixin(dObject):
         _("Human-readable description of the current font settings. (str)"),
     )
 
-    FontFace = property(
-        _getFontFace, _setFontFace, None, _("Specifies the font face. (str)")
-    )
+    FontFace = property(_getFontFace, _setFontFace, None, _("Specifies the font face. (str)"))
 
     FontInfo = property(
         _getFontInfo,
@@ -3420,9 +3394,7 @@ class dPemMixin(dObject):
         _("Object reference to the dForm containing the object. Read-only. (dForm)."),
     )
 
-    Height = property(
-        _getHeight, _setHeight, None, _("Specifies the height of the object. (int)")
-    )
+    Height = property(_getHeight, _setHeight, None, _("Specifies the height of the object. (int)"))
 
     HelpContextText = property(
         _getHelpContextText,
@@ -3446,9 +3418,7 @@ class dPemMixin(dObject):
         ),
     )
 
-    Left = property(
-        _getLeft, _setLeft, None, _("Specifies the left position of the object. (int)")
-    )
+    Left = property(_getLeft, _setLeft, None, _("Specifies the left position of the object. (int)"))
 
     MaximumHeight = property(
         _getMaximumHeight,
@@ -3936,9 +3906,7 @@ class DrawObject(dObject):
             pw = 0
         if not pw:
             # No pen
-            pen = wx.Pen(
-                dColors.colorTupleFromName("black"), pw, wx.PENSTYLE_TRANSPARENT
-            )
+            pen = wx.Pen(dColors.colorTupleFromName("black"), pw, wx.PENSTYLE_TRANSPARENT)
         else:
             if self.PenColor is None:
                 pc = dColors.colorTupleFromName("black")
@@ -4342,9 +4310,7 @@ class DrawObject(dObject):
             self._yPos = val
             self.update()
 
-    Angle = property(
-        _getAngle, _setAngle, None, _("Angle (in degrees) to draw text  (int)")
-    )
+    Angle = property(_getAngle, _setAngle, None, _("Angle (in degrees) to draw text  (int)"))
 
     BackColor = property(
         _getBackColor,
@@ -4501,9 +4467,7 @@ class DrawObject(dObject):
         _getPenColor, _setPenColor, None, _("ForeColor of the shape's lines  (color)")
     )
 
-    PenWidth = property(
-        _getPenWidth, _setPenWidth, None, _("Width of the shape's lines  (int)")
-    )
+    PenWidth = property(_getPenWidth, _setPenWidth, None, _("Width of the shape's lines  (int)"))
 
     Points = property(
         _getPoints,
@@ -4530,9 +4494,7 @@ class DrawObject(dObject):
         _getRect,
         None,
         None,
-        _(
-            "Reference to a wx.Rect that encompasses the drawn object (read-only) (wx.Rect)"
-        ),
+        _("Reference to a wx.Rect that encompasses the drawn object (read-only) (wx.Rect)"),
     )
 
     Size = property(
@@ -4567,9 +4529,7 @@ class DrawObject(dObject):
         _("Controls whether the shape is drawn.  (bool)"),
     )
 
-    Width = property(
-        _getWidth, _setWidth, None, _("For rectangles, the width of the shape  (int)")
-    )
+    Width = property(_getWidth, _setWidth, None, _("For rectangles, the width of the shape  (int)"))
 
     Xpos = property(
         _getXpos,

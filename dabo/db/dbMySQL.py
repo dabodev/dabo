@@ -159,9 +159,7 @@ class MySQL(dBackend):
         return tuple(tables)
 
     def getTableRecordCount(self, tableName, cursor):
-        cursor.execute(
-            "select count(*) as ncount from %s" % self.encloseNames(tableName)
-        )
+        cursor.execute("select count(*) as ncount from %s" % self.encloseNames(tableName))
         return cursor.getDataSet()[0]["ncount"]
 
     def getFields(self, tableName, cursor):
@@ -254,9 +252,7 @@ class MySQL(dBackend):
         """MySQL's fulltext search expression"""
         return """ match (`%(table)s`.`%(field)s`) against ("%(value)s") """
 
-    def createTableAndIndexes(
-        self, tabledef, cursor, createTable=True, createIndexes=True
-    ):
+    def createTableAndIndexes(self, tabledef, cursor, createTable=True, createIndexes=True):
         if not tabledef.Name:
             raise
 
@@ -291,34 +287,13 @@ class MySQL(dBackend):
 
                 elif fld.DataType == "Float":
                     if fld.Size in (0, 1, 2, 3, 4):
-                        sql = (
-                            sql
-                            + "FLOAT("
-                            + ustr(fld.TotalDP)
-                            + ","
-                            + ustr(fld.RightDP)
-                            + ") "
-                        )
+                        sql = sql + "FLOAT(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
                     elif fld.Size in (5, 6, 7, 8):
-                        sql = (
-                            sql
-                            + "DOUBLE("
-                            + ustr(fld.TotalDP)
-                            + ","
-                            + ustr(fld.RightDP)
-                            + ") "
-                        )
+                        sql = sql + "DOUBLE(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
                     else:
                         raise  # what should happen?
                 elif fld.DataType == "Decimal":
-                    sql = (
-                        sql
-                        + "DECIMAL("
-                        + ustr(fld.TotalDP)
-                        + ","
-                        + ustr(fld.RightDP)
-                        + ") "
-                    )
+                    sql = sql + "DECIMAL(" + ustr(fld.TotalDP) + "," + ustr(fld.RightDP) + ") "
                 elif fld.DataType == "String":
                     if fld.Size <= 255:
                         sql = sql + "VARCHAR(" + ustr(fld.Size) + ") "
@@ -365,12 +340,7 @@ class MySQL(dBackend):
                     sql = sql + ","
 
                 if sql.count("PRIMARY KEY ") > 1:
-                    sql = (
-                        sql.replace("PRIMARY KEY ", "")
-                        + "PRIMARY KEY("
-                        + ",".join(pks)
-                        + "),"
-                    )
+                    sql = sql.replace("PRIMARY KEY ", "") + "PRIMARY KEY(" + ",".join(pks) + "),"
 
             if sql[-1:] == ",":
                 sql = sql[:-1]

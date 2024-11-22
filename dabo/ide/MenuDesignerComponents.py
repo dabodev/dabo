@@ -37,9 +37,8 @@ class MenuSaverMixin(object):
                 else:
                     ref = "."
                 ref = os.path.abspath(ref)
-                val = (
-                    dabo.lib.utils.getPathAttributePrefix()
-                    + dabo.lib.utils.relativePath(val, ref)
+                val = dabo.lib.utils.getPathAttributePrefix() + dabo.lib.utils.relativePath(
+                    val, ref
                 )
             if isinstance(val, str):
                 strval = val
@@ -52,9 +51,7 @@ class MenuSaverMixin(object):
                 evalStrVal = None
             ra[prop] = val
         ret["children"] = [
-            kid.getDesignerDict()
-            for kid in self.Children
-            if hasattr(kid, "getDesignerDict")
+            kid.getDesignerDict() for kid in self.Children if hasattr(kid, "getDesignerDict")
         ]
         return ret
 
@@ -409,9 +406,7 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         _("Action to be called when a menu item is selected.  (str)"),
     )
 
-    Caption = property(
-        _getCaption, _setCaption, None, _("Caption displayed on this panel  (str)")
-    )
+    Caption = property(_getCaption, _setCaption, None, _("Caption displayed on this panel  (str)"))
 
     Controller = property(
         _getController,
@@ -476,9 +471,7 @@ class CaptionPanel(MenuSaverMixin, dPanel):
         _("Is the Shift key part of the hotkey combo?  (bool)"),
     )
 
-    MRU = property(
-        _getMRU, _setMRU, None, _("Should this menu be tracked for MRU lists  (bool)")
-    )
+    MRU = property(_getMRU, _setMRU, None, _("Should this menu be tracked for MRU lists  (bool)"))
 
     Selected = property(
         _getSelected,
@@ -566,9 +559,7 @@ class CaptionBitmapPanel(CaptionPanel):
             bmp = dabo.ui.strToBmp(val)
         self._setBitmap(bmp)
 
-    Bitmap = property(
-        _getBitmap, _setBitmap, None, _("Bitmap to display on the panel  (bitmap)")
-    )
+    Bitmap = property(_getBitmap, _setBitmap, None, _("Bitmap to display on the panel  (bitmap)"))
 
     DesignerProps = property(
         _getDesignerProps,
@@ -598,9 +589,7 @@ class SeparatorPanel(CaptionBitmapPanel):
     def afterInitAll(self):
         self.Height = 16
         midHt = self.Height / 2.0
-        self._line = self.drawLine(
-            4, midHt, self.Width - 4, midHt, penColor="gray", penWidth=1
-        )
+        self._line = self.drawLine(4, midHt, self.Width - 4, midHt, penColor="gray", penWidth=1)
         self._line.DynamicPoints = self.setLineWidth
         self._line.DynamicPenWidth = self.setLineThick
         self._kids.append(self._line)

@@ -28,9 +28,7 @@ def parseCodeFile(txt):
     codeObjs = codeParts[1:]
     # See if there are import statements
     imptLines = [
-        ln
-        for ln in imptPart.splitlines()
-        if ln.strip() and not ln.strip().startswith("#")
+        ln for ln in imptPart.splitlines() if ln.strip() and not ln.strip().startswith("#")
     ]
     ret["importStatements"] = "\n".join(imptLines)
 
@@ -233,15 +231,11 @@ def getSizerDefaults():
     szDefaults[dLabel] = dct
     szDefaults["dLabel"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update(
-        {"Proportion": 0, "Expand": False, "HAlign": "center", "VAlign": "middle"}
-    )
+    dct["G"].update({"Proportion": 0, "Expand": False, "HAlign": "center", "VAlign": "middle"})
     dct["H"].update({"Proportion": 1, "Expand": False, "HAlign": "center"})
     dct["V"].update({"Proportion": 0, "Expand": True, "VAlign": "middle"})
     dct = copy.deepcopy(defVals)
-    dct["G"].update(
-        {"Proportion": 1, "Expand": True, "HAlign": "center", "VAlign": "middle"}
-    )
+    dct["G"].update({"Proportion": 1, "Expand": True, "HAlign": "center", "VAlign": "middle"})
     dct["H"].update({"Proportion": 1, "Expand": True, "HAlign": "center"})
     dct["V"].update({"Proportion": 1, "Expand": True, "VAlign": "middle"})
     szDefaults[dLed] = dct
@@ -258,9 +252,7 @@ def getSizerDefaults():
     szDefaults[dOkCancelDialog] = dct
     szDefaults["dOkCancelDialog"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update(
-        {"Proportion": 0, "Expand": False, "ColExpand": True, "RowExpand": False}
-    )
+    dct["G"].update({"Proportion": 0, "Expand": False, "ColExpand": True, "RowExpand": False})
     dct["H"].update({"Proportion": 0, "Expand": False})
     dct["V"].update({"Proportion": 0, "Expand": False})
     szDefaults[dRadioList] = dct
@@ -327,9 +319,7 @@ def getSizerDefaults():
     szDefaults[dSplitter] = dct
     szDefaults["dSplitter"] = dct
     dct = copy.deepcopy(defVals)
-    dct["G"].update(
-        {"Proportion": 1, "Expand": True, "ColExpand": True, "RowExpand": False}
-    )
+    dct["G"].update({"Proportion": 1, "Expand": True, "ColExpand": True, "RowExpand": False})
     dct["H"].update({"Proportion": 1, "Expand": False})
     dct["V"].update({"Proportion": 0, "Expand": True})
     szDefaults[dTextBox] = dct

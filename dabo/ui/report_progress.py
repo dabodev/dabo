@@ -91,9 +91,7 @@ class dReportProgress(dPanel):
         _getProcessObject,
         _setProcessObject,
         None,
-        _(
-            """Specifies the object that is processing (a dReportWriter instance, for example)."""
-        ),
+        _("""Specifies the object that is processing (a dReportWriter instance, for example)."""),
     )
 
 

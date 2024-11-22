@@ -369,9 +369,7 @@ class dDataSet(tuple):
                 isolation_level="EXCLUSIVE",
             )
             if not hasattr(self, "_encoding"):
-                self._encoding = (
-                    self._connection.execute("PRAGMA encoding").fetchone()[0].lower()
-                )
+                self._encoding = self._connection.execute("PRAGMA encoding").fetchone()[0].lower()
             self._connection.text_factory = str
         if self._cursor is None:
             self._cursor = self._connection.cursor(factory=DictCursor)
@@ -473,9 +471,7 @@ class dDataSet(tuple):
         _getCursor,
         _setCursor,
         None,
-        _(
-            "Reference to the bizobj that 'owns' this data set. Default=None  (dCursorMixin)"
-        ),
+        _("Reference to the bizobj that 'owns' this data set. Default=None  (dCursorMixin)"),
     )
 
     Encoding = property(

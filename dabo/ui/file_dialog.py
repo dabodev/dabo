@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
+from .. import main
 from .. import ui
 from .. import dConstants
 from ..dLocalize import _
-# import dAppRef
 
 
 class OsDialogMixin(object):
@@ -124,7 +124,7 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
         else:
             self._multiple = False
         if parent is None:
-            parent = dAppRef.ActiveForm
+            parent = main.get_application().ActiveForm
         super(dFileDialog, self).__init__(
             parent=parent,
             message=message,
@@ -140,13 +140,11 @@ class dFolderDialog(OsDialogMixin, wx.DirDialog):
 
     _exposeFiles = False
 
-    def __init__(
-        self, parent=None, message=_("Choose a folder"), defaultPath="", wildcard="*.*"
-    ):
+    def __init__(self, parent=None, message=_("Choose a folder"), defaultPath="", wildcard="*.*"):
         self._multiple = False
         self._baseClass = dFolderDialog
         if parent is None:
-            parent = dAppRef.ActiveForm
+            parent = main.get_application().ActiveForm
         super(dFolderDialog, self).__init__(
             parent=parent,
             message=message,
@@ -169,7 +167,7 @@ class dSaveDialog(dFileDialog):
     ):
         self._baseClass = dSaveDialog
         if parent is None:
-            parent = dAppRef.ActiveForm
+            parent = main.get_application().ActiveForm
         super(dSaveDialog, self).__init__(
             parent=parent,
             message=message,

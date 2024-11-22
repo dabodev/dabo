@@ -122,9 +122,7 @@ def DesignerController():
                     for quote in quotes:
                         if expr.count(quote) >= 2:
                             name_candidate = expr[expr.find(quote) + 1 :]
-                            name_candidate = name_candidate[
-                                : name_candidate.find(quote)
-                            ]
+                            name_candidate = name_candidate[: name_candidate.find(quote)]
                             if name_candidate.strip():
                                 name = name_candidate
                             break
@@ -147,9 +145,7 @@ def DesignerController():
             object tree.
             """
             activeForm = self.ActiveForm
-            self.showPropSheet(
-                bringToTop=True, prop=prop, enableEditor=True, focusBack=activeForm
-            )
+            self.showPropSheet(bringToTop=True, prop=prop, enableEditor=True, focusBack=activeForm)
 
         def newObject(self, typ, mousePosition):
             """Add a new object of the passed type to the selected band."""
@@ -246,9 +242,7 @@ def DesignerController():
                     variableSelected = True
                 if isinstance(robj, Group):
                     groupSelected = True
-                if not newVariableMenuCreated and isinstance(
-                    robj, (Variables, Variable)
-                ):
+                if not newVariableMenuCreated and isinstance(robj, (Variables, Variable)):
                     menu.append("New variable", OnHit=onNewObject, Tag=Variable)
                     newVariableMenuCreated = True
                 if not newGroupMenuCreated and isinstance(robj, (Groups, Group)):
@@ -258,14 +252,10 @@ def DesignerController():
                     newObjectMenuCreated = True
                     objectChoices = dMenu(Caption="New object")
                     for choice in (Image, Line, Rectangle, String, Memo):
-                        objectChoices.append(
-                            choice.__name__, OnHit=onNewObject, Tag=choice
-                        )
+                        objectChoices.append(choice.__name__, OnHit=onNewObject, Tag=choice)
                     objectChoices.appendSeparator()
                     for choice in (SpanningLine, SpanningRectangle):
-                        objectChoices.append(
-                            choice.__name__, OnHit=onNewObject, Tag=choice
-                        )
+                        objectChoices.append(choice.__name__, OnHit=onNewObject, Tag=choice)
                     tc = self.ReportForm.get("TestCursor", [])
                     var = self.ReportForm.get("Variables", [])
                     if tc or var:
@@ -311,9 +301,7 @@ def DesignerController():
                 menu.append(_("Move to top"), HotKey="Ctrl+Shift+H", OnHit=onMoveToTop)
                 menu.append(_("Move up"), HotKey="Ctrl+H", OnHit=onMoveUp)
                 menu.append(_("Move down"), HotKey="Ctrl+J", OnHit=onMoveDown)
-                menu.append(
-                    _("Move to bottom"), HotKey="Ctrl+Shift+J", OnHit=onMoveToBottom
-                )
+                menu.append(_("Move to bottom"), HotKey="Ctrl+Shift+J", OnHit=onMoveToBottom)
 
             return menu
 
@@ -458,9 +446,7 @@ def DesignerController():
                 def __init__(self):
                     # wx.CustomDataObject.__init__(self, wx.CustomDataFormat("ReportObjectSelection"))
                     # self.SetFormat(wx.DataFormat("my data format"))
-                    wx.CustomDataObject.__init__(
-                        self, wx.DataFormat("ReportObjectSelection")
-                    )
+                    wx.CustomDataObject.__init__(self, wx.DataFormat("ReportObjectSelection"))
                     self.setObject([])
 
                 def setObject(self, objs):
@@ -508,9 +494,7 @@ def DesignerController():
                         elif parentInfo[0] == "Variables":
                             parent = rdc.ReportForm["Variables"]
                         elif "Group" in parentInfo[0]:
-                            parent = rdc.getGroupBandByExpr(parentInfo[1])[
-                                parentInfo[0]
-                            ]
+                            parent = rdc.getGroupBandByExpr(parentInfo[1])[parentInfo[0]]
                         else:
                             parent = rdc.ReportForm[parentInfo[0]]
                     obj = rw._getReportObject(memento["type"], parent)
@@ -564,9 +548,7 @@ def DesignerController():
 
         def delete(self):
             objs = [
-                obj
-                for obj in self.SelectedObjects
-                if not isinstance(obj, (Report, Band, list))
+                obj for obj in self.SelectedObjects if not isinstance(obj, (Report, Band, list))
             ]
             if not objs:
                 return
@@ -639,15 +621,11 @@ def DesignerController():
             for obj in objs:
                 if isinstance(obj, Variable):
                     # paste into Variables whether or not Variables selected
-                    pfObjects = self.ReportForm.setdefault(
-                        "Variables", Variables(self.ReportForm)
-                    )
+                    pfObjects = self.ReportForm.setdefault("Variables", Variables(self.ReportForm))
                     obj.parent = pfObjects
                 elif isinstance(obj, Group):
                     # paste into Groups whether or not Groups selected
-                    pfObjects = self.ReportForm.setdefault(
-                        "Groups", Groups(self.ReportForm)
-                    )
+                    pfObjects = self.ReportForm.setdefault("Groups", Groups(self.ReportForm))
                     obj.parent = pfObjects
                     reInit = True
                 else:
@@ -662,9 +640,7 @@ def DesignerController():
 
             if selBand and selBand.getProp("Height") is not None:
                 # Resize the pasted-into band to accomodate the new object, if necessary:
-                selBand.setProp(
-                    "Height", ustr(max(selBand.getProp("Height"), max_y_needed))
-                )
+                selBand.setProp("Height", ustr(max(selBand.getProp("Height"), max_y_needed)))
 
             self.ActiveEditor.propsChanged(reinit=reInit)
             self.SelectedObjects = selectedObjects
@@ -818,9 +794,7 @@ class ReportObjectTree(dTreeView):
     def onContextMenu(self, evt):
         evt.stop()
         self.syncSelected()
-        self.showContextMenu(
-            rdc.getContextMenu(mousePosition=evt.EventData["mousePosition"])
-        )
+        self.showContextMenu(rdc.getContextMenu(mousePosition=evt.EventData["mousePosition"]))
 
     def refreshTree(self):
         """Constructs the tree of report objects."""
@@ -1057,15 +1031,11 @@ class BandLabel(DesignerPanel):
                     dc = wx.WindowDC(self)
                     dc.Clear()
 
-                    self._dragImage = wx.DragImage(
-                        self._captureBitmap, wx.Cursor(wx.CURSOR_HAND)
-                    )
+                    self._dragImage = wx.DragImage(self._captureBitmap, wx.Cursor(wx.CURSOR_HAND))
 
                     # self._dragImage.BeginDragBounded((self.Parent.Left, ypos),
                     # self, self.Parent.Parent)
-                    self._dragImage.BeginDrag(
-                        (self.Parent.Left, ypos), self, self.Parent.Parent
-                    )
+                    self._dragImage.BeginDrag((self.Parent.Left, ypos), self, self.Parent.Parent)
                     self._dragImage.Show()
 
                 self._dragImage.Move((self.Parent.Left, ypos))
@@ -1092,9 +1062,7 @@ class BandLabel(DesignerPanel):
                     # Height is None, meaning it is to stretch dynamically at runtime.
                     # However, the user just overrode that by setting it explicitly.
                     if "height_def" in self.Parent.ReportObject:
-                        oldHeight = self.Parent._rw.getPt(
-                            self.Parent.getProp("Height_def")
-                        )
+                        oldHeight = self.Parent._rw.getPt(self.Parent.getProp("Height_def"))
                     else:
                         oldHeight = 75
                 newHeight = round(oldHeight + (yoffset / z), 1)
@@ -1345,7 +1313,9 @@ class DesignerBand(DesignerPanel):
             xFooter = rw.getPt(obj.getProp("xFooter"))
             yFooter = rw.getPt(obj.getProp("yFooter"))
             width = xFooter - x
-            height = y_  ## currently can't draw down to the footer because painting doesn't cross panels
+            height = (
+                y_  ## currently can't draw down to the footer because painting doesn't cross panels
+            )
         else:
             width = rw.getPt(obj.getProp("Width"))
             height = obj.getProp("Height")
@@ -1406,19 +1376,14 @@ class DesignerBand(DesignerPanel):
 
         columnCount = rdc.ReportForm.getProp("ColumnCount")
         columnPadding = self._rw.getPt(rdc.ReportForm.getProp("ColumnPadding"))
-        if (
-            isinstance(self.ReportObject, (Detail, GroupHeader, GroupFooter))
-            and columnCount > 1
-        ):
+        if isinstance(self.ReportObject, (Detail, GroupHeader, GroupFooter)) and columnCount > 1:
             # Cover up all but the first column:
             dc.SetBrush(wx.Brush((192, 192, 192), wx.BRUSHSTYLE_SOLID))
             dc.SetPen(wx.Pen((192, 192, 192), 0, wx.PENSTYLE_SOLID))
             colWidth = self.Width / columnCount
             if columnCount > 1:
                 colWidth -= columnPadding
-            dc.DrawRectangle(
-                colWidth, 0, colWidth * (columnCount - 1) + 10, self.Height
-            )
+            dc.DrawRectangle(colWidth, 0, colWidth * (columnCount - 1) + 10, self.Height)
 
     def _paintObj(self, obj, dc=None):
         import wx
@@ -1494,9 +1459,7 @@ class DesignerBand(DesignerPanel):
 
             dc.SetFont(font._nativeFont)
             if objType in ("Memo", "String"):
-                dc.SetTextForeground(
-                    self._rw.getColorTupleFromReportLab(obj.getProp("fontColor"))
-                )
+                dc.SetTextForeground(self._rw.getColorTupleFromReportLab(obj.getProp("fontColor")))
 
             top_fudge = 0.5  ## wx draws a tad too high
             left_fudge = 0.25  ## and a tad too far to the left
@@ -1514,9 +1477,7 @@ class DesignerBand(DesignerPanel):
             if False and rotation != 0:
                 # We lose the ability to have the alignment and exact rect positioning.
                 # But we get to show it rotated. The x,y values below are hacks.
-                dc.DrawRotatedText(
-                    expr, rect[0] + (rect[2] / 4), rect[3] - (rect[3] / 2), rotation
-                )
+                dc.DrawRotatedText(expr, rect[0] + (rect[2] / 4), rect[3] - (rect[3] / 2), rotation)
             else:
                 dc.DrawLabel(
                     expr,
@@ -1550,9 +1511,7 @@ class DesignerBand(DesignerPanel):
 
         if objType in ("Line", "SpanningLine"):
             strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
-            strokeColor = self._rw.getColorTupleFromReportLab(
-                obj.getProp("strokeColor")
-            )
+            strokeColor = self._rw.getColorTupleFromReportLab(obj.getProp("strokeColor"))
             dc.SetPen(wx.Pen(strokeColor, int(strokeWidth), wx.PENSTYLE_SOLID))
 
             if objType != "SpanningLine":
@@ -1610,9 +1569,7 @@ class DesignerBand(DesignerPanel):
 
                 if imageFile is not None:
                     if os.path.exists(imageFile) and not os.path.isdir(imageFile):
-                        bmp = self._cachedBitmaps.get(
-                            (imageFile, self.Parent.ZoomFactor), None
-                        )
+                        bmp = self._cachedBitmaps.get((imageFile, self.Parent.ZoomFactor), None)
                         if bmp is None:
                             import wx
 
@@ -1622,9 +1579,7 @@ class DesignerBand(DesignerPanel):
                             ## scalemode prop. For now, we just unconditionally rescale:
                             img.Rescale(rect[2], rect[3])
                             bmp = img.ConvertToBitmap()
-                            self._cachedBitmaps[(imageFile, self.Parent.ZoomFactor)] = (
-                                bmp
-                            )
+                            self._cachedBitmaps[(imageFile, self.Parent.ZoomFactor)] = bmp
                     else:
                         expr = "<< file not found >>"
                 else:
@@ -1632,9 +1587,7 @@ class DesignerBand(DesignerPanel):
             if bmp is not None:
                 dc.DrawBitmap(bmp, rect[0], rect[1])
             else:
-                dc.DrawLabel(
-                    expr, (rect[0] + 2, rect[1], rect[2] - 4, rect[3]), wx.ALIGN_LEFT
-                )
+                dc.DrawLabel(expr, (rect[0] + 2, rect[1], rect[2] - 4, rect[3]), wx.ALIGN_LEFT)
 
         dc.SetBrush(wx.Brush((0, 0, 0), wx.BRUSHSTYLE_TRANSPARENT))
 
@@ -1642,9 +1595,7 @@ class DesignerBand(DesignerPanel):
         if "BorderWidth" in obj:
             borderWidth = self._rw.getPt(obj.getProp("BorderWidth")) * self.Parent.Zoom
             if borderWidth > 0:
-                borderColor = self._rw.getColorTupleFromReportLab(
-                    obj.getProp("BorderColor")
-                )
+                borderColor = self._rw.getColorTupleFromReportLab(obj.getProp("BorderColor"))
                 dc.SetPen(wx.Pen(borderColor, int(borderWidth), wx.PENSTYLE_SOLID))
                 dc.DrawRectangle(rect[0], rect[1], rect[2], rect[3])
 
@@ -1848,9 +1799,7 @@ class ReportDesigner(dScrollPanel):
                         if isinstance(obj, Drawable):
                             return obj
 
-                if len(rdc.SelectedObjects) == 1 and isinstance(
-                    rdc.SelectedObjects[0], Band
-                ):
+                if len(rdc.SelectedObjects) == 1 and isinstance(rdc.SelectedObjects[0], Band):
                     selObj = [getNextDrawableInBand(rdc.SelectedObjects[0])]
                 if not selObj:
                     selObj = [getNextDrawableInBand(rdc.ReportForm["Detail"])]
@@ -1956,10 +1905,7 @@ class ReportDesigner(dScrollPanel):
                     newval = val + adj
                     newval = self._rw.ptToUnit(newval, unit)
 
-                    if (
-                        propName.lower() in ("width", "height")
-                        and self._rw.getPt(newval) < 0
-                    ):
+                    if propName.lower() in ("width", "height") and self._rw.getPt(newval) < 0:
                         # don't allow width or height to be negative
                         newval = "0 pt"
                     o.setProp(propName, repr(newval))

@@ -17,24 +17,16 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dEditableList
         preClass = wx_adv.EditableListBox
-        self._canAdd = self._extractKey(
-            (kwargs, properties, attProperties), "CanAdd", True
-        )
+        self._canAdd = self._extractKey((kwargs, properties, attProperties), "CanAdd", True)
         if isinstance(self._canAdd, str):
             self._canAdd = self._canAdd == "True"
-        self._canDelete = self._extractKey(
-            (kwargs, properties, attProperties), "CanDelete", True
-        )
+        self._canDelete = self._extractKey((kwargs, properties, attProperties), "CanDelete", True)
         if isinstance(self._canDelete, str):
             self._canDelete = self._canDelete == "True"
-        self._canOrder = self._extractKey(
-            (kwargs, properties, attProperties), "CanOrder", True
-        )
+        self._canOrder = self._extractKey((kwargs, properties, attProperties), "CanOrder", True)
         if isinstance(self._canOrder, str):
             self._canOrder = self._canOrder == "True"
-        self._editable = self._extractKey(
-            (kwargs, properties, attProperties), "Editable", True
-        )
+        self._editable = self._extractKey((kwargs, properties, attProperties), "Editable", True)
         style = self._extractKey((kwargs, properties, attProperties), "style", 0)
         if self._canAdd:
             # style = style  | wx.gizmos.EL_ALLOW_NEW

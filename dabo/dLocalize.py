@@ -135,9 +135,7 @@ def setLanguage(lang=None, charset=None):
     daboLocaleDir = _domains.get("settings", None)
     if daboLocaleDir:
         try:
-            daboTranslation = gettext.translation(
-                "settings", daboLocaleDir, languages=lang
-            )
+            daboTranslation = gettext.translation("settings", daboLocaleDir, languages=lang)
         except IOError:
             # No translation file found
             log.error(
@@ -149,9 +147,7 @@ No translation file found for domain 'settings'.
                 % (daboLocaleDir, ustr(lang), charset)
             )
             # Default to US English
-            daboTranslation = gettext.translation(
-                "settings", daboLocaleDir, languages=["en"]
-            )
+            daboTranslation = gettext.translation("settings", daboLocaleDir, languages=["en"])
         except ValueError:
             # Bad translation file
             log.error(
@@ -163,9 +159,7 @@ Bad translation file found for domain 'settings'.
                 % (daboLocaleDir, ustr(lang), charset)
             )
             # Default to US English
-            daboTranslation = gettext.translation(
-                "settings", daboLocaleDir, languages=["en"]
-            )
+            daboTranslation = gettext.translation("settings", daboLocaleDir, languages=["en"])
         _currentTrans = daboTranslation.gettext
 
     for domain, localedir in list(_domains.items()):
@@ -174,9 +168,7 @@ Bad translation file found for domain 'settings'.
         try:
             translation = gettext.translation(domain, localedir, languages=lang)
         except IOError:
-            log.error(
-                "No translation found for domain '%s' and language %s." % (domain, lang)
-            )
+            log.error("No translation found for domain '%s' and language %s." % (domain, lang))
             log.error(
                 """
 No translation file found for domain '%s'.

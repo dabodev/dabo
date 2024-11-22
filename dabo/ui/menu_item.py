@@ -46,9 +46,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
             # and re-raise Dabo events.Hit events. If Application
             # is None, however, this won't work because of wx limitations.
             self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, self)
-            self.Application.uiApp.Bind(
-                wx.EVT_MENU_HIGHLIGHT, self.__onWxMenuHighlight, self
-            )
+            self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT, self.__onWxMenuHighlight, self)
         # Handle delayed event bindings
         if self._delayedEventBindings:
             ui.callAfter(self._bindDelayed)
@@ -170,9 +168,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
     def _setParent(self, val):
         self._parent = val
 
-    Caption = property(
-        _getCaption, _setCaption, None, _("Specifies the text of the menu item.")
-    )
+    Caption = property(_getCaption, _setCaption, None, _("Specifies the text of the menu item."))
 
     Enabled = property(
         _getEnabled,
@@ -197,9 +193,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         _("Key combination that will trigger the menu  (str)"),
     )
 
-    Icon = property(
-        _getIcon, _setIcon, None, _("Specifies the icon for the menu item.")
-    )
+    Icon = property(_getIcon, _setIcon, None, _("Specifies the icon for the menu item."))
 
     ItemID = property(
         _getItemID,
@@ -297,9 +291,7 @@ class _AbstractExtendedMenuItem(dMenuItem):
         else:
             self._properties["Checked"] = val
 
-    Checked = property(
-        _getChecked, _setChecked, None, _("Is this menu item checked?  (bool)")
-    )
+    Checked = property(_getChecked, _setChecked, None, _("Is this menu item checked?  (bool)"))
 
 
 class dCheckMenuItem(_AbstractExtendedMenuItem):

@@ -228,9 +228,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
         _getHorizontalScroll,
         _setHorizontalScroll,
         None,
-        _(
-            "Controls whether this object will scroll horizontally (default=True)  (bool)"
-        ),
+        _("Controls whether this object will scroll horizontally (default=True)  (bool)"),
     )
 
     OpenLinksInBrowser = property(
@@ -247,18 +245,14 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
         _getPage,
         _setPage,
         None,
-        _(
-            "URL or file path of the current page being displayed. (default='')  (string)"
-        ),
+        _("URL or file path of the current page being displayed. (default='')  (string)"),
     )
 
     RespondToLinks = property(
         _getRespondToLinks,
         _setRespondToLinks,
         None,
-        _(
-            "When True (default), clicking a link will attempt to load that linked page.  (bool)"
-        ),
+        _("When True (default), clicking a link will attempt to load that linked page.  (bool)"),
     )
 
     SelectedText = property(

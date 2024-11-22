@@ -186,9 +186,7 @@ class DesignerClassConverter(dObject):
         code = src.get("code", {})
         classID = atts.get("classID", "")
         if classID:
-            superInfo = super.get(
-                classID, {"attributes": {}, "code": {}, "properties": {}}
-            )
+            superInfo = super.get(classID, {"attributes": {}, "code": {}, "properties": {}})
             src["attributes"] = superInfo["attributes"].copy()
             src["attributes"].update(atts)
             src["properties"] = superInfo.get("properties", {}).copy()
@@ -437,9 +435,7 @@ class DesignerClassConverter(dObject):
             childList = [childList]
         if not isinstance(specChildList, (list, tuple)):
             specChildList = [[specChildList]]
-        elif (len(specChildList) == 0) or not isinstance(
-            specChildList[0], (list, tuple)
-        ):
+        elif (len(specChildList) == 0) or not isinstance(specChildList[0], (list, tuple)):
             specChildList = [specChildList]
         for child in childList:
             nm = child.get("name")
@@ -486,9 +482,9 @@ class DesignerClassConverter(dObject):
             needPop = True
 
             clsname = self._extractKey(atts, "designerClass", "")
-            isSizer = (
-                clsname in ("LayoutSizer", "LayoutGridSizer", "LayoutBorderSizer")
-            ) or (nm in ("dSizer", "dBorderSizer", "dGridSizer"))
+            isSizer = (clsname in ("LayoutSizer", "LayoutGridSizer", "LayoutBorderSizer")) or (
+                nm in ("dSizer", "dBorderSizer", "dGridSizer")
+            )
             isTree = nm == "dTreeView"
             # This will get set to True if we process a splitter control
             isSplitter = False
@@ -537,9 +533,7 @@ class DesignerClassConverter(dObject):
                     szType = atts["Orientation"]
                     for unneeded in ("SlotCount", "classID"):
                         atts.pop(unneeded, None)
-                    propString = ", ".join(
-                        ["%s='%s'" % (k, v) for k, v in list(atts.items())]
-                    )
+                    propString = ", ".join(["%s='%s'" % (k, v) for k, v in list(atts.items())])
                     if isBorderSizer:
                         prnt = "currParent, "
                 if self.CreateDesignerControls:
@@ -684,11 +678,7 @@ class DesignerClassConverter(dObject):
                     # We need to handle Grids and PageFrames separately,
                     # since these 'children' are not random objects, but specific
                     # classes.
-                    if (
-                        ("ColumnCount" in atts)
-                        or ("PageCount" in atts)
-                        or ("PanelCount" in atts)
-                    ):
+                    if ("ColumnCount" in atts) or ("PageCount" in atts) or ("PanelCount" in atts):
                         # Grid, pageframe or slide panel
                         self.classText += LINESEP + self._complexCtlText
                         isGrid = "ColumnCount" in atts
@@ -706,9 +696,7 @@ class DesignerClassConverter(dObject):
                                 prntName = self.uniqename("sldpn")
                             self.classText += LINESEP + self._complexPrntRef % locals()
                         for kid in kids:
-                            kidCleanAtts = self.cleanAttributes(
-                                kid.get("attributes", {})
-                            )
+                            kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
                             if isGrid:
                                 self.classText += LINESEP + self._grdColText % locals()
                             elif isPageFrame or isSlidePanel:
@@ -720,9 +708,7 @@ class DesignerClassConverter(dObject):
                                 moduleString = "ui."
                                 classname = nm
                                 if code:
-                                    nm = self.createInnerClass(
-                                        nm, kidCleanAtts, code, {}
-                                    )
+                                    nm = self.createInnerClass(nm, kidCleanAtts, code, {})
                                     nm = "self.getCustControlClass('%s')" % nm
                                     moduleString = ""
                                 else:

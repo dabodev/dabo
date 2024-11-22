@@ -58,9 +58,7 @@ def getSmallDnArrowImage():
 
 # ----------------------------------------------------------------------
 class myListCtrl(wx.ListCtrl, listmix.ListCtrlAutoWidthMixin):
-    def __init__(
-        self, parent, ID=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0
-    ):
+    def __init__(self, parent, ID=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
         wx.ListCtrl.__init__(self, parent, ID, pos, size, style)
         listmix.ListCtrlAutoWidthMixin.__init__(self)
 
@@ -116,9 +114,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
         if not (showHead and multiChoices):
             flags = flags | wx.LC_NO_HEADER
         # Create the list and bind the events
-        self.dropdownlistbox = myListCtrl(
-            self.dropdown, style=flags, pos=wx.Point(0, 0)
-        )
+        self.dropdownlistbox = myListCtrl(self.dropdown, style=flags, pos=wx.Point(0, 0))
         # initialize the parent
         if multiChoices:
             ln = len(multiChoices)
@@ -128,9 +124,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
         listmix.ColumnSorterMixin.__init__(self, ln)
         # load the data
         if multiChoices:
-            self.SetMultipleChoices(
-                multiChoices, colSearch=colSearch, colFetch=colFetch
-            )
+            self.SetMultipleChoices(multiChoices, colSearch=colSearch, colFetch=colFetch)
         else:
             self.SetChoices(choices)
         gp = self
@@ -145,9 +139,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
         if dropDownClick:
             self.Bind(wx.EVT_LEFT_DOWN, self.onClickToggleDown, self)
             self.Bind(wx.EVT_LEFT_UP, self.onClickToggleUp, self)
-        self.dropdown.Bind(
-            wx.EVT_LISTBOX, self.onListItemSelected, self.dropdownlistbox
-        )
+        self.dropdown.Bind(wx.EVT_LISTBOX, self.onListItemSelected, self.dropdownlistbox)
         self.dropdownlistbox.Bind(wx.EVT_LEFT_DOWN, self.onListClick)
         self.dropdownlistbox.Bind(wx.EVT_LEFT_DCLICK, self.onListDClick)
         self.dropdownlistbox.Bind(wx.EVT_LIST_COL_CLICK, self.onListColClick)
@@ -199,10 +191,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
         if self._multiChoices:
             # load the sorted data into the listbox
             dd = self.dropdownlistbox
-            choices = [
-                dd.GetItem(x, self._colSearch).GetText()
-                for x in range(dd.GetItemCount())
-            ]
+            choices = [dd.GetItem(x, self._colSearch).GetText() for x in range(dd.GetItemCount())]
         else:
             choices = self._choices
         for numCh, choice in enumerate(choices):
@@ -301,8 +290,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
         self._updateDataList(self._multiChoices)
         if len(choices) < 2 or len(choices[0]) < 2:
             raise ValueError(
-                "You have to pass me a multi-dimension list with "
-                "at least two entries"
+                "You have to pass me a multi-dimension list with " "at least two entries"
             )
             # with only one entry, the dropdown artifacts
         for numCol, rowValues in enumerate(choices[0]):
@@ -314,9 +302,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
         for numRow, valRow in enumerate(choices):
             for numCol, colVal in enumerate(valRow):
                 if numCol == 0:
-                    index = self.dropdownlistbox.InsertImageStringItem(
-                        sys.maxsize, colVal, -1
-                    )
+                    index = self.dropdownlistbox.InsertImageStringItem(sys.maxsize, colVal, -1)
                 self.dropdownlistbox.SetStringItem(index, numCol, colVal)
                 self.dropdownlistbox.SetItemData(index, numRow)
         self._setListSize()
@@ -377,9 +363,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
             itemtext = self.dropdownlistbox.GetItem(sel, col).GetText()
             if self._selectCallback:
                 dd = self.dropdownlistbox
-                values = [
-                    dd.GetItem(sel, x).GetText() for x in range(dd.GetColumnCount())
-                ]
+                values = [dd.GetItem(sel, x).GetText() for x in range(dd.GetColumnCount())]
                 self._selectCallback(values)
             self.SetValue(itemtext)
             self.SetInsertionPointEnd()
@@ -553,9 +537,7 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
                 else:
                     colSearch = 0
             except ValueError:
-                raise ValueError(
-                    "SearchField '%s' is not a valid column name" % self.SearchField
-                )
+                raise ValueError("SearchField '%s' is not a valid column name" % self.SearchField)
 
             # Find fetch index
             try:
@@ -567,9 +549,7 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
                 else:
                     colFetch = -1
             except ValueError:
-                raise ValueError(
-                    "FetchField '%s' is not a valid column name" % self.FetchField
-                )
+                raise ValueError("FetchField '%s' is not a valid column name" % self.FetchField)
 
         self._colNames = colKeys if not self._userColNames else self._colNames
         self._setDynamicChoices(choices, colSearch=colSearch, colFetch=colFetch)
@@ -595,11 +575,7 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
             while len(choices) < 2:
                 choices.append(["" for col in self._dynamicChoices[0]])
         else:
-            choices = [
-                choice
-                for choice in self._dynamicChoices
-                if choice.lower().startswith(text)
-            ]
+            choices = [choice for choice in self._dynamicChoices if choice.lower().startswith(text)]
             while len(choices) < 2:
                 choices.append("")
         if choices != current_choices:
@@ -732,9 +708,7 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
     def _setChoices(self, choices):
         if self._constructed():
             if self.DataSource or self.DataSet:
-                raise ValueError(
-                    "Cannot set Choices: DataSource or DataSet already defined."
-                )
+                raise ValueError("Cannot set Choices: DataSource or DataSet already defined.")
             try:
                 choices[0]
             except:
@@ -897,9 +871,7 @@ if __name__ == "__main__":
             vs.appendSpacer(15)
             vs.append(dLabel(self, Caption="User defined choices (single-column)"))
             vs.append(
-                dAutoComplete(
-                    self, Choices=["Bob", "Joe", "Mary", "Bill", "Marcia", "Eric"]
-                ),
+                dAutoComplete(self, Choices=["Bob", "Joe", "Mary", "Bill", "Marcia", "Eric"]),
                 "x",
             )
             vs.appendSpacer(5)

@@ -181,9 +181,7 @@ class MyDaboMenu(dMenu):
         self.append(
             "has OnHit",
             help="help text 2",
-            OnHit=lambda *args, **kwargs: print(
-                f"dMenuItem OnHit: args {args}, kwargs {kwargs}"
-            ),
+            OnHit=lambda *args, **kwargs: print(f"dMenuItem OnHit: args {args}, kwargs {kwargs}"),
         )
         self.append(
             "has bmp",

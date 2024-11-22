@@ -99,9 +99,7 @@ class EasyDialogBuilder(object):
         box.DefaultBorderAll = True
 
         box.append1x(
-            self.makeControlSizer(
-                parent, controlFields, 5, 5, grid, hasRegIDs, bindHitEvents
-            )
+            self.makeControlSizer(parent, controlFields, 5, 5, grid, hasRegIDs, bindHitEvents)
         )
 
         return box
@@ -229,10 +227,7 @@ class EasyDialogBuilder(object):
             else:
                 buttonProperties = {}
 
-            exec(
-                "self.%s = dui.dTextBox(parent, ReadOnly=True, properties=Properties)"
-                % (name,)
-            )
+            exec("self.%s = dui.dTextBox(parent, ReadOnly=True, properties=Properties)" % (name,))
             exec("controlList.append(self.%s)" % (name,))
             exec(
                 "self.%s_button = fileButton(parent, format, directory, self.%s, buttonProperties)"
@@ -248,8 +243,7 @@ class EasyDialogBuilder(object):
                 labelTitle += ":"
 
             exec(
-                "self.%s = control(parent, Caption=controlCaption, properties=Properties)"
-                % (name,)
+                "self.%s = control(parent, Caption=controlCaption, properties=Properties)" % (name,)
             )
             exec("controlList.append(self.%s)" % (name,))
 

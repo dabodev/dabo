@@ -64,9 +64,7 @@ class PageDatabase(AppWizardPage):
         self.serverFields = self.embeddedFields + ("Host", "User", "Password", "Port")
 
         sz = self.Sizer
-        lbl = dLabel(
-            self, Caption=_("Enter the parameters here, and then click 'Next'.")
-        )
+        lbl = dLabel(self, Caption=_("Enter the parameters here, and then click 'Next'."))
         sz.append(lbl)
         lbl = dLabel(self, Caption=_("Profile:"))
 
@@ -180,9 +178,7 @@ class PageDatabase(AppWizardPage):
         gs.setColExpand(True, 1)
 
         for field in self.fieldNames:
-            lbl = dLabel(
-                self, Name=("lbl%s" % field), Width=75, Caption=("%s:" % field)
-            )
+            lbl = dLabel(self, Name=("lbl%s" % field), Width=75, Caption=("%s:" % field))
             if field == "DbType":
                 obj = dabo.ui.dDropdownList(
                     self,
@@ -243,9 +239,7 @@ class PageDatabase(AppWizardPage):
             else:
                 break
 
-        name = dabo.ui.getString(
-            _("Please enter a name for the profile"), defaultValue=default
-        )
+        name = dabo.ui.getString(_("Please enter a name for the profile"), defaultValue=default)
         if name is not None:
             # Defualt to the current DbType
             currDbType = self.ctlDbType.Value
@@ -300,9 +294,7 @@ class PageDatabase(AppWizardPage):
     def onLeavePage(self, direction):
         if direction == "forward":
             if len(self.Form.tableDict) > 0:
-                if not dabo.ui.areYouSure(
-                    _("Overwrite the current table information?")
-                ):
+                if not dabo.ui.areYouSure(_("Overwrite the current table information?")):
                     return True
 
             # Set the wizard's connect info based on the user input:
@@ -312,10 +304,7 @@ class PageDatabase(AppWizardPage):
                 ci.DbType = dbType
             except ValueError:
                 dabo.ui.stop(
-                    _(
-                        "The database type '%s' is invalid. "
-                        + "Please reenter and try again."
-                    )
+                    _("The database type '%s' is invalid. " + "Please reenter and try again.")
                     % dbType
                 )
                 self.ctlDbType.setFocus()
@@ -487,9 +476,7 @@ You can always move the directory later."""
         hs.append(self.txtDir, 1)
         hs.appendSpacer(4)
 
-        self.cmdPick = dabo.ui.dButton(
-            self, Caption="...", Width=30, Height=self.txtDir.Height
-        )
+        self.cmdPick = dabo.ui.dButton(self, Caption="...", Width=30, Height=self.txtDir.Height)
         self.cmdPick.bindEvent(dEvents.Hit, self.onPick)
         hs.append(self.cmdPick, 0)
         self.Sizer.append1x(hs)
@@ -497,14 +484,10 @@ You can always move the directory later."""
         self.chkPKUI = dabo.ui.dCheckBox(self, Caption=_("Include PK fields in the UI"))
         self.Sizer.append(self.chkPKUI)
 
-        self.chkUnknown = dabo.ui.dCheckBox(
-            self, Caption=_("Include Unknown datatype fields")
-        )
+        self.chkUnknown = dabo.ui.dCheckBox(self, Caption=_("Include Unknown datatype fields"))
         self.Sizer.append(self.chkUnknown)
 
-        self.chkSortFieldsAlpha = dabo.ui.dCheckBox(
-            self, Caption=_("Sort Fields Alphabetically")
-        )
+        self.chkSortFieldsAlpha = dabo.ui.dCheckBox(self, Caption=_("Sort Fields Alphabetically"))
         self.Sizer.append(self.chkSortFieldsAlpha)
 
     def onPick(self, evt):
@@ -521,9 +504,7 @@ You can always move the directory later."""
                     val = os.path.abspath(os.getcwd())
                 self.txtDir.Value = val
             if not self.txtAppName.Value:
-                self.txtAppName.Value = self.Form.connectInfo.Database.split(
-                    os.path.sep
-                )[-1]
+                self.txtAppName.Value = self.Form.connectInfo.Database.split(os.path.sep)[-1]
             self.chkPKUI.Value = app.getUserSetting("UsePKUI", False)
             self.chkUnknown.Value = app.getUserSetting("UseUnknown", False)
             self.chkSortFieldsAlpha.Value = app.getUserSetting("SortFieldsAlpha", False)
@@ -542,9 +523,7 @@ You can always move the directory later."""
             directory = os.path.join(appdir, appname)
             if not os.path.exists(directory):
                 msg = (
-                    _(
-                        "The target directory %s does not exist. Do you want to create it now?"
-                    )
+                    _("The target directory %s does not exist. Do you want to create it now?")
                     % directory
                 )
                 if dabo.ui.areYouSure(msg, _("Create Directory?"), cancelButton=False):
@@ -1300,9 +1279,7 @@ python %(appName)s.py %(tableName)s
         _getSpacesPerTab,
         _setSpacesPerTab,
         None,
-        _(
-            "When converting tabs, the number of spaces to use per tab. Default=4  (int)"
-        ),
+        _("When converting tabs, the number of spaces to use per tab. Default=4  (int)"),
     )
 
 

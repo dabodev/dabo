@@ -75,9 +75,7 @@ class EditorPage(dPage):
     def initProperties(self):
         self.p = None
         self.outputText = ""
-        self._outputSashExtra = self.Application.getUserSetting(
-            "editorform.outputSashExtra", 100
-        )
+        self._outputSashExtra = self.Application.getUserSetting("editorform.outputSashExtra", 100)
 
     def afterInit(self):
         self.splitter = EditPageSplitter(self, Orientation="h")
@@ -124,16 +122,12 @@ class EditorPage(dPage):
     def updateSashPos(self):
         if self.splitter.SashPosition > 0:
             self._outputSashExtra = self.Height - self.splitter.SashPosition
-        self.Application.setUserSetting(
-            "editorform.outputSashExtra", self._outputSashExtra
-        )
+        self.Application.setUserSetting("editorform.outputSashExtra", self._outputSashExtra)
 
     def outputUpdate(self):
         if self and self.p:
             # need a nonblocking way of getting stdout and stderr
-            self.outputText = (
-                self.outputText + self.p.stdout.read() + self.p.stderr.read()
-            )
+            self.outputText = self.outputText + self.p.stdout.read() + self.p.stderr.read()
             if not self.p.poll() is None:
                 self.p = None
             self.output.Value = self.outputText
@@ -162,9 +156,7 @@ class EditorPage(dPage):
             ret = ""
         return ret
 
-    PathInfo = property(
-        _getPathInfo, None, None, _("Path to the file being edited  (str)")
-    )
+    PathInfo = property(_getPathInfo, None, None, _("Path to the file being edited  (str)"))
 
 
 class EditorPageFrame(dPageFrame):
@@ -454,9 +446,7 @@ class EditorForm(dForm):
 
     def onSetBmk(self, evt):
         """Need to ask the user for a name for this bookmark."""
-        nm = dabo.ui.getString(
-            message=_("Name for this bookmark:"), caption=_("New Bookmark")
-        )
+        nm = dabo.ui.getString(message=_("Name for this bookmark:"), caption=_("New Bookmark"))
         if not nm:
             # User canceled
             return
@@ -505,9 +495,7 @@ class EditorForm(dForm):
         ed = self.CurrentEditor
         if ed is None:
             self._autoAutoItem.Checked = self._wrapItem.Checked = False
-            self._synColorItem.Checked = self._useTabsItem.Checked = (
-                self._lineNumItem
-            ) = False
+            self._synColorItem.Checked = self._useTabsItem.Checked = self._lineNumItem = False
         else:
             self._autoAutoItem.Checked = ed.AutoAutoComplete
             self._wrapItem.Checked = ed.WordWrap
@@ -515,9 +503,7 @@ class EditorForm(dForm):
             self._useTabsItem.Checked = ed.UseTabs
             self._lineNumItem.Checked = ed.ShowLineNumbers
             self._whiteSpaceItem.Checked = ed.ShowWhiteSpace
-        self._showOutItem.Checked = self.Application.getUserSetting(
-            "visibleOutput", False
-        )
+        self._showOutItem.Checked = self.Application.getUserSetting("visibleOutput", False)
 
     def beforeClose(self, evt):
         ret = self.pgfEditor.checkChanges(closing=True)
@@ -546,9 +532,7 @@ class EditorForm(dForm):
     def onDocumentationHint(self, evt):
         # Eventually, a separate IDE window can optionally display help contents
         # for the object. For now, just print the longdoc to the infolog.
-        dabo.log.info(
-            _("Documentation Hint received:\n\n%s") % evt.EventData["longDoc"]
-        )
+        dabo.log.info(_("Documentation Hint received:\n\n%s") % evt.EventData["longDoc"])
 
     def onTitleChanged(self, evt):
         if self and self.pgfEditor:
@@ -610,9 +594,7 @@ class EditorForm(dForm):
             ItemID="file_close_editor",
             help=_("Close file"),
         )
-        recentMenu = dMenu(
-            Caption=_("Open Recent"), MenuID="file_open_recent", MRU=True
-        )
+        recentMenu = dMenu(Caption=_("Open Recent"), MenuID="file_open_recent", MRU=True)
         fileMenu.prependMenu(recentMenu)
         fileMenu.prepend(
             _("&Open"),
@@ -911,9 +893,7 @@ class EditorForm(dForm):
             mn.clear()
             for pg in self.pgfEditor.Pages:
                 prmpt = pg.editor._title
-                mn.append(
-                    prmpt, OnHit=self.onEditorSelected, help=_("Select %s") % prmpt
-                )
+                mn.append(prmpt, OnHit=self.onEditorSelected, help=_("Select %s") % prmpt)
             if len(self.pgfEditor.Pages) > 1:
                 mn.appendSeparator()
                 mn.append(
@@ -1058,9 +1038,7 @@ class EditorForm(dForm):
         ed = self.CurrentEditor
         curr = ed.AutoAutoCompleteMinLen
 
-        newlen = dabo.ui.getInt(
-            _("Number of characters?"), _("Set AutoComplete Trigger"), curr
-        )
+        newlen = dabo.ui.getInt(_("Number of characters?"), _("Set AutoComplete Trigger"), curr)
         if newlen:
             ed.AutoAutoCompleteMinLen = newlen
 
@@ -1188,9 +1166,7 @@ class EditorForm(dForm):
 
     def _moveToBlock(self, direction):
         ed = self.CurrentEditor
-        funcs = {"u": (min, operator.gt, 1), "d": (max, operator.lt, 0)}[
-            direction.lower()[0]
-        ]
+        funcs = {"u": (min, operator.gt, 1), "d": (max, operator.lt, 0)}[direction.lower()[0]]
         pos = ed.SelectionPosition[funcs[2]]
         flist = ed.getFunctionList()
         fpos = [f[1] for f in flist if funcs[1](f[1], pos)]

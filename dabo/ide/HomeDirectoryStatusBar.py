@@ -47,9 +47,7 @@ class HomeDirectoryStatusBar(dStatusBar):
         txt._designerMode = False
 
     def _changeHD(self, evt):
-        dirname = dabo.ui.getDirectory(
-            _("Select Home Directory"), self._target.HomeDirectory
-        )
+        dirname = dabo.ui.getDirectory(_("Select Home Directory"), self._target.HomeDirectory)
         if dirname:
             self._target.HomeDirectory = dirname
             self.update()

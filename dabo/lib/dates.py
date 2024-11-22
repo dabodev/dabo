@@ -9,8 +9,10 @@ import calendar
 import datetime
 import re
 import time
-import dabo
-from dabo.lib.utils import ustr
+
+from .utils import ustr
+from .. import settings
+
 
 _dregex = {}
 _dtregex = {}
@@ -95,8 +97,8 @@ def _getTimeRegex(format):
 
 
 def getStringFromDate(d):
-    """Given a datetime.date, convert to string in dabo.dateFormat style."""
-    fmt = dabo.dateFormat
+    """Given a datetime.date, convert to string in settings.dateFormat style."""
+    fmt = settings.dateFormat
     if fmt is None:
         # Delegate formatting to the time module, which will take the
         # user's locale into account.
@@ -115,7 +117,7 @@ def getDateFromString(strVal, formats=None):
     if formats is None:
         formats = ["ISO8601"]
 
-    sdf = dabo.dateFormat
+    sdf = settings.dateFormat
     if sdf is not None:
         if _usedDateFormats[0] == sdf:
             # current date format is already first in the list; do nothing
@@ -144,15 +146,11 @@ def getDateFromString(strVal, formats=None):
             if "year" not in groups:
                 curYear = datetime.date.today().year
                 if "shortyear" in groups:
-                    groups["year"] = int(
-                        "%s%s" % (ustr(curYear)[:2], groups["shortyear"])
-                    )
+                    groups["year"] = int("%s%s" % (ustr(curYear)[:2], groups["shortyear"]))
                 else:
                     groups["year"] = curYear
             try:
-                ret = datetime.date(
-                    int(groups["year"]), int(groups["month"]), int(groups["day"])
-                )
+                ret = datetime.date(int(groups["year"]), int(groups["month"]), int(groups["day"]))
             except ValueError:
                 # Could be that the day was out of range for the particular month
                 # (Sept. only has 30 days but the regex will allow 31, etc.)
@@ -163,8 +161,8 @@ def getDateFromString(strVal, formats=None):
 
 
 def getStringFromDateTime(dt):
-    """Given a datetime.datetime, convert to string in dabo.dateTimeFormat style."""
-    fmt = dabo.dateTimeFormat
+    """Given a datetime.datetime, convert to string in settings.dateTimeFormat style."""
+    fmt = settings.dateTimeFormat
     if fmt is None:
         # Delegate formatting to the time module, which will take the
         # user's locale into account.
@@ -177,7 +175,7 @@ def getDateTimeFromString(strVal, formats=None):
     """Given a string in a defined format, return a datetime object or None."""
     global _dtregex
 
-    dtFormat = dabo.dateTimeFormat
+    dtFormat = settings.dateTimeFormat
     ret = None
 
     if formats is None:
@@ -203,9 +201,7 @@ def getDateTimeFromString(strVal, formats=None):
             if "year" not in groups:
                 curYear = datetime.date.today().year
                 if "shortyear" in groups:
-                    groups["year"] = int(
-                        "%s%s" % (ustr(curYear)[:2], groups["shortyear"])
-                    )
+                    groups["year"] = int("%s%s" % (ustr(curYear)[:2], groups["shortyear"]))
                 else:
                     groups["year"] = curYear
 
@@ -307,10 +303,7 @@ if __name__ == "__main__":
     tests = ["0503", "20060503", "2006-05-03", "060503"]
     for test in tests:
         for format in formats:
-            print(
-                "%s (%s) -> %s"
-                % (test, format, repr(getDateFromString(test, [format])))
-            )
+            print("%s (%s) -> %s" % (test, format, repr(getDateFromString(test, [format]))))
 
     dt = datetime.datetime.now()
     print(goDate(dt, -30))

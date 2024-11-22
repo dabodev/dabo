@@ -8,6 +8,7 @@ from .. import icons
 from .. import dException
 from .. import ui
 from .. import events
+from .. import main
 from . import dDataControlMixin
 from . import dMenu
 from . import dPemMixin
@@ -18,7 +19,8 @@ from ..lib.utils import ustr
 from ..lib.xmltodict import xmltodict as XTD
 from ..lib.utils import cleanMenuCaption
 from . import makeDynamicProperty
-# import log
+
+dabo_module = main.get_dabo_package()
 
 
 class dFormMixin(dPemMixin):
@@ -43,23 +45,13 @@ class dFormMixin(dPemMixin):
         self._statusBarClass = dStatusBar
 
         # Extract the menu definition file, if any
-        self._menuBarFile = self._extractKey(
-            (properties, attProperties, kwargs), "MenuBarFile", ""
-        )
-        if self._menuBarFile:
-            self._menuBarClass = self._menuBarFile
+        self._menuBarFile = self._extractKey((properties, attProperties, kwargs), "MenuBarFile", "")
+        self._menuBarClass = self._menuBarFile if self._menuBarFile else None
 
-        if False and parent:
-            ## pkm 3/10/05: I like it better now without the float on parent option
-            ##              and think it is a better default to stick with the wx
-            ##              default frame style. You can still override the style
-            ##              by passing it to the constructor.
-            style = wx.DEFAULT_FRAME_STYLE | wx.FRAME_FLOAT_ON_PARENT
-        else:
-            style = self._extractKey(kwargs, "style", 0)
-            if not style:
-                # No style was explicitly set
-                style = wx.DEFAULT_FRAME_STYLE
+        style = self._extractKey(kwargs, "style", 0)
+        if not style:
+            # No style was explicitly set
+            style = wx.DEFAULT_FRAME_STYLE
         kwargs["style"] = style
 
         # Manages RegID values and their controls
@@ -146,7 +138,7 @@ class dFormMixin(dPemMixin):
             except dException.ConnectionNotFoundException:
                 self.Connection = None
             if self.Connection is None:
-                log.info(_("Could not establish connection '%s'") % self._cxnName)
+                dabo_module.info(_("Could not establish connection '%s'") % self._cxnName)
         # If code to create bizobjs is present, run it.
         self.createBizobjs()
         # If there are custom menu hotkey bindings, re-set them
@@ -240,10 +232,7 @@ class dFormMixin(dPemMixin):
             and self.StatusBar is None
             and not isinstance(self, wx.Dialog)
             and not modal
-            and (
-                sys.platform.startswith("darwin")
-                or not isinstance(self, wx.MDIChildFrame)
-            )
+            and (sys.platform.startswith("darwin") or not isinstance(self, wx.MDIChildFrame))
         ):
             # SBC = self.StatusBarClass
             # self.StatusBar = SBC(self)
@@ -314,11 +303,7 @@ class dFormMixin(dPemMixin):
         """
         ac = self.ActiveControl
         if ac is not None and isinstance(ac, dDataControlMixin):
-            if (
-                not hasattr(ac, "_oldVal")
-                or (not ac._oldVal)
-                or (ac._oldVal != ac.Value)
-            ):
+            if not hasattr(ac, "_oldVal") or (not ac._oldVal) or (ac._oldVal != ac.Value):
                 return ac.flushValue()
         return True
 
@@ -399,8 +384,7 @@ class dFormMixin(dPemMixin):
                     menuItem = [
                         ch
                         for ch in menuItem.Children
-                        if hasattr(ch, "Caption")
-                        and cleanMenuCaption(ch.Caption) == pth
+                        if hasattr(ch, "Caption") and cleanMenuCaption(ch.Caption) == pth
                     ][0]
                 except IndexError:
                     # No such menu; skip it
@@ -429,9 +413,7 @@ class dFormMixin(dPemMixin):
 
         """
         raise dException.FeatureNotSupportedException(
-            _(
-                "The underlying UI toolkit does not support modal forms. Use a dDialog instead."
-            )
+            _("The underlying UI toolkit does not support modal forms. Use a dDialog instead.")
         )
 
     def release(self):
@@ -551,13 +533,9 @@ class dFormMixin(dPemMixin):
             return
 
         name = self.getAbsoluteName()
-        state = self.Application.getUserSetting(
-            "%s.windowstate" % name, self._defaultState
-        )
+        state = self.Application.getUserSetting("%s.windowstate" % name, self._defaultState)
         width = self.Application.getUserSetting("%s.width" % name, self._defaultWidth)
-        height = self.Application.getUserSetting(
-            "%s.height" % name, self._defaultHeight
-        )
+        height = self.Application.getUserSetting("%s.height" % name, self._defaultHeight)
         left = self.Application.getUserSetting("%s.left" % name, self._defaultLeft)
         top = self.Application.getUserSetting("%s.top" % name, self._defaultTop)
 
@@ -649,7 +627,7 @@ class dFormMixin(dPemMixin):
                     del self.__dict__[id]
             self._objectRegistry[id] = obj
             if hasattr(self, id) or id in self.__dict__:
-                log.error(_("RegID '%s' conflicts with existing name") % id)
+                dabo_module.error(_("RegID '%s' conflicts with existing name") % id)
             else:
                 self.__dict__[id] = obj
 
@@ -666,9 +644,7 @@ class dFormMixin(dPemMixin):
     def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
         return menu.append(caption, OnHit=function, bmp=bitmap)
 
-    def appendToolBarButton(
-        self, name, pic, toggle=False, tip="", help="", *args, **kwargs
-    ):
+    def appendToolBarButton(self, name, pic, toggle=False, tip="", help="", *args, **kwargs):
         return self.ToolBar.appendButton(
             name, pic, toggle=toggle, tip=tip, help=help, *args, **kwargs
         )
@@ -1148,9 +1124,7 @@ class dFormMixin(dPemMixin):
         _getAutoUpdateStatusText,
         _setAutoUpdateStatusText,
         None,
-        _(
-            "Does this form update the status text with the current record position?  (bool)"
-        ),
+        _("Does this form update the status text with the current record position?  (bool)"),
     )
 
     BorderResizable = property(
@@ -1360,9 +1334,7 @@ class dFormMixin(dPemMixin):
         _getStatusBarClass,
         _setStatusBarClass,
         None,
-        _(
-            "Class to be used for this form's status bar. Default=dStatusBar (dStatusBar)"
-        ),
+        _("Class to be used for this form's status bar. Default=dStatusBar (dStatusBar)"),
     )
 
     StatusText = property(
@@ -1396,9 +1368,7 @@ class dFormMixin(dPemMixin):
         _("Specifies whether the title bar is small, like a tool window. (bool)."),
     )
 
-    ToolBar = property(
-        _getToolBar, _setToolBar, None, _("Tool bar for this form. (dToolBar)")
-    )
+    ToolBar = property(_getToolBar, _setToolBar, None, _("Tool bar for this form. (dToolBar)"))
 
     WindowState = property(
         _getWindowState,
