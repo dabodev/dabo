@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import dabo
-import dabo.ui
+
+from .. import ui
 from dabo.dApp import dApp
 from .FrmBase import FrmBase
 from .Grd%(tableName)s import Grd%(tableName)s

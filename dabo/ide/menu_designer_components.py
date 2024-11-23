@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import dabo.ui
-from dabo.dLocalize import _
-import dabo.dEvents as dEvents
-from dabo.ui import makeDynamicProperty
-from dabo.ui import makeProxyProperty
+from .. import ui
+from ..dLocalize import _
+from .. import events
+from ..ui import makeDynamicProperty
+from ..ui import makeProxyProperty
 
-from dabo.ui import dBitmap
-from dabo.ui import dForm
-from dabo.ui import dPanel
+from ..ui import dBitmap
+from ..ui import dForm
+from ..ui import dPanel
 
 
 class MenuSaverMixin(object):

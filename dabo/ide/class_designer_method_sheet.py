@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
-from dabo.dLocalize import _
-import dabo.dEvents as dEvents
+from .. import ui
+from ..dLocalize import _
+from .. import events
 
-from dabo.ui import dListControl
-from dabo.ui import dPanel
-from dabo.ui import dSizer
+from ..ui import dListControl
+from ..ui import dPanel
+from ..ui import dSizer
 
 
 class MethodSheet(dPanel):
     def afterInit(self):
         self._methodList = dListControl(self, MultipleSelect=False)
-        self._methodList.bindEvent(dEvents.Hit, self.onList)
+        self._methodList.bindEvent(events.Hit, self.onList)
         sz = self.Sizer = dSizer("v")
         sz.append1x(self._methodList)
         self._methodList.addColumn(_("Event/Method"))

@@ -8,34 +8,34 @@ import keyword
 import code
 import inspect
 import operator
-import dabo
-import dabo.ui
-from dabo.dApp import dApp
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 
-_Use_Subprocess = True
+use_subprocess = True
 try:
     import subprocess
 except ImportError:
-    _Use_Subprocess = False
-from dabo.lib.reportUtils import getTempFile
+    use_subprocess = False
 
-from dabo.ui import dBitmapButton
-from dabo.ui import dDropdownList
-from dabo.ui import dEditBox
-from dabo.ui import dEditor
-from dabo.ui import dForm
-from dabo.ui import dImage
-from dabo.ui import dLabel
-from dabo.ui import dMenu
-from dabo.ui import dOkCancelDialog
-from dabo.ui import dPage
-from dabo.ui import dPageFrame
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dSplitter
-from dabo.ui import dTextBox
+from .. import ui
+from ..dApp import dApp
+from .. import events
+from ..dLocalize import _
+from ..lib.reportUtils import getTempFile
+from ..ui import dBaseMenuBar
+from ..ui import dBitmapButton
+from ..ui import dDropdownList
+from ..ui import dEditBox
+from ..ui import dEditor
+from ..ui import dForm
+from ..ui import dImage
+from ..ui import dLabel
+from ..ui import dMenu
+from ..ui import dOkCancelDialog
+from ..ui import dPage
+from ..ui import dPageFrame
+from ..ui import dPanel
+from ..ui import dSizer
+from ..ui import dSplitter
+from ..ui import dTextBox
 
 
 class EditPageSplitter(dSplitter):
@@ -96,13 +96,13 @@ class EditorPage(dPage):
         self.Sizer = dSizer()
         self.Sizer.append1x(self.splitter)
 
-        self.updateTimer = dabo.ui.callEvery(1000, self.outputUpdate)
+        self.updateTimer = ui.callEvery(1000, self.outputUpdate)
 
         self.layout()
 
         self.editor.setFocus()
-        self.editor.bindEvent(dEvents.TitleChanged, self.onTitleChanged)
-        self.editor.bindEvent(dEvents.MouseRightClick, self.Form.onEditorRightClick)
+        self.editor.bindEvent(events.TitleChanged, self.onTitleChanged)
+        self.editor.bindEvent(events.MouseRightClick, self.Form.onEditorRightClick)
         # Set up the file drop target
         self.editor.DroppedFileHandler = self.Form
         # Set up the text drop target
@@ -111,10 +111,10 @@ class EditorPage(dPage):
         # Update Hide/Show of output. Default to hidden
         self.showOutput(self.Application.getUserSetting("visibleOutput", False))
         # Set the initial title
-        dabo.ui.callAfter(self.onTitleChanged, None)
+        ui.callAfter(self.onTitleChanged, None)
         # It's weird without this, self.splitter._constructed is not true
-        dabo.ui.callAfter(self.splitter._setOrientation, "h")
-        dabo.ui.callAfter(self.updateSashPos)
+        ui.callAfter(self.splitter._setOrientation, "h")
+        ui.callAfter(self.updateSashPos)
 
     def onResize(self, evt):
         self.splitter.SashPosition = self.Height - self._outputSashExtra
@@ -147,7 +147,7 @@ class EditorPage(dPage):
         self.editor.setInactive()
 
     def onDestroy(self, evt):
-        dabo.ui.callAfter(self.Form.onTitleChanged, evt)
+        ui.callAfter(self.Form.onTitleChanged, evt)
 
     def _getPathInfo(self):
         try:
@@ -210,7 +210,7 @@ class EditorPageFrame(dPageFrame):
                     ret = pg
             except Exception as e:
                 dabo.log.error(_("Error opening file '%(pth)s': %(e)s") % locals())
-                dabo.ui.callAfter(self.removePage, pg)
+                ui.callAfter(self.removePage, pg)
                 ret = None
         return ret
 
@@ -305,20 +305,20 @@ class EditorForm(dForm):
             Size=(22, 22),
             ToolTipText=_("Show list of functions"),
         )
-        # self.funcButton.Picture = dabo.ui.imageFromData(funcButtonData())
-        self.funcButton.bindEvent(dEvents.MouseLeftDown, self.onFuncButton)
+        # self.funcButton.Picture = ui.imageFromData(funcButtonData())
+        self.funcButton.bindEvent(events.MouseLeftDown, self.onFuncButton)
         self.bmkButton = dImage(
             pnl, ScaleMode="Clip", Size=(22, 22), ToolTipText=_("Manage Bookmarks")
         )
-        # self.bmkButton.Picture = dabo.ui.imageFromData(bmkButtonData())
-        self.bmkButton.bindEvent(dEvents.MouseLeftDown, self.onBmkButton)
+        # self.bmkButton.Picture = ui.imageFromData(bmkButtonData())
+        self.bmkButton.bindEvent(events.MouseLeftDown, self.onBmkButton)
 
         self.prntButton = dBitmapButton(pnl, Size=(22, 22), ToolTipText=_("Print..."))
         self.prntButton.Picture = "print"
-        self.prntButton.bindEvent(dEvents.Hit, self.onPrint)
+        self.prntButton.bindEvent(events.Hit, self.onPrint)
 
         self.lexSelector = dDropdownList(pnl, ValueMode="String")
-        self.lexSelector.bindEvent(dEvents.Hit, self.onLexSelect)
+        self.lexSelector.bindEvent(events.Hit, self.onLexSelect)
 
         btnSizer = dSizer("H", DefaultSpacing=4)
         btnSizer.append(self.funcButton)
@@ -335,11 +335,11 @@ class EditorForm(dForm):
         pnl.Sizer.append(btnSizer, "x", border=4)
 
         self.pgfEditor = EditorPageFrame(pnl, TabPosition="Top")
-        self.pgfEditor.bindEvent(dEvents.PageChanged, self.onEditorPageChanged)
+        self.pgfEditor.bindEvent(events.PageChanged, self.onEditorPageChanged)
         pnl.Sizer.append1x(self.pgfEditor)
         self.layout()
         self.fillMenu()
-        dabo.ui.callAfter(self.showPage, 0)
+        ui.callAfter(self.showPage, 0)
 
     def showPage(self, pg):
         """Shows the specified page, if it exists."""
@@ -446,7 +446,7 @@ class EditorForm(dForm):
 
     def onSetBmk(self, evt):
         """Need to ask the user for a name for this bookmark."""
-        nm = dabo.ui.getString(message=_("Name for this bookmark:"), caption=_("New Bookmark"))
+        nm = ui.getString(message=_("Name for this bookmark:"), caption=_("New Bookmark"))
         if not nm:
             # User canceled
             return
@@ -459,7 +459,7 @@ class EditorForm(dForm):
                 )
                 % nm
             )
-            if not dabo.ui.areYouSure(
+            if not ui.areYouSure(
                 message=msg,
                 title=_("Duplicate Name"),
                 defaultNo=True,
@@ -548,7 +548,10 @@ class EditorForm(dForm):
 
     def fillMenu(self):
         app = self.Application
-        mb = self.MenuBar
+        if not self.MenuBar:
+            mb = self.MenuBar = dBaseMenuBar()
+        else:
+            mb = self.MenuBar
         fileMenu = mb.getMenu("base_file")
 
         editMenu = mb.getMenu("base_edit")
@@ -825,8 +828,8 @@ class EditorForm(dForm):
             ItemID="font_zoomout",
             help=_("Zoom Out"),
         )
-        fixed_width_fonts = dabo.ui.getAvailableFonts(fixed_width_only=True)
-        all_fonts = dabo.ui.getAvailableFonts(fixed_width_only=False)
+        fixed_width_fonts = ui.getAvailableFonts(fixed_width_only=True)
+        all_fonts = ui.getAvailableFonts(fixed_width_only=False)
         fontMenu.appendSeparator()
         fontMenu.append(_("Fixed Width Fonts"), Enabled=False)
         for font in fixed_width_fonts:
@@ -848,7 +851,7 @@ class EditorForm(dForm):
 
         vp = mb.getMenuIndex("base_font")
         editorMenu = mb.insert(vp + 1, _("E&ditors"), MenuID="base_editors")
-        editorMenu.bindEvent(dEvents.MenuHighlight, self.onMenuOpen)
+        editorMenu.bindEvent(events.MenuHighlight, self.onMenuOpen)
 
         # On non-Mac platforms, we may need to move the Help Menu
         # to the end.
@@ -879,7 +882,7 @@ class EditorForm(dForm):
         """Change the default font size for the editor."""
         if not self.CurrentEditor:
             return
-        val = dabo.ui.getInt(
+        val = ui.getInt(
             _("Select new font size"), _("Font Size"), self.CurrentEditor._fontSize
         )
         if val is not None:
@@ -1038,7 +1041,7 @@ class EditorForm(dForm):
         ed = self.CurrentEditor
         curr = ed.AutoAutoCompleteMinLen
 
-        newlen = dabo.ui.getInt(_("Number of characters?"), _("Set AutoComplete Trigger"), curr)
+        newlen = ui.getInt(_("Number of characters?"), _("Set AutoComplete Trigger"), curr)
         if newlen:
             ed.AutoAutoCompleteMinLen = newlen
 
@@ -1061,7 +1064,7 @@ class EditorForm(dForm):
             cmd = "python"
         else:
             cmd = "pythonw"
-        if _Use_Subprocess:
+        if use_subprocess:
             # The Echo hack:
             self.pgfEditor.SelectedPage.outputText = ""
             self.pgfEditor.SelectedPage.p = subprocess.Popen(
@@ -1269,7 +1272,7 @@ def main():
             frm.openFile(os.path.realpath(file))
         frm.show()
 
-    dabo.ui.callAfter(_openForms)
+    ui.callAfter(_openForms)
     app.start()
 
 

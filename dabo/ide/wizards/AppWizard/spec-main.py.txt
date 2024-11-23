@@ -6,8 +6,8 @@ remotehost = ""
 
 import sys
 import os
-import dabo
-import dabo.ui
+
+from .. import ui
 
 # The loading of the UI needs to happen before the importing of the
 # db, biz, and ui packages:

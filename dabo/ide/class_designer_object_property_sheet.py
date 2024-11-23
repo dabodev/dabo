@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
-import dabo
-from dabo.dLocalize import _
-import dabo.dEvents as dEvents
-from .ClassDesignerComponents import LayoutPanel
-from .ClassDesignerComponents import LayoutBasePanel
-from .ClassDesignerComponents import LayoutSpacerPanel
-from .ClassDesignerComponents import LayoutSizer
-from .ClassDesignerComponents import LayoutBorderSizer
-from .ClassDesignerComponents import LayoutGridSizer
 
-from dabo.ui import dButton
-from dabo.ui import dColumn
-from dabo.ui import dGrid
-from dabo.ui import dPanel
-from dabo.ui import dSizer
+from ..dLocalize import _
+from .. import events
+from .class_designer_components import LayoutPanel
+from .class_designer_components import LayoutBasePanel
+from .class_designer_components import LayoutSpacerPanel
+from .class_designer_components import LayoutSizer
+from .class_designer_components import LayoutBorderSizer
+from .class_designer_components import LayoutGridSizer
+
+from ..ui import dButton
+from ..ui import dColumn
+from ..ui import dGrid
+from ..ui import dPanel
+from ..ui import dSizer
 
 
 class ObjectPropertySheet(dPanel):
     def afterInit(self):
         self.app = self.Application
         self.propGrid = grd = dGrid(self)
-        self.propGrid.bindEvent(dEvents.MouseLeftDoubleClick, self.onEdit)
+        self.propGrid.bindEvent(events.MouseLeftDoubleClick, self.onEdit)
         sz = self.Sizer = dSizer("v")
         sz.append1x(self.propGrid)
         col = dColumn(
@@ -90,11 +90,11 @@ class ObjectPropertySheet(dPanel):
         grd.addColumn(col)
 
         self.addButton = dButton(self, Caption=_("Add"))
-        self.addButton.bindEvent(dEvents.Hit, self.onAdd)
+        self.addButton.bindEvent(events.Hit, self.onAdd)
         self.editButton = dButton(self, Caption=_("Edit"))
-        self.editButton.bindEvent(dEvents.Hit, self.onEdit)
+        self.editButton.bindEvent(events.Hit, self.onEdit)
         self.delButton = dButton(self, Caption=_("Delete"))
-        self.delButton.bindEvent(dEvents.Hit, self.onDelete)
+        self.delButton.bindEvent(events.Hit, self.onDelete)
         hsz = dSizer("H")
         hsz.append(self.addButton)
         hsz.appendSpacer(12)

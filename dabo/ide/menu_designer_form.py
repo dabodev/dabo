@@ -4,20 +4,20 @@
 import codecs
 import os
 
-import dabo.ui
+from .. import ui
 
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-import dabo.dEvents as dEvents
+from ..dLocalize import _
+from ..lib.utils import ustr
+from .. import events
 import dabo.lib.xmltodict as xtd
 from ClassDesignerExceptions import PropertyUpdateException
 import MenuPanel
 from MenuDesignerPropForm import MenuPropForm
-from dabo.ui import dButton
-from dabo.ui import dForm
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
+from ..ui import dButton
+from ..ui import dForm
+from ..ui import dLabel
+from ..ui import dPanel
+from ..ui import dSizer
 
 
 class MenuDesignerForm(dForm):
@@ -43,7 +43,7 @@ class MenuDesignerForm(dForm):
         self._dragOrigPos = (0, 0)
         self._dragObjOffset = (0, 0)
         self._dragDrawPos = (0, 0)
-        self.bindEvent(dEvents.MouseMove, self.handleMouseMove)
+        self.bindEvent(events.MouseMove, self.handleMouseMove)
         self.previewButton = btn = dButton(self.mainPanel, Caption="Preview", OnHit=self.onPreview)
         sz.append(btn, border=10, halign="center")
         dabo.ui.callAfter(self.layout)
@@ -638,7 +638,7 @@ class MenuDesignerForm(dForm):
         self.openFile(pth)
 
     def onClose(self, evt):
-        self.raiseEvent(dEvents.Close, evt._uiEvent)
+        self.raiseEvent(events.Close, evt._uiEvent)
 
     def onSave(self, evt):
         self.saveMenu()

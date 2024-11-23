@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import dabo.ui
-import dabo.dEvents as dEvents
+from .. import ui
+from .. import events
 
 
 class MenReports(dabo.ui.dMenu):
@@ -35,7 +35,7 @@ class MenReports(dabo.ui.dMenu):
                 itm = dabo.ui.dMenuItem(self, Caption=caption,
                         HelpText="Run the %%s report" %% plainCaption,
                         Tag=form[1])
-                itm.bindEvent(dEvents.Hit, self.openForm)
+                itm.bindEvent(events.Hit, self.openForm)
                 self.appendItem(itm)
 
 

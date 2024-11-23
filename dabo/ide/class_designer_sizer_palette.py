@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
-import dabo
-from dabo.dLocalize import _
-import dabo.dEvents as dEvents
-from .ClassDesignerComponents import LayoutSpacerPanel
 
-from dabo.ui import dBorderSizer
-from dabo.ui import dCheckBox
-from dabo.ui import dDropdownList
-from dabo.ui import dForm
-from dabo.ui import dGridSizer
-from dabo.ui import dLabel
-from dabo.ui import dPageFrameNoTabs
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dSpinner
-from dabo.ui import dToolForm
+from .. import events
+from .. import ui
+from ..dLocalize import _
+from .class_designer_components import LayoutSpacerPanel
+
+from ..ui import dBorderSizer
+from ..ui import dCheckBox
+from ..ui import dDropdownList
+from ..ui import dForm
+from ..ui import dGridSizer
+from ..ui import dLabel
+from ..ui import dPageFrameNoTabs
+from ..ui import dPanel
+from ..ui import dSizer
+from ..ui import dSpinner
+from ..ui import dToolForm
 
 
 class ContentBoxSizerPanel(dPanel):
@@ -188,7 +189,7 @@ class SizerInfoFrame(dPageFrameNoTabs):
         pg = self.SelectedPage
         try:
             if pg is not self.blankPage:
-                dabo.ui.callAfter(pg.fitToSizer)
+                ui.callAfter(pg.fitToSizer)
         #                 w, h = pg.Size
         #                 self.Size = (w+40, h+40)
         except AttributeError:
@@ -215,7 +216,7 @@ class SizerContentFrame(SizerInfoFrame):
         self.Visible = obj is not None
         self.update()
         self.SelectedPage.setAll("DataSource", obj, filt="Enabled is True")
-        # dabo.ui.callAfterInterval(100, self.layout)
+        # ui.callAfterInterval(100, self.layout)
         self.layout()
 
 
@@ -307,13 +308,13 @@ class SizerPaletteForm(dToolForm):
         self.contentFrame.setFromObject(obj)
         self.sizerFrame.setFromObject(obj)
         self.layout()
-        dabo.ui.callAfter(self.fitToSizer, extraHeight=10)
+        ui.callAfter(self.fitToSizer, extraHeight=10)
         self.update()
 
     def layout(self):
         if self.inFitToSizer:
             return
-        dabo.ui.callAfterInterval(100, self._delayedLayout)
+        ui.callAfterInterval(100, self._delayedLayout)
 
     def _delayedLayout(self):
         self.lockDisplay()

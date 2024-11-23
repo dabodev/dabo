@@ -134,7 +134,7 @@ def updatePref(self):
         <importStatements><![CDATA[
 import datetime
 from dabo.dPref import dPref
-from dabo.dLocalize import _
+from ..dLocalize import _
 ]]>
         </importStatements>
     </code>

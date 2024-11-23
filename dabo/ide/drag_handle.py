@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 HANDLE_SIZE = 8
-import dabo.ui
-import dabo.dEvents as dEvents
+from .. import ui
+from .. import events
 
-from dabo.ui import dPanel
+from ..ui import dPanel
 
 
 class DragHandle(dPanel):
@@ -43,9 +43,9 @@ class DragHandle(dPanel):
         self.left = lr == "L"
         self.right = lr == "R"
 
-        self.bindEvent(dEvents.MouseLeftDown, self.onLeftDown)
-        self.bindEvent(dEvents.MouseLeftUp, self.onLeftUp)
-        self.bindEvent(dEvents.MouseMove, self.onMouseDrag)
+        self.bindEvent(events.MouseLeftDown, self.onLeftDown)
+        self.bindEvent(events.MouseLeftUp, self.onLeftUp)
+        self.bindEvent(events.MouseMove, self.onMouseDrag)
         self.dragging = False
 
     def onLeftDown(self, evt):

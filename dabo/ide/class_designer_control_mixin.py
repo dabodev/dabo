@@ -1,71 +1,73 @@
 # -*- coding: utf-8 -*-
 import os
-import dabo.ui
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-import dabo.dEvents as dEvents
-import dabo.dColors as dColors
-from dabo.ui import dialogs as dlgs
-from .ClassDesignerComponents import LayoutPanel
-from .ClassDesignerComponents import LayoutSizer
-from .ClassDesignerComponents import LayoutBorderSizer
-from .ClassDesignerComponents import LayoutGridSizer
-from .ClassDesignerComponents import LayoutSaverMixin
-from .ClassDesignerComponents import classFlagProp
-from .ClassDesignerExceptions import PropertyUpdateException
-from dabo.ui import dKeys
 
-dui = dabo.ui
+from .. import ui
+from ..lib import utils as libutils
+from ..dLocalize import _
+from ..lib.utils import ustr
+from .. import events
+from .. import main
+from .. import dColors
+from ..ui import dKeys
+from ..ui import dialogs
+from ..ui import dBitmap
+from ..ui import dBitmapButton
+from ..ui import dButton
+from ..ui import dCheckBox
+from ..ui import dCheckList
+from ..ui import dColumn
+from ..ui import dComboBox
+from ..ui import dDataControlMixin
+from ..ui import dDialog
+from ..ui import dDropdownList
+from ..ui import dEditBox
+from ..ui import dEditor
+from ..ui import dForm
+from ..ui import dFormMain
+from ..ui import dGauge
+from ..ui import dGrid
+from ..ui import dHtmlBox
+from ..ui import dImage
+from ..ui import dLabel
+from ..ui import dLed
+from ..ui import dLine
+from ..ui import dListBox
+from ..ui import dListControl
+from ..ui import dMaskedTextBox
+from ..ui import dMediaControl
+from ..ui import dMenu
+from ..ui import dMenuBar
+from ..ui import dMenuItem
+from ..ui import dPage
+from ..ui import dPageFrame
+from ..ui import dPageFrameMixin
+from ..ui import dPageFrameNoTabs
+from ..ui import dPageList
+from ..ui import dPageSelect
+from ..ui import dPageStyled
+from ..ui import dPanel
+from ..ui import dRadioList
+from ..ui import dScrollPanel
+from ..ui import dShell
+from ..ui import dSlidePanel
+from ..ui import dSlidePanelControl
+from ..ui import dSlider
+from ..ui import dSpinner
+from ..ui import dSplitter
+from ..ui import dStatusBar
+from ..ui import dTextBox
+from ..ui import dTimer
+from ..ui import dToggleButton
+from ..ui import dTreeView
+from .class_designer_components import LayoutPanel
+from .class_designer_components import LayoutSizer
+from .class_designer_components import LayoutBorderSizer
+from .class_designer_components import LayoutGridSizer
+from .class_designer_components import LayoutSaverMixin
+from .class_designer_components import classFlagProp
+from .class_designer_exceptions import PropertyUpdateException
 
-from dabo.ui import dBitmap
-from dabo.ui import dBitmapButton
-from dabo.ui import dButton
-from dabo.ui import dCheckBox
-from dabo.ui import dCheckList
-from dabo.ui import dColumn
-from dabo.ui import dComboBox
-from dabo.ui import dDataControlMixin
-from dabo.ui import dDialog
-from dabo.ui import dDropdownList
-from dabo.ui import dEditBox
-from dabo.ui import dEditor
-from dabo.ui import dForm
-from dabo.ui import dFormMain
-from dabo.ui import dGauge
-from dabo.ui import dGrid
-from dabo.ui import dHtmlBox
-from dabo.ui import dImage
-from dabo.ui import dLabel
-from dabo.ui import dLed
-from dabo.ui import dLine
-from dabo.ui import dListBox
-from dabo.ui import dListControl
-from dabo.ui import dMaskedTextBox
-from dabo.ui import dMediaControl
-from dabo.ui import dMenu
-from dabo.ui import dMenuBar
-from dabo.ui import dMenuItem
-from dabo.ui import dPage
-from dabo.ui import dPageFrame
-from dabo.ui import dPageFrameMixin
-from dabo.ui import dPageFrameNoTabs
-from dabo.ui import dPageList
-from dabo.ui import dPageSelect
-from dabo.ui import dPageStyled
-from dabo.ui import dPanel
-from dabo.ui import dRadioList
-from dabo.ui import dScrollPanel
-from dabo.ui import dShell
-from dabo.ui import dSlidePanel
-from dabo.ui import dSlidePanelControl
-from dabo.ui import dSlider
-from dabo.ui import dSpinner
-from dabo.ui import dSplitter
-from dabo.ui import dStatusBar
-from dabo.ui import dTextBox
-from dabo.ui import dTimer
-from dabo.ui import dToggleButton
-from dabo.ui import dTreeView
+dabo_module = main.get_dabo_package()
 
 
 class ClassDesignerControlMixin(LayoutSaverMixin):
@@ -84,7 +86,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         self._isMain = False
         # Need to hide the actual RegID property and its setter
         self._tmpRegID = None
-        # Let the rest of the framework know that this is ClassDesigner object
+        # Let the rest of the framework know that this is class_designer object
         self.isDesignerControl = True
         # Is this control being edited?
         self._selected = False
@@ -113,7 +115,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                 self._propDefaults[prop] = getattr(self, prop)
             except Exception as e:
                 nm = self.Name
-                dabo.log.error(
+                dabo_module.error(
                     _(
                         "Could not set default prop value: object: %(nm)s; property: %(prop)s; error: %(e)s"
                     )
@@ -122,17 +124,17 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         # Update bindings; do control-specific things.
         if isinstance(self, dGrid):
             coolEvents = (
-                dEvents.GridRowSize,
-                dEvents.GridColSize,
-                dEvents.GridHeaderMouseLeftDown,
-                dEvents.GridHeaderMouseMove,
-                dEvents.GridHeaderMouseLeftUp,
+                events.GridRowSize,
+                events.GridColSize,
+                events.GridHeaderMouseLeftDown,
+                events.GridHeaderMouseMove,
+                events.GridHeaderMouseLeftUp,
             )
-            badEvents = []
+            baevents = []
             for bnd in self._eventBindings:
                 if bnd[0] not in coolEvents:
-                    badEvents.append(bnd)
-            for bad in badEvents:
+                    baevents.append(bnd)
+            for bad in baevents:
                 self._eventBindings.remove(bad)
 
             # Need to kill the sorting behavior
@@ -142,19 +144,19 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             self.processSort = _killProcessSort
             # Kill cell editing
             self._vetoAllEditing = True
-            self.bindEvent(dEvents.GridCellSelected, self.Controller.onGridCellSelected)
-            self.bindEvent(dEvents.GridHeaderMouseLeftUp, self.Controller.onGridHeaderSelected)
+            self.bindEvent(events.GridCellSelected, self.Controller.onGridCellSelected)
+            self.bindEvent(events.GridHeaderMouseLeftUp, self.Controller.onGridHeaderSelected)
         elif isinstance(self, dSplitter):
             pass
         elif isinstance(self, dImage):
-            self.bindEvent(dEvents.Resize, self._onResize)
+            self.bindEvent(events.Resize, self._onResize)
         elif isinstance(self, (dSlidePanelControl, dSlidePanel)):
-            coolEvents = (dEvents.SlidePanelCaptionClick, dEvents.SlidePanelChange)
-            badEvents = []
+            coolEvents = (events.SlidePanelCaptionClick, events.SlidePanelChange)
+            baevents = []
             for bnd in self._eventBindings:
                 if bnd[0] not in coolEvents:
-                    badEvents.append(bnd)
-            for bad in badEvents:
+                    baevents.append(bnd)
+            for bad in baevents:
                 self._eventBindings.remove(bad)
         else:
             # This removes all previously-defined bindings
@@ -177,14 +179,14 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             self.defaultHt = 360
             self.setRootNode("Tree")
             # Bind the selected node to the current selection
-            self.bindEvent(dEvents.TreeSelection, self.desSelectNode)
+            self.bindEvent(events.TreeSelection, self.desSelectNode)
         elif isinstance(self, (dPageFrame, dPageList, dPageSelect, dPageStyled, dPageFrameNoTabs)):
             self.defaultWd = 400
             self.defaultHt = 300
             # Bind the active page to the current selection
-            self.bindEvent(dEvents.PageChanged, self.desSelectPage)
+            self.bindEvent(events.PageChanged, self.desSelectPage)
         elif isinstance(self, dSlidePanel):
-            self.bindEvent(dEvents.SlidePanelChange, self.desSlidePanelChg)
+            self.bindEvent(events.SlidePanelChange, self.desSlidePanelChg)
         elif isinstance(self, (dPanel, dImage, dBitmap, dBitmapButton, dToggleButton)):
             self.defaultWd = 60
             self.defaultHt = 60
@@ -194,7 +196,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 
         # This seems to happen after the main autobinding, so
         # it is necessary to call this manually.
-        #         self.autoBindEvents()
+        #         self.autoBinevents()
         # Need to set the properties here to get the drawing updated.
         self.HiliteBorderColor = "gold"
         self.HiliteBorderLineStyle = "dot"
@@ -237,7 +239,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             pg.classID = classID
             prop = classFlagProp
             pg.__setattr__(prop, pgCls)
-            pth = dabo.lib.utils.relativePath(pgCls)
+            pth = libutils.relativePath(pgCls)
             pth = os.path.abspath(os.path.split(pth)[0])
             cnt._basePath = pth
             # For some reason, setting DefaultBorder causes a segfault!
@@ -257,7 +259,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         return pg
 
     def makeSizer(self):
-        if isinstance(self, dlgs.WizardPage):
+        if isinstance(self, dialogs.WizardPage):
             self.Sizer = LayoutSizer(
                 "v",
                 DefaultSpacing=5,
@@ -266,10 +268,10 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                 DefaultBorderRight=True,
             )
         else:
-            return super(ClassDesignerControlMixin, self).makeSizer()
+            return super().makeSizer()
 
     def bringToFront(self):
-        super(ClassDesignerControlMixin, self).bringToFront()
+        super().bringToFront()
         prn = self.Parent
         if prn is self.Form.mainPanel:
             prn = self.Form
@@ -279,7 +281,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         prn.zChildren = kids
 
     def sendToBack(self):
-        super(ClassDesignerControlMixin, self).sendToBack()
+        super().sendToBack()
         prn = self.Parent
         if prn is self.Form.mainPanel:
             prn = self.Form
@@ -304,9 +306,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         it is False, removes the bindings.
         """
         if turnOn:
-            self.bindEvent(dEvents.MouseMove, self.handleMouseMove)
+            self.bindEvent(events.MouseMove, self.handleMouseMove)
         else:
-            self.unbindEvent(dEvents.MouseMove)
+            self.unbindEvent(events.MouseMove)
 
     def handleMouseMove(self, evt):
         self.Form.onMouseDrag(evt)
@@ -409,7 +411,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                 dToggleButton,
                 dPage,
                 dColumn,
-                dlgs.WizardPage,
+                dialogs.WizardPage,
             ),
         ):
             pop.append(_("Change Caption"), OnHit=self.onChangeCaption)
@@ -425,16 +427,16 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         is to return the BaseClass, but this allows for specific subclasses
         to override that behavior.
         """
-        if isinstance(self, dlgs.WizardPage):
+        if isinstance(self, dialogs.WizardPage):
             ret = "dialogs.WizardPage"
         else:
-            ret = super(ClassDesignerControlMixin, self).getClass()
+            ret = super().getClass()
         return ret
 
     def onAddChild(self, evt):
         nd = self.activeNode
         self.activeNode = None
-        txt = dui.getString(_("New Node Caption?"), _("Adding Child Node"))
+        txt = ui.getString(_("New Node Caption?"), _("Adding Child Node"))
         if txt is not None:
             nd.appendChild(txt)
         self.Controller.updateLayout()
@@ -442,7 +444,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
     def onAddSibling(self, evt):
         nd = self.activeNode
         self.activeNode = None
-        txt = dui.getString(_("New Node Caption?"), _("Adding Sibling Node"))
+        txt = ui.getString(_("New Node Caption?"), _("Adding Sibling Node"))
         if txt is not None:
             nd.parent.appendChild(txt)
         self.Controller.updateLayout()
@@ -464,7 +466,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             target = self
             title = _("Changing Caption")
             defVal = self.Caption
-        txt = dui.getString(
+        txt = ui.getString(
             _("New Caption"),
             caption=title,
             defaultValue=defVal,
@@ -503,15 +505,15 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         # When a page in a pageframe gets this event, pass it up
         # to its parent.
         if isinstance(self, dPage):
-            dui.callAfter(self.Parent.removePage, self)
-            dui.callAfter(self.Controller.updateLayout)
+            ui.callAfter(self.Parent.removePage, self)
+            ui.callAfter(self.Controller.updateLayout)
             return
         if self.UsingSizers and hasattr(self, "ControllingSizer"):
             self.ControllingSizer.delete(self)
         else:
             self.Form.select(self.Parent)
-            dui.callAfter(self.release)
-            dui.callAfter(self.Controller.updateLayout)
+            ui.callAfter(self.release)
+            ui.callAfter(self.Controller.updateLayout)
 
     def isSelected(self):
         return self.Parent.isSelected(self)
@@ -534,7 +536,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
         self.Form.selectControl(self.Selection, False)
 
     def desSlidePanelChg(self, evt):
-        dui.callAfterInterval(100, self.Form.refresh)
+        ui.callAfterInterval(100, self.Form.refresh)
 
     def moveControl(self, pos, shft=False):
         """Wraps the Move command with the necessary
@@ -686,7 +688,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             except:
                 print("NO SUPER CLASS FOUND!!!!!")
                 ret = []
-        if isinstance(self, dlgs.WizardPage):
+        if isinstance(self, dialogs.WizardPage):
             # Skip the title and separator line.
             ret = ret[2:]
         return ret
@@ -763,7 +765,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             "HeaderFontFace": {
                 "type": list,
                 "readonly": False,
-                "values": dui.getAvailableFonts(),
+                "values": ui.getAvailableFonts(),
             },
             "HeaderFontItalic": {"type": bool, "readonly": False},
             "HeaderFontSize": {"type": int, "readonly": False},
@@ -826,7 +828,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             "FontFace": {
                 "type": list,
                 "readonly": False,
-                "values": dui.getAvailableFonts(),
+                "values": ui.getAvailableFonts(),
             },
             "FontItalic": {"type": bool, "readonly": False},
             "FontSize": {"type": int, "readonly": False},
@@ -1187,7 +1189,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             "TitleFace": {
                 "type": list,
                 "readonly": False,
-                "values": dui.getAvailableFonts(),
+                "values": ui.getAvailableFonts(),
             },
             "TitleItalic": {"type": bool, "readonly": False},
             "TitleSize": {"type": int, "readonly": False},
@@ -1313,7 +1315,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             del ret["Height"]
             del ret["Buffered"]
             del ret["Visible"]
-        elif isinstance(self, dlgs.WizardPage):
+        elif isinstance(self, dialogs.WizardPage):
             ret.update(captionProps)
             ret.update(panelProps)
             ret.update(colorProps)
@@ -1331,7 +1333,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                     "FontFace": {
                         "type": list,
                         "readonly": False,
-                        "values": dui.getAvailableFonts(),
+                        "values": ui.getAvailableFonts(),
                     },
                     "FontSize": {"type": int, "readonly": False},
                 }
@@ -1356,7 +1358,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             ret.update(splitterProps)
         elif isinstance(self, dStatusBar):
             ret.update(fontProps)
-        elif "dMediaControl" in dir(dui) and isinstance(self, dMediaControl):
+        elif "dMediaControl" in dir(ui) and isinstance(self, dMediaControl):
             ret.update(mediaControlProps)
         elif isinstance(self, (dEditBox, dTextBox, dMaskedTextBox)):
             ret.update(colorProps)
@@ -1458,9 +1460,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
                         )
             if self._hiliteBorder:
                 # Tie it to resizing
-                self.bindEvent(dEvents.Resize, self._onResizeHiliteBorder)
+                self.bindEvent(events.Resize, self._onResizeHiliteBorder)
             else:
-                self.unbindEvent(dEvents.Resize, self._onResizeHiliteBorder)
+                self.unbindEvent(events.Resize, self._onResizeHiliteBorder)
         else:
             self._properties["HiliteBorderWidth"] = val
 
@@ -1546,7 +1548,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             return
         try:
             self.ControllingSizer.setItemProp(self, "ColSpan", val)
-        except dui.GridSizerSpanException as e:
+        except ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
     def _getSzRowExpand(self):
@@ -1563,7 +1565,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             return
         try:
             self.ControllingSizer.setItemProp(self, "RowSpan", val)
-        except dui.GridSizerSpanException as e:
+        except ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
     def _getSzProp(self):
@@ -1617,7 +1619,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
             ret = ('"%s"' % self.Caption, self._baseClass)
         elif isinstance(self, dTreeView.getBaseNodeClass()):
             ret = ('"%s"' % self.Caption, self._baseClass)
-        elif isinstance(self, dlgs.WizardPage):
+        elif isinstance(self, dialogs.WizardPage):
             ret = "WizardPage", self.Caption
         else:
             ret = (ustr(self.Name), self._baseClass)

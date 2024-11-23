@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from dabo.dLocalize import _
+from ..dLocalize import _
 from .Base import Base
 
 

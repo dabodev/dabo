@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import dabo.ui
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _
+from .. import ui
+from .. import events
+from ..dLocalize import _
 from dabo.lib.propertyHelperMixin import _DynamicList
-from dabo.lib.utils import ustr
+from ..lib.utils import ustr
 import dabo.lib.xmltodict as xtd
-from .MenuDesignerComponents import MenuSaverMixin
+from .menu_designer_components import MenuSaverMixin
+
+from ..ui import dLabel
+from ..ui import dLine
+from ..ui import dMenu
+from ..ui import dPanel
+from ..ui import dSizerH
+from ..ui import dSizerV
 
 FONT_SIZE_DIFF = 2
-BASE_BACKCOLOR = "#eeeeee"
-
-from dabo.ui import dLabel
-from dabo.ui import dLine
-from dabo.ui import dMenu
-from dabo.ui import dPanel
-from dabo.ui import dSizerH
-from dabo.ui import dSizerV
+VBASE_BACKCOLOR = "#eeeeee"
 
 
 class MenuItemContainer(dPanel):
@@ -72,8 +72,8 @@ class AbstractMenuPanel(MenuSaverMixin, dPanel):
         self.FontSize += FONT_SIZE_DIFF
         self._initCaptions()
         self.layout()
-        self.bindEvent(dEvents.MouseMove, self.Controller.handleMouseMove)
-        self.bindEvent(dEvents.MouseLeftUp, self.onMouseLeftUp)
+        self.bindEvent(events.MouseMove, self.Controller.handleMouseMove)
+        self.bindEvent(events.MouseLeftUp, self.onMouseLeftUp)
 
     def _initCaptions(self):
         """Customize for each subclass as needed."""
@@ -448,8 +448,8 @@ class MenuBarPanel(AbstractMenuPanel):
         self._isMenuBarLink = True
 
     def _initCaptions(self):
-        self.unbindEvent(dEvents.MouseLeftClick)
-        self.unbindEvent(dEvents.ContextMenu)
+        self.unbindEvent(events.MouseLeftClick)
+        self.unbindEvent(events.ContextMenu)
         self.lblCaption = None
         # Create the container for the menus
         mc = self.menuContainer = MenuItemContainer(self, MinSizerHeight=24)

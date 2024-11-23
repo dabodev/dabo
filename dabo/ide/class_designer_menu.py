@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import dabo
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _
+
+from .. import events
+from ..dLocalize import _
 import sys
 
-from dabo.ui import dMenu
+from ..ui import dMenu
 
 
 def mkDesignerMenu(parent, target=None):

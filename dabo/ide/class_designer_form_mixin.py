@@ -4,52 +4,50 @@ import sys
 import time
 import random
 import codecs
-import dabo.ui
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-import dabo.dEvents as dEvents
-from . import ClassDesignerPropSheet
-import dabo.dConstants as kons
-import dabo.lib.utils as utils
-from .ClassDesignerControlMixin import ClassDesignerControlMixin as dcm
-from . import ClassDesignerMenu
-from .DragHandle import DragHandle
-from .wizards.QuickLayoutWizard import QuickLayoutWizard
-from .ClassDesignerComponents import LayoutPanel
-from .ClassDesignerComponents import LayoutBasePanel
-from .ClassDesignerComponents import LayoutSpacerPanel
-from .ClassDesignerComponents import LayoutSizer
-from .ClassDesignerComponents import LayoutBorderSizer
-from .ClassDesignerComponents import LayoutGridSizer
-from .ClassDesignerComponents import LayoutSaverMixin
-from .ClassDesignerComponents import NoSizerBasePanel
-from .ClassDesignerComponents import classFlagProp
-import dabo.lib.xmltodict as xtd
-import dabo.lib.DesignerUtils as desUtil
-from dabo.ui import dKeys
 
-from dabo.ui import dButton
-from dabo.ui import dCheckBox
-from dabo.ui import dComboBox
-from dabo.ui import dDialog
-from dabo.ui import dDockForm
-from dabo.ui import dForm
-from dabo.ui import dGridSizer
-from dabo.ui import dLabel
-from dabo.ui import dListControl
-from dabo.ui import dMenu
-from dabo.ui import dOkCancelDialog
-from dabo.ui import dPanel
-from dabo.ui import dRadioList
-from dabo.ui import dSizer
-from dabo.ui import dSpinner
-from dabo.ui import dSplitter
-from dabo.ui import dStandardButtonDialog
-from dabo.ui import dStatusBar
-from dabo.ui import dTextBox
-from dabo.ui import dToolForm
-from dabo.ui import dTreeView
-from dabo.ui.dialogs import Wizard
+from .. import ui
+from ..dLocalize import _
+from ..lib.utils import ustr
+from ..lib import xmltodict as xtd
+from ..lib import DesignerUtils
+from .. import events
+from . import class_designer_menu
+from .drag_handle import DragHandle
+from .wizards.quick_layout_wizard import QuickLayoutWizard
+from .class_designer_control_mixin import ClassDesignerControlMixin as dcm
+from .class_designer_components import LayoutPanel
+from .class_designer_components import LayoutBasePanel
+from .class_designer_components import LayoutSpacerPanel
+from .class_designer_components import LayoutSizer
+from .class_designer_components import LayoutBorderSizer
+from .class_designer_components import LayoutGridSizer
+from .class_designer_components import LayoutSaverMixin
+from .class_designer_components import NoSizerBasePanel
+from .class_designer_components import classFlagProp
+
+from ..ui import dKeys
+from ..ui import dButton
+from ..ui import dCheckBox
+from ..ui import dComboBox
+from ..ui import dDialog
+from ..ui import dDockForm
+from ..ui import dForm
+from ..ui import dGridSizer
+from ..ui import dLabel
+from ..ui import dListControl
+from ..ui import dMenu
+from ..ui import dOkCancelDialog
+from ..ui import dPanel
+from ..ui import dRadioList
+from ..ui import dSizer
+from ..ui import dSpinner
+from ..ui import dSplitter
+from ..ui import dStandardButtonDialog
+from ..ui import dStatusBar
+from ..ui import dTextBox
+from ..ui import dToolForm
+from ..ui import dTreeView
+from ..ui.dialogs import Wizard
 
 
 class ClassDesignerFormMixin(LayoutSaverMixin):
@@ -171,7 +169,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         for obj in self.Controller.Selection:
             if deleting:
                 self.selectControl(obj, True)
-                dabo.ui.callAfter(obj.release)
+                ui.callAfter(obj.release)
             elif modShift:
                 obj.growControl(h, v)
             else:
@@ -186,7 +184,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                     cntrl.CurrentForm = self
                     self._selection = [obj for obj in self._selection if obj]
                     cntrl.Selection = self._selection
-                dabo.ui.callAfterInterval(200, cntrl.updateLayout)
+                ui.callAfterInterval(200, cntrl.updateLayout)
             except:
                 # no current form at the moment
                 pass
@@ -243,7 +241,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 self.Sizer.append1x(gsz)
 
             def onSelectPic(self, evt):
-                pic = dabo.ui.getFile("png", "icn", "bmp", "jpg", "gif")
+                pic = ui.getFile("png", "icn", "bmp", "jpg", "gif")
                 self.button_picture.Value = pic
 
         dlg = TbButtonDialog(self)
@@ -268,7 +266,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
                 fname = os.path.split(cf)[1]
             else:
                 fname = _("Untitled")
-            saveIt = dabo.ui.areYouSure(
+            saveIt = ui.areYouSure(
                 _("Do you want to save the changes to '%s'?") % fname,
                 _("Unsaved Changes"),
             )
@@ -309,7 +307,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
     #             if interval == 0:
     #                 self._mgr.Update()
     #             else:
-    #                 dabo.ui.callAfterInterval(interval, self._mgr.Update)
+    #                 ui.callAfterInterval(interval, self._mgr.Update)
     #         addMethod(_addDockPanel, "addDockPanel")
     #         addMethod(_refreshState, "_refreshState")
 
@@ -332,7 +330,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         except:
             pass
         self.selectControl(pg, False)
-        dabo.ui.callAfter(self._refreshPage, pg)
+        ui.callAfter(self._refreshPage, pg)
 
     def _refreshPage(self, pg):
         acd = pg.autoClearDrawings
@@ -345,13 +343,13 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         super(ClassDesignerFormMixin, self).refresh(interval=interval)
 
     def onResize(self, evt):
-        dabo.ui.callAfterInterval(100, self.refresh)
+        ui.callAfterInterval(100, self.refresh)
 
     def onMenuOpen(self, evt):
         self.Controller.menuUpdate(evt, self.MenuBar)
 
     def afterSetMenuBar(self):
-        ClassDesignerMenu.mkDesignerMenu(self)
+        class_designer_menu.mkDesignerMenu(self)
 
     def onPanelCreate(self):
         self.Controller.updateLayout()
@@ -503,7 +501,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         return self._classFile
 
     def onSaveAsDesign(self, evt):
-        self._classFile = dabo.ui.getSaveAs(wildcard="cdxml")
+        self._classFile = ui.getSaveAs(wildcard="cdxml")
         if not self._classFile:
             # User canceled
             return
@@ -530,7 +528,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             fname = self.Application.getTempFile("cdxml", directory=loc)
         else:
             if not self._classFile:
-                self._classFile = dabo.ui.getSaveAs(wildcard="cdxml")
+                self._classFile = ui.getSaveAs(wildcard="cdxml")
                 if not self._classFile:
                     # User canceled
                     return
@@ -598,7 +596,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 ### but do not change the comments containing:
 ###         'Dabo Code ID: XXXX',
 ### as these are needed to link the code to the objects.\n\n"""
-        codeHeaderTemplate = desUtil.getCodeObjectSeperator() + "%s"
+        codeHeaderTemplate = DesignerUtils.getCodeObjectSeperator() + "%s"
         body = []
         for codeKey, mthds in list(cd.items()):
             # Add the import statements first, if any
@@ -663,7 +661,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             topObj = self.Controller._selection[0]
 
         # Saving just a part of the design, so get the new file name
-        clsFile = dabo.ui.getSaveAs(wildcard="cdxml")
+        clsFile = ui.getSaveAs(wildcard="cdxml")
         if not clsFile:
             # User canceled
             return
@@ -686,7 +684,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         to override that behavior.
         """
         if isinstance(self, Wizard):
-            ret = "dabo.ui.dialogs.Wizard"
+            ret = "ui.dialogs.Wizard"
         else:
             ret = super(ClassDesignerFormMixin, self).getClass()
         return ret
@@ -747,7 +745,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         try:
             fname = self.onSaveDesign(None, useTmp=True)
         except IOError as e:
-            dabo.ui.info(_("Cannot write file"), title=_("Write Error"))
+            ui.info(_("Cannot write file"), title=_("Write Error"))
         if not fname or not os.path.isfile(fname):
             # Nothing was saved
             return
@@ -758,7 +756,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if pth not in sys.path:
             sys.path.append(pth)
         if self._formMode:
-            frm = dabo.ui.createForm(fname)
+            frm = ui.createForm(fname)
         else:
             frm = dForm(None)
             obj = frm.addObject(fname)
@@ -775,7 +773,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             def __dlgRelease(evt):
                 evt.EventObject.release()
 
-            frm.bindEvent(dEvents.Close, __dlgRelease)
+            frm.bindEvent(events.Close, __dlgRelease)
 
     def layout(self):
         super(ClassDesignerFormMixin, self).layout()
@@ -861,10 +859,10 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         if self.UseSizers:
             pnl = self.Controller.getActivePanel()
             if pnl is None:
-                dabo.ui.stop(_("Please right-click on the target slot"), _("No target"))
+                ui.stop(_("Please right-click on the target slot"), _("No target"))
                 return
             elif not isinstance(pnl, LayoutPanel):
-                dabo.ui.stop(
+                ui.stop(
                     _("Please select a target slot before running the wizard"),
                     _("No Slot Selected"),
                 )
@@ -911,9 +909,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         # Get the biz directory
         bizdir = self.Application.getStandardAppDirectory("biz", os.path.abspath(self._classFile))
         if not bizdir:
-            bizdir = dabo.ui.getDirectory(message=_("Please select your bizobj directory"))
+            bizdir = ui.getDirectory(message=_("Please select your bizobj directory"))
         if not bizdir:
-            if dabo.ui.areYouSure(
+            if ui.areYouSure(
                 message=_(
                     "Cannot create bizobj class without a directory. Do you want to copy the code to the clipboard?"
                 ),
@@ -1132,15 +1130,15 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         Top is the closest to the bottom.
         """
         slc = self.Controller.Selection
-        controlPressed = dabo.ui.isControlDown()
+        controlPressed = ui.isControlDown()
         if edge in ("Top", "Left"):
             memberFunc = {True: max, False: min}[controlPressed]
         else:
             memberFunc = {True: min, False: max}[controlPressed]
         newval = memberFunc([eval("ctl.%s" % edge) for ctl in slc])
         for ctl in slc:
-            dabo.ui.setAfter(ctl, edge, newval)
-        dabo.ui.callAfter(self.redrawHandles, slc)
+            ui.setAfter(ctl, edge, newval)
+        ui.callAfter(self.redrawHandles, slc)
 
     def iterateCall(self, funcName, *args, **kwargs):
         """We need to override this because of a hack that was done
@@ -1228,7 +1226,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             if isinstance(obj.Parent, dRadioList):
                 obj = obj.Parent
         drobj = self._draggedObjects
-        dabo.ui.callAfter(self._clearDraggedObjects)
+        ui.callAfter(self._clearDraggedObjects)
         if self._selecting:
             mp = evt.mousePosition
             ac = self.ActiveContainer
@@ -1284,9 +1282,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         it is False, removes the bindings.
         """
         if turnOn:
-            self.bindEvent(dEvents.MouseMove, self.handleMouseMove)
+            self.bindEvent(events.MouseMove, self.handleMouseMove)
         else:
-            self.unbindEvent(dEvents.MouseMove)
+            self.unbindEvent(events.MouseMove)
         # This is also being passed on to the base panel, which will pass
         # it on to its child objects, so there is no need to duplicate the
         # calls.
@@ -1386,7 +1384,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
             self.onLeftUp(evt, obj)
             return
         self.iterateCall("setMouseHandling", False)
-        dabo.ui.callAfter(self._clearDraggedObjects)
+        ui.callAfter(self._clearDraggedObjects)
         ox, oy = self._dragOrigPos
         nx, ny = obj.absoluteCoordinates(evt.mousePosition)
         dist = abs(nx - ox) + abs(ny - oy)
@@ -1467,9 +1465,9 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
         return """#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import dabo
+from .. import biz
 
-class %(tblTitle)sBizobj(dabo.biz.dBizobj):
+class %(tblTitle)sBizobj(biz.dBizobj):
     def afterInit(self):
         self.DataSource = "%(tbl)s"
         self.KeyField = "%(pk)s"

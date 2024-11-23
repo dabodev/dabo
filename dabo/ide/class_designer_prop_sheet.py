@@ -1,34 +1,38 @@
 # -*- coding: utf-8 -*-
 import os
 import pydoc
-import dabo.ui
-from dabo.dLocalize import _
-from dabo.ui import dKeys as dKeys
-import dabo.dEvents as dEvents
-from .ClassDesignerComponents import LayoutPanel
-from .ClassDesignerComponents import LayoutSpacerPanel
-from .ClassDesignerComponents import LayoutSizer
-from .ClassDesignerComponents import LayoutBorderSizer
-from .ClassDesignerComponents import LayoutGridSizer
-from .ClassDesignerExceptions import PropertyUpdateException
+from .. import icons
+from .. import ui
+from ..dLocalize import _
+from ..ui import dKeys as dKeys
+from .. import events
+from .. import main
+from .class_designer_components import LayoutPanel
+from .class_designer_components import LayoutSpacerPanel
+from .class_designer_components import LayoutSizer
+from .class_designer_components import LayoutBorderSizer
+from .class_designer_components import LayoutGridSizer
+from .class_designer_exceptions import PropertyUpdateException
 
-from dabo.ui import dBorderSizer
-from dabo.ui import dButton
-from dabo.ui import dCheckList
-from dabo.ui import dColumn
-from dabo.ui import dDialog
-from dabo.ui import dDropdownList
-from dabo.ui import dEditableList
-from dabo.ui import dEditBox
-from dabo.ui import dGrid
-from dabo.ui import dImage
-from dabo.ui import dLabel
-from dabo.ui import dLine
-from dabo.ui import dOkCancelDialog
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dSplitter
-from dabo.ui.dialogs import HotKeyEditor
+from ..ui import dBorderSizer
+from ..ui import dButton
+from ..ui import dCheckList
+from ..ui import dColumn
+from ..ui import dDialog
+from ..ui import dDropdownList
+from ..ui import dEditableList
+from ..ui import dEditBox
+from ..ui import dGrid
+from ..ui import dImage
+from ..ui import dLabel
+from ..ui import dLine
+from ..ui import dOkCancelDialog
+from ..ui import dPanel
+from ..ui import dSizer
+from ..ui import dSplitter
+from ..ui.dialogs import HotKeyEditor
+
+dabo_module = main.get_dabo_package()
 
 
 class PropSheet(dPanel):
@@ -42,13 +46,13 @@ class PropSheet(dPanel):
             SashPercent=self._sashPct,
             OnSashDoubleClick=self.onSash2Click,
         )
-        self.mainSplit.bindEvent(dEvents.SashPositionChanged, self.onSashPosChanged)
+        self.mainSplit.bindEvent(events.SashPositionChanged, self.onSashPosChanged)
         self.panePropGrid = ppg = msp.Panel1
         self.panePropDoc = ppd = msp.Panel2
         self.propGrid = pg = PropertyGrid(ppg)
         pg.Handler = self
         self.btnEdit = dButton(ppg, Caption=_("Edit..."), Visible=False)
-        self.btnEdit.bindEvent(dEvents.Hit, self.onBtnEdit)
+        self.btnEdit.bindEvent(events.Hit, self.onBtnEdit)
         self.edtPropDoc = dEditBox(ppd, ReadOnly=True, FontSize=9, Height=49)
         sz = self.Sizer = dSizer("v")
         sz.appendSpacer(10)
@@ -65,17 +69,17 @@ class PropSheet(dPanel):
         self._selected = []
         # Holds a reference to the custom editor method
         self._custEditor = None
-        dabo.ui.callAfter(self.setInitialSizing)
-        dabo.ui.callAfter(self.layout)
+        ui.callAfter(self.setInitialSizing)
+        ui.callAfter(self.layout)
 
     def setPanels(self):
         # On some platforms (Gtk especially), the final size is not
         # set, even with callAfter(). But with two levels of callAfter()
         # it seems to work properly
-        dabo.ui.callAfter(self._setPanels1)
+        ui.callAfter(self._setPanels1)
 
     def _setPanels1(self):
-        dabo.ui.callAfter(self._setPanels2)
+        ui.callAfter(self._setPanels2)
 
     def _setPanels2(self):
         self._sashPct = self.mainSplit.SashPercent = 80
@@ -91,11 +95,11 @@ class PropSheet(dPanel):
         # Give it a little extra
         self.propGrid.Columns[0].Width += 25
         self.sizeGrid(True)
-        dabo.ui.callAfter(self.setPanels)
+        ui.callAfter(self.setPanels)
 
     def onResize(self, evt):
         """Size the value column to fit the panel"""
-        dabo.ui.callAfter(self.sizeGrid)
+        ui.callAfter(self.sizeGrid)
 
     def sizeGrid(self, initial=False):
         try:
@@ -330,7 +334,7 @@ class PropSheet(dPanel):
             if prop.startswith("Font"):
                 self.updateGridValues()
         except PropertyUpdateException as e:
-            dabo.ui.stop(
+            ui.stop(
                 _("Could not set property '%(prop)s' to value '%(val)s'\nReason: '%(e)s'")
                 % locals()
             )
@@ -381,7 +385,7 @@ class PropSheet(dPanel):
     def editColor(self, objs, prop, val):
         # Call the Color dialog
         obj = objs[0]
-        newVal = dabo.ui.getColor(val)
+        newVal = ui.getColor(val)
         if newVal is not None:
             self.propGrid.CurrentValue = newVal
             self.updateVal(prop, newVal, "color")
@@ -390,7 +394,7 @@ class PropSheet(dPanel):
     def editFont(self, objs, prop, val):
         # Call the Font selection dialog
         obj = objs[0]
-        newVal = dabo.ui.getFont(obj.Font)
+        newVal = ui.getFont(obj.Font)
         if newVal is not None:
             self.updateVal(prop, newVal, "font")
             self.select(self._selected)
@@ -398,7 +402,7 @@ class PropSheet(dPanel):
     def editHeaderFont(self, objs, prop, val):
         # Call the Font selection dialog
         obj = objs[0]
-        newVal = dabo.ui.getFont(obj.HeaderFont)
+        newVal = ui.getFont(obj.HeaderFont)
         if newVal is not None:
             self.updateVal(prop, newVal, "font")
             self.select(self._selected)
@@ -406,7 +410,7 @@ class PropSheet(dPanel):
     def editPicture(self, objs, prop, val):
         # Select an image file to display
         obj = objs[0]
-        newVal = dabo.ui.getFile("jpg", "png", "gif", "tif", "bmp", "*")
+        newVal = ui.getFile("jpg", "png", "gif", "tif", "bmp", "*")
         if newVal is not None:
             self.propGrid.CurrentValue = newVal
             self.updateVal(prop, newVal, str)
@@ -416,7 +420,7 @@ class PropSheet(dPanel):
         """Give the option of selecting a standard image, or picking
         an image file.
         """
-        defIcons = dabo.icons.getAvailableIcons()
+        defIcons = icons.getAvailableIcons()
 
         class IconSelectDialog(dDialog):
             def addControls(self):
@@ -428,7 +432,7 @@ class PropSheet(dPanel):
                 sz.DefaultBorder = 20
                 sz.DefaultBorderLeft = sz.DefaultBorderRight = True
                 btn = dButton(self, Caption=_("Select your own image..."))
-                btn.bindEvent(dEvents.Hit, self.onSelectOwn)
+                btn.bindEvent(events.Hit, self.onSelectOwn)
                 sz.append(btn, halign="center")
                 sz.append(dLine(self), border=25, borderSides=("left", "right"))
                 sz.append(dLabel(self, Caption="- or -"), halign="center")
@@ -508,7 +512,7 @@ class PropSheet(dPanel):
     def editMenuBarFile(self, objs, prop, val):
         # Select a connection file
         obj = objs[0]
-        newVal = dabo.ui.getFile("mnxml", "*")
+        newVal = ui.getFile("mnxml", "*")
         if newVal is not None:
             self.propGrid.CurrentValue = newVal
             self.updateVal(prop, newVal, str)
@@ -565,7 +569,7 @@ class PropSheet(dPanel):
                 self.Sizer.append(lbl, halign="center")
                 choices = ["All", "Top", "Bottom", "Left", "Right", "None"]
                 self.editor = dCheckList(self, Choices=choices, ValueMode="String", Height=200)
-                self.editor.bindEvent(dEvents.Hit, self.onSidesChanged)
+                self.editor.bindEvent(events.Hit, self.onSidesChanged)
                 self.editor.Value = self._currVal = val
                 self.Sizer.append1x(self.editor)
 
@@ -689,14 +693,14 @@ class PropertyGrid(dGrid):
         c0 = self.Columns[0]
         fsize = c0.FontSize
         if self.Application.Platform == "Win":
-            self.setAll("FontSize", fsize - 2, filt="BaseClass == dabo.ui.dColumn")
+            self.setAll("FontSize", fsize - 2, filt="BaseClass == ui.dColumn")
         # Set the row height to match
         face = c0.FontFace
         size = c0.FontSize
         bold = c0.FontBold
         italic = c0.FontItalic
         rh = (
-            dabo.ui.fontMetric("M", wind=self.Form, face=face, size=size, bold=bold, italic=italic)[
+            ui.fontMetric("M", wind=self.Form, face=face, size=size, bold=bold, italic=italic)[
                 1
             ]
             + 7
@@ -751,7 +755,7 @@ class PropertyGrid(dGrid):
                     selection = self.Controller.Selection[0]
                     print("PROPNAME", prop_name)
                     print("SELEC", selection)
-                    dabo.log.error(
+                    dabo_module.error(
                         _("Property Grid out of sync for property " "'%s' of object '%'")
                         % (prop_name, selection)
                     )
@@ -846,7 +850,7 @@ class PropertyGrid(dGrid):
         row, col = evt.EventData["row"], evt.EventData["col"]
         self.updateGridDisplay(row, col)
         if self.Handler:
-            dabo.ui.callAfter(self.Handler.gridCellChanged)
+            ui.callAfter(self.Handler.gridCellChanged)
 
     def updateGridDisplay(self, row=None, col=None):
         if row is None:
@@ -884,9 +888,9 @@ class PropertyGrid(dGrid):
         if not getattr(self.Handler.Controller, "isClosing", False):
             if self.Editable:
                 # For some reason, this doesn't seem to work...
-                dabo.ui.callAfter(self.EnableCellEditControl)
+                ui.callAfter(self.EnableCellEditControl)
             else:
-                dabo.ui.callAfter(self.DisableCellEditControl)
+                ui.callAfter(self.DisableCellEditControl)
 
     def onGridCellEdited(self, evt):
         row, col = evt.EventData["row"], evt.EventData["col"]

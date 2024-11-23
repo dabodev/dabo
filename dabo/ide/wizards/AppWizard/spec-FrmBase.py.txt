@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import dabo
-import dabo.ui
+
+from .. import ui
 import dabo.lib.datanav as datanav
 from .MenFileOpen import MenFileOpen
 from .MenReports import MenReports

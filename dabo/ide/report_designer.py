@@ -3,33 +3,33 @@
 import sys
 import os
 import copy
-import dabo.ui
-from dabo.dApp import dApp
-import dabo.dEvents as dEvents
-from dabo.dReportWriter import dReportWriter
-from dabo.lib.reportWriter import *
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-import ClassDesignerPropSheet
+from .. import icons
+from .. import ui
+from ..dApp import dApp
+from .. import events
+from ..dReportWriter import dReportWriter
+from ..lib.reportWriter import *
+from ..dLocalize import _
+from ..lib.utils import ustr
+import .class_designer_prop_sheet
 
-from dabo.ui import dEditor
-from dabo.ui import dFont
-from dabo.ui import dForm
-from dabo.ui import dImage
-from dabo.ui import dKeys
-from dabo.ui import dLabel
-from dabo.ui import dMenu
-from dabo.ui import dPageFrame
-from dabo.ui import dPageFrame
-from dabo.ui import dPanel
-from dabo.ui import dScrollPanel
-from dabo.ui import dTreeView
+from ..ui import dEditor
+from ..ui import dFont
+from ..ui import dForm
+from ..ui import dImage
+from ..ui import dKeys
+from ..ui import dLabel
+from ..ui import dMenu
+from ..ui import dPageFrame
+from ..ui import dPageFrame
+from ..ui import dPanel
+from ..ui import dScrollPanel
+from ..ui import dTreeView
 
 NEW_FILE_CAPTION = "< New >"
 SHORTEN_EXPRESSIONS_FOR_DISPLAY = False
 
 rdc = None
-from dabo import icons
 
 iconPath = os.path.dirname(icons.__file__)  # + r'/themes/tango/16x16'
 
@@ -47,7 +47,7 @@ def DesignerController():
 
         def afterInit(self):
             if sys.platform == "darwin":
-                self.bindEvent(dEvents.KeyDown, self._onKeyDown)
+                self.bindEvent(events.KeyDown, self._onKeyDown)
 
         def startPropEdit(self):
             ## Class Designer uses this; don't think it's necessary here.
@@ -334,7 +334,7 @@ def DesignerController():
         def loadObjectTree(self):
             otf = ObjectTreeForm()
             ot = self.ObjectTree = otf.Editor
-            otf.bindEvent(dEvents.Close, self._onObjectTreeFormClose)
+            otf.bindEvent(events.Close, self._onObjectTreeFormClose)
             # Allow the activate to fire so that position is set:
             otf.Visible = True
             otf.Raise()
@@ -387,7 +387,7 @@ def DesignerController():
         def loadPropSheet(self):
             psf = PropSheetForm()
             ps = self.PropSheet = psf.Editor
-            psf.bindEvent(dEvents.Close, self._onPropSheetFormClose)
+            psf.bindEvent(events.Close, self._onPropSheetFormClose)
             psf.Visible = True
             psf.Raise()
             self.ActiveEditor.Form.Raise()
@@ -1741,7 +1741,7 @@ class ReportDesigner(dScrollPanel):
         self.BackColor = (192, 192, 192)
         self.clearReportForm()
 
-        self.Form.bindEvent(dEvents.Resize, self._onFormResize)
+        self.Form.bindEvent(events.Resize, self._onFormResize)
 
     def onMouseLeftClick(self, evt):
         rdc.SelectedObjects = [rdc.ReportForm]
@@ -2497,8 +2497,8 @@ class ReportDesignerForm(dForm):
         self.pgf.appendPage(ReportDesigner, caption="Visual Editor")
         self.pgf.appendPage(XmlEditor, caption="XML Editor")
         self.pgf.appendPage(PreviewWindow, caption="Preview")
-        self.pgf.Pages[1].bindEvent(dEvents.PageEnter, self.onEnterXmlEditorPage)
-        self.pgf.Pages[1].bindEvent(dEvents.PageLeave, self.onLeaveXmlEditorPage)
+        self.pgf.Pages[1].bindEvent(events.PageEnter, self.onEnterXmlEditorPage)
+        self.pgf.Pages[1].bindEvent(events.PageLeave, self.onLeaveXmlEditorPage)
         self.fillMenu()
 
         self._xmlEditorUpToDate = False

@@ -156,7 +156,7 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
                 self.SetFont(val._nativeFont)
             except AttributeError:
                 dabo_module.error(_("Error setting font for %s") % self.Name)
-            val.bindEvent(dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+            val.bindEvent(events.FontPropertiesChanged, self._onFontPropsChanged)
         else:
             self._properties["Font"] = val
 

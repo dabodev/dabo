@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-import dabo
-import dabo.ui
-from dabo.dLocalize import _
+
+from .. import ui
+from ..dLocalize import _
 from dabo.dApp import dApp
-import dabo.dEvents as dEvents
+from .. import events
 import dabo.lib.xmltodict as xtd
 from MenuDesignerForm import MenuDesignerForm
 

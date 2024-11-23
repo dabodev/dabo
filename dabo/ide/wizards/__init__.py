@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-from .QuickLayoutWizard import QuickLayoutWizard
+from .quick_layout_wizard import QuickLayoutWizard

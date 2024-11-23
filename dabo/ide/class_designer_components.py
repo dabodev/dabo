@@ -1,41 +1,46 @@
 # -*- coding: utf-8 -*-
 import os
 
-import dabo.ui
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.dObject import dObject
-import dabo.dEvents as dEvents
-from .ClassDesignerExceptions import PropertyUpdateException
-from dabo.lib.xmltodict import xmltodict
-from dabo.lib.DesignerUtils import addSizerDefaults
-from .DragHandle import DragHandle
+from .. import ui
+from .. import dColors
+from ..dLocalize import _
+from ..lib.utils import ustr
+from ..lib import utils as libutils
+from ..dObject import dObject
+from .. import events
+from .. import main
+from ..lib.xmltodict import xmltodict
+from ..lib.DesignerUtils import addSizerDefaults
+from .class_designer_exceptions import PropertyUpdateException
+from .drag_handle import DragHandle
 
-from dabo.ui import dBorderSizer
-from dabo.ui import dBox
-from dabo.ui import dColumn
-from dabo.ui import dDialog
-from dabo.ui import dForm
-from dabo.ui import dFormMain
-from dabo.ui import dGrid
-from dabo.ui import dGridSizer
-from dabo.ui import dImage
-from dabo.ui import dLabel
-from dabo.ui import dMenu
-from dabo.ui import dPage
-from dabo.ui import dPageFrame
-from dabo.ui import dPageFrameNoTabs
-from dabo.ui import dPageList
-from dabo.ui import dPageSelect
-from dabo.ui import dPageStyled
-from dabo.ui import dPanel
-from dabo.ui import dRadioList
-from dabo.ui import dSizer
-from dabo.ui import dSpinner
-from dabo.ui import dSplitter
-from dabo.ui import dTreeView
-from dabo.ui.dialogs import Wizard
-from dabo.ui.dialogs import WizardPage
+from ..ui import dBorderSizer
+from ..ui import dBox
+from ..ui import dColumn
+from ..ui import dDialog
+from ..ui import dForm
+from ..ui import dFormMain
+from ..ui import dGrid
+from ..ui import dGridSizer
+from ..ui import dImage
+from ..ui import dLabel
+from ..ui import dMenu
+from ..ui import dPage
+from ..ui import dPageFrame
+from ..ui import dPageFrameNoTabs
+from ..ui import dPageList
+from ..ui import dPageSelect
+from ..ui import dPageStyled
+from ..ui import dPanel
+from ..ui import dRadioList
+from ..ui import dSizer
+from ..ui import dSpinner
+from ..ui import dSplitter
+from ..ui import dTreeView
+from ..ui.dialogs import Wizard
+from ..ui.dialogs import WizardPage
+
+dabo_module = main.get_dabo_package()
 
 
 # Defaults for sizer items
@@ -155,8 +160,8 @@ class LayoutSaverMixin(dObject):
             if clsRef == relPath:
                 rp = clsRef
             else:
-                rp = dabo.lib.utils.relativePath(clsRef, relPath)
-            ra["designerClass"] = dabo.lib.utils.getPathAttributePrefix() + rp
+                rp = libutils.relativePath(clsRef, relPath)
+            ra["designerClass"] = libutils.getPathAttributePrefix() + rp
             ra["savedClass"] = True
         else:
             ra["designerClass"] = self.getClassName()
@@ -235,7 +240,7 @@ class LayoutSaverMixin(dObject):
                         continue
                 # Don't copy the size if AutoSize=True and the width is close to the default size.
                 if self.AutoResize:
-                    defWd, defHt = dabo.ui.fontMetric(wind=self)
+                    defWd, defHt = ui.fontMetric(wind=self)
                     isDefaultSize = False
                     if prop == "Width":
                         isDefaultSize = abs(self.Width - defWd) <= 1
@@ -290,8 +295,8 @@ class LayoutSaverMixin(dObject):
                         # Can't test for 'isfile' since the file may not have been saved yet.
                         ref = os.path.split(ref)[0]
                     val = os.path.join(
-                        dabo.lib.utils.getPathAttributePrefix(),
-                        dabo.lib.utils.relativePath(val, ref),
+                        libutils.getPathAttributePrefix(),
+                        libutils.relativePath(val, ref),
                     )
 
             # If it hasn't changed from the default, skip it
@@ -312,8 +317,8 @@ class LayoutSaverMixin(dObject):
                             dv = int(dv)
                         elif isinstance(val, float):
                             dv = float(dv)
-                        elif dv in dabo.dColors.colors:
-                            dv = dabo.dColors.colorDict[dv]
+                        elif dv in dColors.colors:
+                            dv = dColors.colorDict[dv]
                         elif isinstance(val, (list, tuple, dict)):
                             dv = eval(dv)
                         elif dv == "None":
@@ -536,7 +541,7 @@ class LayoutSaverMixin(dObject):
                     try:
                         sz = self.Sizer
                     except AttributeError:
-                        dabo.log.error(_("No sizer information available for %s") % self)
+                        dabo_module.error(_("No sizer information available for %s") % self)
                         sz = None
         if sz:
             szDict = None
@@ -613,7 +618,7 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
                 else:
                     ornt = "v"
         # Store the initial defaults
-        dabo.ui.callAfter(self._setDefaultSizerProps)
+        ui.callAfter(self._setDefaultSizerProps)
 
     def getChildrenPropDict(self, clsChildren=None):
         """LayoutPanels cannot have children."""
@@ -652,9 +657,9 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         it is False, removes the bindings.
         """
         if turnOn:
-            self.bindEvent(dEvents.MouseMove, self.handleMouseMove)
+            self.bindEvent(events.MouseMove, self.handleMouseMove)
         else:
-            self.unbindEvent(dEvents.MouseMove)
+            self.unbindEvent(events.MouseMove)
 
     def handleMouseMove(self, evt):
         if evt.dragging:
@@ -682,7 +687,7 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         if isinstance(self.Parent, dPage):
             self.Parent.activePanel = self
         pop = self.createContextMenu()
-        dabo.ui.callAfter(self.showContextMenu, pop)
+        ui.callAfter(self.showContextMenu, pop)
         evt.stop()
 
     def createContextMenu(self):
@@ -837,7 +842,7 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         cs = self.ControllingSizer
         try:
             cs.setItemProp(self, "ColSpan", val)
-        except dabo.ui.GridSizerSpanException as e:
+        except ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
     def _getSzRowExpand(self):
@@ -855,7 +860,7 @@ class LayoutPanel(dPanel, LayoutSaverMixin):
         cs = self.ControllingSizer
         try:
             cs.setItemProp(self, "RowSpan", val)
-        except dabo.ui.GridSizerSpanException as e:
+        except ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
     def _getSzProp(self):
@@ -1048,7 +1053,7 @@ class LayoutSpacerPanel(LayoutPanel):
         # Add the Sizer editing option
         pop.appendSeparator()
         pop.append(_("Edit Sizer Settings"), OnHit=self.onEditSizer)
-        dabo.ui.callAfter(self.showContextMenu, pop)
+        ui.callAfter(self.showContextMenu, pop)
         evt.stop()
 
     def onDelete(self, evt):
@@ -1061,7 +1066,7 @@ class LayoutSpacerPanel(LayoutPanel):
         except KeyError:
             sizerAtts = None
         cs.remove(self)
-        dabo.ui.callAfter(self.release)
+        ui.callAfter(self.release)
         lp = LayoutPanel(prnt, AutoSizer=False)
         if isinstance(cs, LayoutGridSizer):
             rr, cc = pos
@@ -1071,7 +1076,7 @@ class LayoutSpacerPanel(LayoutPanel):
         csi = lp.ControllingSizerItem
         cs.setItemProps(csi, sizerAtts)
         self.Controller.select(lp)
-        dabo.ui.callAfter(self.Form.updateApp)
+        ui.callAfter(self.Form.updateApp)
 
     def _getDesProps(self):
         return {"Spacing": {"type": int, "readonly": False}}
@@ -1286,7 +1291,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
             self.ControllingSizer.delete(self)
         else:
             self.release(True)
-        dabo.ui.callAfter(self.Controller.updateLayout)
+        ui.callAfter(self.Controller.updateLayout)
 
     def onCopy(self, evt):
         """Place a copy of this control on the Controller clipboard"""
@@ -1309,10 +1314,10 @@ class LayoutSizerMixin(LayoutSaverMixin):
             lp = LayoutPanel(prnt, AutoSizer=False)
             self.insert(pos, lp, 1, "x")
         if isinstance(obj, (LayoutSizerMixin, LayoutGridSizer)):
-            dabo.ui.callAfter(obj.release, True)
+            ui.callAfter(obj.release, True)
         else:
-            dabo.ui.callAfter(obj.release)
-        dabo.ui.callAfter(self.Controller.updateLayout)
+            ui.callAfter(obj.release)
+        ui.callAfter(self.Controller.updateLayout)
 
     def _updateChildBorderSides(self):
         """Set the BorderSides property for each child to match the default setting."""
@@ -1540,7 +1545,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
             return
         try:
             self.ControllingSizer.setItemProp(self, "ColSpan", val)
-        except dabo.ui.GridSizerSpanException as e:
+        except ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
     def _getSzRowExpand(self):
@@ -1557,7 +1562,7 @@ class LayoutSizerMixin(LayoutSaverMixin):
             return
         try:
             self.ControllingSizer.setItemProp(self, "RowSpan", val)
-        except dabo.ui.GridSizerSpanException as e:
+        except ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
     def _getSzProp(self):
@@ -1824,7 +1829,7 @@ class LayoutBorderSizer(LayoutSizerMixin, dBorderSizer):
                 "FontFace": {
                     "type": list,
                     "readonly": False,
-                    "values": dabo.ui.getAvailableFonts(),
+                    "values": ui.getAvailableFonts(),
                 },
                 "FontItalic": {"type": bool, "readonly": False},
                 "FontSize": {"type": int, "readonly": False},
@@ -1874,7 +1879,7 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
     def switchObjects(self, obj1, obj2):
         """Swaps the location of the two objects."""
         if not obj1 or not obj2:
-            dabo.log.error(_("Cannot swap with non-existent object."))
+            dabo_module.error(_("Cannot swap with non-existent object."))
             return
         row1, col1 = self.getGridPos(obj1)
         row2, col2 = self.getGridPos(obj2)
@@ -1972,7 +1977,7 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             self.ControllingSizer.delete(self)
         else:
             self.release(True)
-        dabo.ui.callAfter(self.Controller.updateLayout)
+        ui.callAfter(self.Controller.updateLayout)
 
     def onCopy(self, evt):
         """Place a copy of this control on the Controller clipboard"""
@@ -1995,10 +2000,10 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             lp = LayoutPanel(prnt, AutoSizer=False)
             self.append(lp, "x", row=pos[0], col=pos[1])
         if isinstance(obj, (LayoutSizerMixin, LayoutGridSizer)):
-            dabo.ui.callAfter(obj.release, True)
+            ui.callAfter(obj.release, True)
         else:
-            dabo.ui.callAfter(obj.release)
-        dabo.ui.callAfter(self.Controller.updateLayout)
+            ui.callAfter(obj.release)
+        ui.callAfter(self.Controller.updateLayout)
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2173,7 +2178,7 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             return
         try:
             self.ControllingSizer.setItemProp(self, "ColSpan", val)
-        except dabo.ui.GridSizerSpanException as e:
+        except ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
     def _getSzRowExpand(self):
@@ -2190,7 +2195,7 @@ class LayoutGridSizer(LayoutSizerMixin, dGridSizer):
             return
         try:
             self.ControllingSizer.setItemProp(self, "RowSpan", val)
-        except dabo.ui.GridSizerSpanException as e:
+        except ui.GridSizerSpanException as e:
             raise PropertyUpdateException(ustr(e))
 
     def _getSzProp(self):
@@ -2370,16 +2375,16 @@ class NoSizerBasePanel(LayoutBasePanel):
     def afterInit(self):
         self.IsContainer = True
 
-    #         self.bindEvent(dEvents.KeyChar, self.Form.onKeyChar)
+    #         self.bindEvent(events.KeyChar, self.Form.onKeyChar)
 
     def setMouseHandling(self, turnOn):
         """When turnOn is True, sets all the mouse event bindings. When
         it is False, removes the bindings.
         """
         if turnOn:
-            self.bindEvent(dEvents.MouseMove, self.handleMouseMove)
+            self.bindEvent(events.MouseMove, self.handleMouseMove)
         else:
-            self.unbindEvent(dEvents.MouseMove)
+            self.unbindEvent(events.MouseMove)
 
     def handleMouseMove(self, evt):
         if evt.dragging:
@@ -2402,7 +2407,7 @@ class NoSizerBasePanel(LayoutBasePanel):
 
     def onContextMenu(self, evt):
         pop = self.createContextMenu()
-        dabo.ui.callAfter(self.showContextMenu, pop)
+        ui.callAfter(self.showContextMenu, pop)
         evt.stop()
 
     def createContextMenu(self):

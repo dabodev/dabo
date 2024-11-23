@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import os
 import inspect
-import dabo
-import dabo.ui
+
+from .. import ui
 from dabo.dApp import dApp
 
 

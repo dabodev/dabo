@@ -2,23 +2,25 @@
 import re
 import six
 
-import dabo
-import dabo.ui
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from . import ClassDesignerMenu
+from .. import ui
+from .. import events
+from .. import main
+from ..dLocalize import _
+from ..lib.utils import ustr
+from . import class_designer_menu
 
-from dabo.ui import dBitmapButton
-from dabo.ui import dButton
-from dabo.ui import dDropdownList
-from dabo.ui import dEditor
-from dabo.ui import dForm
-from dabo.ui import dLabel
-from dabo.ui import dLine
-from dabo.ui import dMenu
-from dabo.ui import dPanel
-from dabo.ui import dSizer
+from ..ui import dBitmapButton
+from ..ui import dButton
+from ..ui import dDropdownList
+from ..ui import dEditor
+from ..ui import dForm
+from ..ui import dLabel
+from ..ui import dLine
+from ..ui import dMenu
+from ..ui import dPanel
+from ..ui import dSizer
+
+dabo_module = main.get_dabo_package()
 
 
 class EditorControl(dEditor):
@@ -104,32 +106,15 @@ class EditorControl(dEditor):
         obj = self.Form.getEditedObject()
         if not obj:
             # Should never happen!
-            dabo.log.error(_("Bad object ref returned to _makeContainingClassIntoSelf()"))
+            dabo_module.error(_("Bad object ref returned to _makeContainingClassIntoSelf()"))
             return None
         try:
-            args = "dabo.ui.%s" % ustr(obj.BaseClass).split("'")[1].split(".")[-1]
-            classdef = "import dabo\nclass self(%s): pass" % args
+            args = "ui.%s" % ustr(obj.BaseClass).split("'")[1].split(".")[-1]
+            classdef = "class self(%s): pass" % args
             exec(classdef, self._namespaces)
         except:
             # Couldn't fake the reference
             pass
-
-    def _namespaceHacks(self):
-        """We'll want to be able to use 'dabo.' and 'dui.' to bring up
-        intellisense for those two modules. We also want to add any class-wide
-        import statements into the namespace.
-        """
-        exec("import dabo\ndui= dabo.ui", self._namespaces)
-        imp = self.Controller.getImportDict()
-        if imp:
-            try:
-                exec(imp, self._namespaces)
-            except SyntaxError as e:
-                # Record the error so that the developer knows there is a problem.
-                dabo.log.error(_("Compilation error found in import code: %s") % e)
-            except ImportError:
-                # Ignore because it is not a code problem and will show up on runtime.
-                pass
 
     def _getController(self):
         try:
@@ -280,7 +265,7 @@ class EditorForm(dForm):
         sz.append(hs, 0, "x")
         EditorControl(pnl, RegID="editor")
         sz.append1x(self.editor)
-        dabo.ui.callAfter(self.refreshStatus)
+        ui.callAfter(self.refreshStatus)
 
     def afterInitAll(self):
         """Set the checked status of the various menu items."""
@@ -453,7 +438,7 @@ class EditorForm(dForm):
         ed.Method = mthd
         if mvPointer:
             ed.moveToEnd()
-        dabo.ui.callAfter(self.setEditorCaption)
+        ui.callAfter(self.setEditorCaption)
         self.ddObject.KeyValue = obj
         self.populateMethodList()
         try:
@@ -493,7 +478,7 @@ class EditorForm(dForm):
         compText = "\n".join(lns)
         try:
             compile(compText, "", "exec")
-            dabo.ui.exclaim(_("No syntax errors found!"), _("Compilation Succeeded"))
+            ui.exclaim(_("No syntax errors found!"), _("Compilation Succeeded"))
         except SyntaxError as e:
             errMsg = "%s" % e
             try:
@@ -509,14 +494,14 @@ class EditorForm(dForm):
                 ed.hiliteLine(num - 1)
             else:
                 disp = msg
-            dabo.ui.stop(disp, _("Compilation Failed"))
+            ui.stop(disp, _("Compilation Failed"))
 
     def onHitDDObject(self, evt):
         self.refreshStatus()
 
     def onHitDDMethod(self, evt):
         self.updateText()
-        dabo.ui.callAfter(self.setEditorCaption)
+        ui.callAfter(self.setEditorCaption)
         self.edit(self.ddObject.KeyValue, self.ddMethod.StringValue.replace("*", ""))
 
     def onCodeNavigate(self, evt):
@@ -554,12 +539,12 @@ class EditorForm(dForm):
         self.Controller.onShowSuper(self.ddObject.KeyValue.classID, self.ddMethod.StringValue)
 
     def onNewMethod(self, evt):
-        nm = dabo.ui.getString(_("Name of method?"))
+        nm = ui.getString(_("Name of method?"))
         if nm:
             # Make sure that it's legal
             nm = nm.strip()
             if not re.match("[a-zA-Z_][a-zA-Z_0-9]*", nm):
-                dabo.ui.stop(_("Illegal name: %s") % nm, title=_("Illegal Name"))
+                ui.stop(_("Illegal name: %s") % nm, title=_("Illegal Name"))
                 return
 
             # Default to the currently selected object
@@ -573,7 +558,7 @@ class EditorForm(dForm):
         self.Controller.onDeclareImports(evt)
 
     def refreshStatus(self):
-        dabo.ui.callAfter(self.setEditorCaption)
+        ui.callAfter(self.setEditorCaption)
         self.populateMethodList()
         self.checkObjMethod()
 
@@ -690,7 +675,7 @@ class EditorForm(dForm):
                     chc.append("%s %s" % ("-" * lev, obj.Name))
                     keylist.append(obj)
                 except:
-                    dabo.log.error(_("Could not add to hierarchy: %s") % obj)
+                    dabo_module.error(_("Could not add to hierarchy: %s") % obj)
             self.ddObject.Choices = chc
             self.ddObject.Keys = keylist
             try:
@@ -758,7 +743,7 @@ class EditorForm(dForm):
             ed.refresh()
             curr = self.StatusText
             self.StatusText = _("Code Updated")
-            dabo.ui.setAfterInterval(4000, self, "StatusText", curr)
+            ui.setAfterInterval(4000, self, "StatusText", curr)
 
     def _getClassMethod(self, clsID, mthd):
         return self.Controller._getClassMethod(clsID, mthd)

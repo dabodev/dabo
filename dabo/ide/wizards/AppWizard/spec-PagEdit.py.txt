@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import dabo
-import dabo.ui
+
+from .. import ui
 from dabo.dApp import dApp
 from .PagEditBase import PagEditBase
 

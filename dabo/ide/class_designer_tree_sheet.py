@@ -1,43 +1,42 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo.ui import dKeys
-from .ClassDesignerComponents import LayoutPanel
-from .ClassDesignerComponents import LayoutBasePanel
-from .ClassDesignerComponents import LayoutSpacerPanel
-from .ClassDesignerComponents import LayoutSizer
-from .ClassDesignerComponents import LayoutGridSizer
-from .ClassDesignerComponents import NoSizerBasePanel
-from .DragHandle import DragHandle
-from . import ClassDesignerMenu
-from .MenuPanel import MenuPanel
-from .MenuDesignerComponents import SeparatorPanel
+from .. import ui
+from .. import events
+from ..dLocalize import _
+from ..lib.utils import ustr
+from ..ui import dKeys
+from .class_designer_components import LayoutPanel
+from .class_designer_components import LayoutBasePanel
+from .class_designer_components import LayoutSpacerPanel
+from .class_designer_components import LayoutSizer
+from .class_designer_components import LayoutGridSizer
+from .class_designer_components import NoSizerBasePanel
+from .drag_handle import DragHandle
+from .menu_panel import MenuPanel
+from .menu_designer_components import SeparatorPanel
+from . import class_designer_menu
 
-dui = dabo.ui
-from dabo.ui import makeProxyProperty
-
-from dabo.ui import dBorderSizer
-from dabo.ui import dBox
-from dabo.ui import dColumn
-from dabo.ui import dComboBox
-from dabo.ui import dDialog
-from dabo.ui import dForm
-from dabo.ui import dGrid
-from dabo.ui import dGridSizer
-from dabo.ui import dListControl
-from dabo.ui import dPageFrameNoTabs
-from dabo.ui import dPanel
-from dabo.ui import dRadioList
-from dabo.ui import dSizer
-from dabo.ui import dSpinner
-from dabo.ui import dStatusBar
-from dabo.ui import dTextBox
-from dabo.ui import dToolForm
-from dabo.ui import dTreeView
-from dabo.ui.dialogs import Wizard
-from dabo.ui.dialogs import WizardPage
+from .. import ui
+from ..ui import makeProxyProperty
+from ..ui import dBorderSizer
+from ..ui import dBox
+from ..ui import dColumn
+from ..ui import dComboBox
+from ..ui import dDialog
+from ..ui import dForm
+from ..ui import dGrid
+from ..ui import dGridSizer
+from ..ui import dListControl
+from ..ui import dPageFrameNoTabs
+from ..ui import dPanel
+from ..ui import dRadioList
+from ..ui import dSizer
+from ..ui import dSpinner
+from ..ui import dStatusBar
+from ..ui import dTextBox
+from ..ui import dToolForm
+from ..ui import dTreeView
+from ..ui.dialogs import Wizard
+from ..ui.dialogs import WizardPage
 
 
 class TreeSheet(dPanel):
@@ -60,13 +59,13 @@ class TreeSheet(dPanel):
         else:
             self.tree.FontSize -= 1
 
-        self.tree.bindEvent(dEvents.TreeSelection, self.onTreeSel)
-        self.tree.bindEvent(dEvents.TreeItemContextMenu, self.onTreeContextMenu)
-        self.tree.bindEvent(dEvents.MouseLeftDoubleClick, self.onTreeAction)
+        self.tree.bindEvent(events.TreeSelection, self.onTreeSel)
+        self.tree.bindEvent(events.TreeItemContextMenu, self.onTreeContextMenu)
+        self.tree.bindEvent(events.MouseLeftDoubleClick, self.onTreeAction)
         self.tree.bindKey("enter", self.onTreeAction)
         self.tree.bindKey("numpad_enter", self.onTreeAction)
-        #         self.tree.bindEvent(dEvents.TreeBeginDrag, self.onTreeBeginDrag)
-        #         self.tree.bindEvent(dEvents.TreeEndDrag, self.onTreeEndDrag)
+        #         self.tree.bindEvent(events.TreeBeginDrag, self.onTreeBeginDrag)
+        #         self.tree.bindEvent(events.TreeEndDrag, self.onTreeEndDrag)
         self.Sizer = dSizer("v")
         self.Sizer.append1x(self.tree)
         # Flag for determining if the user or the app is selecting
@@ -91,7 +90,7 @@ class TreeSheet(dPanel):
         if self._inAppSelection:
             # Otherwise, this would be infinite recursion
             return
-        dui.callAfter(self.Controller.treeSelect)
+        ui.callAfter(self.Controller.treeSelect)
 
     def onTreeContextMenu(self, evt):
         evt.stop()
@@ -100,7 +99,7 @@ class TreeSheet(dPanel):
             # See if there is a context menu for this object
             menu = self.Controller.getTreeContextMenu(obj)
             if menu:
-                dabo.ui.callAfter(self.showContextMenu, menu)
+                ui.callAfter(self.showContextMenu, menu)
         except IndexError:
             pass
 
@@ -241,7 +240,7 @@ class TreeSheet(dPanel):
 
     def _getClassName(self, cls):
         """Takes a string representation of the form:
-            <class 'dabo.ui.dTextBox.dTextBox'>
+            <class 'ui.dTextBox.dTextBox'>
         and returns just the actual class name (i.e., in this
         case, 'dTextBox').
         """
@@ -325,7 +324,7 @@ class TreeSheet(dPanel):
             # Not a sizer; see if it an empty slot, an actual control,
             # a sub-sizer, the form's Status Bar, or some other child
             # form such as the PropSheet.
-            if isinstance(itm, (dStatusBar, dabo.ui.nativeScrollBar, DragHandle)):
+            if isinstance(itm, (dStatusBar, ui.nativeScrollBar, DragHandle)):
                 # ignore
                 return
             elif isinstance(itm, (dForm, dToolForm, dDialog)) and node:  # is not None:
@@ -430,7 +429,7 @@ class TreeSheet(dPanel):
     #                 self.tree.MultipleSelect = val
     #             except AttributeError:
     #                 # tree isn't constructed yet
-    #                 dabo.ui.setAfter(self.tree, "MultipleSelect", val)
+    #                 ui.setAfter(self.tree, "MultipleSelect", val)
     #         else:
     #             self._properties["MultipleSelect"] = val
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import dabo.ui
-import dabo.dEvents as dEvents
+from .. import ui
+from .. import events
 
 
 class MenFileOpen(dabo.ui.dMenu):
@@ -35,7 +35,7 @@ class MenFileOpen(dabo.ui.dMenu):
                 itm = dabo.ui.dMenuItem(self, Caption=caption,
                         HelpText="Open the %%s module" %% plainCaption,
                         Tag=form[1])
-                itm.bindEvent(dEvents.Hit, self.openForm)
+                itm.bindEvent(events.Hit, self.openForm)
                 self.appendItem(itm)
 
 

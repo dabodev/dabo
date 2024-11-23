@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import dabo
-import dabo.ui
+
+from .. import ui
 from dabo.dApp import dApp
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _, n_
+from .. import events
+from ..dLocalize import _, n_
 from .PagSelectBase import (IGNORE_STRING, PagSelectBase, SelectCheckBox, SelectDateTextBox,
         SelectLabel, SelectSpinner, SelectTextBox, SelectionOpDropdown, SortLabel)
 

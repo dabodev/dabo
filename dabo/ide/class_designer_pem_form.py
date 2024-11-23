@@ -1,31 +1,31 @@
 # -*- coding: utf-8 -*-
-import dabo
-import dabo.ui
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-import dabo.dEvents as dEvents
-from .ClassDesignerPropSheet import PropSheet
-from .ClassDesignerTreeSheet import TreeSheet
-from .ClassDesignerMethodSheet import MethodSheet
-from .ClassDesignerObjectPropertySheet import ObjectPropertySheet
-from .ClassDesignerComponents import LayoutPanel
-from .ClassDesignerComponents import LayoutSpacerPanel
-from .ClassDesignerComponents import LayoutSizer
-from .ClassDesignerComponents import LayoutGridSizer
-from . import ClassDesignerMenu
 
-from dabo.ui import dBorderSizer
-from dabo.ui import dColumn
-from dabo.ui import dForm
-from dabo.ui import dPageFrameNoTabs
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dSizerMixin
-from dabo.ui import dSlidePanel
-from dabo.ui import dSlidePanelControl
-from dabo.ui import dTextBox
-from dabo.ui import dToggleButton
-from dabo.ui import dTreeView
+from .. import ui
+from ..dLocalize import _
+from ..lib.utils import ustr
+from .. import events
+from .class_designer_prop_sheet import PropSheet
+from .class_designer_tree_sheet import TreeSheet
+from .class_designer_method_sheet import MethodSheet
+from .class_designer_object_property_sheet import ObjectPropertySheet
+from .class_designer_components import LayoutPanel
+from .class_designer_components import LayoutSpacerPanel
+from .class_designer_components import LayoutSizer
+from .class_designer_components import LayoutGridSizer
+from . import class_designer_menu
+
+from ..ui import dBorderSizer
+from ..ui import dColumn
+from ..ui import dForm
+from ..ui import dPageFrameNoTabs
+from ..ui import dPanel
+from ..ui import dSizer
+from ..ui import dSizerMixin
+from ..ui import dSlidePanel
+from ..ui import dSlidePanelControl
+from ..ui import dTextBox
+from ..ui import dToggleButton
+from ..ui import dTreeView
 
 
 class PemForm(dForm):
@@ -35,7 +35,7 @@ class PemForm(dForm):
 
     def afterSetMenuBar(self):
         self.ShowStatusBar = False
-        ClassDesignerMenu.mkDesignerMenu(self)
+        class_designer_menu.mkDesignerMenu(self)
 
     def onMenuOpen(self, evt):
         self.Controller.menuUpdate(evt, self.MenuBar)
@@ -62,7 +62,7 @@ class PemForm(dForm):
             Picture="downTriangleBlack",
             DownPicture="upTriangleBlack",
         )
-        self.treeBtn.bindEvent(dEvents.Hit, self.onToggleTree)
+        self.treeBtn.bindEvent(events.Hit, self.onToggleTree)
         hsz.append(self.treeBtn)
 
         brdr = 10
@@ -74,7 +74,7 @@ class PemForm(dForm):
 
         self.mainPager = mp = dPageFrameNoTabs(pnl, PageClass=dPanel)
         mp.PageCount = 2
-        mp.bindEvent(dEvents.PageChanged, self.onMainPageChanged)
+        mp.bindEvent(events.PageChanged, self.onMainPageChanged)
         sz.append1x(mp)
         sz.appendSpacer(brdr)
         self.pemPage = pp = mp.Pages[0]
@@ -93,7 +93,7 @@ class PemForm(dForm):
         # This helps restore the sash position on the prop grid page
         self._propSashPct = 80
         # Bind to panel changes
-        self.mainContainer.bindEvent(dEvents.SlidePanelChange, self.onPanelChange)
+        self.mainContainer.bindEvent(events.SlidePanelChange, self.onPanelChange)
         dSlidePanel(
             self.mainContainer,
             Caption=_("Properties"),
@@ -140,7 +140,7 @@ class PemForm(dForm):
 
         ps.Controller = ms.Controller = self._tree.Controller = ops.Controller = self.Controller
         self.layout()
-        dabo.ui.callAfter(self.mainContainer.expand, self.propPage)
+        ui.callAfter(self.mainContainer.expand, self.propPage)
 
     def onToggleTree(self, evt):
         self.mainPager.nextPage()
@@ -155,7 +155,7 @@ class PemForm(dForm):
         if evt.panel is self.propPage:
             try:
                 if evt.expanded:
-                    dabo.ui.setAfter(
+                    ui.setAfter(
                         self._propSheet.mainSplit,
                         "SashPercent",
                         self._propSheet._sashPct,
@@ -166,7 +166,7 @@ class PemForm(dForm):
 
     def onResize(self, evt):
         try:
-            dabo.ui.callAfter(self.mainContainer.refresh)
+            ui.callAfter(self.mainContainer.refresh)
         except:
             # 'mainContainer' might not be defined yet, so ignore
             pass

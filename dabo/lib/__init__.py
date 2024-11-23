@@ -7,7 +7,6 @@
 #    import dabo.lib.ofFunctions as oFox
 
 import uuid
-import dabo
 
 
 def getRandomUUID():

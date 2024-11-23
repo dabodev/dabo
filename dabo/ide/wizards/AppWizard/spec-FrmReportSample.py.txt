@@ -7,9 +7,9 @@
 
 import datetime
 import os
-import dabo
-from dabo.dLocalize import _
-import dabo.ui
+
+from ..dLocalize import _
+from .. import ui
 from .FrmReportBase import FrmReportBase
 
 

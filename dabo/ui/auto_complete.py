@@ -7,7 +7,6 @@ from wx import ImageFromStream, BitmapFromImage
 
 from .. import biz
 from .. import locale
-from .. import dEvents
 from .. import ui
 
 """
@@ -458,7 +457,7 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
         super(dAutoComplete, self)._initEvents()
 
     def onKeyDown(self, evt):
-        """This prevents dEvents from being passed to autocomplete's onKeyDown"""
+        """This prevents events from being passed to autocomplete's onKeyDown"""
         if isinstance(evt, wx.KeyEvent):
             super(dAutoComplete, self).onKeyDown(evt)
 

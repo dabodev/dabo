@@ -160,7 +160,7 @@ class dObject(PropertyHelperMixin, EventMixin):
         Hook for subclasses. User code should do custom event binding
         here, such as::
 
-            self.bindEvent(dEvents.GotFocus, self.customGotFocusHandler)
+            self.bindEvent(events.GotFocus, self.customGotFocusHandler)
 
         """
         pass

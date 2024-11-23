@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
-import dabo.dEvents as dEvents
+from .. import events
+from .. import ui
 
-# This is because I'm a lazy typist
-dui = dabo.ui
-from dabo.dLocalize import _
-
-from dabo.ui import dCheckBox
-from dabo.ui import dDropdownList
-from dabo.ui import dGridSizer
-from dabo.ui import dLabel
-from dabo.ui import dOkCancelDialog
-from dabo.ui import dSizer
-from dabo.ui import dTextBox
+from ..dLocalize import _
+from ..ui import dCheckBox
+from ..ui import dDropdownList
+from ..ui import dGridSizer
+from ..ui import dLabel
+from ..ui import dOkCancelDialog
+from ..ui import dSizer
+from ..ui import dTextBox
 
 
 class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
@@ -20,7 +17,7 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
         sz = dGridSizer(MaxCols=2, HGap=8, VGap=12)
         lbl = dLabel(self, Caption=_("Property Name"))
         self.txtPropName = dTextBox(self, SelectOnEntry=True)
-        self.txtPropName.bindEvent(dEvents.KeyChar, self.onKeyPropName)
+        self.txtPropName.bindEvent(events.KeyChar, self.onKeyPropName)
         sz.append(lbl, halign="right")
         sz.append(self.txtPropName, "x")
 
@@ -70,13 +67,13 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
         sz.setColExpand(True, 1)
         self.Sizer.append1x(sz, border=12)
         self.AutoSize = False
-        dabo.ui.callAfter(self.fitToSizer)
-        dabo.ui.setAfter(self, "Width", 700)
+        ui.callAfter(self.fitToSizer)
+        ui.setAfter(self, "Width", 700)
         self.Caption = _("Custom Property Definition")
         self.update()
 
     def onKeyPropName(self, evt):
-        dabo.ui.callAfter(self.createPropNames)
+        ui.callAfter(self.createPropNames)
 
     def createPropNames(self):
         """Occurs when the user types anything in the Prop Name textbox."""
@@ -129,7 +126,7 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
             self.txtDel.Value = dct["deller"]
             self.chkDel.Value = True
         self.createPropNames()
-        dabo.ui.callAfter(self.refresh)
+        ui.callAfter(self.refresh)
 
     def getData(self):
         """This method returns a dict containing the various
@@ -159,7 +156,7 @@ class ClassDesignerCustomPropertyDialog(dOkCancelDialog):
         return ret
 
     def updEnabled(self, evt):
-        dabo.ui.callAfterInterval(500, self.setEnabled)
+        ui.callAfterInterval(500, self.setEnabled)
 
     def setEnabled(self):
         hasDefault = bool(self.txtDefaultVal.Value)

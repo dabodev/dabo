@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import dabo.ui
+from .. import ui
 from .MenFileOpen import MenFileOpen
 
 

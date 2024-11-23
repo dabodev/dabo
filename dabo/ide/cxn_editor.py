@@ -3,25 +3,25 @@
 import sys
 import os
 import copy
-import dabo
+
 
 # import dabo.ui as dui
-# import dabo.dEvents as dEvents
+# from .. import events
 import dabo.dConstants as k
 from dabo.dApp import dApp
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
+from ..dLocalize import _
+from ..lib.utils import ustr
 from dabo.lib.connParser import createXML
 from dabo.lib.connParser import importConnections
 import dabo.lib.utils as utils
-from dabo.ui import dButton
-from dabo.ui import dDropdownList
-from dabo.ui import dForm
-from dabo.ui import dGridSizer
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dTextBox
+from ..ui import dButton
+from ..ui import dDropdownList
+from ..ui import dForm
+from ..ui import dGridSizer
+from ..ui import dLabel
+from ..ui import dPanel
+from ..ui import dSizer
+from ..ui import dTextBox
 from . import HomeDirectoryStatusBar
 
 

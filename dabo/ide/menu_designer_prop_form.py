@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-import dabo.ui
-from dabo.dLocalize import _
-import dabo.dEvents as dEvents
-from ClassDesignerPropSheet import PropSheet
-from ClassDesignerTreeSheet import TreeSheet
-from dabo.ui import dForm
-from dabo.ui import dPageFrameNoTabs
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dTextBox
-from dabo.ui import dToggleButton
+from .. import ui
+from ..dLocalize import _
+from .. import events
+from .class_designer_prop_sheet import PropSheet
+from .class_designer_tree_sheet import TreeSheet
+from ..ui import dForm
+from ..ui import dPageFrameNoTabs
+from ..ui import dPanel
+from ..ui import dSizer
+from ..ui import dTextBox
+from ..ui import dToggleButton
 
 
 class MenuPropForm(dForm):
@@ -44,7 +44,7 @@ class MenuPropForm(dForm):
             Picture="downTriangleBlack",
             DownPicture="upTriangleBlack",
         )
-        self.treeBtn.bindEvent(dEvents.Hit, self.onToggleTree)
+        self.treeBtn.bindEvent(events.Hit, self.onToggleTree)
         hsz.append(self.treeBtn)
 
         brdr = 10
@@ -56,7 +56,7 @@ class MenuPropForm(dForm):
 
         self.mainPager = mp = dPageFrameNoTabs(pnl, PageClass=dPanel)
         mp.PageCount = 2
-        mp.bindEvent(dEvents.PageChanged, self.onMainPageChanged)
+        mp.bindEvent(events.PageChanged, self.onMainPageChanged)
         sz.append1x(mp)
         sz.appendSpacer(brdr)
         self.propPage = pp = mp.Pages[0]

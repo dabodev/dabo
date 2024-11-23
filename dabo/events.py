@@ -193,7 +193,7 @@ class GridEvent(dEvent):
 
 class KeyEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        from dApp import dApp
+        from .dApp import dApp
 
         return issubclass(objectClass, (ui.dPemMixin, dApp))
 
@@ -258,7 +258,7 @@ class SpinnerEvent(dEvent):
 
 class ReportEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        from ..dReportWriter import dReportWriter
+        from .dReportWriter import dReportWriter
 
         try:
             return issubclass(objectClass, dReportWriter)

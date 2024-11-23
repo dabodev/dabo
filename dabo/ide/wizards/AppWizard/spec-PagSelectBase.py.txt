@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import dabo
-import dabo.ui
-from dabo.dObject import dObject
-import dabo.dEvents as dEvents
-import dabo.lib.datanav as datanav
+
+from ... import ui
+from ...dObject import dObject
+from ... import events
+from ...lib import datanav as datanav
 
 IGNORE_STRING = datanav.QRY_OPERATOR.IGNORE
 
@@ -32,8 +32,8 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 
     def initEvents(self):
         super(SelectionOpDropdown, self).initEvents()
-        self.bindEvent(dEvents.Hit, self.onChoiceMade)
-        self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
+        self.bindEvent(events.Hit, self.onChoiceMade)
+        self.bindEvent(events.ValueChanged, self.onValueChanged)
 
     def onValueChanged(self, evt):
         # italicize if we are ignoring the field:
@@ -64,7 +64,7 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 class SortLabel(dabo.ui.dLabel):
     def initEvents(self):
         super(SortLabel, self).initEvents()
-        self.bindEvent(dEvents.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
+        self.bindEvent(events.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
         # Add a property for the related field
         self.relatedDataField = ""
 

@@ -4,19 +4,19 @@ import sys
 import os
 import time
 import traceback
-import dabo
-import dabo.ui
+
+from .. import ui
 from dabo.dApp import dApp
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-import dabo.dEvents as dEvents
+from ..dLocalize import _
+from ..lib.utils import ustr
+from .. import events
 import dabo.dConstants as k
 from dabo.lib.connParser import createXML
 from dabo.lib.untabify import process as untabify
 from dabo.ui.dialogs import WizardPage
 from dabo.ui.dialogs import Wizard
-from dabo.ui import dLabel
-from dabo.ui import dSizer
+from ..ui import dLabel
+from ..ui import dSizer
 
 
 def getSafeTableName(tableName):
@@ -161,10 +161,10 @@ class PageDatabase(AppWizardPage):
             self.ddProfile.Value = defaultUserProfileName
         else:
             self.ddProfile.Value = defaultProfileName
-        self.ddProfile.bindEvent(dEvents.ValueChanged, self.onProfileChoice)
+        self.ddProfile.bindEvent(events.ValueChanged, self.onProfileChoice)
 
         cmd = dabo.ui.dButton(self, Caption=_("New Profile..."), Name="cmdNewProfile")
-        cmd.bindEvent(dEvents.Hit, self.onNewProfile)
+        cmd.bindEvent(events.Hit, self.onNewProfile)
 
         gs = dabo.ui.dGridSizer()
         gs.MaxCols = 2
@@ -191,7 +191,7 @@ class PageDatabase(AppWizardPage):
                 obj = dabo.ui.dTextBox(
                     self, PasswordEntry=pw, Name=("ctl%s" % field), SelectOnEntry=True
                 )
-            obj.bindEvent(dEvents.ValueChanged, self.onParmValueChanged)
+            obj.bindEvent(events.ValueChanged, self.onParmValueChanged)
 
             gs.append(lbl)
             # Add a file search button. It will be hidden for all
@@ -199,7 +199,7 @@ class PageDatabase(AppWizardPage):
             if field == "Database":
                 self.btnSrch = dabo.ui.dButton(self, Caption="...")
                 self.btnSrch.Width = self.btnSrch.Height * 2
-                self.btnSrch.bindEvent(dEvents.Hit, self.onDbSearch)
+                self.btnSrch.bindEvent(events.Hit, self.onDbSearch)
                 hs = self.szDB = dabo.ui.dSizer("H")
                 hs.append1x(obj)
                 hs.append(self.btnSrch, border=10, borderSides="left")
@@ -371,13 +371,13 @@ your application."""
         self.Sizer.append1x(clb)
         hsz = dabo.ui.dSizer("h")
         btn = dabo.ui.dButton(self, Caption=_("Select All"))
-        btn.bindEvent(dEvents.Hit, self.onSelectAll)
+        btn.bindEvent(events.Hit, self.onSelectAll)
         hsz.append(btn, border=5)
         btn = dabo.ui.dButton(self, Caption=_("Invert Selection"))
-        btn.bindEvent(dEvents.Hit, self.onInvertSelect)
+        btn.bindEvent(events.Hit, self.onInvertSelect)
         hsz.append(btn, border=5)
         btn = dabo.ui.dButton(self, Caption=_("Select None"))
-        btn.bindEvent(dEvents.Hit, self.onSelectNone)
+        btn.bindEvent(events.Hit, self.onSelectNone)
         hsz.append(btn, border=5)
         self.Sizer.append(hsz, halign="center")
 
@@ -477,7 +477,7 @@ You can always move the directory later."""
         hs.appendSpacer(4)
 
         self.cmdPick = dabo.ui.dButton(self, Caption="...", Width=30, Height=self.txtDir.Height)
-        self.cmdPick.bindEvent(dEvents.Hit, self.onPick)
+        self.cmdPick.bindEvent(events.Hit, self.onPick)
         hs.append(self.cmdPick, 0)
         self.Sizer.append1x(hs)
 
@@ -1074,14 +1074,14 @@ python %(appName)s.py %(tableName)s
 
         # Custom SQL checkbox:
         chkCustomSQL = dabo.ui.dCheckBox(panel, Caption=_("Use Custom SQL"))
-        chkCustomSQL.bindEvent(dEvents.Hit, self.onCustomSQL)
+        chkCustomSQL.bindEvent(events.Hit, self.onCustomSQL)
         gsz.append(chkCustomSQL)
 
         # Requery button:
         requeryButton = dabo.ui.dButton(panel)
         requeryButton.Caption =  _("&Requery")
         requeryButton.DefaultButton = True
-        requeryButton.bindEvent(dEvents.Hit, self.onRequery)
+        requeryButton.bindEvent(events.Hit, self.onRequery)
         btnRow = gsz.findFirstEmptyCell()[0] + 1
         gsz.append(requeryButton, "expand", row=btnRow, col=1,
                 halign="right", border=3)

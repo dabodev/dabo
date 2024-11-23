@@ -405,7 +405,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
 
     def _setSashPosition(self, val):
         if self._constructed():
-            self.SetSashPosition(val)
+            self.SetSashPosition(round(val))
             # Set the internal prop from the wx Prop
             self._sashPos = self.GetSashPosition()
         else:

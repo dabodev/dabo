@@ -5,16 +5,17 @@ if __name__ == "__main__":
     sys.exit("This isn't meant to be run stand-alone. Please run ide/ClassDesigner.py instead.")
 import os
 import time
-import dabo.ui
-from dabo.dApp import dApp
-import dabo.dEvents as dEvents
-import dabo.dConstants as kons
-from dabo.dLocalize import _
-from ..ClassDesignerComponents import LayoutSizer
-from ..ClassDesignerComponents import LayoutGridSizer
-import dabo.ui.dialogs.Wizard as Wizard
-import dabo.ui.dialogs.WizardPage as WizardPage
-from . import QLWImageData as ImageData
+
+from ... import main
+from ... import ui
+from ... import events
+from ...dApp import dApp
+from ...dLocalize import _
+from ...ide.class_designer_components import LayoutSizer
+from ...ide.class_designer_components import LayoutGridSizer
+from ...ui.dialogs import Wizard as Wizard
+from ...ui.dialogs import WizardPage as WizardPage
+from . import qlw_image_data as ImageData
 
 
 class PgConnectionSelect(WizardPage):
@@ -28,25 +29,25 @@ class PgConnectionSelect(WizardPage):
         sz.appendSpacer(1)
         sz.DefaultBorderTop = False
 
-        gsz = dabo.ui.dGridSizer(MaxCols=2)
-        lbl = dabo.ui.dLabel(self, Caption=_("Select a Connection:"))
-        dd = self.ddNames = dabo.ui.dListBox(
+        gsz = ui.dGridSizer(MaxCols=2)
+        lbl = ui.dLabel(self, Caption=_("Select a Connection:"))
+        dd = self.ddNames = ui.dListBox(
             self, RegID="ddName", DataSource="form", DataField="ConnectionName"
         )
         gsz.appendItems((lbl, dd))
-        lbl = dabo.ui.dLabel(self, Caption=_("-or-"))
+        lbl = ui.dLabel(self, Caption=_("-or-"))
         gsz.append(lbl, colSpan=2, halign="center")
 
-        lbl = dabo.ui.dLabel(self, Caption=_("Open a Connection File:"))
-        btn = dabo.ui.dButton(self, Caption=_("Select..."), RegID="btnFile")
+        lbl = ui.dLabel(self, Caption=_("Open a Connection File:"))
+        btn = ui.dButton(self, Caption=_("Select..."), RegID="btnFile")
         gsz.appendItems((lbl, btn))
-        btn.bindEvent(dEvents.Hit, self.onFileSelect)
-        lbl = dabo.ui.dLabel(self, Caption=_("-or-"))
+        btn.bindEvent(events.Hit, self.onFileSelect)
+        lbl = ui.dLabel(self, Caption=_("-or-"))
         gsz.append(lbl, colSpan=2, halign="center")
 
-        lbl = dabo.ui.dLabel(self, Caption=_("New Connection File:"))
-        btn = dabo.ui.dButton(self, Caption=_("Create..."), RegID="btnCreate")
-        btn.bindEvent(dEvents.Hit, self.onFileCreate)
+        lbl = ui.dLabel(self, Caption=_("New Connection File:"))
+        btn = ui.dButton(self, Caption=_("Create..."), RegID="btnCreate")
+        btn.bindEvent(events.Hit, self.onFileCreate)
         gsz.appendItems((lbl, btn))
         if self.Application.Platform == "GTK":
             # Gtk does not allow a modal form to invoke another modal form.
@@ -65,7 +66,7 @@ class PgConnectionSelect(WizardPage):
     def onLeavePage(self, dir):
         # This will return False if the connection cannot be made.
         if not self.Wizard.ConnectionName:
-            dabo.ui.stop(_("You must select a connection before proceeding."))
+            ui.stop(_("You must select a connection before proceeding."))
             return False
         return self.Wizard.makeConnection()
 
@@ -74,9 +75,9 @@ class PgConnectionSelect(WizardPage):
         dd.DataField = ""
         connNames = self.Application.getConnectionNames()
         dd.Choices = connNames
-        dabo.ui.setAfter(dd, "DataField", "ConnectionName")
+        ui.setAfter(dd, "DataField", "ConnectionName")
         if connNames:
-            dabo.ui.setAfter(dd, "PositionValue", 0)
+            ui.setAfter(dd, "PositionValue", 0)
         dd.refresh()
 
     def setConnectionNames(self, names):
@@ -88,7 +89,7 @@ class PgConnectionSelect(WizardPage):
         self._connectionName = ""
 
     def onFileSelect(self, evt):
-        f = dabo.ui.getFile("cnxml", message=_("Select the connection file to use"))
+        f = ui.getFile("cnxml", message=_("Select the connection file to use"))
         if not f:
             # User canceled
             return
@@ -101,7 +102,7 @@ class PgConnectionSelect(WizardPage):
         from CxnEditor import EditorForm
 
         frm = EditorForm(self.Form)
-        frm.bindEvent(dEvents.Close, self.onCxnClose)
+        frm.bindEvent(events.Close, self.onCxnClose)
         frm.newFile()
         frm.show()
 
@@ -120,15 +121,15 @@ class PgSelect(WizardPage):
 
         sz = self.Sizer
         sz.appendSpacer(16)
-        lbl = dabo.ui.dLabel(self, Caption=_("Select Table:"))
-        tb = self.tblSelector = dabo.ui.dDropdownList(self)
+        lbl = ui.dLabel(self, Caption=_("Select Table:"))
+        tb = self.tblSelector = ui.dDropdownList(self)
         tbls = list(self.Wizard.DE.keys())
         tbls.sort()
         tb.Choices = tbls
         tb.PositionValue = 0
-        tb.bindEvent(dabo.dEvents.Hit, self.onTableSelection)
+        tb.bindEvent(events.Hit, self.onTableSelection)
 
-        hsz = dabo.ui.dSizer("h", DefaultSpacing=12)
+        hsz = ui.dSizer("h", DefaultSpacing=12)
         hsz.append(lbl)
         hsz.append(tb)
         sz.append(hsz, alignment="center")
@@ -136,21 +137,21 @@ class PgSelect(WizardPage):
 
         # Now create the field list, and populate it with the
         # selected table's fields
-        lbl = dabo.ui.dLabel(self, Caption=_("Fields:"))
+        lbl = ui.dLabel(self, Caption=_("Fields:"))
         sz.append(lbl, 0, alignment="left")
-        lst = self.lstFields = dabo.ui.dListControl(self, MultipleSelect=True)
+        lst = self.lstFields = ui.dListControl(self, MultipleSelect=True)
         lst.ValueColumn = 2
         lst.setColumns((_("PK"), _("Type"), _("Name")))
         lst.setColumnWidth(0, 30)
         sz.append(lst, 1, "x")
         sz.appendSpacer(16)
-        btnSz = dabo.ui.dSizer("h")
+        btnSz = ui.dSizer("h")
         btnSz.DefaultSpacing = 10
-        btnAll = dabo.ui.dButton(self, Caption=_("Select All"))
-        btnAll.bindEvent(dEvents.Hit, self.onSelectAll)
+        btnAll = ui.dButton(self, Caption=_("Select All"))
+        btnAll.bindEvent(events.Hit, self.onSelectAll)
         btnSz.append(btnAll, 1, "x")
-        btnNone = dabo.ui.dButton(self, Caption=_("Select None"))
-        btnNone.bindEvent(dEvents.Hit, self.onSelectNone)
+        btnNone = ui.dButton(self, Caption=_("Select None"))
+        btnNone.bindEvent(events.Hit, self.onSelectNone)
         btnSz.append(btnNone, 1, "x")
         sz.append(btnSz, 0, "x")
         sz.appendSpacer(20)
@@ -213,7 +214,7 @@ class PgSelect(WizardPage):
         if dir == "forward":
             # Make sure that they selected something
             if not (selFlds) or not (selTbl):
-                dabo.ui.info(_("Please select something first."))
+                ui.info(_("Please select something first."))
                 return False
         self.Wizard.flds = selFlds
         self.Wizard.tbl = selTbl
@@ -224,18 +225,18 @@ class PgLayout(WizardPage):
         self.Caption = _("Layout Selection")
         self.layouts = []
         # select a layout type
-        lt = self.layoutType = dabo.ui.dListBox(self, Height=160, ValueMode="Position")
-        lt.bindEvent(dEvents.Hit, self.onLayoutSelect)
+        lt = self.layoutType = ui.dListBox(self, Height=160, ValueMode="Position")
+        lt.bindEvent(events.Hit, self.onLayoutSelect)
 
         # Define images for each layout. They will be
         # accessed by position relative to the choices
         # in the dripdown list
         self.imgs = (
-            dabo.ui.imageFromData(ImageData.getLayoutLabelLeftData()),
-            dabo.ui.imageFromData(ImageData.getLayoutLabelTopData()),
-            dabo.ui.imageFromData(ImageData.getLayoutGridData()),
+            ui.imageFromData(ImageData.getLayoutLabelLeftData()),
+            ui.imageFromData(ImageData.getLayoutLabelTopData()),
+            ui.imageFromData(ImageData.getLayoutGridData()),
         )
-        img = self.layoutImg = dabo.ui.dImage(self, Width=200)
+        img = self.layoutImg = ui.dImage(self, Width=200)
 
         sz = self.Sizer
         sz.append(lt, 0, "x")
@@ -261,9 +262,9 @@ class PgOrdering(WizardPage):
     def createBody(self):
         self.Caption = _("Order Fields")
 
-        #         lbl = dabo.ui.dLabel(self, Caption="""Select a field, and then use the buttons
+        #         lbl = ui.dLabel(self, Caption="""Select a field, and then use the buttons
         # to change its order""")
-        fs = self.fldSorter = dabo.ui.dEditableList(
+        fs = self.fldSorter = ui.dEditableList(
             self,
             Caption=_("Set the field order"),
             Editable=False,
@@ -303,33 +304,33 @@ class PgSample(WizardPage):
         self._controlSizer = None
         self._useColons = False
         self._useTitleCase = False
-        lbl = dabo.ui.dLabel(
+        lbl = ui.dLabel(
             self,
             Caption=_("Double-click a caption to edit"),
             FontSize=8,
             FontItalic=True,
         )
         self.Sizer.append(lbl, halign="center")
-        self.rClickLbl = dabo.ui.dLabel(
+        self.rClickLbl = ui.dLabel(
             self,
             Caption=_("Right-click a control to change its type"),
             FontSize=8,
             FontItalic=True,
         )
         self.Sizer.append(self.rClickLbl, halign="center", border=3, borderSides="top")
-        self.samplePanel = dabo.ui.dScrollPanel(self, BackColor="papayawhip")
+        self.samplePanel = ui.dScrollPanel(self, BackColor="papayawhip")
         itm = self.Sizer.append1x(self.samplePanel, border=3, borderSides="top")
         self.samplePanel.Sizer = LayoutSizer("v")
 
         # Define an editable label class
-        class EditLabel(dabo.ui.dLabel):
+        class EditLabel(ui.dLabel):
             def afterInit(self):
                 self.origCap = self.Caption
                 # The label will be on the sample panel, which is on the page
                 # that contains the actual event code.
-                self.bindEvent(dEvents.MouseLeftDoubleClick, self.Parent.Parent.onLblEdit)
+                self.bindEvent(events.MouseLeftDoubleClick, self.Parent.Parent.onLblEdit)
                 # Store the original caption for later reference
-                dabo.ui.callAfter(self._storeCaption)
+                ui.callAfter(self._storeCaption)
 
             def _storeCaption(self, cap=None):
                 if cap is None:
@@ -357,7 +358,7 @@ class PgSample(WizardPage):
         sc = self.controls
         for kk in list(sc.keys()):
             for vv in list(sc[kk].values()):
-                if isinstance(vv, dabo.ui.dPemMixin):
+                if isinstance(vv, ui.dPemMixin):
                     vv.release()
         del sc
         self.controls = {}
@@ -396,9 +397,9 @@ class PgSample(WizardPage):
             cap = self._formatCaption(fld)
             lbl = self.editLabelClass(sp, Caption=cap)
             self._labels.append(lbl)
-            cls = dabo.ui.dTextBox
+            cls = ui.dTextBox
             ctl = cls(sp)
-            ctl.bindEvent(dEvents.ContextMenu, self.onCtlRightClick)
+            ctl.bindEvent(events.ContextMenu, self.onCtlRightClick)
 
             cs.append(lbl, halign=self.LabelAlignment)
             if style == "above":
@@ -425,22 +426,22 @@ class PgSample(WizardPage):
         self.ColumnSpacing = 5
         gs = self._controlSizer
         if gs is None:
-            gs = self._controlSizer = dabo.ui.dGridSizer(MaxCols=2)
+            gs = self._controlSizer = ui.dGridSizer(MaxCols=2)
             self.Sizer.appendSpacer(5)
             self.Sizer.append(gs, 0, halign="center")
         gs.clear()
 
-        lbl = dabo.ui.dLabel(self, Caption=_("Outside Border:"))
+        lbl = ui.dLabel(self, Caption=_("Outside Border:"))
         gs.append(lbl, halign="right")
-        spn = dabo.ui.dSpinner(self, DataSource="self.Parent", DataField="OutsideBorder")
+        spn = ui.dSpinner(self, DataSource="self.Parent", DataField="OutsideBorder")
         spn.Value = self.OutsideBorder
         gs.append(spn)
         self._layoutControls.append(lbl)
         self._layoutControls.append(spn)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("Spacing:"))
+        lbl = ui.dLabel(self, Caption=_("Spacing:"))
         gs.append(lbl, halign="right")
-        spn = dabo.ui.dSpinner(self, DataSource="self.Parent", DataField="BetweenSpacing")
+        spn = ui.dSpinner(self, DataSource="self.Parent", DataField="BetweenSpacing")
         spn.Value = self.BetweenSpacing
         gs.append(spn)
         self._layoutControls.append(lbl)
@@ -448,34 +449,34 @@ class PgSample(WizardPage):
 
         if style == "left":
             # Add a spinner for column separation
-            lbl = dabo.ui.dLabel(self, Caption=_("Column Separation:"))
+            lbl = ui.dLabel(self, Caption=_("Column Separation:"))
             gs.append(lbl, halign="right")
-            spn = dabo.ui.dSpinner(self, DataSource="self.Parent", DataField="ColumnSpacing")
+            spn = ui.dSpinner(self, DataSource="self.Parent", DataField="ColumnSpacing")
             spn.Value = self.ColumnSpacing
             gs.append(spn)
             self._layoutControls.append(lbl)
             self._layoutControls.append(spn)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("Label Alignment:"))
+        lbl = ui.dLabel(self, Caption=_("Label Alignment:"))
         gs.append(lbl, halign="right")
-        dd = dabo.ui.dDropdownList(self, DataSource="self.Parent", DataField="LabelAlignment")
+        dd = ui.dDropdownList(self, DataSource="self.Parent", DataField="LabelAlignment")
         dd.Choices = ["Left", "Center", "Right"]
         dd.Value = self.LabelAlignment
         gs.append(dd)
         self._layoutControls.append(lbl)
         self._layoutControls.append(dd)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("Labels with Colons:"))
+        lbl = ui.dLabel(self, Caption=_("Labels with Colons:"))
         gs.append(lbl, halign="right")
-        chk = dabo.ui.dCheckBox(self, DataSource="self.Parent", DataField="UseColons")
+        chk = ui.dCheckBox(self, DataSource="self.Parent", DataField="UseColons")
         chk.Value = self.UseColons
         gs.append(chk)
         self._layoutControls.append(lbl)
         self._layoutControls.append(chk)
 
-        lbl = dabo.ui.dLabel(self, Caption=_("Title-case Labels:"))
+        lbl = ui.dLabel(self, Caption=_("Title-case Labels:"))
         gs.append(lbl, halign="right")
-        chk = dabo.ui.dCheckBox(self, DataSource="self.Parent", DataField="UseTitleCase")
+        chk = ui.dCheckBox(self, DataSource="self.Parent", DataField="UseTitleCase")
         chk.Value = self.UseTitleCase
         gs.append(chk)
         self._layoutControls.append(lbl)
@@ -496,17 +497,17 @@ class PgSample(WizardPage):
 
     def onCtlRightClick(self, evt):
         self._editedControl = evt.EventObject
-        pop = dabo.ui.dMenu()
+        pop = ui.dMenu()
         currclass = self._editedControl.__class__
-        if not currclass is dabo.ui.dTextBox:
+        if not currclass is ui.dTextBox:
             pop.append(_("Plain Textbox"), OnHit=self.onChangeControl)
-        if not currclass is dabo.ui.dDateTextBox:
+        if not currclass is ui.dDateTextBox:
             pop.append(_("Date Textbox"), OnHit=self.onChangeControl)
-        if not currclass is dabo.ui.dEditBox:
+        if not currclass is ui.dEditBox:
             pop.append(_("Edit Box"), OnHit=self.onChangeControl)
-        if not currclass is dabo.ui.dCheckBox:
+        if not currclass is ui.dCheckBox:
             pop.append(_("Check Box"), OnHit=self.onChangeControl)
-        if not currclass is dabo.ui.dSpinner:
+        if not currclass is ui.dSpinner:
             pop.append(_("Spinner"), OnHit=self.onChangeControl)
         self.showContextMenu(pop)
         evt.stop()
@@ -517,11 +518,11 @@ class PgSample(WizardPage):
         #             self.controls[self.editLabel.origCap]["caption"] = tx
         chc = evt.prompt
         classes = {
-            _("Plain Textbox"): dabo.ui.dTextBox,
-            _("Date Textbox"): dabo.ui.dDateTextBox,
-            _("Edit Box"): dabo.ui.dEditBox,
-            _("Check Box"): dabo.ui.dCheckBox,
-            _("Spinner"): dabo.ui.dSpinner,
+            _("Plain Textbox"): ui.dTextBox,
+            _("Date Textbox"): ui.dDateTextBox,
+            _("Edit Box"): ui.dEditBox,
+            _("Check Box"): ui.dCheckBox,
+            _("Spinner"): ui.dSpinner,
         }
         cls = classes[chc]
         obj = self._editedControl
@@ -533,9 +534,9 @@ class PgSample(WizardPage):
         else:
             pos = obj.getPositionInSizer()
         newobj = cls(obj.Parent)
-        newobj.unbindEvent(dEvents.ContextMenu)
-        newobj.unbindEvent(dEvents.MouseRightClick)
-        newobj.bindEvent(dEvents.ContextMenu, self.onCtlRightClick)
+        newobj.unbindEvent(events.ContextMenu)
+        newobj.unbindEvent(events.MouseRightClick)
+        newobj.bindEvent(events.ContextMenu, self.onCtlRightClick)
         # Update the wizard's field dict
         key = [kk for kk in list(self.controls.keys()) if self.controls[kk]["control"] is obj][0]
         self.controls[key]["control"] = newobj
@@ -553,9 +554,9 @@ class PgSample(WizardPage):
 
         et = self.editText
         if et is None:
-            et = self.editText = dabo.ui.dTextBox(self.samplePanel, SelectOnEntry=True)
-            et.bindEvent(dEvents.LostFocus, self.onEndLblEdit)
-            et.bindEvent(dEvents.KeyChar, self.onTextKey)
+            et = self.editText = ui.dTextBox(self.samplePanel, SelectOnEntry=True)
+            et.bindEvent(events.LostFocus, self.onEndLblEdit)
+            et.bindEvent(events.KeyChar, self.onTextKey)
             et.Visible = False
         et.Value = oldCap
 
@@ -563,11 +564,11 @@ class PgSample(WizardPage):
         et.Width = lbl.Width + 100
         et.Visible = True
         et.SetFocus()
-        dabo.ui.callAfter(et.selectAll)
+        ui.callAfter(et.selectAll)
 
     def onTextKey(self, evt):
         keyCode = evt.EventData["keyCode"]
-        keys = dabo.ui.dKeys
+        keys = ui.dKeys
         exit = False
         if keyCode == keys.key_Escape:
             exit = True
@@ -596,11 +597,11 @@ class PgSample(WizardPage):
         sp = self.samplePanel
         cs = self.controlSizer
         if cs is None:
-            cs = self.controlSizer = dabo.ui.dSizer("v")
+            cs = self.controlSizer = ui.dSizer("v")
         # Go through the list, and add the items to the grid as columns
-        self.grid = grd = dabo.ui.dGrid(sp)
+        self.grid = grd = ui.dGrid(sp)
 
-        class sampleCol(dabo.ui.dColumn):
+        class sampleCol(ui.dColumn):
             def afterInit(self):
                 self.Width = 40
 
@@ -629,7 +630,7 @@ class PgSample(WizardPage):
         grd.fillGrid(True)
         grd.RowHeight = 18
         grd.processSort = self.gridProcessSort
-        grd.bindEvent(dEvents.GridHeaderMouseLeftDoubleClick, self.onHeaderDClick)
+        grd.bindEvent(events.GridHeaderMouseLeftDoubleClick, self.onHeaderDClick)
 
         cs.append1x(grd)
         sp.Sizer.append1x(cs, border=20, borderSides="all")
@@ -640,7 +641,7 @@ class PgSample(WizardPage):
         grid = evt.EventObject
         col = grid.Columns[grid.getColNumByX(xPos)]
         oldcap = col.Caption
-        newcap = dabo.ui.getString(
+        newcap = ui.getString(
             message=_("Enter a new caption:"),
             caption=_("New Caption"),
             defaultValue=oldcap,
@@ -679,7 +680,7 @@ class PgSample(WizardPage):
             cs.VGap = val
         else:
             for itm in cs.ChildWindows:
-                if not isinstance(itm, dabo.ui.dLabel):
+                if not isinstance(itm, ui.dLabel):
                     cs.setItemProp(itm, "border", val)
         cs.layout()
 
@@ -777,14 +778,14 @@ class PgSample(WizardPage):
 class PgBiz(WizardPage):
     def createBody(self):
         self.Caption = _("Bizobj Code")
-        lbl = dabo.ui.dLabel(self, Alignment="Center")
+        lbl = ui.dLabel(self, Alignment="Center")
         lbl.Caption = """
 You can optionally have the Wizard add code
 to create a business object for your selected
 table. The code is fairly basic, allowing you
 to customize it as needed.""".strip()
         self.Sizer.append(lbl)
-        rad = dabo.ui.dRadioList(
+        rad = ui.dRadioList(
             self,
             Caption="",
             ValueMode="Key",
@@ -838,14 +839,14 @@ class QuickLayoutWizard(Wizard):
             self.Application.addConnectFile(self.ConnectionFile)
         conn = self.Application.getConnectionByName(self.ConnectionName)
         if conn.ConnectInfo.DbType == "web":
-            dabo.ui.stop(_("Sorry, you cannot use web connections with this wizard."))
+            ui.stop(_("Sorry, you cannot use web connections with this wizard."))
             return False
         try:
             crs = conn.getDaboCursor()
             self.ConnectionFile = self.Application.dbConnectionNameToFiles[self.ConnectionName]
         except Exception as e:
             if showAlert:
-                dabo.ui.stop(_("Could not make connection to '%s'") % self.ConnectionName)
+                ui.stop(_("Could not make connection to '%s'") % self.ConnectionName)
             return False
         self._dataEnv = dict(
             (
@@ -886,7 +887,7 @@ class QuickLayoutWizard(Wizard):
                 info[fld]["width"] = self.controlInfo[fld]["width"]
             ret["fldInfo"] = info
             ret["createBizobj"] = self.createBiz
-            # dabo.ui.callAfter(self.callback, ret)
+            # ui.callAfter(self.callback, ret)
             self.callback(ret)
             self.hide()
         return False

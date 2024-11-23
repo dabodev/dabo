@@ -93,7 +93,6 @@ from .class_designer_sizer_palette import SizerPaletteForm
 from .class_designer_exceptions import PropertyUpdateException
 from .editor import EditorForm as TextEditorForm
 
-
 dabo_module = main.get_dabo_package()
 
 
@@ -4223,7 +4222,7 @@ class ClassDesigner(dApp):
     def miniAppTemplate(self):
         return """import os
 import inspect
-import dabo
+
 from dabo.dApp import dApp
 
 def main():
@@ -4249,7 +4248,7 @@ if __name__ == '__main__':
     def miniDialogAppTemplate(self):
         return """import os
 import inspect
-import dabo
+
 from dabo.dApp import dApp
 
 def main():
