@@ -1,9 +1,9 @@
-from .ClassDesigner import ClassDesigner
-from . import CxnEditor
+from .class_designer import ClassDesigner
+from . import cxn_editor
 
 
 def run_connection_editor(filepaths=None):
-    CxnEditor.run_editor(filepaths)
+    cxn_editor.run_editor(filepaths)
 
 
 def run_class_designer(filepath=None):

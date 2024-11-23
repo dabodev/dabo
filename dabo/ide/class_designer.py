@@ -6,90 +6,95 @@ import inspect
 import os
 import sys
 
-import dabo
-import dabo.ui
-from dabo.dApp import dApp
-from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-import dabo.dEvents as dEvents
-from .ClassDesignerFormMixin import ClassDesignerFormMixin
-from .ClassDesignerPemForm import PemForm
-from .ClassDesignerEditor import EditorForm
-from .ClassDesignerComponents import LayoutPanel
-from .ClassDesignerComponents import LayoutBasePanel
-from .ClassDesignerComponents import LayoutSpacerPanel
-from .ClassDesignerComponents import LayoutSizer
-from .ClassDesignerComponents import LayoutBorderSizer
-from .ClassDesignerComponents import LayoutGridSizer
-from .ClassDesignerComponents import LayoutSaverMixin
-from .ClassDesignerComponents import NoSizerBasePanel
-from .ClassDesignerComponents import szItemDefaults
-from .ClassDesignerComponents import classFlagProp
-from .ClassDesignerControlMixin import ClassDesignerControlMixin as cmix
-from .ClassDesignerCustomPropertyDialog import ClassDesignerCustomPropertyDialog
-from .ClassDesignerSizerPalette import SizerPaletteForm
-from dabo.lib.DesignerClassConverter import DesignerClassConverter
-from dabo.lib import DesignerUtils
-from . import ClassDesignerMenu
-import dabo.ui.dialogs as dlgs
-from dabo.lib.utils import dictStringify
-from .ClassDesignerExceptions import PropertyUpdateException
-from .Editor import EditorForm as TextEditorForm
+from ..dApp import dApp
+from ..dException import dException
+from ..dLocalize import _
+from ..lib import DesignerUtils
+from ..lib.DesignerClassConverter import DesignerClassConverter
+from ..lib import utils as libutils
+from ..lib.utils import dictStringify
+from ..lib.utils import ustr
+from .. import events
+from .. import main
+from .. import settings
+from .. import ui
+from ..ui import dBitmap
+from ..ui import dBitmapButton
+from ..ui import dBorderSizer
+from ..ui import dBox
+from ..ui import dButton
+from ..ui import dCheckBox
+from ..ui import dCheckList
+from ..ui import dColumn
+from ..ui import dComboBox
+from ..ui import dDateTextBox
+from ..ui import dDialog
+from ..ui import dDockForm
+from ..ui import dDropdownList
+from ..ui import dEditBox
+from ..ui import dEditor
+from ..ui import dForm
+from ..ui import dFormMain
+from ..ui import dGauge
+from ..ui import dGrid
+from ..ui import dGridSizer
+from ..ui import dHtmlBox
+from ..ui import dImage
+from ..ui import dLabel
+from ..ui import dLed
+from ..ui import dLine
+from ..ui import dListBox
+from ..ui import dListControl
+from ..ui import dMaskedTextBox
+from ..ui import dMediaControl
+from ..ui import dMenu
+from ..ui import dOkCancelDialog
+from ..ui import dPage
+from ..ui import dPageFrame
+from ..ui import dPageFrameNoTabs
+from ..ui import dPageList
+from ..ui import dPageSelect
+from ..ui import dPageStyled
+from ..ui import dPanel
+from ..ui import dRadioList
+from ..ui import dScrollPanel
+from ..ui import dShell
+from ..ui import dSizer
+from ..ui import dSizerMixin
+from ..ui import dSlidePanel
+from ..ui import dSlidePanelControl
+from ..ui import dSlider
+from ..ui import dSpinner
+from ..ui import dSplitter
+from ..ui import dTextBox
+from ..ui import dToggleButton
+from ..ui import dToolForm
+from ..ui import dTreeView
+from ..ui.dialogs import Wizard
+from ..ui.dialogs import WizardPage
 
-from dabo.ui import dBitmap
-from dabo.ui import dBitmapButton
-from dabo.ui import dBorderSizer
-from dabo.ui import dBox
-from dabo.ui import dButton
-from dabo.ui import dCheckBox
-from dabo.ui import dCheckList
-from dabo.ui import dColumn
-from dabo.ui import dComboBox
-from dabo.ui import dDateTextBox
-from dabo.ui import dDialog
-from dabo.ui import dDockForm
-from dabo.ui import dDropdownList
-from dabo.ui import dEditBox
-from dabo.ui import dEditor
-from dabo.ui import dForm
-from dabo.ui import dFormMain
-from dabo.ui import dGauge
-from dabo.ui import dGrid
-from dabo.ui import dGridSizer
-from dabo.ui import dHtmlBox
-from dabo.ui import dImage
-from dabo.ui import dLabel
-from dabo.ui import dLed
-from dabo.ui import dLine
-from dabo.ui import dListBox
-from dabo.ui import dListControl
-from dabo.ui import dMaskedTextBox
-from dabo.ui import dMediaControl
-from dabo.ui import dMenu
-from dabo.ui import dOkCancelDialog
-from dabo.ui import dPage
-from dabo.ui import dPageFrame
-from dabo.ui import dPageFrameNoTabs
-from dabo.ui import dPageList
-from dabo.ui import dPageSelect
-from dabo.ui import dPageStyled
-from dabo.ui import dPanel
-from dabo.ui import dRadioList
-from dabo.ui import dScrollPanel
-from dabo.ui import dShell
-from dabo.ui import dSizer
-from dabo.ui import dSizerMixin
-from dabo.ui import dSlidePanel
-from dabo.ui import dSlidePanelControl
-from dabo.ui import dSlider
-from dabo.ui import dSpinner
-from dabo.ui import dSplitter
-from dabo.ui import dTextBox
-from dabo.ui import dToggleButton
-from dabo.ui import dToolForm
-from dabo.ui import dTreeView
-from dabo.ui.dialogs import Wizard
-from dabo.ui.dialogs import WizardPage
+from . import class_designer_menu
+from .class_designer_form_mixin import ClassDesignerFormMixin
+from .class_designer_pem_form import PemForm
+from .class_designer_editor import EditorForm
+from .class_designer_components import LayoutPanel
+from .class_designer_components import LayoutBasePanel
+from .class_designer_components import LayoutSpacerPanel
+from .class_designer_components import LayoutSizer
+from .class_designer_components import LayoutBorderSizer
+from .class_designer_components import LayoutGridSizer
+from .class_designer_components import LayoutSaverMixin
+from .class_designer_components import NoSizerBasePanel
+from .class_designer_components import szItemDefaults
+from .class_designer_components import classFlagProp
+from .class_designer_control_mixin import ClassDesignerControlMixin as cmix
+from .class_designer_custom_property_dialog import ClassDesignerCustomPropertyDialog
+from .class_designer_sizer_palette import SizerPaletteForm
+from .class_designer_exceptions import PropertyUpdateException
+from .editor import EditorForm as TextEditorForm
+
+
+dabo_module = main.get_dabo_package()
 
 
 class PageInfoDialog(dOkCancelDialog):
@@ -125,7 +130,7 @@ class PageInfoDialog(dOkCancelDialog):
         lbl = dLabel(self, Caption=_("Default Page Class:"))
         txt = dTextBox(self, DataSource="form", DataField="pageClass", Enabled=False)
         btn = dButton(self, Caption="...")
-        btn.bindEvent(dEvents.Hit, self.onSelectClass)
+        btn.bindEvent(events.Hit, self.onSelectClass)
         hsz = dSizer("h")
         hsz.append1x(txt)
         hsz.appendSpacer(4)
@@ -140,9 +145,9 @@ class PageInfoDialog(dOkCancelDialog):
         self.layout()
 
     def onSelectClass(self, evt):
-        f = dabo.ui.getFile("cdxml")
+        f = ui.getFile("cdxml")
         if f:
-            self.pageClass = dabo.lib.utils.relativePath(f)
+            self.pageClass = libutils.relativePath(f)
             self.update()
 
 
@@ -157,7 +162,7 @@ class ClassDesigner(dApp):
             showSplashScreen=False, splashTimeout=10, ignoreScriptDir=True
         )
 
-        self._basePrefKey = "dabo.ide.ClassDesigner"
+        self._basePrefKey = "ide.ClassDesigner"
         self._desFormClass = None
         self._selectedClass = dForm
         self._currentForm = None
@@ -238,7 +243,7 @@ class ClassDesigner(dApp):
         gsa["VGap"] = atts["VGap"]
         gsa["MaxDimension"] = atts["MaxDimension"]
         # Get rid of the update/refresh delays
-        dabo.useUpdateDelays = False
+        settings.useUpdateDelays = False
         # Flag that is set when the user is editing a property value
         self._inPropertyEditing = False
 
@@ -304,12 +309,12 @@ class ClassDesigner(dApp):
             try:
                 frm = self.openClass(clsFile)
                 clsOK = True
-            except dabo.dException.XmlException as e:
+            except dException.XmlException as e:
                 msg = _("Error: %s\n\nA new file will be created.") % e
-                dabo.ui.stop(message=msg, title=_("Invalid XML File"))
+                ui.stop(message=msg, title=_("Invalid XML File"))
             except IOError as e:
                 msg = _("'%s' does not exist. Create it?") % clsFile
-                if dabo.ui.areYouSure(message=msg, title=_("File Not Found"), cancelButton=False):
+                if ui.areYouSure(message=msg, title=_("File Not Found"), cancelButton=False):
                     frm = self.onNewDesign(evt=None, pth=clsFile)
                     clsOK = True
 
@@ -359,10 +364,10 @@ class ClassDesigner(dApp):
         self.select(self.CurrentForm)
 
         frm.Visible = True
-        dabo.ui.callAfter(frm.layout)
-        dabo.ui.callAfterInterval(100, self.updateLayout)
-        dabo.ui.callAfter(frm.bringToFront)
-        dabo.ui.callAfter(frm.saveState)
+        ui.callAfter(frm.layout)
+        ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfter(frm.bringToFront)
+        ui.callAfter(frm.saveState)
         self.start()
 
     def _initClassEvents(self):
@@ -441,7 +446,7 @@ class ClassDesigner(dApp):
                 except (AttributeError, NameError):
                     return False
 
-            ret = ["on%s" % k for k, v in list(dEvents.__dict__.items()) if safeApplies(v, cls)]
+            ret = ["on%s" % k for k, v in list(events.__dict__.items()) if safeApplies(v, cls)]
             ret.sort()
             return ret
 
@@ -492,7 +497,7 @@ class ClassDesigner(dApp):
                     kwargs["Caption"] = "Dabo Wizard Designer"
                 base.__init__(self, parent=parent, *args, **kwargs)
                 ClassDesignerFormMixin.__init__(self, parent=parent, *args, **kwargs)
-                self._basePrefKey = "dabo.ide.ClassDesigner.ClassDesignerForm"
+                self._basePrefKey = "ide.ClassDesigner.ClassDesignerForm"
 
             def _afterInit(self):
                 self._designerMode = True
@@ -519,8 +524,8 @@ class ClassDesigner(dApp):
                     self.Sizer.append1x(self.mainPanel)
                     self.layout()
                 # We need to 'deactivate' the built-in buttons
-                self.btnOK.unbindEvent(dEvents.Hit)
-                self.btnCancel.unbindEvent(dEvents.Hit)
+                self.btnOK.unbindEvent(events.Hit)
+                self.btnCancel.unbindEvent(events.Hit)
                 self.btnOK.Enabled = self.btnCancel.Enabled = False
 
             def _setupPanels(self, fromNew=True, addBasePanel=False):
@@ -530,7 +535,7 @@ class ClassDesigner(dApp):
                         self.mainPanel.Sizer = LayoutSizer("v")
                     if fromNew:
                         # Need to ask for number of pages.
-                        numPages = dabo.ui.getInt(
+                        numPages = ui.getInt(
                             _("How many pages?"),
                             caption=_("Wizard Pages"),
                             defaultValue=3,
@@ -634,10 +639,10 @@ class ClassDesigner(dApp):
             self.Application.HomeDirectory = hd
 
     def onEditUndo(self, evt):
-        dabo.log.info(_("Not implemented yet"))
+        dabo_module.log.info(_("Not implemented yet"))
 
     def onEditRedo(self, evt):
-        dabo.log.info(_("Not implemented yet"))
+        dabo_module.log.info(_("Not implemented yet"))
 
     def _importClassXML(self, pth):
         """Read in the XML and associated code file (if any), and
@@ -649,7 +654,7 @@ class ClassDesigner(dApp):
                     pth = os.path.abspath(pth)
             converter = DesignerClassConverter()
             dct = converter.dictFromStoredText(pth)
-        except dabo.dException.XmlException as e:
+        except dException.XmlException as e:
             raise
         except Exception as e:
             if pth.strip().startswith("<?xml") or os.path.exists(pth):
@@ -730,7 +735,7 @@ class ClassDesigner(dApp):
         # Clear any existing superclass info
         self._superClassInfo = {}
         # Make sure that we have the actual path to the file
-        pth = dabo.lib.utils.resolvePathAndUpdate(pth)
+        pth = libutils.resolvePathAndUpdate(pth)
         # Add to the MRU list
         self.addMRUPath(pth)
         # Translate the file path into a class dictionary.
@@ -787,7 +792,7 @@ class ClassDesigner(dApp):
                 self._basePath = os.path.dirname(os.path.abspath(pth))
             else:
                 self._basePath = pth
-        dabo.lib.utils.resolveAttributePathing(atts, self._basePath)
+        libutils.resolveAttributePathing(atts, self._basePath)
         # Read in any .cnxml connection defs.
         currdir = os.path.dirname(pth)
         self._initDB(currdir)
@@ -878,7 +883,7 @@ class ClassDesigner(dApp):
         if mbf:
             frm.MenuBarFile = mbf
         # Save the initial state
-        dabo.ui.callAfter(frm.saveState)
+        ui.callAfter(frm.saveState)
 
         return frm
 
@@ -928,7 +933,7 @@ class ClassDesigner(dApp):
         pos = pnl.getPositionInSizer()
         sz = pnl.ControllingSizer
         sz.remove(pnl)
-        dabo.ui.callAfter(pnl.release)
+        ui.callAfter(pnl.release)
         obj = LayoutSpacerPanel(prnt, Spacing=spc)
         if isinstance(sz, dGridSizer):
             itm = sz.append(obj, row=pos[0], col=pos[1])
@@ -1072,7 +1077,7 @@ class ClassDesigner(dApp):
             newClass = eval(clsname)
         except ValueError:
             dct["fullname"] = cls
-            newClass = getattr(dabo.ui, cls)
+            newClass = getattr(ui, cls)
 
         # See if it's a class that requires special handling
         rv["newClass"] = newClass
@@ -1094,7 +1099,7 @@ class ClassDesigner(dApp):
         if isSplitter:
             obj.setPropertiesFromAtts({"Orientation": rv["ornt"]})
             if rv["splt"]:
-                dabo.ui.setAfter(obj, "Split", True)
+                ui.setAfter(obj, "Split", True)
         try:
             sz = obj.ControllingSizer
             itm = obj.ControllingSizerItem
@@ -1207,7 +1212,7 @@ class ClassDesigner(dApp):
 
     def _recreateKidsForSplitter(self, obj, kids):
         for pos, kid in enumerate(kids):
-            pnlClass = dabo.ui.__dict__[kid["name"]]
+            pnlClass = ui.__dict__[kid["name"]]
             obj.createPanes(pnlClass, pane=pos + 1, force=True)
             if pos == 0:
                 pnl = obj.Panel1
@@ -1315,7 +1320,7 @@ class ClassDesigner(dApp):
             }
             atts = dct["attributes"]
             # Convert any paths in the atts
-            dabo.lib.utils.resolveAttributePathing(atts, self._basePath, True)
+            libutils.resolveAttributePathing(atts, self._basePath, True)
             clsname = self._extractKey(atts, "designerClass", "")
             # See if this is a saved class inserted into another design
             isCustomClass = False
@@ -1325,7 +1330,7 @@ class ClassDesigner(dApp):
                 if cid and (not "-" in cid):
                     # This is a custom class; make sure that the relative path is correct
                     if not os.path.exists(clsname):
-                        clsname = dabo.lib.utils.locateRelativeTo(self._basePath, clsname)
+                        clsname = libutils.locateRelativeTo(self._basePath, clsname)
                     isCustomClass = True
                     customClassPath = clsname
                     # Start with the custom class, and then update it with the current stuff
@@ -1389,10 +1394,10 @@ class ClassDesigner(dApp):
                 cls = eval(clsname)
             except ValueError:
                 # Should never happen, so if it does, log it!
-                dabo.log.error("Invalid wizard page class: %s" % nm)
-                dabo.ui.stop("Invalid wizard page class: %s" % nm)
+                dabo_module.log.error("Invalid wizard page class: %s" % nm)
+                ui.stop("Invalid wizard page class: %s" % nm)
                 pgDct["fullname"] = nm
-                cls = dabo.ui.__dict__[nm]
+                cls = ui.__dict__[nm]
             atts = pgDct["attributes"]
             try:
                 del atts["sizerInfo"]
@@ -1479,7 +1484,7 @@ class ClassDesigner(dApp):
                     showDialog = dlg.Accepted = False
                 except SyntaxError as e:
                     errMsg = _("Syntax Error: %s") % e
-                    dabo.ui.stop(errMsg, _("Error Compiling Import Declarations"))
+                    ui.stop(errMsg, _("Error Compiling Import Declarations"))
         dlg.release()
 
     def addToImportDict(self, txt):
@@ -1565,7 +1570,7 @@ class ClassDesigner(dApp):
                 if isinstance(obj, dColumn):
                     fillGrid = True
                     gridObj = obj.Parent
-                dabo.ui.callAfter(obj.Parent.update)
+                ui.callAfter(obj.Parent.update)
             else:
                 if hasattr(obj, "update"):
                     obj.update()
@@ -1728,7 +1733,7 @@ class ClassDesigner(dApp):
                     # Create dynamic bindings for the Expand control
                     bareLowprop = prop.replace(prefix, "").lower()
                     if bareLowprop == "expand":
-                        ctl.bindEvent(dEvents.Hit, dlg.onExpandChange)
+                        ctl.bindEvent(events.Hit, dlg.onExpandChange)
                         dlg.expandControl = ctl
                     elif bareLowprop.endswith("align"):
                         dlg.alignControls.append(ctl)
@@ -1746,12 +1751,12 @@ class ClassDesigner(dApp):
         # the dialog, so we know whether to update or not.
         self._szDlg = dlg
         self._szDlgVals = self._getSzDlgVals()
-        tmr = dabo.ui.callEvery(800, self.updInBackground)
+        tmr = ui.callEvery(800, self.updInBackground)
         dlg.show()
         tmr.stop()
         tmr.release()
         if dlg.Accepted:
-            dabo.ui.callAfterInterval(100, self.updateLayout)
+            ui.callAfterInterval(100, self.updateLayout)
         else:
             # revert!
             prefix = ""
@@ -1814,7 +1819,7 @@ class ClassDesigner(dApp):
                 obj = cls(None)
                 obj.Controller = None
                 self.CurrentForm = cf
-                dabo.ui.callAfterInterval(100, self.updateLayout)
+                ui.callAfterInterval(100, self.updateLayout)
             else:
                 frm = dForm(None, Visible=False, NameBase="DEFA")
                 # We need to handle all the dependent class types
@@ -1921,7 +1926,7 @@ class ClassDesigner(dApp):
                 if pos is not None:
                     obj.Position = pos
             self.select(obj)
-            dabo.ui.callAfterInterval(100, self.updateLayout)
+            ui.callAfterInterval(100, self.updateLayout)
 
     def copyObject(self, obj):
         """Place a copy of the passed control on the clipboard"""
@@ -1936,7 +1941,7 @@ class ClassDesigner(dApp):
             pth = obj.Form._classFile
         except:
             pth = None
-        dabo.lib.utils.resolveAttributePathing(atts, pth)
+        libutils.resolveAttributePathing(atts, pth)
         nm = obj.Name
         while nm[-1].isdigit():
             nm = nm[:-1]
@@ -1974,10 +1979,10 @@ class ClassDesigner(dApp):
         self.Tree.select(self._selection)
         self.PemForm.select(self._selection)
         self.EditorForm.select(self._selection)
-        dabo.ui.callAfterInterval(200, self.CurrentForm.layout)
-        dabo.ui.callAfterInterval(200, self.CurrentForm.refresh)
-        dabo.ui.callAfterInterval(200, self.ControlPalette.update)
-        dabo.ui.callAfterInterval(200, self.SizerPalette.update)
+        ui.callAfterInterval(200, self.CurrentForm.layout)
+        ui.callAfterInterval(200, self.CurrentForm.refresh)
+        ui.callAfterInterval(200, self.ControlPalette.update)
+        ui.callAfterInterval(200, self.SizerPalette.update)
 
     def flushCodeEditor(self):
         """Forces the content of the editor to update the code repository."""
@@ -1992,7 +1997,7 @@ class ClassDesigner(dApp):
         self.setUserSetting("saveCodeInXML", newSetting)
 
     def onEditTextFile(self, evt):
-        fpath = dabo.ui.getFile("py", "txt", "*")
+        fpath = ui.getFile("py", "txt", "*")
         if fpath:
             self.TextEditorForm.openFile(fpath)
             self.TextEditorForm.show()
@@ -2014,24 +2019,24 @@ class ClassDesigner(dApp):
         try:
             self.CurrentForm.onRunDesign(evt)
         except AttributeError as e:
-            dabo.ui.stop(_("Attribute Error: %s") % ustr(e), _("Attribute Error"))
+            ui.stop(_("Attribute Error: %s") % ustr(e), _("Attribute Error"))
         except Exception as e:
             msg = ustr(e)
             if hasattr(e, "text"):
                 txt = e.text.strip()
             else:
                 txt = _("<unspecified>")
-            dabo.ui.stop(
+            ui.stop(
                 _("Compilation Error: %(msg)s\nCode: %(txt)s") % locals(),
                 _("Compilation Error"),
             )
         self.biz = currbiz
 
     def onOpenDesign(self, evt):
-        ff = dabo.ui.getFile("cdxml")
+        ff = ui.getFile("cdxml")
         if ff:
             self.openClass(ff)
-            dabo.ui.callAfterInterval(100, self.updateLayout)
+            ui.callAfterInterval(100, self.updateLayout)
 
     def onNewDesign(self, evt, pth=None):
         pcs = self.pagedControls
@@ -2041,7 +2046,7 @@ class ClassDesigner(dApp):
                 self.fileToOpen = None
 
                 def onOpenSaved(evt):
-                    f = dabo.ui.getFile("cdxml")
+                    f = ui.getFile("cdxml")
                     if f:
                         self.fileToOpen = f
                         self._onOK(None)
@@ -2115,7 +2120,7 @@ class ClassDesigner(dApp):
                     pass
                 self.dd = dDropdownList(self, Choices=names, Keys=classes, ValueMode="key")
                 self.dd.StringValue = "Form"
-                self.dd.bindEvent(dEvents.Hit, self.onClassSel)
+                self.dd.bindEvent(events.Hit, self.onClassSel)
                 self.Sizer.appendSpacer(25)
                 lbl = dLabel(self, Caption=_("Select the class to create:"), FontBold=True)
                 self.Sizer.append(lbl, halign="left")
@@ -2167,7 +2172,7 @@ class ClassDesigner(dApp):
             return self.openClass(dlg.fileToOpen)
         newClass = self._selectedClass = dlg.dd.Value
         if newClass is dDockForm:
-            dabo.ui.exclaim(
+            ui.exclaim(
                 _("Sorry, the Dock Form class does not currently work in the Class Designer."),
                 title=_("Class not implemented"),
             )
@@ -2197,12 +2202,12 @@ class ClassDesigner(dApp):
         frm._formMode = isFormClass
         if not isFormClass:
             obj = self.addNewControl(frm.initLayoutPanel, newClass)
-            frm.Caption = _("Dabo Class Designer: %s") % obj.Name
+            frm.Caption = _("Class Designer: %s") % obj.Name
         if pth:
             frm._classFile = os.path.realpath(pth)
         frm.Visible = True
-        dabo.ui.callAfter(frm.bringToFront)
-        dabo.ui.callAfter(frm.saveState)
+        ui.callAfter(frm.bringToFront)
+        ui.callAfter(frm.saveState)
         return frm
 
     def wrapSave(self, func, *args, **kwargs):
@@ -2214,10 +2219,10 @@ class ClassDesigner(dApp):
             func(*args, **kwargs)
             return True
         except IOError as e:
-            dabo.ui.stop(_("Save failed; reason: %s") % e)
+            ui.stop(_("Save failed; reason: %s") % e)
             return False
         except Exception as e:
-            dabo.ui.stop(_("Save failed; reason: %s") % e)
+            ui.stop(_("Save failed; reason: %s") % e)
             raise e
 
     def onSaveRunnable(self, evt):
@@ -2233,12 +2238,12 @@ class ClassDesigner(dApp):
         out = os.path.splitext(nm)[0] + ".py"
         try:
             codecs.open(out, "w", encoding="utf-8").write(code)
-            dabo.ui.info(
+            ui.info(
                 _("You can run your form by running the file\n%s") % out,
                 title=_("Runnable App Saved"),
             )
         except IOError as e:
-            dabo.ui.stop(_("Save failed; reason: %s") % e)
+            ui.stop(_("Save failed; reason: %s") % e)
 
     def onRevert(self, evt):
         """Re-load the current design, losing any changes."""
@@ -2251,7 +2256,7 @@ class ClassDesigner(dApp):
         newForm.Position = cf.Position
         newForm.Size = cf.Size
         cf.unlockDisplay()
-        dabo.ui.callAfter(cf.release)
+        ui.callAfter(cf.release)
         newForm.bringToFront()
 
     def onFileExit(self, evt):
@@ -2324,15 +2329,15 @@ class ClassDesigner(dApp):
 
     def onShowProp(self, evt):
         pf = self.PemForm
-        dabo.ui.callAfter(pf.showPropPage)
+        ui.callAfter(pf.showPropPage)
 
     def onShowObjTree(self, evt):
         pf = self.PemForm
-        dabo.ui.callAfter(pf.showTreePage)
+        ui.callAfter(pf.showTreePage)
 
     def onShowMethods(self, evt):
         pf = self.PemForm
-        dabo.ui.callAfter(pf.showMethodsPage)
+        ui.callAfter(pf.showMethodsPage)
 
     def onPriorObj(self, evt):
         self.moveInTree("prior")
@@ -2400,7 +2405,7 @@ class ClassDesigner(dApp):
         if obj is None:
             obj = self._selection[0]
         ed.edit(obj, mthd)
-        dabo.ui.callAfter(ed.bringToFront)
+        ui.callAfter(ed.bringToFront)
 
     def deleteObjectProperty(self, prop):
         """Removes a custom property from the object definition."""
@@ -2415,7 +2420,7 @@ class ClassDesigner(dApp):
         try:
             del self._classPropDict[obj][prop]
         except Exception as e:
-            dabo.log.error(_("Could not delete custom property '%(prop)s': %(e)s") % locals())
+            dabo_module.log.error(_("Could not delete custom property '%(prop)s': %(e)s") % locals())
 
     def editObjectProperty(self, prop):
         """Run the editor for the selected custom class property. If
@@ -2562,7 +2567,7 @@ class ClassDesigner(dApp):
         desWindows = self.getDesignerWindows(frm)
         if not desWindows:
             # No more designer windows left, so exit the app
-            dabo.ui.callAfter(self.onFileExit, None)
+            ui.callAfter(self.onFileExit, None)
         else:
             # Make sure that the selection is not part of the closing window
             select = self.Selection
@@ -2631,7 +2636,7 @@ class ClassDesigner(dApp):
         """Called by the tree when a new selection has been made
         by the user.
         """
-        dabo.ui.callAfter(self.afterTreeSelect)
+        ui.callAfter(self.afterTreeSelect)
 
     def afterTreeSelect(self):
         self.Tree._inAppSelection = True
@@ -2655,7 +2660,7 @@ class ClassDesigner(dApp):
                 try:
                     ret = lps[0]
                 except:
-                    dabo.log.error(_("Problem adding to a page: no ClassDesigner information."))
+                    dabo_module.log.error(_("Problem adding to a page: no ClassDesigner information."))
             else:
                 ret = obj.mainPanel
         return ret
@@ -2701,7 +2706,7 @@ class ClassDesigner(dApp):
                 obj.Orientation = "Vertical"
             elif obj.Orientation == "Vertical":
                 obj.Orientation = "Horizontal"
-            dabo.ui.callAfterInterval(100, self.updateLayout)
+            ui.callAfterInterval(100, self.updateLayout)
         except:
             pass
 
@@ -2741,7 +2746,7 @@ class ClassDesigner(dApp):
         for member in members:
             itm = toSz.append(member)
             toSz.setItemProps(itm, memberProps[member])
-        dabo.ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfterInterval(100, self.updateLayout)
 
     def onTreeEditSizer(self, evt):
         self.editSizerSettings(self._contextObj)
@@ -2780,10 +2785,10 @@ class ClassDesigner(dApp):
             except:
                 pass
             obj.release(True)
-            dabo.ui.callAfterInterval(100, self.updateLayout)
+            ui.callAfterInterval(100, self.updateLayout)
         else:
             obj.release()
-            dabo.ui.callAfterInterval(100, self.updateLayout)
+            ui.callAfterInterval(100, self.updateLayout)
 
     def getDefaultSizerProps(self, cls, szType):
         """Given a class to be added to the design surface, returns
@@ -2814,7 +2819,7 @@ class ClassDesigner(dApp):
             # Being added as a new page; need to add the child panel
             LayoutPanel(obj)
             # Set a default title
-            cap = dabo.ui.getString(
+            cap = ui.getString(
                 _("Enter the page Caption:"),
                 caption=_("Wizard Page Caption"),
                 defaultValue=_("Title"),
@@ -2893,7 +2898,7 @@ class ClassDesigner(dApp):
             szit = pnl.ControllingSizerItem
             if szit is None:
                 # Something is wrong; write it to the log and return
-                dabo.log.error(
+                dabo_module.log.error(
                     _(
                         "Attempted to add an object of class %(cls)s to parent %(pnl)s, but parent has no sizer information."
                     )
@@ -3003,7 +3008,7 @@ class ClassDesigner(dApp):
             except KeyError:
                 try:
                     newCols = int(
-                        dabo.ui.getString(_("How many columns?"), _("New Grid Control"), "3")
+                        ui.getString(_("How many columns?"), _("New Grid Control"), "3")
                     )
                 except ValueError:
                     newCols = 3
@@ -3015,7 +3020,7 @@ class ClassDesigner(dApp):
             if not cnt:
                 try:
                     newPanels = int(
-                        dabo.ui.getString(_("How many panels?"), _("New Slide Container"), "3")
+                        ui.getString(_("How many panels?"), _("New Slide Container"), "3")
                     )
                 except ValueError:
                     newPanels = 3
@@ -3026,7 +3031,7 @@ class ClassDesigner(dApp):
             # happening. Get the affected node
             nd = self.Tree.getNodeFor(pnl)
             sz.remove(pnl)
-            dabo.ui.callAfter(pnl.release)
+            ui.callAfter(pnl.release)
 
         if issubclass(cls, dSplitter):
             # We need to disable the initial splitting. This will be done
@@ -3109,12 +3114,12 @@ class ClassDesigner(dApp):
             else:
                 chkWd = ("Size" not in attProperties) and ("Width" not in attProperties)
                 chkHt = ("Size" not in attProperties) and ("Height" not in attProperties)
-            dabo.ui.callAfter(self.checkMinSize, obj, chkWd, chkHt)
+            ui.callAfter(self.checkMinSize, obj, chkWd, chkHt)
 
         try:
             frm = obj.Form
             if frm._formMode:
-                dabo.ui.callAfterInterval(500, obj.Form.layout)
+                ui.callAfterInterval(500, obj.Form.layout)
             else:
                 # class mode
                 mp = frm.mainPanel
@@ -3122,7 +3127,7 @@ class ClassDesigner(dApp):
                     obj.Position = (0, 0)
                     mp.Width, mp.Height = obj.Width + 10, obj.Height + 10
                 else:
-                    dabo.ui.callAfterInterval(500, obj.Form.layout)
+                    ui.callAfterInterval(500, obj.Form.layout)
         except:
             pass
 
@@ -3141,17 +3146,17 @@ class ClassDesigner(dApp):
 
         if not skipUpdate:
             if useSizers and isPageControl:
-                dabo.ui.callAfter(self.select, pg0panel)
+                ui.callAfter(self.select, pg0panel)
             elif useSizers and isSlidePanelControl:
-                dabo.ui.callAfter(self.select, pnl0)
+                ui.callAfter(self.select, pnl0)
             else:
-                dabo.ui.callAfter(self.select, obj)
+                ui.callAfter(self.select, obj)
             try:
                 obj.layout()
             except AttributeError:
                 # The object does not have a layout() method
                 pass
-            dabo.ui.callAfterInterval(100, self.updateLayout)
+            ui.callAfterInterval(100, self.updateLayout)
         return obj
 
     def getControlClass(self, base):
@@ -3252,7 +3257,7 @@ class ClassDesigner(dApp):
             return
         lp = LayoutPanel(obj.Parent, AutoSizer=False)
         obj.ControllingSizer.insert(obj.getPositionInSizer() + offset, lp, 1, "x")
-        dabo.ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfterInterval(100, self.updateLayout)
 
     def onMoveSlotUp(self, evt):
         obj = self._contextObj
@@ -3261,7 +3266,7 @@ class ClassDesigner(dApp):
             self._moveVertically(obj, sz, -1)
         elif isinstance(sz, dGridSizer):
             sz.switchObjects(obj, sz.getNeighbor(obj, "up"))
-        dabo.ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfterInterval(100, self.updateLayout)
 
     def onMoveSlotDown(self, evt):
         obj = self._contextObj
@@ -3275,7 +3280,7 @@ class ClassDesigner(dApp):
                 sz.Rows += 1
                 target = sz.getNeighbor(obj, "down")
             sz.switchObjects(obj, target)
-        dabo.ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfterInterval(100, self.updateLayout)
 
     def _moveVertically(self, obj, sz, drct):
         pos = obj.getPositionInSizer()
@@ -3289,7 +3294,7 @@ class ClassDesigner(dApp):
         obj = self._contextObj
         sz = obj.ControllingSizer
         sz.switchObjects(obj, sz.getNeighbor(obj, "left"))
-        dabo.ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfterInterval(100, self.updateLayout)
 
     def onMoveSlotRight(self, evt):
         obj = self._contextObj
@@ -3300,13 +3305,13 @@ class ClassDesigner(dApp):
             sz.Columns += 1
             target = sz.getNeighbor(obj, "right")
         sz.switchObjects(obj, target)
-        dabo.ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfterInterval(100, self.updateLayout)
 
     def getControlMenu(self, srcObj, justSizers=False):
         """Creates the popup menu for selecting child objects"""
         # Store the source object
         self._srcObj = srcObj
-        self._srcPos = dabo.ui.getFormMousePosition()
+        self._srcPos = ui.getFormMousePosition()
 
         mainpop = dMenu()
         if self.UseSizers:
@@ -3379,7 +3384,7 @@ class ClassDesigner(dApp):
         for custom classes. Prompts the user for a class file, and
         then adds that to the design.
         """
-        pth = dabo.ui.getFile("cdxml")
+        pth = ui.getFile("cdxml")
         if not pth:
             return
         self.addCustomClass(pth)
@@ -3424,7 +3429,7 @@ class ClassDesigner(dApp):
         # This is the key that marks it as a class, and not a base object.
         prop = classFlagProp
         mainObj.__setattr__(prop, pth)
-        dabo.ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfterInterval(100, self.updateLayout)
         return mainObj
 
     def setCustomChanges(self, obj, dct):
@@ -3438,7 +3443,7 @@ class ClassDesigner(dApp):
             pth = obj.Form._classFile
         except:
             pth = None
-        dabo.lib.utils.resolveAttributePathing(atts, pth)
+        libutils.resolveAttributePathing(atts, pth)
         code = dct.get("code", {})
         sizerInfo = self._extractKey(atts, "sizerInfo", "{}")
         if isinstance(sizerInfo, str):
@@ -3498,7 +3503,7 @@ class ClassDesigner(dApp):
                         kidDct = [cd for cd in childList if cd["attributes"]["classID"] == kidID][0]
                         self.setCustomChanges(kid, kidDct)
                     except Exception as e:
-                        dabo.log.error(_("Error locating sizer: %s") % e)
+                        dabo_module.log.error(_("Error locating sizer: %s") % e)
         else:
             if obj.Sizer:
                 childList = dct["children"]
@@ -3507,7 +3512,7 @@ class ClassDesigner(dApp):
                     szDct = [cd for cd in childList if cd["attributes"]["classID"] == szID][0]
                     self.setCustomChanges(obj.Sizer, szDct)
                 except Exception as e:
-                    dabo.log.error(_("Error locating sizer: %s") % e)
+                    dabo_module.log.error(_("Error locating sizer: %s") % e)
             else:
                 if obj.Children:
                     childList = dct["children"]
@@ -3521,125 +3526,125 @@ class ClassDesigner(dApp):
                             ][0]
                             self.setCustomChanges(kid, kidDct)
                         except Exception as e:
-                            dabo.log.error(_("Error locating child object: %s") % e)
+                            dabo_module.log.error(_("Error locating child object: %s") % e)
 
     def onNewBox(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dBox)
+        ui.callAfter(self.addNewControl, None, dBox)
 
     def onNewBitmap(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dBitmap)
+        ui.callAfter(self.addNewControl, None, dBitmap)
 
     def onNewBitmapButton(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dBitmapButton)
+        ui.callAfter(self.addNewControl, None, dBitmapButton)
 
     def onNewButton(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dButton)
+        ui.callAfter(self.addNewControl, None, dButton)
 
     def onNewCheckBox(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dCheckBox)
+        ui.callAfter(self.addNewControl, None, dCheckBox)
 
     def onNewComboBox(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dComboBox)
+        ui.callAfter(self.addNewControl, None, dComboBox)
 
     def onNewDateTextBox(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dDateTextBox)
+        ui.callAfter(self.addNewControl, None, dDateTextBox)
 
     def onNewDropdownList(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dDropdownList)
+        ui.callAfter(self.addNewControl, None, dDropdownList)
 
     def onNewEditBox(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dEditBox)
+        ui.callAfter(self.addNewControl, None, dEditBox)
 
     def onNewEditor(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dEditor)
+        ui.callAfter(self.addNewControl, None, dEditor)
 
     def onNewSlidePanelControl(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dSlidePanelControl)
+        ui.callAfter(self.addNewControl, None, dSlidePanelControl)
 
     def onNewGauge(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dGauge)
+        ui.callAfter(self.addNewControl, None, dGauge)
 
     def onNewGrid(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dGrid)
+        ui.callAfter(self.addNewControl, None, dGrid)
 
     def onNewHtmlBox(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dHtmlBox)
+        ui.callAfter(self.addNewControl, None, dHtmlBox)
 
     def onNewImage(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dImage)
+        ui.callAfter(self.addNewControl, None, dImage)
 
     def onNewLabel(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dLabel)
+        ui.callAfter(self.addNewControl, None, dLabel)
 
     def onNewLed(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dLed)
+        ui.callAfter(self.addNewControl, None, dLed)
 
     def onNewLine(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dLine)
+        ui.callAfter(self.addNewControl, None, dLine)
 
     def onNewListBox(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dListBox)
+        ui.callAfter(self.addNewControl, None, dListBox)
 
     def onNewListControl(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dListControl)
+        ui.callAfter(self.addNewControl, None, dListControl)
 
     def onNewMaskedTextBox(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dMaskedTextBox)
+        ui.callAfter(self.addNewControl, None, dMaskedTextBox)
 
     def onNewCheckList(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dCheckList)
+        ui.callAfter(self.addNewControl, None, dCheckList)
 
     def onNewMediaControl(self, evt):
         try:
-            dabo.ui.callAfter(self.addNewControl, None, dMediaControl)
+            ui.callAfter(self.addNewControl, None, dMediaControl)
         except AttributeError:
             # dMediaControl was not imported; some earlier wx versions don't include this
             pass
 
     def onNewRadioList(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dRadioList)
+        ui.callAfter(self.addNewControl, None, dRadioList)
 
     def onNewPanel(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dPanel)
+        ui.callAfter(self.addNewControl, None, dPanel)
 
     def onNewPageFrame(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dPageFrame)
+        ui.callAfter(self.addNewControl, None, dPageFrame)
 
     def onNewPageList(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dPageList)
+        ui.callAfter(self.addNewControl, None, dPageList)
 
     def onNewPageSelect(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dPageSelect)
+        ui.callAfter(self.addNewControl, None, dPageSelect)
 
     def onNewPageStyled(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dPageStyled)
+        ui.callAfter(self.addNewControl, None, dPageStyled)
 
     def onNewPageNoTabs(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dPageFrameNoTabs)
+        ui.callAfter(self.addNewControl, None, dPageFrameNoTabs)
 
     def onNewScrollPanel(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dScrollPanel)
+        ui.callAfter(self.addNewControl, None, dScrollPanel)
 
     def onNewShell(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dShell)
+        ui.callAfter(self.addNewControl, None, dShell)
 
     def onNewSlider(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dSlider)
+        ui.callAfter(self.addNewControl, None, dSlider)
 
     def onNewSpinner(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dSpinner)
+        ui.callAfter(self.addNewControl, None, dSpinner)
 
     def onNewSplitter(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dSplitter)
+        ui.callAfter(self.addNewControl, None, dSplitter)
 
     def onNewTextBox(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dTextBox)
+        ui.callAfter(self.addNewControl, None, dTextBox)
 
     def onNewToggleButton(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dToggleButton)
+        ui.callAfter(self.addNewControl, None, dToggleButton)
 
     def onNewTreeView(self, evt):
-        dabo.ui.callAfter(self.addNewControl, None, dTreeView)
+        ui.callAfter(self.addNewControl, None, dTreeView)
 
     def onNewSpacer(self, evt):
         return self.addSizer("spacer")[0]
@@ -3700,7 +3705,7 @@ class ClassDesigner(dApp):
             else:
                 if isinstance(controllingSizer, LayoutGridSizer):
                     rows, cols = 1, 1
-                spc = dabo.ui.getString(
+                spc = ui.getString(
                     message=_("Spacer Dimension?"),
                     caption=_("New Spacer"),
                     defaultValue="10",
@@ -3765,7 +3770,7 @@ class ClassDesigner(dApp):
                 # First, release the panel
                 if controllingSizer:
                     controllingSizer.remove(pnlToKill)
-                dabo.ui.callAfter(pnlToKill.release)
+                ui.callAfter(pnlToKill.release)
                 # If the controllingSizer is controlled by another
                 # sizer, remove it and replace it with a grid sizer.
                 # If there is no controlling sizer, set the Parent
@@ -3799,7 +3804,7 @@ class ClassDesigner(dApp):
 
             if controllingSizer is not None:
                 controllingSizer.remove(pnlToKill)
-                dabo.ui.callAfter(pnlToKill.release)
+                ui.callAfter(pnlToKill.release)
                 if isinstance(sizerPos, tuple):
                     rr, cc = sizerPos
                     oldItem = controllingSizer.getItemByRowCol(rr, cc)
@@ -3843,13 +3848,13 @@ class ClassDesigner(dApp):
                     itm.ControllingSizer = itm.GetUserData()
                 newSizer.ControllingSizer.setItemProps(itm, sizerAtts)
         try:
-            dabo.ui.callAfterInterval(obj.Form.layout, 500)
+            ui.callAfterInterval(obj.Form.layout, 500)
         except:
             try:
-                dabo.ui.callAfterInterval(obj.layout, 500)
+                ui.callAfterInterval(obj.layout, 500)
             except:
                 pass
-        dabo.ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfterInterval(100, self.updateLayout)
         return newSizer, obj
 
     def getSizerInfo(self):
@@ -3918,8 +3923,8 @@ class ClassDesigner(dApp):
                 sz.append(self.spnCols, halign="center")
                 sz.appendSpacer(25)
                 self.layout()
-                #                dabo.ui.callAfter(self.fitToSizer)
-                dabo.ui.callAfter(self.spnRows.setFocus)
+                #                ui.callAfter(self.fitToSizer)
+                ui.callAfter(self.spnRows.setFocus)
 
             def getRows(self):
                 return self.spnRows.Value
@@ -3960,7 +3965,7 @@ class ClassDesigner(dApp):
     def onPaletteClick(self, evt):
         if self.UseSizers:
             self.onAddControl(evt)
-            dabo.ui.callAfter(self.ControlPalette.clear)
+            ui.callAfter(self.ControlPalette.clear)
         # Seems to be needed in Windows to prevent double events
         evt.stop()
 
@@ -4210,9 +4215,11 @@ class ClassDesigner(dApp):
                     for lbl in lbls:
                         lbl.Left = lpos
         self._selection = [self.CurrentForm]
-        dabo.ui.callAfterInterval(100, self.updateLayout)
-        dabo.ui.callAfterInterval(100, self.EditorForm.refreshStatus)
+        ui.callAfterInterval(100, self.updateLayout)
+        ui.callAfterInterval(100, self.EditorForm.refreshStatus)
 
+
+    # TODO!!!!!!
     def miniAppTemplate(self):
         return """import os
 import inspect
@@ -4255,7 +4262,7 @@ def main():
         # Switch to that path
         os.chdir(pth)
 
-    dlg = dabo.ui.createForm("%s")
+    dlg = ui.createForm("%s")
     dlg.show()
     dlg.release()
     app.start()
@@ -4281,7 +4288,7 @@ if __name__ == '__main__':
 
             class PaletteForm(dToolForm):
                 def afterSetMenuBar(self):
-                    ClassDesignerMenu.mkDesignerMenu(self)
+                    class_designer_menu.mkDesignerMenu(self)
 
                 def onMenuOpen(self, evt):
                     self.Controller.menuUpdate(evt, self.MenuBar)
@@ -4357,7 +4364,7 @@ if __name__ == '__main__':
                         self.FontSize = 9
                     self.Height = 24
                     self.BezelWidth = 2
-                    self.bindEvent(dEvents.Hit, self.Form.onButtonToggle)
+                    self.bindEvent(events.Hit, self.Form.onButtonToggle)
 
                 def _getControlClass(self):
                     return self._controlClass
@@ -4382,15 +4389,15 @@ if __name__ == '__main__':
             sz.append(10)
             btn = PaletteButton(mp, Caption=_("Vert. Sizer"), ControlClass=dSizer)
             btn.DynamicEnabled = self.isUsingSizers
-            btn.bindEvent(dEvents.Hit, self.onPaletteClick)
+            btn.bindEvent(events.Hit, self.onPaletteClick)
             sz.append(btn)
             btn = PaletteButton(mp, Caption=_("Horiz. Sizer"), ControlClass=dSizer)
             btn.DynamicEnabled = self.isUsingSizers
-            btn.bindEvent(dEvents.Hit, self.onPaletteClick)
+            btn.bindEvent(events.Hit, self.onPaletteClick)
             sz.append(btn)
             btn = PaletteButton(mp, Caption=_("Grid Sizer"), ControlClass=dGridSizer)
             btn.DynamicEnabled = self.isUsingSizers
-            btn.bindEvent(dEvents.Hit, self.onPaletteClick)
+            btn.bindEvent(events.Hit, self.onPaletteClick)
             sz.append(btn)
             sz.append(10)
 
@@ -4441,7 +4448,7 @@ if __name__ == '__main__':
                 pass
             for cap, cls in ctls:
                 btn = PaletteButton(mp, Caption=cap, ControlClass=cls)
-                btn.bindEvent(dEvents.Hit, self.onPaletteClick)
+                btn.bindEvent(events.Hit, self.onPaletteClick)
                 sz.append(btn)
             cp.layout()
             cp.Fit()
@@ -4478,7 +4485,7 @@ if __name__ == '__main__':
             pf = self._pemForm = PemForm(None)
             pf.restoreSizeAndPosition()
             pf.Controller = self
-            dabo.ui.callAfterInterval(100, self.updateLayout)
+            ui.callAfterInterval(100, self.updateLayout)
         return self._pemForm
 
     def _getPropSht(self):
@@ -4510,7 +4517,7 @@ if __name__ == '__main__':
                 Controller=self,
                 Size=defSz,
             )
-        dabo.ui.callAfter(self._sizerPalette.select, self.Selection)
+        ui.callAfter(self._sizerPalette.select, self.Selection)
         return self._sizerPalette
 
     def _getTextEditorForm(self):
