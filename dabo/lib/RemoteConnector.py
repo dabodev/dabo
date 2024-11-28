@@ -13,9 +13,9 @@ from zipfile import ZipFile
 from io import StringIO
 
 from .. import dException
-from .. import main
+from .. import application
 from .. import settings
-from ..dApp import dApp
+from ..application import dApp
 from ..dObject import dObject
 from ..dLocalize import _
 from . import utils
@@ -23,7 +23,7 @@ from .utils import ustr
 from .manifest import Manifest
 
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class RemoteConnector(object):
@@ -368,7 +368,7 @@ class RemoteConnector(object):
         if self._baseURL:
             # Set explicitly by the launch() method
             return self._baseURL
-        app = main.get_application()
+        app = application.get_application()
         if app:
             ret = app.SourceURL
         else:

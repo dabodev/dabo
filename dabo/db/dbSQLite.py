@@ -4,7 +4,7 @@ import re
 import six
 import sys
 
-from .. import main
+from .. import application
 from .. import settings
 from ..dLocalize import _
 from ..dException import dException, DBFileDoesNotExistException
@@ -13,7 +13,7 @@ from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from .dCursorMixin import dCursorMixin
 from ..lib.utils import ustr
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class SQLite(dBackend):

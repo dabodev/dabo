@@ -11,11 +11,11 @@ except ImportError:
 
 from .. import dColors
 from .. import events
-from .. import main
+from .. import application
 from .. import ui
 from ..dLocalize import _
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):

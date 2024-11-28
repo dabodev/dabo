@@ -12,7 +12,7 @@ Decimal = decimal.Decimal
 from ..dLocalize import _
 from ..lib.dates import getStringFromDate
 from .. import settings
-from .. import main
+from .. import application
 
 ######################################################
 # Very first thing: check for required libraries:
@@ -3392,7 +3392,7 @@ class ReportWriter(object):
         ret = getattr(self, "_noneDisplay", None)
         if ret is None:
             try:
-                ret = main.get_application().NoneDisplay
+                ret = application.get_application().NoneDisplay
             except AttributeError:
                 ret = _("< None >")
         return ret

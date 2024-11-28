@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import main
+from .. import application
 
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 try:

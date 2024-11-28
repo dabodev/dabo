@@ -8,7 +8,7 @@ import time
 from .. import db
 from .. import dConstants
 from .. import dException
-from .. import main
+from .. import application
 from ..dLocalize import _
 from ..dObject import dObject
 from .dNoEscQuoteStr import dNoEscQuoteStr
@@ -24,7 +24,7 @@ cursor_flags = (
     dConstants.CURSOR_FIELD_TYPES_CORRECTED,
 )
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dCursorMixin(dObject):

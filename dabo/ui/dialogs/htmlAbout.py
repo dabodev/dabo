@@ -91,7 +91,7 @@ class HtmlAbout(dDialog):
 
 
 def main():
-    from .dApp import dApp
+    from .application import dApp
 
     app = dApp()
     app.MainFormClass = None

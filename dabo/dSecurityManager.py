@@ -208,8 +208,8 @@ class dSecurityManager(dObject):
 
 
 if __name__ == "__main__":
-    import ui
-    from dApp import dApp
+    from . import ui
+    from .application import dApp
 
     app = dApp(MainFormClass=None)
     app.setup()

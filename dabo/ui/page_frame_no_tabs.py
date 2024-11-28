@@ -366,7 +366,7 @@ class TestForm(dForm):
 
 
 def main():
-    from .. import dApp
+    from ..application import dApp
 
     app = dApp()
     app.MainFormClass = TestForm

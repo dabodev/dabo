@@ -17,7 +17,7 @@ import warnings
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
-from . import main
+from . import application
 from . import db
 from . import lib
 from . import ui
@@ -36,7 +36,7 @@ from .lib.utils import cleanMenuCaption
 # import __version__
 
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class Collection(list):
@@ -127,7 +127,7 @@ class dApp(dObject):
     All Dabo objects have an Application property which refers to the dApp
     instance. Instantiate your dApp object from your main script, like so::
 
-    >>> from dApp import dApp
+    >>> from application import dApp
     >>> app = dApp()
     >>> app.start()
 
@@ -1767,7 +1767,7 @@ try again when it is running.
             based on the value of MainFormClass. If you want to swap in your own
             MainForm instance, do it after setup() but before start(), as in::
 
-            >>> from dApp import dApp
+            >>> from application import dApp
             >>> app = dApp()
             >>> app.setup()
             >>> app.MainForm = myMainFormInstance
@@ -1789,7 +1789,7 @@ try again when it is running.
             main form, or set to your own main form class. Do this before calling
             dApp.start(), as in::
 
-            >>> from dApp import dApp
+            >>> from application import dApp
             >>> app = dApp()
             >>> app.MainFormClass = MyMainFormClass
             >>> app.start()

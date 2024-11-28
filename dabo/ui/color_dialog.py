@@ -2,7 +2,7 @@
 import wx
 
 from .. import ui
-from .. import main
+from .. import application
 from .. import dConstants
 from .. import dColors
 
@@ -27,7 +27,7 @@ class dColorDialog(wx.ColourDialog):
                 dat.SetColour(color)
 
         if parent is None:
-            parent = main.get_application().ActiveForm
+            parent = application.get_application().ActiveForm
         super(dColorDialog, self).__init__(parent, data=dat)
         self._selColor = None
 

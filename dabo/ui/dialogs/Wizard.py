@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from ... import ui
-from ...dApp import dApp
+from ...application import dApp
 from ...dLocalize import _
 from ... import dConstants as k
 from ... import events

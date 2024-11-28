@@ -5,26 +5,26 @@
 This demo is like invoice.py, but shows how to use the progress dialog.
 """
 
-from dabo import ui as dui
-from dabo.dApp import dApp
-from dabo.dReportWriter import dReportWriter
-from dabo.lib import reportUtils
+from .. import ui
+from ..application import dApp
+from ..dReportWriter import dReportWriter
+from ..lib import reportUtils
 
 
-class ReportingForm(dui.dForm):
+class ReportingForm(ui.dForm):
     def initProperties(self):
         self.Caption = "Invoice Report"
         self.BorderResizable = False
 
     def afterInit(self):
-        ms = self.Sizer = dui.dSizer("v")
+        ms = self.Sizer = ui.dSizer("v")
         ms.append(
-            dui.dLabel(self, Caption="Invoice Report with Cancelable Progress Output"),
+            ui.dLabel(self, Caption="Invoice Report with Cancelable Progress Output"),
             "expand",
         )
-        self.progress = dui.dReportProgress(self)
+        self.progress = ui.dReportProgress(self)
         ms.append(self.progress)
-        ms.append(dui.dButton(self, Caption="Preview", OnHit=self.onPreview))
+        ms.append(ui.dButton(self, Caption="Preview", OnHit=self.onPreview))
         self.Size = (400, 300)
 
     def onPreview(self, evt):

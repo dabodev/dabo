@@ -6,15 +6,14 @@ import time
 import traceback
 
 from .. import ui
-from dabo.dApp import dApp
+from ..application import dApp
 from ..dLocalize import _
 from ..lib.utils import ustr
 from .. import events
-import dabo.dConstants as k
-from dabo.lib.connParser import createXML
-from dabo.lib.untabify import process as untabify
-from dabo.ui.dialogs import WizardPage
-from dabo.ui.dialogs import Wizard
+from ..lib.connParser import createXML
+from ..lib.untabify import process as untabify
+from ..ui.dialogs import WizardPage
+from ..ui.dialogs import Wizard
 from ..ui import dLabel
 from ..ui import dSizer
 

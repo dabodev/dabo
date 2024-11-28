@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from .. import biz
 from .. import events
-from .. import main
+from .. import application
 from .. import settings
 from .. import dException
 from .. import ui
@@ -10,7 +10,7 @@ from ..dObject import dObject
 from ..dPref import dPref
 from ..lib.utils import ustr
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dDataControlMixin(ui.dControlMixin):

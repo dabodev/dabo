@@ -4,7 +4,7 @@ import decimal
 import unittest
 
 from .. import ui
-from ..dApp import dApp
+from ..application import dApp
 from ..lib import getRandomUUID
 
 

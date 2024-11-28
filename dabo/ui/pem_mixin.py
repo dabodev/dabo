@@ -12,14 +12,14 @@ from ..dObject import dObject
 from .. import lib
 from .. import ui
 from .. import events
-from .. import main
+from .. import application
 from .. import settings
 from ..dLocalize import _
 from ..lib.utils import ustr
 from ..lib.utils import dictStringify
 from ..ui import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dPemMixin(dObject):

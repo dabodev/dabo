@@ -9,7 +9,7 @@ import wx
 from .. import dColors
 from .. import ui
 from .. import events
-from .. import main
+from .. import application
 from .. import settings
 from ..lib import utils
 from ..dObject import dObject
@@ -17,7 +17,7 @@ from ..dLocalize import _, n_
 from ..lib.utils import cleanMenuCaption
 
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class SplashScreen(wx.Frame):

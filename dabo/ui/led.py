@@ -103,7 +103,7 @@ ui.dLed = dLed
 
 
 if __name__ == "__main__":
-    from .. import dApp
+    from ..application import dApp
     from ..ui import dDropdownList, dForm, dLabel, dPanel, dSizer, dToggleButton
 
     class TestForm(dForm):

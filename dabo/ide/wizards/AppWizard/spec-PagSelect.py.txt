@@ -2,7 +2,7 @@
 
 
 from .. import ui
-from dabo.dApp import dApp
+from ..application import dApp
 from .. import events
 from ..dLocalize import _, n_
 from .PagSelectBase import (IGNORE_STRING, PagSelectBase, SelectCheckBox, SelectDateTextBox,

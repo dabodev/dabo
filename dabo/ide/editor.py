@@ -16,7 +16,7 @@ except ImportError:
     use_subprocess = False
 
 from .. import ui
-from ..dApp import dApp
+from ..application import dApp
 from .. import events
 from ..dLocalize import _
 from ..lib.reportUtils import getTempFile

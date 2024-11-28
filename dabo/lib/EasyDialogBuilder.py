@@ -16,11 +16,11 @@ targeted and Forms, Dialogs, and Panels.
 """
 
 import types
-import dabo
-from dabo.dApp import dApp
-from dabo import dEvents as dEvents
-from dabo.lib.utils import ustr
-from dabo import ui as dui
+
+from ..application import dApp
+from .. import events
+from .utils import ustr
+from .. import ui
 
 
 class EasyDialogBuilder(object):
@@ -29,7 +29,7 @@ class EasyDialogBuilder(object):
         :param parent: dabo object that is the parent of the controls, normally a panel or form
         :param tuple pageData: a tuple of dictionaries, see below
         :param dict properties: optional dictionary of properties for the control
-        :rtype: dui.dPageFrame
+        :rtype: ui.dPageFrame
 
         pageData tuple:
             ========== ================
@@ -39,7 +39,7 @@ class EasyDialogBuilder(object):
             ========== ================
 
         """
-        pageFrame = dui.dPageFrame(parent, properties=properties)
+        pageFrame = ui.dPageFrame(parent, properties=properties)
 
         for page in pageData:
             if page.get("image"):
@@ -74,7 +74,7 @@ class EasyDialogBuilder(object):
         :param bool grid: When True objects are put into a grid sizer for even controlfield alignment.  When False all objects are put into boxSizers so the control fields line up with the end of their labels
         :param bool hasRegIDs: When True all control objects will be assigned regIDs.
         :param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
-        :rtype: dui.dSizer
+        :rtype: ui.dSizer
 
         controlFields tuple:
             =========== ====================
@@ -91,7 +91,7 @@ class EasyDialogBuilder(object):
            "format" = string will cause the control to only allow the user to select that file type
 
         """
-        box = dui.dBorderSizer(parent, "vertical")
+        box = ui.dBorderSizer(parent, "vertical")
         box.Caption = caption
 
         box.DefaultSpacing = spacing
@@ -121,7 +121,7 @@ class EasyDialogBuilder(object):
         :param bool grid: When True objects are put into a grid sizer for even controlfield alignment.  When False all objects are put into boxSizers so the control fields line up with the end of their labels
         :param bool hasRegIDs: When True all control objects will be assigned regIDs.
         :param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
-        :rtype: dui.dSizer
+        :rtype: ui.dSizer
 
         controlFields tuple:
             =========== ====================
@@ -139,10 +139,10 @@ class EasyDialogBuilder(object):
 
         """
         if grid:
-            Sizer = dui.dGridSizer(MaxCols=3)
+            Sizer = ui.dGridSizer(MaxCols=3)
             Sizer.setColExpand(True, 1)
         else:
-            Sizer = dui.dSizer("vertical")
+            Sizer = ui.dSizer("vertical")
 
         Sizer.DefaultSpacing = spacing
         Sizer.DefaultBorder = border
@@ -166,18 +166,18 @@ class EasyDialogBuilder(object):
                 else:
                     szItem = Sizer.append(controls[1], "expand", colSpan=2)
 
-                if obj[0] is dui.dEditBox:
+                if obj[0] is ui.dEditBox:
                     Sizer.setRowExpand(True, Sizer.getGridPos(szItem)[0])
                     Sizer.setItemProp(lbl, "valign", "top")
             else:
-                bs = dui.dSizer("h")
+                bs = ui.dSizer("h")
                 bs.append(controls[0], halign="right")
                 bs.append(controls[1], "expand", 1)
 
                 if len(controls) > 2:
                     bs.append(controls[2])
 
-                if obj[0] is dui.dEditBox:
+                if obj[0] is ui.dEditBox:
                     Sizer.append(bs, "expand", 1)
                 else:
                     Sizer.append(bs, "expand")
@@ -227,7 +227,7 @@ class EasyDialogBuilder(object):
             else:
                 buttonProperties = {}
 
-            exec("self.%s = dui.dTextBox(parent, ReadOnly=True, properties=Properties)" % (name,))
+            exec("self.%s = ui.dTextBox(parent, ReadOnly=True, properties=Properties)" % (name,))
             exec("controlList.append(self.%s)" % (name,))
             exec(
                 "self.%s_button = fileButton(parent, format, directory, self.%s, buttonProperties)"
@@ -235,7 +235,7 @@ class EasyDialogBuilder(object):
             )
             exec("controlList.append(self.%s_button)" % (name,))
         else:
-            if issubclass(control, (dui.dCheckBox, dui.dButton)):
+            if issubclass(control, (ui.dCheckBox, ui.dButton)):
                 controlCaption = labelTitle
                 labelTitle = ""
             else:
@@ -248,16 +248,16 @@ class EasyDialogBuilder(object):
             exec("controlList.append(self.%s)" % (name,))
 
         if bindHitEvents:
-            exec("self.%s.bindEvent(dEvents.Hit, self.onHit_%s)" % (name, name))
+            exec("self.%s.bindEvent(events.Hit, self.onHit_%s)" % (name, name))
 
-        controlList.insert(0, dui.dLabel(parent, Caption=labelTitle))
+        controlList.insert(0, ui.dLabel(parent, Caption=labelTitle))
         return controlList
 
     def makeButtonBar(self, buttonData, orientation="horizontal"):
         """
         :param tuple buttonData: A tuple of tuples, see below
         :param str orientation: "horizontal" or "vertical"
-        :rtype: dui.dSizer
+        :rtype: ui.dSizer
 
         buttonData tuple:
             =========== ==================
@@ -266,22 +266,22 @@ class EasyDialogBuilder(object):
             =========== ==================
 
         """
-        hs = dui.dSizer(orientation=orientation)
+        hs = ui.dSizer(orientation=orientation)
 
         for button in buttonData:
-            hs.append(dui.dButton(self, Caption=button[0], RegID=button[1]), "normal")
+            hs.append(ui.dButton(self, Caption=button[0], RegID=button[1]), "normal")
             hs.appendSpacer(5)
 
         return hs
 
     def setupStandardSizer(self, orientation="vertical"):
         """
-        :rtype: dui.dSizer
+        :rtype: ui.dSizer
 
         Convienence function that sets up a standard sizer with some spacing and borders
         and returns it to the user
         """
-        sizer = dui.dSizer(orientation)
+        sizer = ui.dSizer(orientation)
         sizer.DefaultSpacing = 5
         sizer.DefaultBorder = 10
         sizer.DefaultBorderAll = True
@@ -289,33 +289,33 @@ class EasyDialogBuilder(object):
         return sizer
 
 
-class fileButton(dui.dButton):
+class fileButton(ui.dButton):
     def __init__(self, parent, format, directory, target, Properties):
         self.format = format
         self.directory = directory
         self.target = target
-        dui.dButton.__init__(self, parent, properties=Properties)
+        ui.dButton.__init__(self, parent, properties=Properties)
 
     def afterInit(self):
         self.Caption = "Browse..."
 
     def onHit(self, evt):
         if self.directory:
-            self.target.value = dui.getFolder()
+            self.target.value = ui.getFolder()
         else:
-            self.target.Value = dui.getFile(self.format)
+            self.target.Value = ui.getFile(self.format)
 
 
 if __name__ == "__main__":
 
-    class TestForm(dui.dForm, EasyDialogBuilder):
+    class TestForm(ui.dForm, EasyDialogBuilder):
         def afterInit(self):
             self.Caption = "Simple Form with Controls"
             self.instantiateControls()
             self.Width = 200
 
         def instantiateControls(self):
-            self.Sizer = dui.dSizer("vertical")
+            self.Sizer = ui.dSizer("vertical")
 
             pageFrame = self.makePageFrame(
                 self,
@@ -329,12 +329,12 @@ if __name__ == "__main__":
             self.Sizer.layout()
             self.fitToSizer()
 
-    class controlBoxPage(dui.dScrollPanel, EasyDialogBuilder):
+    class controlBoxPage(ui.dScrollPanel, EasyDialogBuilder):
         def afterInit(self):
             self.Sizer = self.setupStandardSizer()
 
             self.Sizer.append(
-                dui.dLabel(
+                ui.dLabel(
                     self,
                     Caption="Example using the function makeControlBox",
                     RegID="makeControlBox_Label",
@@ -347,25 +347,25 @@ if __name__ == "__main__":
                 self,
                 "Sample Control Box",
                 (
-                    (dui.dTextBox, "txtCounty", "County"),
-                    (dui.dTextBox, "txtCity", "City"),
-                    (dui.dTextBox, "txtZipcode", "Zip"),
-                    (dui.dSpinner, "spnPopulation", "Population"),
-                    (dui.dCheckBox, "chkReviewed", "Reviewed"),
-                    (dui.dEditBox, "edtComments", "Comments"),
-                    (dui.dSlider, "sldFactor", "Factor"),
-                    (dui.dButton, "cmdOk", "Ok"),
+                    (ui.dTextBox, "txtCounty", "County"),
+                    (ui.dTextBox, "txtCity", "City"),
+                    (ui.dTextBox, "txtZipcode", "Zip"),
+                    (ui.dSpinner, "spnPopulation", "Population"),
+                    (ui.dCheckBox, "chkReviewed", "Reviewed"),
+                    (ui.dEditBox, "edtComments", "Comments"),
+                    (ui.dSlider, "sldFactor", "Factor"),
+                    (ui.dButton, "cmdOk", "Ok"),
                 ),
             )
 
             self.Sizer.append1x(box)
 
-    class makeSizerTestPage(dui.dScrollPanel, EasyDialogBuilder):
+    class makeSizerTestPage(ui.dScrollPanel, EasyDialogBuilder):
         def afterInit(self):
             self.Sizer = self.setupStandardSizer()
 
             self.Sizer.append(
-                dui.dLabel(
+                ui.dLabel(
                     self,
                     Caption="Example using the function makeControlSizer",
                     RegID="makeControlSizer_Label",
@@ -377,15 +377,15 @@ if __name__ == "__main__":
             vs = self.makeControlSizer(
                 self,
                 (
-                    (dui.dTextBox, "txtCounty2", "County"),
-                    (dui.dTextBox, "txtCity2", "City"),
-                    (dui.dTextBox, "txtZipcode2", "Zip"),
-                    (dui.dSpinner, "spnPopulation2", "Population"),
-                    (dui.dCheckBox, "chkReviewed2", "Reviewed"),
-                    (dui.dEditBox, "edtComments2", "Comments"),
-                    (dui.dSlider, "sldFactor2", "Factor"),
+                    (ui.dTextBox, "txtCounty2", "County"),
+                    (ui.dTextBox, "txtCity2", "City"),
+                    (ui.dTextBox, "txtZipcode2", "Zip"),
+                    (ui.dSpinner, "spnPopulation2", "Population"),
+                    (ui.dCheckBox, "chkReviewed2", "Reviewed"),
+                    (ui.dEditBox, "edtComments2", "Comments"),
+                    (ui.dSlider, "sldFactor2", "Factor"),
                     ("File", "txtFile", "Important File"),
-                    (dui.dButton, "cmdOk2", "Ok"),
+                    (ui.dButton, "cmdOk2", "Ok"),
                 ),
             )
 

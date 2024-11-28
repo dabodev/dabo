@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from .. import ui
-from dabo.dApp import dApp
+from ..application import dApp
 from ..dLocalize import _
 
 from ..ui import dForm

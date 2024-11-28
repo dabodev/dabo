@@ -13,13 +13,13 @@ import wx.stc as stc
 from .. import ui
 from ..dLocalize import _
 from .. import events
-from .. import main
+from .. import application
 from .. import settings
 from .. import dColors
 from . import dDataControlMixin
 from . import dTimer
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 LexerDic = {

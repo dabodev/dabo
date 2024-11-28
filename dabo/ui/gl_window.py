@@ -2,13 +2,13 @@
 import wx
 from wx import glcanvas
 
-from .. import main
+from .. import application
 from .. import ui
 from ..dLocalize import _
 from . import dControlMixin
 from . import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 try:
     from OpenGL.GL import *

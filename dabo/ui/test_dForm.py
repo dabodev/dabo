@@ -5,7 +5,7 @@ from .. import db
 from .. import biz
 from .. import ui
 from ..lib import getRandomUUID
-from ..dApp import dApp
+from ..application import dApp
 
 
 class Test_dForm(unittest.TestCase):

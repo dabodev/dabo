@@ -16,7 +16,7 @@ from pathlib import Path
 
 from . import settings
 from . import ide
-from . import main
+from . import application
 from . import version
 
 
@@ -66,7 +66,7 @@ def _load_remaining_modules():
     from . import ui
 
     ui.load_namespace()
-    from . import dApp
+    from . import application
     from . import biz
     from . import dColors
     from . import events
@@ -82,7 +82,7 @@ fileFormatter = None
 fileLogHandler = None
 dbFileLogHandler = None
 dbFileFormatter = None
-main.setup_logging()
+application.setup_logging()
 debug = logger.debug
 info = logger.info
 error = logger.error
@@ -143,15 +143,15 @@ def quickStart(homedir=None):
     open("main.py", "w").write(
         """#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from dabo import ui as dui
-from dabo.dApp import dApp
+from . import ui
+from application import dApp
 
 app = dApp()
 
 # IMPORTANT! Change app.MainFormClass value to the name
 # of the form class that you want to run when your
 # application starts up.
-app.MainFormClass = dui.dFormMain
+app.MainFormClass = ui.dFormMain
 
 app.start()
 """

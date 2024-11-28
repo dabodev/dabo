@@ -7,14 +7,14 @@ import wx
 from .. import dColors
 from .. import ui
 from .. import events
-from .. import main
+from .. import application
 from ..dObject import dObject
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import dControlMixin
 from . import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dNode(dObject):
@@ -1433,7 +1433,7 @@ class _dTreeView_test(dTreeView):
 
 
 if __name__ == "__main__":
-    from .dApp import dApp
+    from .application import dApp
     from .ui import test
     from .ui import dButton
     from .ui import dCheckBox

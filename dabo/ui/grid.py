@@ -18,7 +18,7 @@ from wx._core import PyAssertionError
 
 from .. import ui
 from .. import events
-from .. import main
+from .. import application
 from .. import settings
 from .. import dException
 from .. import biz
@@ -46,7 +46,7 @@ from . import dTimer
 from . import dUICursors
 from . import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 # Make this locale-independent
 # JK: We can't set this up on module load because locale
@@ -6005,7 +6005,7 @@ class _dGrid_test(dGrid):
 
 
 if __name__ == "__main__":
-    from ..dApp import dApp
+    from ..application import dApp
 
     class TestForm(dForm):
         def afterInit(self):

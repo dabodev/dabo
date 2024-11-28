@@ -2,11 +2,11 @@
 import logging
 import time
 
-from . import main
+from . import application
 from . import settings
 from .dLocalize import _
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dEvent(object):
@@ -193,7 +193,7 @@ class GridEvent(dEvent):
 
 class KeyEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        from .dApp import dApp
+        from .application import dApp
 
         return issubclass(objectClass, (ui.dPemMixin, dApp))
 
@@ -287,7 +287,7 @@ class Activate(dEvent):
     """Occurs when the form or application becomes active."""
 
     def appliesToClass(eventClass, objectClass):
-        from dabo.dApp import dApp
+        from .application import dApp
 
         return issubclass(objectClass, (dApp, ui.dForm, ui.dFormMain, ui.dDialog))
 
@@ -353,7 +353,7 @@ class Deactivate(dEvent):
     """Occurs when another form becomes active."""
 
     def appliesToClass(eventClass, objectClass):
-        from dabo.dApp import dApp
+        from .application import dApp
 
         return issubclass(objectClass, (dApp, ui.dForm, ui.dFormMain, ui.dDialog))
 

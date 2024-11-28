@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import main
+from .. import application
 from .. import ui
 from ..dLocalize import _
 from . import dSizerMixin
 from . import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dGridSizer(dSizerMixin, wx.GridBagSizer):

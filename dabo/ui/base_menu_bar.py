@@ -277,7 +277,7 @@ ui.HelpMenu = HelpMenu
 
 
 if __name__ == "__main__":
-    from ..dApp import dApp
+    from ..application import dApp
 
     app = dApp()
     app.setup()

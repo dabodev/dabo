@@ -3,14 +3,14 @@ import wx
 
 from .. import ui
 from .. import events
-from .. import main
+from .. import application
 from .. import settings
 from ..dObject import dObject
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dFont(dObject):

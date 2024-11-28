@@ -2,7 +2,7 @@
 
 
 from .. import ui
-from dabo.dApp import dApp
+from ..application import dApp
 from .PagEditBase import PagEditBase
 
 

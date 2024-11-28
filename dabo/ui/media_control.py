@@ -411,7 +411,7 @@ ui.dMediaControl = dMediaControl
 
 
 if __name__ == "__main__":
-    from .. import dApp
+    from ..application import dApp
     from ..ui import dForm
 
     class MediaForm(dForm):

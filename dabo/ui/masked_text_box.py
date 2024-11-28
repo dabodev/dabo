@@ -4,13 +4,13 @@ import datetime
 import wx
 import wx.lib.masked as masked
 
-from .. import main
+from .. import application
 from .. import ui
 from ..dLocalize import _
 from . import dTextBoxMixin
 from . import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):

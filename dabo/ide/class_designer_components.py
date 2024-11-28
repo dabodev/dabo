@@ -8,7 +8,7 @@ from ..lib.utils import ustr
 from ..lib import utils as libutils
 from ..dObject import dObject
 from .. import events
-from .. import main
+from .. import application
 from ..lib.xmltodict import xmltodict
 from ..lib.DesignerUtils import addSizerDefaults
 from .class_designer_exceptions import PropertyUpdateException
@@ -40,7 +40,7 @@ from ..ui import dTreeView
 from ..ui.dialogs import Wizard
 from ..ui.dialogs import WizardPage
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 # Defaults for sizer items

@@ -6,7 +6,7 @@ from .. import ui
 from ..dLocalize import _
 from ..ui import dKeys as dKeys
 from .. import events
-from .. import main
+from .. import application
 from .class_designer_components import LayoutPanel
 from .class_designer_components import LayoutSpacerPanel
 from .class_designer_components import LayoutSizer
@@ -32,7 +32,7 @@ from ..ui import dSizer
 from ..ui import dSplitter
 from ..ui.dialogs import HotKeyEditor
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class PropSheet(dPanel):

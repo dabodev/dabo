@@ -866,7 +866,7 @@ ui.dShellForm = dShellForm
 
 
 def main():
-    from ..dApp import dApp
+    from ..application import dApp
 
     app = dApp(BasePrefKey="ui.dShellForm")
     app.MainFormClass = dShellForm

@@ -63,7 +63,7 @@ class DlgInfoMessage(dStandardButtonDialog):
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
+    from ...application import dApp
 
     app = dApp(MainFormClass=None)
     app.setup()

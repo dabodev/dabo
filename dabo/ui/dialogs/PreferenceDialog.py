@@ -397,7 +397,7 @@ class PreferenceDialog(dOkCancelDialog):
 
 
 if __name__ == "__main__":
-    from dabo.dApp import dApp
+    from ...application import dApp
 
     class TestForm(dForm):
         def afterInit(self):

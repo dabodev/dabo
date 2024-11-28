@@ -428,7 +428,7 @@ ui.dExtendedCalendar = dExtendedCalendar
 
 
 if __name__ == "__main__":
-    from ..dApp import dApp
+    from ..application import dApp
     from . import dForm
 
     class TestForm(dForm):

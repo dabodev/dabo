@@ -10,7 +10,7 @@ import wx.lib.masked as masked
 
 from .. import ui
 from .. import events
-from .. import main
+from .. import application
 from .. import settings
 from ..lib import dates
 from ..lib.utils import ustr
@@ -19,7 +19,7 @@ from ..dLocalize import _
 from ..ui import dDataControlMixin
 from ..ui import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 numericTypes = (int, int, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)

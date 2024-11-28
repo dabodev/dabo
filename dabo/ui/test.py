@@ -23,7 +23,7 @@ import wx
 
 from .. import settings
 from .. import ui
-from ..dApp import dApp
+from ..application import dApp
 
 # Log all events except the really frequent ones:
 logEvents = ["All", "Idle", "MouseMove"]

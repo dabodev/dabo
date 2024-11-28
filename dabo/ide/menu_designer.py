@@ -5,10 +5,10 @@ import sys
 
 from .. import ui
 from ..dLocalize import _
-from dabo.dApp import dApp
+from ..application import dApp
 from .. import events
-import dabo.lib.xmltodict as xtd
-from MenuDesignerForm import MenuDesignerForm
+import ..lib.xmltodict as xtd
+from .MenuDesignerForm import MenuDesignerForm
 
 
 class MenuDesigner(dApp):

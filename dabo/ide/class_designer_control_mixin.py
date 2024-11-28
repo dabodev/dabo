@@ -6,7 +6,7 @@ from ..lib import utils as libutils
 from ..dLocalize import _
 from ..lib.utils import ustr
 from .. import events
-from .. import main
+from .. import application
 from .. import dColors
 from ..ui import dKeys
 from ..ui import dialogs
@@ -67,7 +67,7 @@ from .class_designer_components import LayoutSaverMixin
 from .class_designer_components import classFlagProp
 from .class_designer_exceptions import PropertyUpdateException
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class ClassDesignerControlMixin(LayoutSaverMixin):

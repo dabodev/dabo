@@ -9,13 +9,13 @@ along with convenience functions to allow calling like::
 
 import wx
 
-from .. import main
+from .. import application
 from .. import ui
 from ..dLocalize import _
 
 
 def getForm():
-    ret = main.get_application().ActiveForm
+    ret = application.get_application().ActiveForm
     if not ret:
         # Could be a dead object
         ret = None
@@ -213,7 +213,7 @@ def getDefaultTitle():
     object isn't available the title will be "Dabo Application".
     """
     ret = None
-    app = main.get_application()
+    app = application.get_application()
     if app:
         ret = app.getAppInfo("appName")
     if ret is None:
@@ -230,7 +230,7 @@ ui.showMessageBox = showMessageBox
 
 
 if __name__ == "__main__":
-    from ..dApp import dApp
+    from ..application import dApp
     from ..ui import dButton
     from ..ui import dForm
     from ..ui import dLabel

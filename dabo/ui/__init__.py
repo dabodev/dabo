@@ -18,7 +18,7 @@ import warnings
 
 from .. import events
 from .. import icons
-from .. import main
+from .. import application
 from .. import settings
 from .. import ui
 from ..dException import dException
@@ -29,7 +29,7 @@ from ..lib.utils import ustr
 from .. import dConstants
 from .uiApp import uiApp
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 # Very VERY first thing: ensure a minimal wx is selected, but only if
 # wx hasn't already been imported, and if we aren't running frozen:
@@ -892,7 +892,7 @@ def getFormMousePosition():
     Returns the position of the mouse relative to the top left
     corner of the form.
     """
-    actwin = main.get_application().ActiveForm
+    actwin = application.get_application().ActiveForm
     if actwin is not None:
         return actwin.relativeCoordinates(wx.GetMousePosition())
     else:
@@ -906,7 +906,7 @@ def getMouseObject():
     development when testing changes to classes 'in the wild' of a
     live application.
     """
-    actwin = main.get_application().ActiveForm
+    actwin = application.get_application().ActiveForm
     if isinstance(actwin, ui.dShell):
         actwin.lockDisplay()
         actwin.sendToBack()
@@ -1039,7 +1039,7 @@ def getDisplaySize():
 
 
 def _getActiveForm():
-    app = main.get_application()
+    app = application.get_application()
     if app is not None:
         return app.ActiveForm
     return None
@@ -1418,7 +1418,7 @@ def getSystemInfo(returnType=None):
     if returnType is None:
         returnType = "string"
     rType = returnType.lower()[0]
-    app = main.get_application()
+    app = application.get_application()
     ds = []
     if app:
         plat = app.Platform
@@ -1600,7 +1600,7 @@ def createMenuBar(src, form=None, previewFunc=None):
 
     def addMenu(mb, menuDict, form, previewFunc):
         if form is None:
-            form = main.get_application().ActiveForm
+            form = application.get_application().ActiveForm
         if isinstance(mb, ui.dMenuBar):
             menu = ui.dMenu(mb)
         else:
@@ -1610,14 +1610,14 @@ def createMenuBar(src, form=None, previewFunc=None):
         menu.MRU = menu._extractKey(atts, "MRU")
         menu.HelpText = menu._extractKey(atts, "HelpText")
         if atts:
-            menu.setPropertiesFromAtts(atts, context={"form": form, "app": main.get_application()})
+            menu.setPropertiesFromAtts(atts, context={"form": form, "app": application.get_application()})
         mb.appendMenu(menu)
         try:
             items = menuDict["children"]
         except KeyError:
             # No children defined for this menu
             return
-        app = main.get_application()
+        app = application.get_application()
         for itm in items:
             if "Separator" in itm["name"]:
                 menu.appendSeparator()
@@ -1652,7 +1652,7 @@ def createMenuBar(src, form=None, previewFunc=None):
                 menuItem._bindingText = "%s" % fnc
                 if itmatts:
                     menuItem.setPropertiesFromAtts(
-                        itmatts, context={"form": form, "app": main.get_application()}
+                        itmatts, context={"form": form, "app": application.get_application()}
                     )
                 menuItem.bindEvent(events.Hit, binding)
 
@@ -1996,7 +1996,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None, italic=None
     active form. If no form is active, the app's MainForm is used.
     """
     if wind is None:
-        wind = main.get_application().ActiveForm
+        wind = application.get_application().ActiveForm
     needToRelease = False
     if wind is None:
         # Need to create one
@@ -2050,7 +2050,7 @@ def saveScreenShot(obj=None, imgType=None, pth=None, delaySeconds=None):
 
 def _saveScreenShot(obj, imgType, pth):
     if obj is None:
-        obj = main.get_application().ActiveForm
+        obj = application.get_application().ActiveForm
     if obj is None:
         # Nothing active!
         stop(_("There is no active form to capture."), _("No Active Form"))
@@ -2119,7 +2119,7 @@ def strToBmp(val, scale=None, width=None, height=None):
     """
     ret = None
     cwd = os.getcwd()
-    app = main.get_application()
+    app = application.get_application()
     if app:
         cwd = app.HomeDirectory
 
@@ -2235,7 +2235,7 @@ def getImagePath(nm, url=False):
     ret = icons.getIconFileName(nm)
     if not ret:
         # Try other locations:
-        trials = [main.get_application().HomeDirectory, os.getcwd()]
+        trials = [application.get_application().HomeDirectory, os.getcwd()]
         trials.extend([p for p in sys.path])
 
         for trial in trials:

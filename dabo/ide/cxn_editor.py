@@ -5,14 +5,14 @@ import os
 import copy
 
 
-from ..dApp import dApp
+from ..application import dApp
 from ..dLocalize import _
 from ..lib.utils import ustr
 from ..lib.connParser import createXML
 from ..lib.connParser import importConnections
 from ..lib import utils
 from .. import db
-from .. import main
+from .. import application
 from .. import ui
 from ..ui import dButton
 from ..ui import dDropdownList
@@ -24,7 +24,7 @@ from ..ui import dSizer
 from ..ui import dTextBox
 from . import home_directory_status_bar
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 def flushValues(fnc):

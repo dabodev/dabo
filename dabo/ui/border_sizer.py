@@ -185,7 +185,7 @@ class _dBorderSizer_test(dBorderSizer):
 
 
 if __name__ == "__main__":
-    from .. import dApp
+    from ..application import dApp
 
     app = dApp()
     app.MainFormClass = TestForm

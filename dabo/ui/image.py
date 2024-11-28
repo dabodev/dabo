@@ -9,7 +9,7 @@ import wx
 
 from .. import ui
 from .. import events
-from .. import main
+from .. import application
 from ..dLocalize import _
 from ..lib import utils
 from . import makeDynamicProperty
@@ -29,7 +29,7 @@ except ImportError:
 #        if tagname == "Orientation"][0]
 _ORIENTATION_TAG = 274
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 # The EXIF rotation values do not lend themselves easily to rotation
@@ -459,7 +459,7 @@ ui.dImage = dImage
 
 
 if __name__ == "__main__":
-    from ..dApp import dApp
+    from ..application import dApp
 
     class ImgForm(dForm):
         def afterInit(self):

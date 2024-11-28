@@ -90,7 +90,7 @@ class About(dDialog):
 
 
 def main():
-    from dabo.dApp import dApp
+    from ..application import dApp
 
     app = dApp()
     app.MainFormClass = None

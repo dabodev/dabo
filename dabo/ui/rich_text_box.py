@@ -5,7 +5,7 @@ import os
 import wx
 import wx.richtext
 
-from .. import main
+from .. import application
 from .. import dColors
 from .. import ui
 from ..dLocalize import _
@@ -18,7 +18,7 @@ from . import dForm
 from . import dTimer
 from . import dToggleButton
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
@@ -737,7 +737,7 @@ Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit ame
 
 
 if __name__ == "__main__":
-    from .. import dApp
+    from ..application import dApp
 
     app = dApp(MainFormClass=RichTextTestForm)
     app.start()

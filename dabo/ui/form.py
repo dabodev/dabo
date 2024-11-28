@@ -5,7 +5,7 @@ import time
 import wx
 
 from .. import events
-from .. import main
+from .. import application
 from .. import settings
 from .. import biz
 from .. import ui
@@ -17,7 +17,7 @@ from . import dFormMixin
 from . import dSizer
 from . import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class BaseForm(dFormMixin):

@@ -5,7 +5,7 @@ import os
 import copy
 from .. import icons
 from .. import ui
-from ..dApp import dApp
+from ..application import dApp
 from .. import events
 from ..dReportWriter import dReportWriter
 from ..lib.reportWriter import *

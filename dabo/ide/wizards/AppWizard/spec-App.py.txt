@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from dabo.dApp import dApp
+from ..application import dApp
 from ..dLocalize import _
 from version import __version__
 

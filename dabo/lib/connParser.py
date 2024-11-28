@@ -4,7 +4,7 @@ import xml.sax
 from io import StringIO
 import os.path
 
-from .. import main
+from .. import application
 from .. import settings
 from . import utils
 from ..dLocalize import _
@@ -98,7 +98,7 @@ def importConnections(pth=None, useHomeDir=False):
     ret = ch.getConnectionDict()
     basePath = pth
     if useHomeDir:
-        basePath = main.get_application().HomeDirectory
+        basePath = application.get_application().HomeDirectory
     else:
         basePath = pth
 

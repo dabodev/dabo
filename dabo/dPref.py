@@ -4,13 +4,13 @@ import datetime
 import os
 import warnings
 
-from . import main
+from . import application
 from .dLocalize import _
 from .lib import utils
 from .lib.utils import ustr
 from . import db
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 # We don't want to deal with these as preferences.

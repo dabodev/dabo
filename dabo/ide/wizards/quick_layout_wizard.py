@@ -6,10 +6,10 @@ if __name__ == "__main__":
 import os
 import time
 
-from ... import main
+from ... import application
 from ... import ui
 from ... import events
-from ...dApp import dApp
+from ...application import dApp
 from ...dLocalize import _
 from ...ide.class_designer_components import LayoutSizer
 from ...ide.class_designer_components import LayoutGridSizer

@@ -53,7 +53,7 @@ class SortingForm(dOkCancelDialog):
 
 
 if __name__ == "__main__":
-    from .dApp import dApp
+    from .application import dApp
 
     class DummyForm(ui.dForm):
         def onActivate(self, evt):

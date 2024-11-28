@@ -8,7 +8,7 @@ from .. import icons
 from .. import dException
 from .. import ui
 from .. import events
-from .. import main
+from .. import application
 from . import dDataControlMixin
 from . import dMenu
 from . import dPemMixin
@@ -20,7 +20,7 @@ from ..lib.xmltodict import xmltodict as XTD
 from ..lib.utils import cleanMenuCaption
 from . import makeDynamicProperty
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class dFormMixin(dPemMixin):

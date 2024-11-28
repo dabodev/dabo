@@ -6,7 +6,7 @@ import inspect
 import os
 import sys
 
-from ..dApp import dApp
+from ..application import dApp
 from ..dException import dException
 from ..dLocalize import _
 from ..lib import DesignerUtils
@@ -15,7 +15,7 @@ from ..lib import utils as libutils
 from ..lib.utils import dictStringify
 from ..lib.utils import ustr
 from .. import events
-from .. import main
+from .. import application
 from .. import settings
 from .. import ui
 from ..ui import dBaseMenuBar
@@ -94,7 +94,7 @@ from .class_designer_sizer_palette import SizerPaletteForm
 from .class_designer_exceptions import PropertyUpdateException
 from .editor import EditorForm as TextEditorForm
 
-dabo_module = main.get_dabo_package()
+dabo_module = application.get_dabo_package()
 
 
 class PageInfoDialog(dOkCancelDialog):
@@ -4224,7 +4224,7 @@ class ClassDesigner(dApp):
         return """import os
 import inspect
 
-from dabo.dApp import dApp
+from .application import dApp
 
 def main():
     app = dApp()
@@ -4250,7 +4250,7 @@ if __name__ == '__main__':
         return """import os
 import inspect
 
-from dabo.dApp import dApp
+from .applicationp import dApp
 
 def main():
     app = dApp()

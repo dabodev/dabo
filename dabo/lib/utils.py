@@ -16,7 +16,7 @@ import sys
 
 osp = os.path
 
-from .. import main
+from .. import application
 from ..dLocalize import _
 
 try:
@@ -265,7 +265,7 @@ def relativePathList(toLoc, fromLoc=None):
     """
     if fromLoc is None:
         try:
-            fromLoc = main.get_application().HomeDirectory
+            fromLoc = application.get_application().HomeDirectory
         except AttributeError:
             # No app object
             fromLoc = os.getcwd()
@@ -377,7 +377,7 @@ def locateRelativeTo(containerPath, itemPath):
         # Look in the standard Dabo app directories. We may not be
         # running with an active app reference, so the try/except
         # will handle that.
-        appPaths = main.get_application().getStandardDirectories()
+        appPaths = application.get_application().getStandardDirectories()
         dirsToCheck.extend(appPaths)
     except AttributeError:
         pass
@@ -396,7 +396,7 @@ def locateRelativeTo(containerPath, itemPath):
 
 
 def resolvePathAndUpdate(srcFile):
-    app = main.get_application()
+    app = application.get_application()
     try:
         hd = app.HomeDirectory
     except AttributeError:

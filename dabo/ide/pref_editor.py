@@ -4,7 +4,7 @@ import os
 import inspect
 
 from .. import ui
-from dabo.dApp import dApp
+from ..application import dApp
 
 
 def main():

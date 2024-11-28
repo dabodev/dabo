@@ -192,7 +192,7 @@ class _dLabel_test(dLabel):
 
 
 if __name__ == "__main__":
-    from .. import dApp
+    from ..application import dApp
     from ui.dForm import dForm
 
     class LabelTestForm(dForm):
