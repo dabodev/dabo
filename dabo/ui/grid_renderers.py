@@ -220,7 +220,7 @@ class AbstractTextRenderer(wx.grid.GridCellRenderer):
 
     def drawText(self, txt, attr, dc, rect):
         """Customize this method to set different background colors, etc."""
-        dc.DrawText(txt, rect.x, rect.y)
+        dc.DrawText(txt, int(rect.x), int(rect.y))
 
     def clip(self, dc, rect):
         """Setup the clipping rectangle"""
@@ -243,7 +243,7 @@ class YesNoBoolRenderer(AbstractTextRenderer):
             dc.SetTextForeground((128, 0, 0))
         else:
             dc.SetTextForeground((0, 128, 0))
-        dc.DrawText(txt, rect.x, rect.y)
+        dc.DrawText(txt, int(rect.x), int(rect.y))
 
 
 ui.ImageRenderer = ImageRenderer

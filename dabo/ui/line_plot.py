@@ -319,7 +319,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         legend = mDataDict["legend"]
         # make a string to display
         s = "Crv# %i, '%s', Pt. (%.2f,%.2f), PtInd %i" % (cNum, legend, px, py, pntIn)
-        dc.DrawText(s, sx, sy + 1)
+        dc.DrawText(s, int(sx), int(sy) + 1)
         # -----------
 
     def setDefaults(self):

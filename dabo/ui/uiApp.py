@@ -96,7 +96,7 @@ class SplashScreen(wx.Frame):
         #         text = self.GetText()
         #         dc.SetFont(textfont[0])
         #         dc.SetTextForeground(textcolour)
-        #         dc.DrawText(text, textpos[0], textpos[1])
+        #         dc.DrawText(text, int(textpos[0]), int(textpos[1]))
         # Seems like this only helps on OS X.
         if wx.Platform == "__WXMAC__":
             wx.SafeYield(self, True)
@@ -585,7 +585,7 @@ these automatic updates."""
                 self.out.bindEvent(events.ContextMenu, self.onContext)
                 self.Sizer.append1x(self.out)
                 self._txtlen = len(self.out.Value)
-                self.tmr = dTimer(self, Interval=500, OnHit=self.onOutValue)
+                self.tmr = ui.dTimer(self, Interval=500, OnHit=self.onOutValue)
                 self.tmr.start()
 
             def onContext(self, evt):

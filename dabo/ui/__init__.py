@@ -17,12 +17,14 @@ import urllib.request, urllib.parse, urllib.error
 import warnings
 
 from .. import events
+from .. import icons
 from .. import main
 from .. import settings
 from .. import ui
 from ..dException import dException
 from ..dLocalize import _
 from ..lib import utils
+from ..lib.xmltodict import xmltodict
 from ..lib.utils import ustr
 from .. import dConstants
 from .uiApp import uiApp
@@ -122,15 +124,9 @@ def load_namespace():
     if namespace_loaded:
         return
     namespace_loaded = True
-    from . import keys
-
-    dKeys = keys
-    from . import icons
-
-    dIcons = icons
-    from . import ui_cursors
-
-    dUICursors = ui_cursors
+    from . import keys as dKeys
+    from . import icons as dIcons
+    from . import ui_cursors as dUICursors
 
     from . import pem_mixin
     from . import control_mixin
@@ -205,8 +201,6 @@ def load_namespace():
 
     #     from . import object_inspector
     from . import dock_form
-    from .dialogs import WizardPage
-    from .dialogs import Wizard
     from .dialogs import About
     from .dialogs import DlgInfoMessage
     from .dialogs import HotKeyEditor
@@ -214,6 +208,8 @@ def load_namespace():
     from .dialogs import Login
     from .dialogs import PreferenceDialog
     from .dialogs import SortingForm
+    from .dialogs import Wizard
+    from .dialogs import WizardPage
 
 
 def deadCheck(fn, *args, **kwargs):
@@ -464,6 +460,8 @@ def callAfterInterval(interval, func, *args, **kwargs):
     if isinstance(func, int):
         # Arguments are in the old order
         interval, func = func, interval
+    # Interval must be an int
+    interval = round(interval)
     func_ref = func
     if func.__closure__:
         func_ref = func.__code__
@@ -519,7 +517,7 @@ def callEvery(interval, func, *args, **kwargs):
     at the specified interval. Interval is given in milliseconds. It will pass along
     any additional arguments to the function when it is called.
     """
-    from .dTimer import dTimer
+    from .timer import dTimer
 
     def _onHit(evt):
         func(*args, **kwargs)
@@ -1398,8 +1396,8 @@ def _getWild(*args):
             expanded += argSp
         args = expanded
         arglist = []
-        fileDict = dabo.file_extensions
-        fileDict.update(dabo.custom_extensions)
+        fileDict = settings.file_extensions
+        fileDict.update(settings.custom_extensions)
         tmplt = "%s (*.%s)|*.%s"
         normArgs = [arg.lower() for arg in args]
         for ftype in normArgs:
@@ -1439,7 +1437,7 @@ def getSystemInfo(returnType=None):
     else:
         appVersion = "?"
         appName = "Dabo"
-    ds.append({"name": "Dabo Version:", "value": dabo.__version__})
+    ds.append({"name": "Dabo Version:", "value": dabo_module.get_version()})
     ds.append(
         {
             "name": "UI Version:",
@@ -1557,7 +1555,7 @@ def createClass(srcFile, *args, **kwargs):
     """
     Given a .cdxml class definition file path, will return the
     corresponding Python class."""
-    from dabo.lib.DesignerClassConverter import DesignerClassConverter
+    from ..lib.DesignerClassConverter import DesignerClassConverter
 
     srcFile, isRaw = _checkForRawXML(srcFile)
     conv = DesignerClassConverter()
@@ -1673,7 +1671,7 @@ def createMenuBar(src, form=None, previewFunc=None):
             except IOError as e:
                 stop(e, _("File Not Found"))
                 return
-        mnd = dabo.lib.xmltodict.xmltodict(src)
+        mnd = xmltodict(src)
     mb = ui.dMenuBar()
     for mn in mnd["children"]:
         addMenu(mb, mn, form, previewFunc)
@@ -2148,7 +2146,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 
             # See if it's a standard icon
             for pth in paths:
-                ret = ui.dIcons.getIconBitmap(pth, noEmptyBmp=True)
+                ret = icons.getIconBitmap(pth, noEmptyBmp=True)
                 if ret:
                     break
             if not ret and len(val) > 0:
@@ -2234,7 +2232,7 @@ def getImagePath(nm, url=False):
         except IndexError:
             return None
 
-    ret = dabo.icons.getIconFileName(nm)
+    ret = icons.getIconFileName(nm)
     if not ret:
         # Try other locations:
         trials = [main.get_application().HomeDirectory, os.getcwd()]

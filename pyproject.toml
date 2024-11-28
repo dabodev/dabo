@@ -62,32 +62,31 @@ exclude = [
     "venv",
 ]
 
-[tool.uv]
-dev-dependencies = [
-    "black>=24.10.0",
-    "dabo",
-    "ipython>=8.29.0",
-    "pudb>=2024.1.3",
-    "ruff>=0.7.4",
-]
-
 [project]
 name = "dabo"
 version = "3.1.0"
 description = "A framework for developing data-driven business applications"
 readme = "README.md"
+authors = [
+    { name = "Ed Leafe", email = "ed@leafe.com" },
+    { name = "Paul McNett", email = "paul@mcnett.name" }
+]
 requires-python = ">=3.12"
 dependencies = [
-    "mock>=5.1.0",
-    "numpy>=2.1.3",
-    "pexpect>=4.9.0",
     "pillow>=11.0.0",
-    "pluggy>=1.5.0",
     "pymysql>=1.1.1",
     "reportlab>=4.2.5",
-    "six>=1.16.0",
     "wxpython>=4.2.2",
 ]
 
-[tool.uv.sources]
-dabo = { workspace = true }
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "black>=24.10.0",
+    "ipython>=8.29.0",
+    "pytest-pudb>=0.7.0",
+    "ruff>=0.8.0",
+]

@@ -16,8 +16,8 @@ from xml.parsers import expat
 from .. import settings
 from .. import dException
 from ..dLocalize import _
-from ..lib.utils import resolvePath
-from ..lib.utils import ustr
+from .utils import resolvePath
+from .utils import ustr
 
 default_encoding = settings.getEncoding()
 # Normalize the names, as xml.sax running on Gtk will complain for some variations
@@ -172,7 +172,7 @@ class Xml2Obj(object):
 
 def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
     """Given an xml string or file, return a Python dictionary."""
-    from .. import DesignerUtils
+    from . import DesignerUtils
 
     encoding = encoding if encoding else default_encoding
     parser = Xml2Obj(encoding=encoding)

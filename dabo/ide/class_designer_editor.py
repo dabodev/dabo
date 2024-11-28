@@ -276,7 +276,7 @@ class EditorForm(dForm):
         self._whiteSpaceItem.Checked = ed.ShowWhiteSpace
 
     def afterSetMenuBar(self):
-        ClassDesignerMenu.mkDesignerMenu(self)
+        class_designer_menu.mkDesignerMenu(self)
 
         fmn = self.MenuBar.append(_("Font"))
         fmn.append(_("Increase Font Size"), HotKey="Ctrl++", OnHit=self.fontIncrease)

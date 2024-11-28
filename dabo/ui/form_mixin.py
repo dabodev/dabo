@@ -108,7 +108,7 @@ class dFormMixin(dPemMixin):
 
     def _afterInit(self):
         app = self.Application
-        mbc = self.MenuBarClass
+        mbc = self.MenuBarClass or app.DefaultMenuBarClass
         if app and mbc and self.ShowMenuBar:
             if isinstance(mbc, str):
                 self.MenuBar = ui.createMenuBar(mbc, self)

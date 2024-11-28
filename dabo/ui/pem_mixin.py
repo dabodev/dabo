@@ -272,10 +272,6 @@ class dPemMixin(dObject):
         """Abstract method: subclasses MUST override for UI-specifics."""
         pass
 
-    def refresh(self):
-        """Abstract method."""
-        pass
-
     def _initName(self, name=None, _explicitName=True):
         if name is None:
             name = self.Name
@@ -438,7 +434,7 @@ class dPemMixin(dObject):
         # Do we need to clear the background before redrawing? Most cases will be
         # no, but if you have problems with drawings leaving behind unwanted
         # debris, set this to True
-        self.autoClearDrawings = False
+        self.autoClearDrawings = True
 
         # Reference to the border-drawing object
         self._border = None
@@ -792,6 +788,7 @@ class dPemMixin(dObject):
     def __onWxMouseLeftDown(self, evt):
         self.raiseEvent(events.MouseLeftDown, evt)
         self._mouseLeftDown = True
+        evt.StopPropagation()
 
     def __onWxMouseLeftUp(self, evt):
         self.raiseEvent(events.MouseLeftUp, evt)
@@ -799,6 +796,7 @@ class dPemMixin(dObject):
             # mouse went down and up in this control: send a click:
             self.raiseEvent(events.MouseLeftClick, evt)
             self._mouseLeftDown = False
+            evt.StopPropagation()
 
     def __onWxMouseLeftDoubleClick(self, evt):
         self.raiseEvent(events.MouseLeftDoubleClick, evt)
@@ -846,6 +844,9 @@ class dPemMixin(dObject):
         def __setNeedRedraw():
             self._needRedraw = bool(self._drawnObjects)
 
+        dc = wx.PaintDC(self)
+        for obj in self._drawnObjects:
+            obj.draw(dc)
         ui.callAfterInterval(50, __setNeedRedraw)
         self._needRedraw = (not self._inRedraw) and bool(self._drawnObjects)
         self.raiseEvent(events.Paint, evt)
@@ -1125,7 +1126,7 @@ class dPemMixin(dObject):
         paged controls to switch to the page that contains this object.
         """
         cntnr = self.getContainingPage()
-        if isinstance(cntnr, ui.WizardPage):
+        if isinstance(cntnr, ui.dialogs.WizardPage):
             self.Form.CurrentPage = cntnr
         else:
             cntnr.Parent.SelectedPage = cntnr
@@ -1139,8 +1140,8 @@ class dPemMixin(dObject):
         except AttributeError:
             frm = None
         cntnr = self
-        iswiz = isinstance(frm, ui.Wizard)
-        mtch = {True: ui.WizardPage, False: ui.dPage}[iswiz]
+        iswiz = isinstance(frm, ui.dialogs.Wizard)
+        mtch = {True: ui.dialogs.WizardPage, False: ui.dPage}[iswiz]
         while cntnr and not isinstance(cntnr, ui.dForm):
             if isinstance(cntnr, mtch):
                 return cntnr
@@ -2094,7 +2095,6 @@ class dPemMixin(dObject):
 
     def _addToDrawnObjects(self, obj, persist):
         self._drawnObjects.append(obj)
-        self._redraw()
         if not persist:
             self._drawnObjects.remove(obj)
             obj = None
@@ -2120,8 +2120,9 @@ class dPemMixin(dObject):
                 self.ClearBackground()
 
         # Draw any shapes
-        for obj in self._drawnObjects:
-            obj.draw(dc)
+#         for obj in self._drawnObjects:
+#             print("DRAWING", obj)
+#             obj.draw(dc)
         # Call the hook
         self.redraw(dc)
         # Make sure this is really cleared.
@@ -2315,6 +2316,7 @@ class dPemMixin(dObject):
     def _getBackColor(self):
         return self.GetBackgroundColour().Get()
 
+    @ui.deadCheck
     def _setBackColor(self, val):
         if self._constructed():
             if isinstance(val, str):
@@ -3731,8 +3733,9 @@ class DrawObject(dObject):
             frm = srcObj.Form
         x, y = self.Xpos, self.Ypos
 
-        if dc is None:
-            dc = self._dc or wx.WindowDC(srcObj)
+#         if dc is None:
+#             dc = self._dc or wx.PaintDC(srcObj)
+        dc = wx.PaintDC(srcObj)
         if self.Shape == "bmp":
             dc.DrawBitmap(self._bitmap, x, y, self._transparent)
             self._width = self._bitmap.GetWidth()
@@ -3814,9 +3817,9 @@ class DrawObject(dObject):
             if not self._useDefaults:
                 self._fontSettings(dc)
             if self._angle == 0:
-                dc.DrawText(txt, x, y)
+                dc.DrawText(txt, int(x), int(y))
             else:
-                dc.DrawRotatedText(txt, x, y, self._angle)
+                dc.DrawRotatedText(txt, int(x), int(y), self._angle)
             w, h = ui.fontMetricFromDC(dc, txt)
             angle = self._angle % 360
             if angle % 90 == 0:

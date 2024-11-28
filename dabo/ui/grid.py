@@ -4012,11 +4012,11 @@ class dGrid(dControlMixin, wx.grid.Grid):
         evt.stop()
         lastWheelTime = getattr(self, "_lastWheelTime", 0)
         thisWheelTime = self._lastWheelTime = time.time()
-        ui = evt._uiEvent
+        ui_evt = evt._uiEvent
         mult = 1
-        if ui.GetWheelRotation() > 0:
+        if ui_evt.GetWheelRotation() > 0:
             mult = -1
-        linesPerAction = ui.GetLinesPerAction()
+        linesPerAction = ui_evt.GetLinesPerAction()
         scrollAmt = mult * linesPerAction
         if thisWheelTime - lastWheelTime > 0.5:
             ## Run the first wheel scroll to occur immediately:

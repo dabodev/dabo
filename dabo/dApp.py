@@ -1369,9 +1369,7 @@ try again when it is running.
         try:
             cls = self._defaultMenuBarClass
         except AttributeError:
-            from .base_menu_bar import dBaseMenuBar
-
-            cls = self._defaultMenuBarClass = dBaseMenuBar
+            cls = self._defaultMenuBarClass = ui.dBaseMenuBar
         return cls
 
     def _setDefaultMenuBarClass(self, val):

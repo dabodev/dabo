@@ -18,6 +18,7 @@ from .. import events
 from .. import main
 from .. import settings
 from .. import ui
+from ..ui import dBaseMenuBar
 from ..ui import dBitmap
 from ..ui import dBitmapButton
 from ..ui import dBorderSizer
@@ -4468,7 +4469,7 @@ if __name__ == '__main__':
             except Exception:
                 noEdt = True
         if noEdt:
-            self._editorForm = EditorForm(None)
+            self._editorForm = EditorForm(None, MenuBarClass=dBaseMenuBar)
             self._editorForm.Controller = self
         return self._editorForm
 

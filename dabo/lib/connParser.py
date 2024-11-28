@@ -93,9 +93,8 @@ def importConnections(pth=None, useHomeDir=False):
     if pth is None:
         return None
     ch = connHandler()
-    f = fileRef(pth)
-    xml.sax.parse(f, ch)
-    f.close()
+    with open(pth) as ff:
+        xml.sax.parse(ff, ch)
     ret = ch.getConnectionDict()
     basePath = pth
     if useHomeDir:
@@ -110,7 +109,6 @@ def importConnections(pth=None, useHomeDir=False):
                 if key == "database":
                     osp = os.path
                     relpath = utils.resolvePath(val, basePath, abspath=False)
-                    pth = pth.decode(settings.fileSystemEncoding)
                     abspath = osp.abspath(osp.join(osp.split(basePath)[0], relpath))
                     if osp.exists(abspath):
                         ret[cxn][key] = abspath

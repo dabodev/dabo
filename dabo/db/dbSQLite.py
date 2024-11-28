@@ -4,6 +4,7 @@ import re
 import six
 import sys
 
+from .. import main
 from .. import settings
 from ..dLocalize import _
 from ..dException import dException, DBFileDoesNotExistException
@@ -11,6 +12,8 @@ from .dBackend import dBackend
 from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from .dCursorMixin import dCursorMixin
 from ..lib.utils import ustr
+
+dabo_module = main.get_dabo_package()
 
 
 class SQLite(dBackend):
@@ -53,7 +56,7 @@ class SQLite(dBackend):
 
         self._dictCursorClass = DictCursor
         pth = os.path.expanduser(connectInfo.Database)
-        if not forceCreate and not dabo.createDbFiles and (pth != ":memory:"):
+        if not forceCreate and not settings.createDbFiles and (pth != ":memory:"):
             if not os.path.exists(pth):
                 # See if it's in a standard data directory off of the current directory.
                 for subdir in ("db", "data"):
@@ -105,7 +108,7 @@ class SQLite(dBackend):
         'begin' all the time, simply do nothing.
         """
         cursor.execute("BEGIN")
-        dabo.dbActivityLog.info("SQL: begin")
+        dabo_module.dbActivityLog.info("SQL: begin")
         return True
 
     def commitTransaction(self, cursor):
@@ -113,7 +116,7 @@ class SQLite(dBackend):
         opError = self.dbapi.OperationalError
         try:
             cursor.execute("COMMIT", errorClass=opError)
-            dabo.dbActivityLog.info("SQL: commit")
+            dabo_module.dbActivityLog.info("SQL: commit")
             return True
         except opError as e:
             # There is no transaction active in this case, so ignore the error.
@@ -123,17 +126,17 @@ class SQLite(dBackend):
                 errMsg = ustr(e).decode(self.Encoding)
             except UnicodeError:
                 errMsg = ustr(e)
-            dabo.dbActivityLog.info("SQL: commit failed: %s" % errMsg)
+            dabo_module.dbActivityLog.info("SQL: commit failed: %s" % errMsg)
             raise dException.DBQueryException(errMsg)
 
     def rollbackTransaction(self, cursor):
         """Rollback a SQL transaction."""
         cursor.execute("ROLLBACK")
-        dabo.dbActivityLog.info("SQL: rollback")
+        dabo_module.dbActivityLog.info("SQL: rollback")
         return True
 
     def flush(self, crs):
-        dabo.dbActivityLog.info("SQL: flush")
+        dabo_module.dbActivityLog.info("SQL: flush")
         self._connection.commit()
 
     def formatBLOB(self, val):

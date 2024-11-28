@@ -15,6 +15,7 @@ from functools import partial
 from pathlib import Path
 
 from . import settings
+from . import ide
 from . import main
 from . import version
 
@@ -26,6 +27,11 @@ application = None
 # Current version
 def get_version():
     return version.get_version()
+
+
+def run_class_designer(pth=None):
+    # Run the class designer, optionally opening up an existing file.
+    ide.run_class_designer(pth=pth)
 
 
 # Method to create a standard Dabo directory structure layout

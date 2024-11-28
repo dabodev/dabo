@@ -5,15 +5,15 @@ import os
 import copy
 
 
-# import dabo.ui as dui
-# from .. import events
-import dabo.dConstants as k
-from dabo.dApp import dApp
+from ..dApp import dApp
 from ..dLocalize import _
 from ..lib.utils import ustr
-from dabo.lib.connParser import createXML
-from dabo.lib.connParser import importConnections
-import dabo.lib.utils as utils
+from ..lib.connParser import createXML
+from ..lib.connParser import importConnections
+from ..lib import utils
+from .. import db
+from .. import main
+from .. import ui
 from ..ui import dButton
 from ..ui import dDropdownList
 from ..ui import dForm
@@ -22,7 +22,9 @@ from ..ui import dLabel
 from ..ui import dPanel
 from ..ui import dSizer
 from ..ui import dTextBox
-from . import HomeDirectoryStatusBar
+from . import home_directory_status_bar
+
+dabo_module = main.get_dabo_package()
 
 
 def flushValues(fnc):
@@ -38,7 +40,7 @@ class EditorForm(dForm):
         self.createMenu()
 
     def beforeInit(self):
-        self.StatusBarClass = HomeDirectoryStatusBar
+        self.StatusBarClass = home_directory_status_bar.HomeDirectoryStatusBar
 
     def afterInit(self):
         self.Size = (600, 400)
@@ -230,7 +232,7 @@ class EditorForm(dForm):
         return len(self.connDict) > 1
 
     def onCxnDelete(self, evt):
-        if not dabo.ui.areYouSure(
+        if not ui.areYouSure(
             _("Delete this connection?"),
             title=_("Confirm Deletion"),
             cancelButton=False,
@@ -251,7 +253,7 @@ class EditorForm(dForm):
         chc = self.connectionSelector.Choices
         idx = self.connectionSelector.PositionValue
         orig = chc[idx]
-        new = dabo.ui.getString(
+        new = ui.getString(
             _("Enter the name for the connection"),
             caption=_("Connection Name"),
             defaultValue=orig,
@@ -276,7 +278,7 @@ class EditorForm(dForm):
             self.updtFromForm()
 
     def _askForKey(self):
-        ret = dabo.ui.getString(
+        ret = ui.getString(
             _("Enter the cryptographic key for your application"),
             caption=_("Crypto Key"),
             Width=240,
@@ -331,7 +333,7 @@ class EditorForm(dForm):
         self.layout()
 
     def onDbSelect(self, evt):
-        dbFile = dabo.ui.getFile()
+        dbFile = ui.getFile()
         if dbFile:
             self.database = dbFile
         self.update()
@@ -339,14 +341,14 @@ class EditorForm(dForm):
     @flushValues
     def testConnection(self):
         # Create a connection object.
-        ci = dabo.db.dConnectInfo(connInfo=self.connDict[self.currentConn])
-        mb = dabo.ui.stop
+        ci = db.dConnectInfo(connInfo=self.connDict[self.currentConn])
+        mb = ui.stop
         mbTitle = _("Connection Test")
         try:
             conn = ci.getConnection()
             conn.close()
             msg = _("The connection was successful!")
-            mb = dabo.ui.info
+            mb = ui.info
         except ImportError as e:
             msg = _("Python Import Error: %s") % e
             mbTitle += _(": FAILED!")
@@ -394,7 +396,7 @@ class EditorForm(dForm):
                     except ValueError:
                         # Original crypto key not available
                         if self._opening and self._showKeyButton:
-                            dabo.ui.callAfter(self._getCryptoKey, dd[fld])
+                            ui.callAfter(self._getCryptoKey, dd[fld])
                             continue
                         else:
                             val = ""
@@ -494,11 +496,11 @@ class EditorForm(dForm):
         if self.connFile:
             # Make sure that the passed file exists!
             if not os.path.exists(self.connFile):
-                dabo.log.error(_("The connection file '%s' does not exist.") % self.connFile)
+                dabo_module.log.error(_("The connection file '%s' does not exist.") % self.connFile)
                 self.connFile = None
 
         if self.connFile is None:
-            f = dabo.ui.getFile(
+            f = ui.getFile(
                 self.fileExtension,
                 message=_("Select a file..."),
                 defaultPath=os.getcwd(),
@@ -535,7 +537,7 @@ class EditorForm(dForm):
             # Could be relative path differences
             self.relPaths(list(self.connDict.values()))
         if self._origConnDict != self.connDict:
-            response = dabo.ui.areYouSure(_("Do you wish to save your changes?"), cancelButton=True)
+            response = ui.areYouSure(_("Do you wish to save your changes?"), cancelButton=True)
             if response is None:
                 return False
             elif response:
@@ -545,7 +547,7 @@ class EditorForm(dForm):
     def writeChanges(self):
         if self.connFile == self.newFileName:
             # Ask for a file name
-            pth = dabo.ui.getSaveAs(message=_("Save File As..."), wildcard=self.fileExtension)
+            pth = ui.getSaveAs(message=_("Save File As..."), wildcard=self.fileExtension)
             if pth is None:
                 return
             else:
@@ -570,7 +572,7 @@ class EditorForm(dForm):
         xml = createXML(vals, encoding="utf-8")
         with open(self.connFile, "w") as ff:
             ff.write(xml)
-        dabo.ui.callAfter(self.bringToFront)
+        ui.callAfter(self.bringToFront)
 
     def relPaths(self, vals):
         for val in vals:
@@ -590,7 +592,7 @@ class EditorForm(dForm):
         _getCrypto,
         None,
         None,
-        _("A reference to the application-supplied encryption object (dabo.lib.SimpleCrypt)"),
+        _("A reference to the application-supplied encryption object (lib.SimpleCrypt)"),
     )
 
 
