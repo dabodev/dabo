@@ -5,7 +5,7 @@ import wx.lib.agw.foldpanelbar as fpb
 from .. import dColors
 from .. import ui
 from .. import events
-from .. import application
+from .. import settings
 from . import makeDynamicProperty
 from ..dLocalize import _
 from . import dCheckBox
@@ -15,7 +15,7 @@ from . import dGridSizer
 from . import dLabel
 from . import dSizer
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class dSlidePanel(dControlMixin, fpb.FoldPanelItem):

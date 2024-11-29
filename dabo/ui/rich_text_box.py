@@ -18,7 +18,7 @@ from . import dForm
 from . import dTimer
 from . import dToggleButton
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):

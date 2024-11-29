@@ -12,14 +12,14 @@ from ..dObject import dObject
 from .. import lib
 from .. import ui
 from .. import events
-from .. import application
 from .. import settings
 from ..dLocalize import _
 from ..lib.utils import ustr
 from ..lib.utils import dictStringify
 from ..ui import makeDynamicProperty
 
-dabo_module = application.get_dabo_package()
+# Can't import here due to circular imports
+dabo_module = None
 
 
 class dPemMixin(dObject):
@@ -47,6 +47,11 @@ class dPemMixin(dObject):
         classes. The __init__'s of each class are just thin wrappers to this
         code.
         """
+        from .. import application
+
+        global dabo_module
+        dabo_module = settings.get_dabo_package()
+
         # Holds the properties passed in the constructor
         self._properties = {}
         # Holds the keyword event bindings passed in the constructor
@@ -2120,9 +2125,9 @@ class dPemMixin(dObject):
                 self.ClearBackground()
 
         # Draw any shapes
-#         for obj in self._drawnObjects:
-#             print("DRAWING", obj)
-#             obj.draw(dc)
+        #         for obj in self._drawnObjects:
+        #             print("DRAWING", obj)
+        #             obj.draw(dc)
         # Call the hook
         self.redraw(dc)
         # Make sure this is really cleared.
@@ -3733,8 +3738,8 @@ class DrawObject(dObject):
             frm = srcObj.Form
         x, y = self.Xpos, self.Ypos
 
-#         if dc is None:
-#             dc = self._dc or wx.PaintDC(srcObj)
+        #         if dc is None:
+        #             dc = self._dc or wx.PaintDC(srcObj)
         dc = wx.PaintDC(srcObj)
         if self.Shape == "bmp":
             dc.DrawBitmap(self._bitmap, x, y, self._transparent)

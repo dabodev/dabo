@@ -11,7 +11,7 @@ from ..dReportWriter import dReportWriter
 from ..lib.reportWriter import *
 from ..dLocalize import _
 from ..lib.utils import ustr
-import .class_designer_prop_sheet
+from . import class_designer_prop_sheet
 
 from ..ui import dEditor
 from ..ui import dFont

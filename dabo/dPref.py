@@ -4,13 +4,17 @@ import datetime
 import os
 import warnings
 
-from . import application
 from .dLocalize import _
 from .lib import utils
 from .lib.utils import ustr
 from . import db
+from . import settings
 
-dabo_module = application.get_dabo_package()
+# Can't import here due to circular imports
+# dabo_module = None
+#
+# global dabo_module
+dabo_module = settings.get_dabo_package()
 
 
 # We don't want to deal with these as preferences.

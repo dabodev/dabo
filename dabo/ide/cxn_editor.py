@@ -24,7 +24,7 @@ from ..ui import dSizer
 from ..ui import dTextBox
 from . import home_directory_status_bar
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 def flushValues(fnc):

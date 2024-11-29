@@ -6,9 +6,10 @@ import re
 import time
 
 from .. import db
+from .. import settings
 from .. import dConstants
 from .. import dException
-from .. import application
+from .. import ui
 from ..dLocalize import _
 from ..dObject import dObject
 from .dNoEscQuoteStr import dNoEscQuoteStr
@@ -24,7 +25,8 @@ cursor_flags = (
     dConstants.CURSOR_FIELD_TYPES_CORRECTED,
 )
 
-dabo_module = application.get_dabo_package()
+
+dabo_module = settings.get_dabo_package()
 
 
 class dCursorMixin(dObject):
@@ -316,7 +318,8 @@ class dCursorMixin(dObject):
             )
         return field_val
 
-    def _dblogExecute(self, msg, sql="", params=None, db_log=dabo_module.dbActivityLog.info):
+    def _dblogExecute(self, msg, sql="", params=None, db_log=None):
+        db_log = db_log or dabo_module.dbActivityLog.info
         if params is None:
             params = tuple()
         if sql:

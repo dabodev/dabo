@@ -10,7 +10,7 @@ from ..dObject import dObject
 from ..dPref import dPref
 from ..lib.utils import ustr
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class dDataControlMixin(ui.dControlMixin):

@@ -7,7 +7,7 @@ from .. import ui
 from ..dLocalize import _
 from ..application import dApp
 from .. import events
-import ..lib.xmltodict as xtd
+from ..lib import xmltodict as xtd
 from .MenuDesignerForm import MenuDesignerForm
 
 

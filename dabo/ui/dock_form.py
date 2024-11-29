@@ -6,7 +6,7 @@ PaneInfo = aui.AuiPaneInfo
 
 from ..dLocalize import _
 from .. import events
-from .. import application
+from .. import settings
 from .. import ui
 from . import dButton
 from . import dCheckBox
@@ -17,7 +17,7 @@ from . import dSizer
 from . import dStatusBar
 from . import makeDynamicProperty
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 flag_allow_float = aui.AUI_MGR_ALLOW_FLOATING
 flag_show_active = aui.AUI_MGR_ALLOW_ACTIVE_PANE

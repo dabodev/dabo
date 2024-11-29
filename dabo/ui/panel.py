@@ -177,10 +177,10 @@ class _BasePanelMixin(object):
         if val:
             # Set up the double-buffering.
             self._buffer = wx.EmptyBitmap(max(1, self.Width), max(1, self.Height))
-#             self.Bind(wx.EVT_PAINT, self._onPaintBuffer)
+            #             self.Bind(wx.EVT_PAINT, self._onPaintBuffer)
             self.Bind(wx.EVT_SIZE, self._onResizeBuffer)
         else:
-#             self.Unbind(wx.EVT_PAINT)
+            #             self.Unbind(wx.EVT_PAINT)
             self.Unbind(wx.EVT_SIZE)
 
     def _getMinSizerHeight(self):

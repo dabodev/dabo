@@ -882,9 +882,7 @@ class EditorForm(dForm):
         """Change the default font size for the editor."""
         if not self.CurrentEditor:
             return
-        val = ui.getInt(
-            _("Select new font size"), _("Font Size"), self.CurrentEditor._fontSize
-        )
+        val = ui.getInt(_("Select new font size"), _("Font Size"), self.CurrentEditor._fontSize)
         if val is not None:
             self.CurrentEditor.changeFontSize(val)
 

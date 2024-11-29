@@ -15,7 +15,7 @@ from .. import application
 from .. import ui
 from ..dLocalize import _
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):

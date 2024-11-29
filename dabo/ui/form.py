@@ -17,7 +17,7 @@ from . import dFormMixin
 from . import dSizer
 from . import makeDynamicProperty
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class BaseForm(dFormMixin):

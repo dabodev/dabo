@@ -15,7 +15,7 @@ from ..lib.utils import ustr
 from . import dDataControlMixin
 from . import makeDynamicProperty
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 def dateTimePy2Wx(date):

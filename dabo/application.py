@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-import configparser
 from io import StringIO
+from pathlib import Path
+from xml.sax._exceptions import SAXParseException
+from zipfile import ZipFile
+import configparser
 import datetime
 import glob
 import importlib
@@ -8,20 +11,18 @@ import inspect
 import json
 import locale
 import logging
+import logging.handlers
 import os
 import shutil
 import sys
 import tempfile
 import urllib.request, urllib.error, urllib.parse
 import warnings
-from xml.sax._exceptions import SAXParseException
-from zipfile import ZipFile
 
-from . import application
 from . import db
+from . import settings
 from . import lib
 from . import ui
-from . import settings
 from . import dException
 from . import dLocalize
 from . import dUserSettingProvider
@@ -33,10 +34,11 @@ from .dPref import dPref
 from .dSecurityManager import dSecurityManager
 from .lib.utils import ustr
 from .lib.utils import cleanMenuCaption
+
 # import __version__
 
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class Collection(list):

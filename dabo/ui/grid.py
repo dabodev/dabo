@@ -46,7 +46,7 @@ from . import dTimer
 from . import dUICursors
 from . import makeDynamicProperty
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 # Make this locale-independent
 # JK: We can't set this up on module load because locale

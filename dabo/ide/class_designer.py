@@ -94,7 +94,7 @@ from .class_designer_sizer_palette import SizerPaletteForm
 from .class_designer_exceptions import PropertyUpdateException
 from .editor import EditorForm as TextEditorForm
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class PageInfoDialog(dOkCancelDialog):
@@ -2420,7 +2420,9 @@ class ClassDesigner(dApp):
         try:
             del self._classPropDict[obj][prop]
         except Exception as e:
-            dabo_module.log.error(_("Could not delete custom property '%(prop)s': %(e)s") % locals())
+            dabo_module.log.error(
+                _("Could not delete custom property '%(prop)s': %(e)s") % locals()
+            )
 
     def editObjectProperty(self, prop):
         """Run the editor for the selected custom class property. If
@@ -2660,7 +2662,9 @@ class ClassDesigner(dApp):
                 try:
                     ret = lps[0]
                 except:
-                    dabo_module.log.error(_("Problem adding to a page: no ClassDesigner information."))
+                    dabo_module.log.error(
+                        _("Problem adding to a page: no ClassDesigner information.")
+                    )
             else:
                 ret = obj.mainPanel
         return ret
@@ -3007,9 +3011,7 @@ class ClassDesigner(dApp):
                 props["ColumnCount"]
             except KeyError:
                 try:
-                    newCols = int(
-                        ui.getString(_("How many columns?"), _("New Grid Control"), "3")
-                    )
+                    newCols = int(ui.getString(_("How many columns?"), _("New Grid Control"), "3"))
                 except ValueError:
                     newCols = 3
 
@@ -4217,7 +4219,6 @@ class ClassDesigner(dApp):
         self._selection = [self.CurrentForm]
         ui.callAfterInterval(100, self.updateLayout)
         ui.callAfterInterval(100, self.EditorForm.refreshStatus)
-
 
     # TODO!!!!!!
     def miniAppTemplate(self):

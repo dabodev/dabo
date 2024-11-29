@@ -40,7 +40,7 @@ from ..ui import dTreeView
 from ..ui.dialogs import Wizard
 from ..ui.dialogs import WizardPage
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 # Defaults for sizer items

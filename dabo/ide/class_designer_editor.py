@@ -20,7 +20,7 @@ from ..ui import dMenu
 from ..ui import dPanel
 from ..ui import dSizer
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class EditorControl(dEditor):

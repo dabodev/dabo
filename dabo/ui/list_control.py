@@ -5,13 +5,13 @@ import wx.lib.mixins.listctrl as ListMixin
 from .. import ui
 from .. import dColors
 from .. import events
-from .. import application
+from .. import settings
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import dControlItemMixin
 from . import makeDynamicProperty
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class _ListColumnAccessor(object):

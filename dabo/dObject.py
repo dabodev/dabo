@@ -2,7 +2,6 @@
 import string
 import types
 
-from . import application
 from . import settings
 from .lib.propertyHelperMixin import PropertyHelperMixin
 from .event_mixin import EventMixin
@@ -269,7 +268,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 
     # Property definitions begin here
     def _getApplication(self):
-        return application.get_application()
+        return settings.get_application()
 
     def _getBaseClass(self):
         # Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:

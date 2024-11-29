@@ -32,7 +32,7 @@ from ..ui import dSizer
 from ..ui import dSplitter
 from ..ui.dialogs import HotKeyEditor
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class PropSheet(dPanel):
@@ -700,9 +700,7 @@ class PropertyGrid(dGrid):
         bold = c0.FontBold
         italic = c0.FontItalic
         rh = (
-            ui.fontMetric("M", wind=self.Form, face=face, size=size, bold=bold, italic=italic)[
-                1
-            ]
+            ui.fontMetric("M", wind=self.Form, face=face, size=size, bold=bold, italic=italic)[1]
             + 7
         )
         if 0 < rh < 999:

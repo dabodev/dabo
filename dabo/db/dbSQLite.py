@@ -13,7 +13,7 @@ from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from .dCursorMixin import dCursorMixin
 from ..lib.utils import ustr
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class SQLite(dBackend):

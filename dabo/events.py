@@ -2,11 +2,8 @@
 import logging
 import time
 
-from . import application
 from . import settings
 from .dLocalize import _
-
-dabo_module = application.get_dabo_package()
 
 
 class dEvent(object):
@@ -81,8 +78,12 @@ class dEvent(object):
 
     def _logEvent(self):
         """Log the event if the event object's LogEvents property is set."""
-        eventName = self.__class__.__name__
+        # Importing here to avoid circular imports
+        from . import application
 
+        dabo_module = settings.get_dabo_package()
+
+        eventName = self.__class__.__name__
         try:
             logEvents = self._eventObject._getLogEvents()
         except AttributeError:

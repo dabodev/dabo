@@ -17,6 +17,7 @@ from pathlib import Path
 from . import settings
 from . import ide
 from . import application
+from . import settings
 from . import version
 
 
@@ -66,7 +67,7 @@ def _load_remaining_modules():
     from . import ui
 
     ui.load_namespace()
-    from . import application
+    from . import settings
     from . import biz
     from . import dColors
     from . import events
@@ -75,6 +76,11 @@ def _load_remaining_modules():
 # if settings.implicitImports:
 #     asyncio.ensure_future(_load_modules())
 
+# Load the base modules first
+_load_base_modules()
+# Now load the rest
+_load_remaining_modules()
+
 # Logging configuration
 logger = None
 dbActivityLog = None
@@ -82,16 +88,11 @@ fileFormatter = None
 fileLogHandler = None
 dbFileLogHandler = None
 dbFileFormatter = None
-application.setup_logging()
+settings.setup_logging()
 debug = logger.debug
 info = logger.info
 error = logger.error
 
-
-# Load the base modules first
-_load_base_modules()
-# Now load the rest
-_load_remaining_modules()
 
 if settings.localizeDabo:
     # Install localization service for dabo. dApp will install localization service

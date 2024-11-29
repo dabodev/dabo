@@ -19,7 +19,7 @@ from .. import dColors
 from . import dDataControlMixin
 from . import dTimer
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 LexerDic = {

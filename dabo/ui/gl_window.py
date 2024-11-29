@@ -8,7 +8,7 @@ from ..dLocalize import _
 from . import dControlMixin
 from . import makeDynamicProperty
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 try:
     from OpenGL.GL import *

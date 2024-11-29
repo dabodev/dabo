@@ -67,7 +67,7 @@ from .class_designer_components import LayoutSaverMixin
 from .class_designer_components import classFlagProp
 from .class_designer_exceptions import PropertyUpdateException
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class ClassDesignerControlMixin(LayoutSaverMixin):

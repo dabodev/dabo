@@ -5,13 +5,13 @@ import wx
 
 from .. import ui
 from .. import events
-from .. import application
+from .. import settings
 from . import makeDynamicProperty
 from . import dDataControlMixin
 from . import dControlItemMixin
 from ..dLocalize import _
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class _dRadioButton(dDataControlMixin, wx.RadioButton):

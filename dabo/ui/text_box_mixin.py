@@ -19,7 +19,7 @@ from ..dLocalize import _
 from ..ui import dDataControlMixin
 from ..ui import makeDynamicProperty
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 numericTypes = (int, int, decimal.Decimal, float)
 valueErrors = (ValueError, decimal.InvalidOperation)

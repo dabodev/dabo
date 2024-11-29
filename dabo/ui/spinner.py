@@ -8,7 +8,7 @@ import wx
 
 from .. import ui
 from .. import events
-from .. import application
+from .. import settings
 from ..dLocalize import _
 from ..lib.utils import ustr
 from . import dDataControlMixin
@@ -19,7 +19,7 @@ from . import dTextBox
 from . import makeDynamicProperty
 from . import makeProxyProperty
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class _dSpinButton(dDataControlMixin, wx.SpinButton):

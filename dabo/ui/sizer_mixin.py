@@ -2,13 +2,13 @@
 import wx
 
 from .. import ui
-from .. import application
+from .. import settings
 from ..dLocalize import _
 from ..dObject import dObject
 from . import dPemMixin
 from . import makeDynamicProperty
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class dSizerMixin(dObject):

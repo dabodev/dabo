@@ -23,7 +23,7 @@ from .utils import ustr
 from .manifest import Manifest
 
 
-dabo_module = application.get_dabo_package()
+dabo_module = settings.get_dabo_package()
 
 
 class RemoteConnector(object):
