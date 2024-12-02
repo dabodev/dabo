@@ -106,7 +106,6 @@ namespace_loaded = False
 
 # Put these in module namespace
 dKeys = None
-dIcons = None
 dUICursors = None
 
 
@@ -120,7 +119,7 @@ def load_namespace():
     classes inherit from or otherwise reference other classes, so those referenced classes need to
     be added to the namespace first.
     """
-    global namespace_loaded, dKeys, dIcons, dUICursors, dabo_module
+    global namespace_loaded, dKeys, dUICursors, dabo_module
     if namespace_loaded:
         return
     namespace_loaded = True
@@ -132,7 +131,6 @@ def load_namespace():
     dabo_module = settings.get_dabo_package()
 
     from . import keys as dKeys
-    from . import icons as dIcons
     from . import ui_cursors as dUICursors
 
     from . import pem_mixin
@@ -140,7 +138,6 @@ def load_namespace():
     from . import data_control_mixin
     from . import control_item_mixin
     from . import status_bar
-    from . import icons
     from . import menu_item
     from . import menu
     from . import menu_bar
@@ -206,7 +203,7 @@ def load_namespace():
     from . import dialogs
     from . import grid_renderers
 
-    #     from . import object_inspector
+    from . import object_inspector
     from . import dock_form
     from .dialogs import About
     from .dialogs import DlgInfoMessage
@@ -470,7 +467,7 @@ def callAfterInterval(interval, func, *args, **kwargs):
     # Interval must be an int
     interval = round(interval)
     func_ref = func
-    if func.__closure__:
+    if hasattr(func, "__closure__") and func.__closure__:
         func_ref = func.__code__
     futureCall = _callAfterIntervalReferences.pop((func_ref, args), None)
     if futureCall:

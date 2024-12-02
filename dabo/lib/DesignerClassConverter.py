@@ -79,6 +79,9 @@ class DesignerClassConverter(dObject):
             self.addInheritedInfo(dct, super, updateCode=True)
         # Parse the returned dict and create the class definition text
         self.createClassText(dct)
+        import pudb
+
+        pudb.set_trace()
         if isinstance(self.classText, bytes):
             self.classText = self.classText.decode(self._encoding)
         # Work-around for bug in which a trailing comment line throws an error

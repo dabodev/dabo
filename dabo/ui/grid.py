@@ -2870,6 +2870,20 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 continue
             dc.SetClippingRegion(*headerRect)
 
+            headerRect = col._getHeaderRect()
+            trect = list(headerRect)
+            trect = wx.Rect(*trect)
+
+            # Figure out the x,y coordinates to start the text drawing.
+            left, top, wd, ht = trect
+            x = left
+            # Note that we need to adjust for text height when angle is 0.
+            yadj = 0
+            y = top + ht
+            dc.DrawText(colObj.Caption, int(x), int(y))
+            dc.DestroyClippingRegion()
+            continue
+
             holdBrush = dc.GetBrush()
             holdPen = dc.GetPen()
             fcolor = colObj.HeaderForeColor
@@ -2999,7 +3013,6 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 x,
                 y,
                 angle=textAngle,
-                persist=False,
                 dc=dc,
                 useDefaults=True,
             )
@@ -3186,6 +3199,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
                             rowNum += 1
                         else:
                             sortList.append([row[columnToSort], row])
+                # Ensure that we actually have data to sort
+                if not sortList:
+                    return
                 # At this point we have a list consisting of lists. Each of these member
                 # lists contain the sort value in the zeroth element, and the row as
                 # the first element.
@@ -3260,6 +3276,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def runIncSearch(self):
         """Run the incremental search."""
+        import pudb
+
+        pudb.set_trace()
         gridCol = self.CurrentColumn
         if gridCol < 0:
             gridCol = 0

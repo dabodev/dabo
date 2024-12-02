@@ -639,13 +639,13 @@ class dYesNoDialog(dStandardButtonDialog):
         self._baseClass = dYesNoDialog
 
 
-class _FloatDialog(dDialog):
+class FloatDialog(dDialog):
     def __init__(self, owner, *args, **kwargs):
         self._above = None
         self._owner = None
         kwargs["Borderless"] = True
         kwargs["FloatOnParent"] = True
-        super(_FloatDialog, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clear(self):
         """Releases any controls remaining from a previous usage."""
@@ -670,7 +670,7 @@ class _FloatDialog(dDialog):
         self.Right = min(self.Right, maxW - 5)
         self.Bottom = min(self.Bottom, maxH - 5)
         ui.callAfterInterval(10, self._resetPosition, self.Position)
-        super(_FloatDialog, self).show()
+        super().show()
 
     def _resetPosition(self, pos):
         """

@@ -57,6 +57,12 @@ class EventMixin(object):
         except AttributeError:
             self.__raisedEvents = []
 
+        from . import ui
+
+        if eventClass == events.KeyChar and isinstance(self, ui.dForm):
+            import pudb
+
+            pudb.set_trace()
         eventSig = (eventClass, args, kwargs)
         if eventSig in self.__raisedEvents:
             # The event is already being handled, but one of the handlers caused it to be
@@ -283,8 +289,8 @@ class EventMixin(object):
             classRef = cls.__class__
 
         validEvents = []
-        events = [events.__dict__[evt] for evt in dir(events)]
-        for evt in events:
+        all_events = [events.__dict__[evt] for evt in dir(events)]
+        for evt in all_events:
             if type(evt) == type and issubclass(evt, events.dEvent):
                 if evt.appliesToClass(classRef):
                     validEvents.append(evt)

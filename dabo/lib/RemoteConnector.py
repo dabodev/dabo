@@ -368,7 +368,7 @@ class RemoteConnector(object):
         if self._baseURL:
             # Set explicitly by the launch() method
             return self._baseURL
-        app = application.get_application()
+        app = settings.get_application()
         if app:
             ret = app.SourceURL
         else:

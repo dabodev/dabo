@@ -1162,9 +1162,7 @@ try again when it is running.
         self.uiApp.onDebugWin(evt)
 
     def onObjectInspectorWin(self, evt):
-        # TODO: fix object inspector code
-        pass
-        # self.uiApp.onObjectInspectorWin(evt)
+        self.uiApp.onObjectInspectorWin(evt)
 
     def onWinClose(self, evt):
         self.uiApp.onWinClose(evt)

@@ -7,7 +7,6 @@ from .. import ui
 from . import dControlMixin
 from . import dImageMixin
 from . import makeDynamicProperty
-from .icons import getIconBitmap
 
 
 class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):

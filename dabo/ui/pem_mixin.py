@@ -2124,10 +2124,6 @@ class dPemMixin(dObject):
             if self.autoClearDrawings:
                 self.ClearBackground()
 
-        # Draw any shapes
-        #         for obj in self._drawnObjects:
-        #             print("DRAWING", obj)
-        #             obj.draw(dc)
         # Call the hook
         self.redraw(dc)
         # Make sure this is really cleared.

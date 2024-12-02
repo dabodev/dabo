@@ -98,7 +98,7 @@ def importConnections(pth=None, useHomeDir=False):
     ret = ch.getConnectionDict()
     basePath = pth
     if useHomeDir:
-        basePath = application.get_application().HomeDirectory
+        basePath = settings.get_application().HomeDirectory
     else:
         basePath = pth
 

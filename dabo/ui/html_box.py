@@ -110,6 +110,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
         def repl(match):
             beg, end = match.span()
             befSrc, qt1, src, qt2, aftSrc = match.groups()
+            print("SRC" * 8, src)
             if "file://" in src:
                 url = src
             else:

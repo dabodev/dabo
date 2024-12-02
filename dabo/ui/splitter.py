@@ -176,7 +176,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         if hasattr(self.Form, "isDesignerForm"):
             mixin = self.Application.getControlClass(mixin)
         # See if the class already is mixed in with the SplitterPanelMixin
-        if isinstance(cls, mixin):
+        if issubclass(cls, mixin):
             ret = cls
         else:
 

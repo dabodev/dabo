@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# dIconsdIcons -*- coding: utf-8 -*-
 """
 3-Tier Desktop Database Business Application Framework
 
@@ -22,7 +22,7 @@ from . import version
 
 
 # Reference to the running application object
-application = None
+app_reference = None
 
 
 # Current version

@@ -333,8 +333,11 @@ def get_dabo_package():
     """This returns a reference to the main dabo package, which will allow its methods and attributes to be available
     throughout the Dabo codebase.
     """
-    main_module_name = __package__.split(".")[0]
-    return importlib.import_module(main_module_name)
+    try:
+        return sys.modules["dabo"]
+    except KeyError:
+        main_module_name = __package__.split(".")[0]
+        return importlib.import_module(main_module_name)
 
 
 def get_application():

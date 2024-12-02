@@ -3,7 +3,7 @@ import wx
 import wx.grid
 
 from .. import ui
-from . import dIcons
+from .. import icons
 
 
 class ImageRenderer(wx.grid.GridCellRenderer):
@@ -111,8 +111,8 @@ class BoolRenderer(wx.grid.GridCellRenderer):
 
     def __init__(self, *args, **kwargs):
         super(BoolRenderer, self).__init__(*args, **kwargs)
-        self.checkedBitmap = dIcons.getIconBitmap("boolRendererChecked")
-        self.uncheckedBitmap = dIcons.getIconBitmap("boolRendererUnchecked")
+        self.checkedBitmap = icons.getIconBitmap("boolRendererChecked")
+        self.uncheckedBitmap = icons.getIconBitmap("boolRendererUnchecked")
 
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
         """Customisation Point: Draw the data from grid in the rectangle with

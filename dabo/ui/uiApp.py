@@ -568,9 +568,7 @@ these automatic updates."""
         self.toggleDebugWindow(self.ActiveForm)
 
     def onObjectInspectorWin(self, evt):
-        # TODO: get object inspector working
-        # self.toggleInspectorWindow(self.ActiveForm)
-        pass
+        self.toggleInspectorWindow(self.ActiveForm)
 
     def showCommandWindow(self, context=None):
         """Display a command window for debugging."""
