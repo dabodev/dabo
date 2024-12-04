@@ -851,10 +851,11 @@ class dPemMixin(dObject):
 
         dc = wx.PaintDC(self)
         for obj in self._drawnObjects:
-            obj.draw(dc)
+            obj.draw(dc=dc)
         ui.callAfterInterval(50, __setNeedRedraw)
         self._needRedraw = (not self._inRedraw) and bool(self._drawnObjects)
         self.raiseEvent(events.Paint, evt)
+        evt.Skip()
 
     def __onWxEraseBackground(self, evt):
         if self._finito:
@@ -1532,14 +1533,14 @@ class dPemMixin(dObject):
         """Make the object invisible."""
         self.Visible = False
 
-    def _getWxColour(self, val):
+    def getWxColour(self, val):
         """Convert Dabo colors to wx.Colour objects"""
-        ret = None
-        if isinstance(val, str):
-            val = dColors.colorTupleFromName(val)
+        if isinstance(val, wx.Colour):
+            return val
+        val = dColors.colorTupleFromName(val) if isinstance(val, str) else val
         if isinstance(val, tuple):
-            ret = wx.Colour(*val)
-        return ret
+            return wx.Colour(*val)
+        return val
 
     def getMousePosition(self):
         """
@@ -3734,9 +3735,8 @@ class DrawObject(dObject):
             frm = srcObj.Form
         x, y = self.Xpos, self.Ypos
 
-        #         if dc is None:
-        #             dc = self._dc or wx.PaintDC(srcObj)
-        dc = wx.PaintDC(srcObj)
+        if dc is None:
+            dc = self._dc or wx.PaintDC(srcObj)
         if self.Shape == "bmp":
             dc.DrawBitmap(self._bitmap, x, y, self._transparent)
             self._width = self._bitmap.GetWidth()
@@ -3748,15 +3748,6 @@ class DrawObject(dObject):
             self._brushSettings(dc)
             self._modeSettings(dc)
 
-        #         if self.Application.Platform == "GTK" and \
-        #                 not (isinstance(srcObj, (ui.dPanel, ui.dPage, ui.dGrid))):
-        #             if isinstance(srcObj, ui.dForm):
-        #                 x, y = srcObj.containerCoordinates(srcObj, (self.Xpos, self.Ypos))
-        #             else:
-        #                 x, y = self.Parent.containerCoordinates(srcObj.Parent, (self.Xpos, self.Ypos))
-        #         else:
-        #             x, y = self.Xpos, self.Ypos
-        #
         if self.Shape == "circle":
             dc.DrawCircle(x, y, self.Radius)
             self._width = self._height = self.Radius * 2
@@ -3910,15 +3901,12 @@ class DrawObject(dObject):
             pw = 0
         if not pw:
             # No pen
-            pen = wx.Pen(dColors.colorTupleFromName("black"), pw, wx.PENSTYLE_TRANSPARENT)
+            pen = wx.Pen(self.Parent.getWxColour("black"), pw, wx.PENSTYLE_TRANSPARENT)
         else:
             if self.PenColor is None:
-                pc = dColors.colorTupleFromName("black")
+                pc = self.Parent.getWxColour("black")
             else:
-                if isinstance(self.PenColor, str):
-                    pc = dColors.colorTupleFromName(self.PenColor)
-                else:
-                    pc = self.PenColor
+                pc = self.Parent.getWxColour(self.PenColor)
             sty = self._lineStyle
             lnStyle = wx.PENSTYLE_SOLID
             if sty in ("dash", "dashed"):
@@ -3932,8 +3920,7 @@ class DrawObject(dObject):
 
     def _brushSettings(self, dc):
         fill = self.FillColor
-        if isinstance(fill, str):
-            fill = dColors.colorTupleFromName(fill)
+        fill = self.Parent.getWxColour(fill)
         hatch = self.HatchStyle
         if hatch is None:
             sty = wx.BRUSHSTYLE_SOLID

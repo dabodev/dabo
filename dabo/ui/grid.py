@@ -584,10 +584,9 @@ class dColumn(wx._core.Object, dPemMixin):
 
     def getDataTypeForColumn(self):
         try:
-            typ = self.DataType
+            return self.DataType
         except (dException.FieldNotFoundException, dException.NoRecordsException):
-            typ = None
-        return typ
+            return None
 
     def _setRenderer(self):
         self._setDataTypeFromDataField()
@@ -735,9 +734,6 @@ class dColumn(wx._core.Object, dPemMixin):
             # This will trigger wx to query GetColLabelValue(), which will in turn
             # call paintHeader() on just this column. It's roundabout, but gives the
             # best overall results, but risks relying on wx implementation details.
-            # Other options, in case this starts to fail, are:
-            #        self.Parent.Header.Refresh()
-            #        self.Parent._paintHeader(self._GridColumnIndex)
             self.Parent.SetColLabelValue(self.ColumnIndex, "")
 
     def _refreshGrid(self):
@@ -2418,8 +2414,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 ui.callAfter(self.setTableAttributes)
                 return
         tbl.alternateRowColoring = self.AlternateRowColoring
-        tbl.rowColorOdd = self._getWxColour(self.RowColorOdd)
-        tbl.rowColorEven = self._getWxColour(self.RowColorEven)
+        tbl.rowColorOdd = self.getWxColour(self.RowColorOdd)
+        tbl.rowColorEven = self.getWxColour(self.RowColorEven)
 
     def afterCellEdit(self, row, col):
         """Called after a cell has been edited by the user."""
@@ -2834,7 +2830,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             self.unlockDisplay()
             self._updateColumnWidths()
 
-    def _paintHeader(self, updateBox=None):
+    def _paintHeader(self):
         """
         This method handles all of the display for the header, including writing
         the Captions along with any sort indicators.
@@ -2844,8 +2840,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self._inHeaderPaint = True
         w = self._getWxHeader()
         w.SetBackgroundColour((255, 255, 255))
-        if updateBox is None:
-            updateBox = w.GetClientRect()
+        updateBox = w.GetClientRect()
         try:
             # When called from OnPaint event, there should be PaintDC context.
             dc = wx.PaintDC(w)
@@ -2873,17 +2868,6 @@ class dGrid(dControlMixin, wx.grid.Grid):
             headerRect = col._getHeaderRect()
             trect = list(headerRect)
             trect = wx.Rect(*trect)
-
-            # Figure out the x,y coordinates to start the text drawing.
-            left, top, wd, ht = trect
-            x = left
-            # Note that we need to adjust for text height when angle is 0.
-            yadj = 0
-            y = top + ht
-            dc.DrawText(colObj.Caption, int(x), int(y))
-            dc.DestroyClippingRegion()
-            continue
-
             holdBrush = dc.GetBrush()
             holdPen = dc.GetPen()
             fcolor = colObj.HeaderForeColor
@@ -2891,9 +2875,11 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 fcolor = self.HeaderForeColor
                 if fcolor is None:
                     fcolor = (0, 0, 0)
+            fcolor = self.getWxColour(fcolor)
             bcolor = colObj.HeaderBackColor
             if bcolor is None:
                 bcolor = self.HeaderBackColor
+            bcolor = self.getWxColour(bcolor)
             dc.SetTextForeground(fcolor)
             wxNativeFont = colObj.HeaderFont._nativeFont
             # draw the col. header background:
@@ -2917,9 +2903,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 # of the column. TODO: Perhaps replace with prettier icons
                 left = headerRect[0] + sortIconBuffer
                 top = headerRect[1] + sortIconBuffer
-                brushColor = self.SortIndicatorColor
-                if isinstance(brushColor, str):
-                    brushColor = dColors.colorTupleFromName(brushColor)
+                brushColor = self.getWxColour(self.SortIndicatorColor)
                 dc.SetBrush(wx.Brush(brushColor, wx.BRUSHSTYLE_SOLID))
                 if self.sortOrder == "DESC":
                     # Down arrow
@@ -3012,6 +2996,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 "%s" % colObj.Caption,
                 x,
                 y,
+                foreColor=fcolor,
+                backColor=bcolor,
                 angle=textAngle,
                 dc=dc,
                 useDefaults=True,
@@ -4617,8 +4603,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
         evt.Skip()
 
     def __onWxHeaderPaint(self, evt):
-        updateBox = self._getWxHeader().GetUpdateRegion().GetBox()
-        self._paintHeader(updateBox)
+        self._paintHeader()
+        evt.Skip()
 
     def _getColRowForPosition(self, pos):
         """Used in the mouse event handlers to stuff the col, row into EventData."""

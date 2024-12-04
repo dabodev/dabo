@@ -341,7 +341,7 @@ def get_dabo_package():
 
 
 def get_application():
-    return get_dabo_package().application
+    return get_dabo_package().app_reference
 
 
 def setup_logging():

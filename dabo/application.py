@@ -283,7 +283,7 @@ try again when it is running.
         self.autoBindEvents()
 
         # Set this instance as the main application object
-        dabo_module.application = self
+        dabo_module.app_reference = self
 
     def resyncFiles(self):
         """

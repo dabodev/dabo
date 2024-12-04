@@ -1,3 +1,0 @@
-rm -rf build dist
-python -OO setup.py py2app
-

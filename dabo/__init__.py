@@ -15,7 +15,6 @@ from functools import partial
 from pathlib import Path
 
 from . import settings
-from . import ide
 from . import application
 from . import settings
 from . import version
@@ -30,24 +29,22 @@ def get_version():
     return version.get_version()
 
 
-def run_class_designer(pth=None):
-    # Run the class designer, optionally opening up an existing file.
-    ide.run_class_designer(pth=pth)
-
-
 # Method to create a standard Dabo directory structure layout
 def makeDaboDirectories(homedir=None):
     """If homedir is passed, the directories will be created off of that
     directory. Otherwise, it is assumed that they should be created
     in the current directory location.
     """
-    currLoc = Path.cwd()
-    if homedir is not None:
+    dabo_loc = __file__
+    curr_loc = None
+    if homedir:
+        curr_loc = Path.cwd()
         os.chdir(homedir)
     for d in settings.standardDirs:
         dirpath = Path(d)
         dirpath.mkdir(parents=True, exist_ok=True)
-    os.chdir(currLoc)
+    if curr_loc:
+        os.chdir(curr_loc)
 
 
 # Ensure that the minimal structure is present
