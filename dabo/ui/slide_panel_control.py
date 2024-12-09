@@ -140,7 +140,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         """This draws a separator line on the panel"""
         if color is None:
             color = "black"
-        self.AddSeparator(self._getWxColour(color))
+        self.AddSeparator(self.getWxColour(color))
 
     def layout(self):
         """Wrap the wx version of the call, if possible."""
@@ -182,7 +182,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         return ret
 
     def _setBarColor1(self, val):
-        color = self._getWxColour(val)
+        color = self.getWxColour(val)
         self._barColor1 = val
         style = self._captionBar.GetCaptionStyle()
         style.SetFirstColour(color)
@@ -196,7 +196,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         return ret
 
     def _setBarColor2(self, val):
-        color = self._getWxColour(val)
+        color = self.getWxColour(val)
         self._barColor2 = val
         style = self._captionBar.GetCaptionStyle()
         style.SetSecondColour(color)
@@ -261,7 +261,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
     def _setCaptionForeColor(self, val):
         self._captionForeColor = val
         style = self._captionBar.GetCaptionStyle()
-        style.SetCaptionColour(self._getWxColour(val))
+        style.SetCaptionColour(self.getWxColour(val))
         self._captionBar.SetCaptionStyle(style)
 
     def _getCaptionHeight(self):

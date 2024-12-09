@@ -237,7 +237,7 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
 
     def _setHeaderBackColor(self, val):
         # Need to set both
-        color = self._getWxColour(val)
+        color = self.getWxColour(val)
         self.SetHeaderColours(self.GetHeaderColourFg(), color)
         self.refresh()
 
@@ -246,7 +246,7 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
 
     def _setHeaderForeColor(self, val):
         # Need to set both
-        color = self._getWxColour(val)
+        color = self.getWxColour(val)
         self.SetHeaderColours(color, self.GetHeaderColourBg())
         self.refresh()
 
@@ -255,7 +255,7 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
 
     def _setHighlightBackColor(self, val):
         # Need to set both
-        color = self._getWxColour(val)
+        color = self.getWxColour(val)
         self.SetHighlightColours(self.GetHighlightColourFg(), color)
         self.refresh()
 
@@ -264,7 +264,7 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
 
     def _setHighlightForeColor(self, val):
         # Need to set both
-        color = self._getWxColour(val)
+        color = self.getWxColour(val)
         self.SetHighlightColours(color, self.GetHighlightColourBg())
         self.refresh()
 
@@ -273,7 +273,7 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
 
     def _setHolidayBackColor(self, val):
         # Need to set both
-        color = self._getWxColour(val)
+        color = self.getWxColour(val)
         self.SetHolidayColours(self.GetHolidayColourFg(), color)
         self.refresh()
 
@@ -282,7 +282,7 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
 
     def _setHolidayForeColor(self, val):
         # Need to set both
-        color = self._getWxColour(val)
+        color = self.getWxColour(val)
         self.SetHolidayColours(color, self.GetHolidayColourBg())
         self.refresh()
 

@@ -2175,9 +2175,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__onWxGridCellMouseLeftDoubleClick)
         # self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onWxGridCellMouseLeftClick)
         # self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxGridCellMouseRightClick)
-        self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
+        self.Bind(wx.grid.EVT_GRID_CMD_ROW_SIZE, self.__onWxGridRowSize)
         self.Bind(wx.grid.EVT_GRID_SELECT_CELL, self.__onWxGridSelectCell)
-        self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxGridColSize)
+        self.Bind(wx.grid.EVT_GRID_CMD_COL_SIZE, self.__onWxGridColSize)
         self.Bind(wx.grid.EVT_GRID_EDITOR_CREATED, self.__onWxGridEditorCreated)
         self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
         self.Bind(wx.grid.EVT_GRID_EDITOR_HIDDEN, self.__onWxGridEditorHidden)
@@ -2992,16 +2992,19 @@ class dGrid(dControlMixin, wx.grid.Grid):
             elif av == "Center":
                 y = top + (ht / 2) + (tht / 2) - yadj
 
-            txt = self.drawText(
-                "%s" % colObj.Caption,
-                x,
-                y,
-                foreColor=fcolor,
-                backColor=bcolor,
-                angle=textAngle,
-                dc=dc,
-                useDefaults=True,
-            )
+            # Note: leaving this here. It was the old way of drawing Captions for columns, but it didn't work in the
+            # latest wxPython. 
+            # txt = self.drawText(
+            #     "%s" % colObj.Caption,
+            #     x,
+            #     y,
+            #     foreColor=fcolor,
+            #     backColor=bcolor,
+            #     angle=textAngle,
+            #     dc=dc,
+            #     useDefaults=True,
+            # )
+            dc.DrawText(colObj.Caption, round(x), round(y))
             dc.DestroyClippingRegion()
         if self.AutoAdjustHeaderHeight:
             self.fitHeaderHeight()
@@ -3262,9 +3265,6 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def runIncSearch(self):
         """Run the incremental search."""
-        import pudb
-
-        pudb.set_trace()
         gridCol = self.CurrentColumn
         if gridCol < 0:
             gridCol = 0
@@ -4087,16 +4087,27 @@ class dGrid(dControlMixin, wx.grid.Grid):
     _onContextMenu = _onGridMouseRightClick
 
     def _onGridHeaderMouseLeftDown(self, evt):
-        # We need to eat this event, because the native wx grid will select all
-        # rows in the column, which is a spreadsheet-like behavior, not a data-
-        # aware grid-like behavior. However, let's keep our eyes out for a better
-        # way to handle this, because eating events could cause some hard-to-debug
-        # problems later (there could be other, more critical code, that isn't
-        # being allowed to run).
+        # Clicking a column header will select that column, like a spreadsheet, even when SelectionMode is set to
+        # something else. Row mode seems to work correctly, but Cell mode doesn't, so this code will save the selection,
+        # and then restore it after.
         self._lastHeaderMousePosition = evt.EventData["mousePosition"]
         self._headerDragging = False
         self._headerSizing = False
-        evt.Continue = False
+
+        if self.SelectionMode == "Cell":
+            # Save the selection
+            tl = self.GetSelectionBlockTopLeft()
+            br = self.GetSelectionBlockBottomRight()
+            # Need to convert these grid references to tuples
+            tl_tuple = tuple([(elem.Row, elem.Col) for elem in tl])
+            br_tuple = tuple([(elem.Row, elem.Col) for elem in br])
+            ui.callAfter(self._restore_cell_selection, tl_tuple, br_tuple)
+
+    def _restore_cell_selection(self, tl, br):
+        self.ClearSelection()
+        self.SelectionMode = "Cell"
+        for pos in range(len(tl)):
+            self.SelectBlock(tl[pos][0], tl[pos][1], br[pos][0], br[pos][1], addToSelected=True)
 
     def _onGridMouseLeftClick(self, evt):
         self.ShowCellEditControl()
