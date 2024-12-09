@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+import base64
 import random
 import string
 import warnings
-import base64
+
 import dabo
 
 
@@ -41,8 +42,8 @@ class SimpleCrypt(object):
         self._useDES3 = self.__key is not None
         if self._useDES3:
             try:
-                from Crypto.Cipher import DES3
                 from Crypto import Random
+                from Crypto.Cipher import DES3
             except ImportError:
                 self._useDES3 = False
         if self._useDES3:

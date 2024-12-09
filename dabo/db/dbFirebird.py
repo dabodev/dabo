@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import re
+
 import dabo
-from .dBackend import dBackend
 from dabo.lib.utils import ustr
+
+from .dBackend import dBackend
 
 
 class Firebird(dBackend):

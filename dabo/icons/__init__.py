@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
 import glob
+import os
+import sys
 
 import wx
 
 from .. import ui
-
 
 defaultExtension = "png"
 _bmpCache = {}

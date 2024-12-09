@@ -3,16 +3,13 @@ import time
 
 import wx
 
+from .. import db, events, ui
+from ..dLocalize import _
 from ..dObject import dObject
-from .. import db
-from .. import events
-from .. import ui
+from ..dPref import dPref
 from ..lib.propertyHelperMixin import PropertyHelperMixin
 from ..lib.utils import ustr
-from ..dLocalize import _
-from ..dPref import dPref
-from . import dFormMixin
-from . import dSizerMixin
+from . import dFormMixin, dSizerMixin
 
 
 class ObjectInspectorForm(ui.dForm):

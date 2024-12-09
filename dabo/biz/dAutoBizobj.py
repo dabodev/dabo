@@ -3,10 +3,11 @@
 # TODO: decide to either update or remove this code
 
 import datetime
+
 import dabo
-from dabo.dLocalize import _
 from dabo import dException as dException
 from dabo.biz.dBizobj import dBizobj
+from dabo.dLocalize import _
 
 # Make sure that the user's installation supports Decimal.
 _USE_DECIMAL = True

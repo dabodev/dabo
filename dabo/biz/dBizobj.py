@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-import types
 import re
-import warnings
 import time
+import types
+import warnings
+
 import dabo
 from dabo import dConstants as kons
+from dabo import dException as dException
 from dabo.db.dCursorMixin import dCursorMixin
 from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-from dabo import dException as dException
 from dabo.dObject import dObject
 from dabo.lib.RemoteConnector import RemoteConnector
-
+from dabo.lib.utils import ustr
 
 NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
 # To filter logging noise in scan methods, identify the redundant exceptions.

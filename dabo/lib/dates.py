@@ -4,15 +4,14 @@
 For example, getting a date from a string in various formats.
 """
 
-import operator
 import calendar
 import datetime
+import operator
 import re
 import time
 
-from .utils import ustr
 from .. import settings
-
+from .utils import ustr
 
 _dregex = {}
 _dtregex = {}

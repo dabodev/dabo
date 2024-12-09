@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from .. import db
-from .. import biz
-from .. import ui
-from ..lib import getRandomUUID
+from .. import biz, db, ui
 from ..application import dApp
+from ..lib import getRandomUUID
 
 
 class Test_dForm(unittest.TestCase):

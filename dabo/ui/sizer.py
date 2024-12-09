@@ -2,8 +2,7 @@
 import wx
 
 from .. import ui
-from . import dPemMixin
-from . import dSizerMixin
+from . import dPemMixin, dSizerMixin
 
 
 class dSizer(dSizerMixin, wx.BoxSizer):

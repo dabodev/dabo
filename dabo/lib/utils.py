@@ -11,8 +11,8 @@
 #    utils.foo()
 
 import os
-from locale import getpreferredencoding
 import sys
+from locale import getpreferredencoding
 
 osp = os.path
 

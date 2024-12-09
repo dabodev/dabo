@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import dException
-from .. import ui
+from .. import dException, ui
 from ..dLocalize import _, n_
 from . import dControlMixin
 

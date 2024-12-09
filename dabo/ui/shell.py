@@ -3,28 +3,28 @@ import builtins
 import time
 
 import wx
-import wx.stc as stc
 import wx.py
+import wx.stc as stc
 from wx.py import pseudo
 
-from .. import db
-from .. import ui
-from .. import events
+from .. import db, events, ui
 from ..dLocalize import _
-from . import dBaseMenuBar
-from . import dKeys
-from . import makeDynamicProperty
-from . import dButton
-from . import dControlMixin
-from . import dEditBox
-from . import dEditor
-from . import dLabel
-from . import dListBox
-from . import dMenu
-from . import dPageFrame
-from . import dPanel
-from . import dSizer
-from . import dSplitForm
+from . import (
+    dBaseMenuBar,
+    dButton,
+    dControlMixin,
+    dEditBox,
+    dEditor,
+    dKeys,
+    dLabel,
+    dListBox,
+    dMenu,
+    dPageFrame,
+    dPanel,
+    dSizer,
+    dSplitForm,
+    makeDynamicProperty,
+)
 
 
 class _LookupPanel(dPanel):

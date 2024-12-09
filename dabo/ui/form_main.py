@@ -3,8 +3,7 @@ import time
 
 import wx
 
-from .. import settings
-from .. import ui
+from .. import settings, ui
 from . import dFormMixin
 
 

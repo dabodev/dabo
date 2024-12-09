@@ -1,22 +1,17 @@
 # -*- coding: utf-8 -*-
-from decimal import Decimal
 import datetime
 import functools
 import re
 import time
+from decimal import Decimal
 
-from .. import db
-from .. import settings
-from .. import dConstants
-from .. import dException
-from .. import ui
+from .. import db, dConstants, dException, settings, ui
 from ..dLocalize import _
 from ..dObject import dObject
-from .dNoEscQuoteStr import dNoEscQuoteStr
-from .dDataSet import dDataSet
 from ..lib import dates
-from ..lib.utils import noneSortKey, caseInsensitiveSortKey
-from ..lib.utils import ustr
+from ..lib.utils import caseInsensitiveSortKey, noneSortKey, ustr
+from .dDataSet import dDataSet
+from .dNoEscQuoteStr import dNoEscQuoteStr
 
 cursor_flags = (
     dConstants.CURSOR_MEMENTO,

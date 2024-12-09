@@ -98,27 +98,27 @@ __date__ = "2006-12-06"
 
 import atexit
 import inspect
-import sys
-import re
 import pickle as pickle
-
-# For profiling
-from profile import Profile
 import pstats
+import re
+import sys
 
-# For hotshot profiling (inaccurate!)
-import hotshot
-import hotshot.stats
+# For timecall
+import time
 
 # For trace.py coverage
 import trace
 
+# For profiling
+from profile import Profile
+
 # For hotshot coverage (inaccurate!; uses undocumented APIs; might break)
 import _hotshot
-import hotshot.log
 
-# For timecall
-import time
+# For hotshot profiling (inaccurate!)
+import hotshot
+import hotshot.log
+import hotshot.stats
 
 
 def profile(fn=None, skip=0, filename=None, immediate=False):

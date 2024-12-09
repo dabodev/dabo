@@ -3,6 +3,7 @@
 #           if serialization lib is specific to reporting, it should be moved
 #           to dabo.lib.reporting.serialization. Stefano, thoughts?
 from reportlab.lib import pagesizes
+
 import dabo
 from dabo.lib.utils import ustr
 

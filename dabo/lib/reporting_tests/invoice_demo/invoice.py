@@ -8,8 +8,8 @@ invoice.pdf. To modify the report form, use daboide/ReportDesigner to open
 the invoice.rfxml file.
 """
 
-from dabo.lib.reportWriter import ReportWriter
 from dabo.lib import reportUtils
+from dabo.lib.reportWriter import ReportWriter
 
 outFile = "invoice.pdf"
 

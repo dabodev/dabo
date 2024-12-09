@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
-import sys
 import os
 import string
+import sys
 
 from ...dLocalize import _
-from .. import dBitmapButton
-from .. import dButton
-from .. import dColumn
-from .. import dDialog
-from .. import dGrid
-from .. import dHtmlBox
-from .. import dLabel
-from .. import dMenu
-from .. import dPanel
-from .. import dSizer
+from .. import (
+    dBitmapButton,
+    dButton,
+    dColumn,
+    dDialog,
+    dGrid,
+    dHtmlBox,
+    dLabel,
+    dMenu,
+    dPanel,
+    dSizer,
+)
 
 
 class HtmlAbout(dDialog):

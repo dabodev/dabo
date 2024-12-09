@@ -3,11 +3,9 @@ import sys
 
 import wx
 import wx.lib.mixins.listctrl as listmix
-from wx import ImageFromStream, BitmapFromImage
+from wx import BitmapFromImage, ImageFromStream
 
-from .. import biz
-from .. import locale
-from .. import ui
+from .. import biz, locale, ui
 
 """
 wxPython Custom Widget Collection 20060207
@@ -824,10 +822,11 @@ ui.dAutoComplete = dAutoComplete
 
 
 if __name__ == "__main__":
-    import test
-    import dPanel
     import dLabel
+    import dPanel
     import dSizer
+
+    import test
 
     class TestPanel(dPanel):
         def afterInit(self):

@@ -2,10 +2,12 @@
 
 import codecs
 import datetime
+
 import dabo
 from dabo.dLocalize import _
-from .dBackend import dBackend
 from dabo.lib.utils import ustr
+
+from .dBackend import dBackend
 
 
 class Postgres(dBackend):

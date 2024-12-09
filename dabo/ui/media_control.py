@@ -2,11 +2,9 @@
 import wx
 import wx.media
 
-from .. import ui
-from .. import events
-from . import makeDynamicProperty
-from . import dControlMixin
+from .. import events, ui
 from ..dLocalize import _
+from . import dControlMixin, makeDynamicProperty
 
 
 def _timeConvertOut(fn):

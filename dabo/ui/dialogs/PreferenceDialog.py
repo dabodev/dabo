@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
 import inspect
+import os
+import sys
+
+from ... import ui
 from ...dLocalize import _
 from ...lib.utils import cleanMenuCaption
-from ... import ui
-from .. import dButton
-from .. import dCheckBox
-from .. import dForm
-from .. import dGridSizer
-from .. import dLabel
-from .. import dOkCancelDialog
-from .. import dPageFrame
-from .. import dRadioList
-from .. import dSizer
-from .. import dTextBox
-from .. import dTreeView
+from .. import (
+    dButton,
+    dCheckBox,
+    dForm,
+    dGridSizer,
+    dLabel,
+    dOkCancelDialog,
+    dPageFrame,
+    dRadioList,
+    dSizer,
+    dTextBox,
+    dTreeView,
+)
 from . import HotKeyEditor
 
 dayMins = 24 * 60

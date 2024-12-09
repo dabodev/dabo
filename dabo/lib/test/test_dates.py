@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import unittest
 import datetime
+import unittest
+
 import dabo
 from dabo.lib import dates
 from dabo.lib.utils import ustr

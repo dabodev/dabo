@@ -5,8 +5,6 @@ specific, since we only support wxPython, but I suppose that it could be updated
 later on to support other UI toolkits.
 """
 
-from datetime import datetime
-from io import IOBase
 import codecs
 import json
 import os
@@ -14,14 +12,16 @@ import random
 import re
 import tempfile
 import time
+from datetime import datetime
+from io import IOBase
 
 from .. import settings
 from ..dLocalize import _
 from ..dObject import dObject
+from ..ui.dialogs import Wizard
 from . import utils
 from . import xmltodict as xtd
 from .utils import ustr
-from ..ui.dialogs import Wizard
 
 # Doesn't matter what platform we're on; Python needs
 # newlines in its compiled code.

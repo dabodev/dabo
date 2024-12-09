@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-from decimal import Decimal
 import datetime
 import os
 import warnings
+from decimal import Decimal
 
+from . import db, settings
 from .dLocalize import _
 from .lib import utils
 from .lib.utils import ustr
-from . import db
-from . import settings
 
 # Can't import here due to circular imports
 # dabo_module = None

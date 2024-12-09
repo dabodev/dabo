@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from . import settings
+from . import events, settings
 from .dLocalize import _
-from .lib.reportWriter import ReportWriter
 from .dObject import dObject
-from . import events
+from .lib.reportWriter import ReportWriter
 
 if settings.implicitImports:
     from . import ui

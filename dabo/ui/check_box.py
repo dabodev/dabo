@@ -2,9 +2,8 @@
 import wx
 
 from .. import ui
-from . import dDataControlMixin
-from . import makeDynamicProperty
 from ..dLocalize import _
+from . import dDataControlMixin, makeDynamicProperty
 
 
 class dCheckBox(dDataControlMixin, wx.CheckBox):

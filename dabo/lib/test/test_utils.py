@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import unittest
-import tempfile
 import os
 import shutil
 import sys
+import tempfile
+import unittest
+
 import dabo
 from dabo.lib import utils
 

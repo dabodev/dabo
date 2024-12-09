@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import os.path
 import xml.sax
 from io import StringIO
-import os.path
 
 
 class specHandler(xml.sax.ContentHandler):

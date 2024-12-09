@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-import pickle
 import os
+import pickle
 import time
 
 import dabo
-from dabo.dLocalize import _
 import dabo.dConstants as kons
-from dabo.lib.connParser import importConnections
 import dabo.dException as dException
+from dabo.dLocalize import _
+from dabo.lib.connParser import importConnections
+
 from .dBizobj import dBizobj
 
 

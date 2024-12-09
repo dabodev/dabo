@@ -1,50 +1,43 @@
 # -*- coding: utf-8 -*-
-from decimal import Decimal
-from decimal import InvalidOperation
-from functools import reduce
 import copy
 import datetime
 import locale
 import operator
 import re
-import six
 import sys
 import time
 import warnings
+from decimal import Decimal, InvalidOperation
+from functools import reduce
 
+import six
 import wx
 import wx.grid
 from wx._core import PyAssertionError
 
-from .. import ui
-from .. import events
-from .. import application
-from .. import settings
-from .. import dException
-from .. import biz
-from .. import dColors
-from .. import db
+from .. import application, biz, db, dColors, dException, events, settings, ui
+from ..dBug import loggit
 from ..dLocalize import _, n_
-from ..lib.utils import ustr
 from ..dObject import dObject
 from ..lib import dates
-from ..lib.utils import noneSortKey, caseInsensitiveSortKey
-from ..dBug import loggit
-from . import dButton
-from . import dCheckBox
-from . import dControlMixin
-from . import dDropdownList
-from . import dFont
-from . import dForm
-from . import dGridSizer
-from . import dKeys
-from . import dMenu
-from . import dPemMixin
-from . import dRadioList
-from . import dTextBox
-from . import dTimer
-from . import dUICursors
-from . import makeDynamicProperty
+from ..lib.utils import caseInsensitiveSortKey, noneSortKey, ustr
+from . import (
+    dButton,
+    dCheckBox,
+    dControlMixin,
+    dDropdownList,
+    dFont,
+    dForm,
+    dGridSizer,
+    dKeys,
+    dMenu,
+    dPemMixin,
+    dRadioList,
+    dTextBox,
+    dTimer,
+    dUICursors,
+    makeDynamicProperty,
+)
 
 dabo_module = settings.get_dabo_package()
 

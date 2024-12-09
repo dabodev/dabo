@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 import sys
 import time
+
 import wx
 
-from .. import ui
-from .. import events
-from .. import settings
-from . import makeDynamicProperty
-from . import dDataControlMixin
-from . import dControlItemMixin
+from .. import events, settings, ui
 from ..dLocalize import _
+from . import dControlItemMixin, dDataControlMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

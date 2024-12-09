@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import ui
-from .. import events
+from .. import events, ui
 from ..dLocalize import _
-from . import dTextBoxMixin
-from . import makeDynamicProperty
+from . import dTextBoxMixin, makeDynamicProperty
 
 
 class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
@@ -178,8 +176,9 @@ ui.dSearchBox = dSearchBox
 
 
 if __name__ == "__main__":
-    from . import test
     import datetime
+
+    from . import test
 
     # This test sets up several textboxes, each editing different data types.
     class TestBase(dSearchBox):

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import unittest
 import datetime
+import unittest
 from decimal import Decimal
+
 import dabo.db
 from dabo.lib import getRandomUUID
-
 
 # Testing anything other than sqlite requires network access. So set these
 # flags so that only the db's you want to test against are True.

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import string
-import types
 import traceback
+import types
 
+from . import events, settings
 from .dLocalize import _
-from . import events
-from . import settings
 
 
 class EventMixin(object):

@@ -2,18 +2,9 @@
 import wx
 import wx.lib.agw.foldpanelbar as fpb
 
-from .. import dColors
-from .. import ui
-from .. import events
-from .. import settings
-from . import makeDynamicProperty
+from .. import dColors, events, settings, ui
 from ..dLocalize import _
-from . import dCheckBox
-from . import dControlMixin
-from . import dForm
-from . import dGridSizer
-from . import dLabel
-from . import dSizer
+from . import dCheckBox, dControlMixin, dForm, dGridSizer, dLabel, dSizer, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

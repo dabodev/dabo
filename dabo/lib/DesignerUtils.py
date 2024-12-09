@@ -3,8 +3,8 @@
 been separated from the design.
 """
 
-import re
 import copy
+import re
 
 
 def getCodeObjectSeperator():
@@ -71,44 +71,46 @@ def getSizerDefaults():
     """Return a dict that contains the defaults for the various controls based upon
     what sort of sizer they are contained within.
     """
-    from dabo.ui import dBox
-    from dabo.ui import dBitmap
-    from dabo.ui import dBitmapButton
-    from dabo.ui import dButton
-    from dabo.ui import dCheckBox
-    from dabo.ui import dComboBox
-    from dabo.ui import dDateTextBox
-    from dabo.ui import dDialog
-    from dabo.ui import dDropdownList
-    from dabo.ui import dEditBox
-    from dabo.ui import dEditor
-    from dabo.ui import dSlidePanelControl
-    from dabo.ui import dGauge
-    from dabo.ui import dGrid
-    from dabo.ui import dGridSizer
-    from dabo.ui import dHtmlBox
-    from dabo.ui import dImage
-    from dabo.ui import dLabel
-    from dabo.ui import dLed
-    from dabo.ui import dLine
-    from dabo.ui import dListBox
-    from dabo.ui import dListControl
-    from dabo.ui import dOkCancelDialog
-    from dabo.ui import dRadioList
-    from dabo.ui import dPage
-    from dabo.ui import dPanel
-    from dabo.ui import dScrollPanel
-    from dabo.ui import dPageFrame
-    from dabo.ui import dPageList
-    from dabo.ui import dPageSelect
-    from dabo.ui import dPageFrameNoTabs
-    from dabo.ui import dSizer
-    from dabo.ui import dSlider
-    from dabo.ui import dSpinner
-    from dabo.ui import dSplitter
-    from dabo.ui import dTextBox
-    from dabo.ui import dToggleButton
-    from dabo.ui import dTreeView
+    from dabo.ui import (
+        dBitmap,
+        dBitmapButton,
+        dBox,
+        dButton,
+        dCheckBox,
+        dComboBox,
+        dDateTextBox,
+        dDialog,
+        dDropdownList,
+        dEditBox,
+        dEditor,
+        dGauge,
+        dGrid,
+        dGridSizer,
+        dHtmlBox,
+        dImage,
+        dLabel,
+        dLed,
+        dLine,
+        dListBox,
+        dListControl,
+        dOkCancelDialog,
+        dPage,
+        dPageFrame,
+        dPageFrameNoTabs,
+        dPageList,
+        dPageSelect,
+        dPanel,
+        dRadioList,
+        dScrollPanel,
+        dSizer,
+        dSlidePanelControl,
+        dSlider,
+        dSpinner,
+        dSplitter,
+        dTextBox,
+        dToggleButton,
+        dTreeView,
+    )
 
     szDefaults = {}
     defVals = {

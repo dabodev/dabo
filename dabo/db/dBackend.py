@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
-import sys
-import time
-import re
 import datetime
-import threading
 import decimal
+import re
+import sys
+import threading
+import time
+
 import dabo
-from dabo.dLocalize import _
 import dabo.dException as dException
-from dabo.dObject import dObject
 from dabo.db import dTable
-from .dNoEscQuoteStr import dNoEscQuoteStr
+from dabo.dLocalize import _
+from dabo.dObject import dObject
 from dabo.lib.utils import ustr
+
 from .dCursorMixin import dCursorMixin
+from .dNoEscQuoteStr import dNoEscQuoteStr
 
 
 class dBackend(dObject):

@@ -3,10 +3,9 @@ import wx
 
 from .. import ui
 from ..dLocalize import _
-from ..lib.utils import ustr
 from ..lib.propertyHelperMixin import _DynamicList
-from . import dDataControlMixin
-from . import makeDynamicProperty
+from ..lib.utils import ustr
+from . import dDataControlMixin, makeDynamicProperty
 
 
 class dControlItemMixin(dDataControlMixin):

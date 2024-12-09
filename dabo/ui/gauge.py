@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import ui
+from .. import events, ui
 from ..dLocalize import _
-from . import makeDynamicProperty
-from . import dControlMixin
-from .. import events
+from . import dControlMixin, makeDynamicProperty
 
 
 class dGauge(dControlMixin, wx.Gauge):
@@ -120,7 +118,8 @@ class _dGauge_test(dGauge):
     def initProperties(self):
         self.Range = 1000
         self.Value = 0
-        self.Width = 300
+        self.Height = 300
+        self.Orientation = "Vertical"
 
     def onTimer(self, evt):
         if not self:

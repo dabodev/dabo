@@ -3,14 +3,17 @@ import sys
 
 import wx
 
-from .. import ui
-from .. import events
+from .. import events, ui
 from ..dLocalize import _
-from ..lib.utils import ustr
-from ..lib.utils import cleanMenuCaption
-from . import dMenuItem, dCheckMenuItem, dRadioMenuItem, dSeparatorMenuItem
-from . import dPemMixin
-from . import makeDynamicProperty
+from ..lib.utils import cleanMenuCaption, ustr
+from . import (
+    dCheckMenuItem,
+    dMenuItem,
+    dPemMixin,
+    dRadioMenuItem,
+    dSeparatorMenuItem,
+    makeDynamicProperty,
+)
 
 # wx constants for styles
 NormalItemType = wx.ITEM_NORMAL

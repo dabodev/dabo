@@ -4,11 +4,9 @@ import datetime
 import wx
 import wx.lib.masked as masked
 
-from .. import settings
-from .. import ui
+from .. import settings, ui
 from ..dLocalize import _
-from . import dTextBoxMixin
-from . import makeDynamicProperty
+from . import dTextBoxMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -331,7 +329,8 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
         _setMask,
         None,
         _(
-            """Display Mask for the control.  (str)
+            """
+            Display Mask for the control.  (str)
 
             These are the allowed mask characters and their function:
 
@@ -352,7 +351,7 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
             +-----------+-------------------------------------------------------------------+
             |   &       |Allow string.punctuation only (doesn't include all unicode symbols)|
             +-----------+-------------------------------------------------------------------+
-            |   \*      |Allow any visible character                                        |
+            |   *       |Allow any visible character                                        |
             +-----------+-------------------------------------------------------------------+
             |   |       |explicit field boundary (takes no space in the control; allows mix |
             |           |of adjacent mask characters to be treated as separate fields,      |
@@ -361,7 +360,8 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
             +-----------+-------------------------------------------------------------------+
 
             Repetitions of the same mask code can be represented by placing the number
-            of repetitions in curly braces after the code. E.g.: CCCCCCCC = C{6} """
+            of repetitions in curly braces after the code. E.g.: CCCCCCCC = C{6}
+            """
         ),
     )
 
@@ -395,13 +395,15 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
         _setValueMode,
         None,
         _(
-            """Specifies the information that the Value property refers to. (str)
+            """
+            Specifies the information that the Value property refers to. (str)
             If it is set to 'Masked' (or anything that begins with the letter 'm'), the
             Value property will return the contents of the control, including any mask
             characters. If this is set to anything other than a string that begins with 'm',
             Value will return the control's contents without the mask characters.
-            NOTE: This only affects the results of \*reading\* the Value property. Setting
-            Value is not affected in any way."""
+            NOTE: This only affects the results of `reading` the Value property. Setting
+            Value is not affected in any way.
+            """
         ),
     )
 
@@ -410,13 +412,8 @@ ui.dMaskedTextBox = dMaskedTextBox
 
 
 if __name__ == "__main__":
+    from ..ui import dCheckBox, dForm, dGridSizer, dLabel, dPageFrame, dSizer
     from . import test
-    from ..ui import dCheckBox
-    from ..ui import dForm
-    from ..ui import dGridSizer
-    from ..ui import dLabel
-    from ..ui import dPageFrame
-    from ..ui import dSizer
 
     class MaskedForm(dForm):
         def afterInit(self):

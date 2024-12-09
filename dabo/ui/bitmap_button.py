@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import warnings
+
 import wx
 
-from ..dLocalize import _
 from .. import ui
-from . import dControlMixin
-from . import dImageMixin
-from . import makeDynamicProperty
+from ..dLocalize import _
+from . import dControlMixin, dImageMixin, makeDynamicProperty
 
 
 class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):

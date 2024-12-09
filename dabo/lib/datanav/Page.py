@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+
 import dabo
-from dabo import dException as dException
 from dabo import dEvents as dEvents
+from dabo import dException as dException
+from dabo import ui as dui
 from dabo.dLocalize import _, n_
 from dabo.dObject import dObject
 from dabo.lib.utils import ustr
-from dabo import ui as dui
 from dabo.ui import dPanel
-from . import QRY_OPERATOR
-from . import Grid
+
+from . import QRY_OPERATOR, Grid
 
 ASC, DESC = (n_("asc"), n_("desc"))
 

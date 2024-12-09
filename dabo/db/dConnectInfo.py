@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
+
 import dabo
-from dabo.lib.connParser import importConnections
-from dabo.dObject import dObject
 from dabo.dLocalize import _
+from dabo.dObject import dObject
+from dabo.lib.connParser import importConnections
 from dabo.lib.SimpleCrypt import SimpleCrypt
 
 

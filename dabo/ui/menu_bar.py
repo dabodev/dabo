@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import ui
-from .. import events
-from . import dPemMixin
-from . import dMenu
+from .. import events, ui
 from ..dLocalize import _
+from . import dMenu, dPemMixin
 
 
 class dMenuBar(dPemMixin, wx.MenuBar):

@@ -10,14 +10,9 @@ import sys
 import wx
 import wx.stc as stc
 
-from .. import ui
+from .. import application, dColors, events, settings, ui
 from ..dLocalize import _
-from .. import events
-from .. import application
-from .. import settings
-from .. import dColors
-from . import dDataControlMixin
-from . import dTimer
+from . import dDataControlMixin, dTimer
 
 dabo_module = settings.get_dabo_package()
 

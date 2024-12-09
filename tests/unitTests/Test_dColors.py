@@ -11,9 +11,10 @@ defined in this file and load them into a test suite.  The function then returns
 If this file is run standalone, it will automatically run all of the test cases found in the file.
 """
 
-import unittest
-from dabo import dColors
 import random
+import unittest
+
+from dabo import dColors
 
 
 class TestHexToDec(unittest.TestCase):
