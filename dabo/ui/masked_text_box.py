@@ -4,11 +4,9 @@ import datetime
 import wx
 import wx.lib.masked as masked
 
-from .. import settings
-from .. import ui
+from .. import settings, ui
 from ..dLocalize import _
-from . import dTextBoxMixin
-from . import makeDynamicProperty
+from . import dTextBoxMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -410,13 +408,8 @@ ui.dMaskedTextBox = dMaskedTextBox
 
 
 if __name__ == "__main__":
+    from ..ui import dCheckBox, dForm, dGridSizer, dLabel, dPageFrame, dSizer
     from . import test
-    from ..ui import dCheckBox
-    from ..ui import dForm
-    from ..ui import dGridSizer
-    from ..ui import dLabel
-    from ..ui import dPageFrame
-    from ..ui import dSizer
 
     class MaskedForm(dForm):
         def afterInit(self):

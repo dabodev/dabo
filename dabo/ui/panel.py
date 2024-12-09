@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import dColors
-from .. import ui
-from .. import events
+from .. import dColors, events, ui
 from ..dLocalize import _
-from . import makeDynamicProperty
-from . import dControlMixin
-from . import dDataControlMixin
+from . import dControlMixin, dDataControlMixin, makeDynamicProperty
 
 
 class _BasePanelMixin(object):
@@ -550,8 +546,8 @@ class _dScrollPanel_test(dScrollPanel):
 
 
 if __name__ == "__main__":
-    from . import test
     from ..ui import dForm
+    from . import test
 
     class SquarePanel(dPanel):
         def afterInit(self):

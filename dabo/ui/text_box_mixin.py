@@ -8,16 +8,11 @@ import time
 import wx
 import wx.lib.masked as masked
 
-from .. import ui
-from .. import events
-from .. import application
-from .. import settings
+from .. import application, events, settings, ui
+from ..dLocalize import _
 from ..lib import dates
 from ..lib.utils import ustr
-from ..ui import dKeys
-from ..dLocalize import _
-from ..ui import dDataControlMixin
-from ..ui import makeDynamicProperty
+from ..ui import dDataControlMixin, dKeys, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

@@ -3,7 +3,6 @@ import wx
 
 from .. import application
 
-
 dabo_module = settings.get_dabo_package()
 
 
@@ -27,8 +26,7 @@ except Exception as e:
 
 from ..dLocalize import _
 from ..lib.utils import ustr
-from . import dControlMixin
-from . import makeDynamicProperty
+from . import dControlMixin, makeDynamicProperty
 
 
 class _TraceMixin(object):

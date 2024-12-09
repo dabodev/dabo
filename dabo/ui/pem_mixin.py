@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
+import math
 import sys
 import time
 import types
-import math
 
 import wx
 
-from .. import dException
-from .. import dColors
-from ..dObject import dObject
-from .. import lib
-from .. import ui
-from .. import events
-from .. import settings
+from .. import dColors, dException, events, lib, settings, ui
 from ..dLocalize import _
-from ..lib.utils import ustr
-from ..lib.utils import dictStringify
+from ..dObject import dObject
+from ..lib.utils import dictStringify, ustr
 from ..ui import makeDynamicProperty
 
 # Can't import here due to circular imports
@@ -3029,11 +3023,12 @@ class dPemMixin(dObject):
 
     def _setSizer(self, val):
         if self._constructed():
+            mthd = self.SetSizerAndFit if isinstance(val, wx.GridBagSizer) else self.SetSizer
             if val is None:
                 # Unset the sizer, but don't destroy it
-                self.SetSizer(val, False)
+                mthd(val, False)
             else:
-                self.SetSizer(val, True)
+                mthd(val, True)
             try:
                 val.Parent = self
             except AttributeError:

@@ -9,12 +9,7 @@ except ImportError:
     _Numeric = None
 
 
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dTextBox
-from dabo.ui import dGridSizer
-from dabo.ui import dBorderSizer
+from dabo.ui import dBorderSizer, dGridSizer, dLabel, dPanel, dSizer, dTextBox
 
 
 class TestPanel(dPanel):

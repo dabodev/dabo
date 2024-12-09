@@ -3,15 +3,10 @@ import sys
 
 import wx
 
+from .. import events, lib, settings, ui
 from ..dLocalize import _
 from ..lib.utils import ustr
-from .. import lib
-from .. import ui
-from .. import events
-from .. import settings
-from . import dControlMixin
-from . import dPage
-from . import makeDynamicProperty
+from . import dControlMixin, dPage, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

@@ -3,9 +3,7 @@ import wx
 
 from .. import ui
 from ..dLocalize import _
-from . import dControlMixin
-from . import dImageMixin
-from . import makeDynamicProperty
+from . import dControlMixin, dImageMixin, makeDynamicProperty
 
 
 class dBitmap(dControlMixin, dImageMixin, wx.StaticBitmap):

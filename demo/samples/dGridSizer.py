@@ -2,13 +2,7 @@
 import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-
-
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dSpinner
-from dabo.ui import dTextBox
+from dabo.ui import dLabel, dPanel, dSizer, dSpinner, dTextBox
 
 dGridSizer = dabo.ui.dGridSizer
 

@@ -2,14 +2,10 @@
 import datetime
 
 import dabo
-import dabo.ui
 import dabo.dEvents as dEvents
+import dabo.ui
 from dabo.dLocalize import _
-
-
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
+from dabo.ui import dLabel, dPanel, dSizer
 
 dDateTextBox = dabo.ui.dDateTextBox
 

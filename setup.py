@@ -1,6 +1,7 @@
-import os
 import glob
-from setuptools import setup, find_packages
+import os
+
+from setuptools import find_packages, setup
 from setuptools.command.sdist import sdist as _sdist
 
 from dabo.version import __version__

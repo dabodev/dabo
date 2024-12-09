@@ -17,10 +17,9 @@ targeted and Forms, Dialogs, and Panels.
 
 import types
 
+from .. import events, ui
 from ..application import dApp
-from .. import events
 from .utils import ustr
-from .. import ui
 
 
 class EasyDialogBuilder(object):

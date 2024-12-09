@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import sys
-import re
-import operator
 import datetime
 import hashlib
-
+import operator
+import re
+import sys
 from decimal import Decimal
 
 try:

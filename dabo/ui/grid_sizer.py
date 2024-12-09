@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import settings
-from .. import ui
+from .. import settings, ui
 from ..dLocalize import _
-from . import dSizerMixin
-from . import makeDynamicProperty
+from . import dSizerMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -184,9 +182,9 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             else:
                 raise ValueError(
                     _(
-                        "Invalid value passed for 'colNum' parameter: '%s'. Only column numbers or the word 'all' are valid."
+                        f"Invalid value passed for 'colNum' parameter: '{colNum}'. Only column numbers "
+                        "or the word 'all' are valid."
                     )
-                    % colNum
                 )
         else:
             curr = self.getColExpand(colNum)
@@ -540,7 +538,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         """
         self._resolveOutlineSettings()
         dc = wx.ClientDC(win)
-        dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
+        dc.SetBrush(wxBrush(wx.WHITE, wx.BRUSHSTYLE_TRANSPARENT))
         dc.SetLogicalFunction(wx.COPY)
         x, y = self.GetPosition()
         w, h = self.GetSize()

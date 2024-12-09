@@ -2,8 +2,7 @@
 import wx
 import wx.grid
 
-from .. import ui
-from .. import icons
+from .. import icons, ui
 
 
 class ImageRenderer(wx.grid.GridCellRenderer):

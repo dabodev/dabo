@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import ui
-from .. import events
+from .. import events, ui
 from ..dLocalize import _
-from . import AlignmentMixin
-from . import dCheckBox
-from . import dControlMixin
-from . import dPanel
-from . import dSizer
-from . import makeDynamicProperty
+from . import AlignmentMixin, dCheckBox, dControlMixin, dPanel, dSizer, makeDynamicProperty
 
 
 class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
@@ -192,8 +186,9 @@ class _dLabel_test(dLabel):
 
 
 if __name__ == "__main__":
-    from ..application import dApp
     from ui.dForm import dForm
+
+    from ..application import dApp
 
     class LabelTestForm(dForm):
         def afterInit(self):

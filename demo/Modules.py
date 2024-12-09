@@ -21,9 +21,10 @@ import os
 import sys
 import traceback
 import types
-import dabo.ui
-import dabo.lib.utils as utils
+
 import dabo.dEvents as dEvents
+import dabo.lib.utils as utils
+import dabo.ui
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import dPanel

@@ -13,19 +13,17 @@ import re
 import sys
 import time
 import traceback
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 import warnings
 
-from .. import events
-from .. import icons
-from .. import settings
-from .. import ui
+from .. import dConstants, events, icons, settings, ui
 from ..dException import dException
 from ..dLocalize import _
 from ..lib import utils
-from ..lib.xmltodict import xmltodict
 from ..lib.utils import ustr
-from .. import dConstants
+from ..lib.xmltodict import xmltodict
 from .uiApp import uiApp
 
 # Can't import here due to circular imports
@@ -85,7 +83,7 @@ the following required libraries have been built:
 del _failedLibs
 #######################################################
 import wx
-from wx import Image, BitmapFromImage
+from wx import BitmapFromImage, Image
 
 # Used by the callAfter* functions
 lastCallAfterStack = ""
@@ -130,90 +128,92 @@ def load_namespace():
         from .. import application
     dabo_module = settings.get_dabo_package()
 
+    from . import (
+        alignment_mixin,
+        base_menu_bar,
+        bitmap,
+        bitmap_button,
+        border_sizer,
+        box,
+        button,
+        check_box,
+        check_list,
+        color_dialog,
+        combo_box,
+        control_item_mixin,
+        control_mixin,
+        data_control_mixin,
+        date_text_box,
+        dialog,
+        dialogs,
+        dock_form,
+        dropdown_list,
+        edit_box,
+        editable_list,
+        editor,
+        file_dialog,
+        font,
+        font_dialog,
+        form,
+        form_main,
+        form_mixin,
+        gauge,
+        grid,
+        grid_renderers,
+        grid_sizer,
+        html_box,
+        hyper_link,
+        image,
+        image_mixin,
+        label,
+        led,
+        line,
+        list_box,
+        list_control,
+        masked_text_box,
+        media_control,
+        menu,
+        menu_bar,
+        menu_item,
+        message_box,
+        object_inspector,
+        page,
+        page_frame,
+        page_frame_mixin,
+        page_frame_no_tabs,
+        panel,
+        pem_mixin,
+        radio_list,
+        shell,
+        sizer,
+        sizer_mixin,
+        slide_panel_control,
+        slider,
+        spinner,
+        split_form,
+        splitter,
+        status_bar,
+        text_box,
+        text_box_mixin,
+        timer,
+        toggle_button,
+        tool_bar,
+        tree_view,
+        ui_calendar,
+    )
     from . import keys as dKeys
     from . import ui_cursors as dUICursors
-
-    from . import pem_mixin
-    from . import control_mixin
-    from . import data_control_mixin
-    from . import control_item_mixin
-    from . import status_bar
-    from . import menu_item
-    from . import menu
-    from . import menu_bar
-    from . import base_menu_bar
-    from . import tool_bar
-    from . import form_mixin
-    from . import button
-    from . import box
-    from . import check_list
-    from . import check_box
-    from . import combo_box
-    from . import html_box
-    from . import line
-    from . import list_box
-    from . import list_control
-    from . import dropdown_list
-    from . import alignment_mixin
-    from . import font
-    from . import gauge
-    from . import radio_list
-    from . import sizer_mixin
-    from . import grid_sizer
-    from . import sizer
-    from . import panel
-    from . import label
-    from . import hyper_link
-    from . import led
-    from . import slider
-    from . import timer
-    from . import text_box_mixin
-    from . import text_box
-    from . import tree_view
-    from . import date_text_box
-    from . import masked_text_box
-    from . import edit_box
-    from . import editable_list
-    from . import editor
-    from . import spinner
-    from . import form
-    from . import form_main
-    from . import message_box
-    from . import grid
-    from . import slide_panel_control
-    from . import border_sizer
-    from . import splitter
-    from . import split_form
-    from . import image_mixin
-    from . import image
-    from . import media_control
-    from . import toggle_button
-    from . import bitmap
-    from . import bitmap_button
-    from . import dialog
-    from . import color_dialog
-    from . import file_dialog
-    from . import font_dialog
-    from . import page
-    from . import page_frame_mixin
-    from . import page_frame
-    from . import page_frame_no_tabs
-    from . import shell
-    from . import ui_calendar
-    from . import dialogs
-    from . import grid_renderers
-
-    from . import object_inspector
-    from . import dock_form
-    from .dialogs import About
-    from .dialogs import DlgInfoMessage
-    from .dialogs import HotKeyEditor
-    from .dialogs import HtmlAbout
-    from .dialogs import Login
-    from .dialogs import PreferenceDialog
-    from .dialogs import SortingForm
-    from .dialogs import Wizard
-    from .dialogs import WizardPage
+    from .dialogs import (
+        About,
+        DlgInfoMessage,
+        HotKeyEditor,
+        HtmlAbout,
+        Login,
+        PreferenceDialog,
+        SortingForm,
+        Wizard,
+        WizardPage,
+    )
 
 
 def deadCheck(fn, *args, **kwargs):
@@ -226,7 +226,7 @@ def deadCheck(fn, *args, **kwargs):
     def deadCheckFunc(self, *args, **kwargs):
         if not self:
             # For testing, uncomment the print line below:
-            print("FOUND DEAD OBJECT")
+            print("FOUND DEAD OBJECT", args, kwargs)
             return
         return fn(self, *args, **kwargs)
 
@@ -601,9 +601,9 @@ def discontinueEvent(evt):
 
 
 def getEventData(wxEvt):
-    from . import dMenu
-    from . import dTreeView
     import wx.grid
+
+    from . import dMenu, dTreeView
 
     ed = {}
     eventType = wxEvt.GetEventType()

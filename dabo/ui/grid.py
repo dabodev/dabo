@@ -1,50 +1,43 @@
 # -*- coding: utf-8 -*-
-from decimal import Decimal
-from decimal import InvalidOperation
-from functools import reduce
 import copy
 import datetime
 import locale
 import operator
 import re
-import six
 import sys
 import time
 import warnings
+from decimal import Decimal, InvalidOperation
+from functools import reduce
 
+import six
 import wx
 import wx.grid
 from wx._core import PyAssertionError
 
-from .. import ui
-from .. import events
-from .. import application
-from .. import settings
-from .. import dException
-from .. import biz
-from .. import dColors
-from .. import db
+from .. import application, biz, db, dColors, dException, events, settings, ui
+from ..dBug import loggit
 from ..dLocalize import _, n_
-from ..lib.utils import ustr
 from ..dObject import dObject
 from ..lib import dates
-from ..lib.utils import noneSortKey, caseInsensitiveSortKey
-from ..dBug import loggit
-from . import dButton
-from . import dCheckBox
-from . import dControlMixin
-from . import dDropdownList
-from . import dFont
-from . import dForm
-from . import dGridSizer
-from . import dKeys
-from . import dMenu
-from . import dPemMixin
-from . import dRadioList
-from . import dTextBox
-from . import dTimer
-from . import dUICursors
-from . import makeDynamicProperty
+from ..lib.utils import caseInsensitiveSortKey, noneSortKey, ustr
+from . import (
+    dButton,
+    dCheckBox,
+    dControlMixin,
+    dDropdownList,
+    dFont,
+    dForm,
+    dGridSizer,
+    dKeys,
+    dMenu,
+    dPemMixin,
+    dRadioList,
+    dTextBox,
+    dTimer,
+    dUICursors,
+    makeDynamicProperty,
+)
 
 dabo_module = settings.get_dabo_package()
 
@@ -2175,9 +2168,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__onWxGridCellMouseLeftDoubleClick)
         # self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onWxGridCellMouseLeftClick)
         # self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxGridCellMouseRightClick)
-        self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
+        self.Bind(wx.grid.EVT_GRID_CMD_ROW_SIZE, self.__onWxGridRowSize)
         self.Bind(wx.grid.EVT_GRID_SELECT_CELL, self.__onWxGridSelectCell)
-        self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxGridColSize)
+        self.Bind(wx.grid.EVT_GRID_CMD_COL_SIZE, self.__onWxGridColSize)
         self.Bind(wx.grid.EVT_GRID_EDITOR_CREATED, self.__onWxGridEditorCreated)
         self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
         self.Bind(wx.grid.EVT_GRID_EDITOR_HIDDEN, self.__onWxGridEditorHidden)
@@ -2992,16 +2985,17 @@ class dGrid(dControlMixin, wx.grid.Grid):
             elif av == "Center":
                 y = top + (ht / 2) + (tht / 2) - yadj
 
-            txt = self.drawText(
-                "%s" % colObj.Caption,
-                x,
-                y,
-                foreColor=fcolor,
-                backColor=bcolor,
-                angle=textAngle,
-                dc=dc,
-                useDefaults=True,
-            )
+            #             txt = self.drawText(
+            #                 "%s" % colObj.Caption,
+            #                 x,
+            #                 y,
+            #                 foreColor=fcolor,
+            #                 backColor=bcolor,
+            #                 angle=textAngle,
+            #                 dc=dc,
+            #                 useDefaults=True,
+            #             )
+            dc.DrawText(colObj.Caption, round(x), round(y))
             dc.DestroyClippingRegion()
         if self.AutoAdjustHeaderHeight:
             self.fitHeaderHeight()
@@ -3262,9 +3256,6 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def runIncSearch(self):
         """Run the incremental search."""
-        import pudb
-
-        pudb.set_trace()
         gridCol = self.CurrentColumn
         if gridCol < 0:
             gridCol = 0
@@ -4096,7 +4087,21 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self._lastHeaderMousePosition = evt.EventData["mousePosition"]
         self._headerDragging = False
         self._headerSizing = False
-        evt.Continue = False
+
+        if self.SelectionMode == "Cell":
+            # Save the selection
+            tl = self.GetSelectionBlockTopLeft()
+            br = self.GetSelectionBlockBottomRight()
+            # Need to convert these grid references to tuples
+            tl_tuple = tuple([(elem.Row, elem.Col) for elem in tl])
+            br_tuple = tuple([(elem.Row, elem.Col) for elem in br])
+            ui.callAfter(self._restore_cell_selection, tl_tuple, br_tuple)
+
+    def _restore_cell_selection(self, tl, br):
+        self.ClearSelection()
+        self.SelectionMode = "Cell"
+        for pos in range(len(tl)):
+            self.SelectBlock(tl[pos][0], tl[pos][1], br[pos][0], br[pos][1], addToSelected=True)
 
     def _onGridMouseLeftClick(self, evt):
         self.ShowCellEditControl()

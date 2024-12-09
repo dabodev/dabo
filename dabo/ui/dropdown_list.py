@@ -2,8 +2,8 @@
 import wx
 
 from .. import ui
-from . import dControlItemMixin
 from ..dLocalize import _
+from . import dControlItemMixin
 
 
 class dDropdownList(dControlItemMixin, wx.Choice):

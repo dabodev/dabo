@@ -4,10 +4,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 # dCheckBox = dabo.import_ui_name("dCheckBox")
-
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
+from dabo.ui import dLabel, dPanel, dSizer
 
 dCheckBox = dabo.ui.dCheckBox
 

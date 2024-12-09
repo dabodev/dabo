@@ -26,8 +26,8 @@ import dabo.ui
 
 dabo.ui.loadUI("wx")
 
-import db
 import biz
+import db
 import lib
 import ui
 

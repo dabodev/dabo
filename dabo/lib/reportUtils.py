@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
-import subprocess
-import tempfile
 import datetime
+import os
+import subprocess
+import sys
+import tempfile
 from decimal import Decimal
 
 # If gsprint is available, use it for printing:

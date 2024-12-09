@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-import sys
 import os
+import sys
 import traceback
+
 import wx
+
 from dabo import dEvents as dEvents
 from dabo import ui as dui
 from dabo.dLocalize import _
 from dabo.lib import reportUtils
-from . import PageFrame
-from . import Page
-from . import Grid
+
+from . import Grid, Page, PageFrame
 
 # See if the reporting libraries are present
 _has_reporting_libs = True

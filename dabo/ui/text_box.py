@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import re
 import datetime
+import re
 
 import wx
 
@@ -31,6 +31,7 @@ ui.dTextBox = dTextBox
 
 if __name__ == "__main__":
     import datetime
+
     from . import test
 
     # This test sets up several textboxes, each editing different data types.

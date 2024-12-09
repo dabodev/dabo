@@ -5,10 +5,9 @@ Intent: Have a playground with accessible wx.lib.inspection.InspectionTool for
 """
 
 import wx
-from dabo.ui import dMenu
-from dabo.ui import dMenuBar
-from dabo.ui import dMenuItem
+
 from dabo.dLocalize import _
+from dabo.ui import dMenu, dMenuBar, dMenuItem
 
 
 class MenuBar(dMenuBar):
@@ -214,9 +213,10 @@ class MyDaboMenu(dMenu):
 
 
 def main():
+    from wx.lib.inspection import InspectionTool
+
     import dabo
     from dabo.ui import dForm
-    from wx.lib.inspection import InspectionTool
 
     app = dabo.dApp()
     app.MainFormClass = None
@@ -236,8 +236,7 @@ def main():
 
 
 def setupTestMenuBar(frame):
-    from dabo.ui import dMenu
-    from dabo.ui import dMenuItem
+    from dabo.ui import dMenu, dMenuItem
 
     mb = MenuBar()
 

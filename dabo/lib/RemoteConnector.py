@@ -1,27 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
-import urllib.parse
 import json
-import sys
 import os
-import re
 import pickle
+import re
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+from io import StringIO
 from os.path import join as pathjoin
 from zipfile import ZipFile
-from io import StringIO
 
-from .. import dException
-from .. import application
-from .. import settings
+from .. import application, dException, settings
 from ..application import dApp
-from ..dObject import dObject
 from ..dLocalize import _
+from ..dObject import dObject
 from . import utils
-from .utils import ustr
 from .manifest import Manifest
-
+from .utils import ustr
 
 dabo_module = settings.get_dabo_package()
 

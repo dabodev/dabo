@@ -31,13 +31,14 @@ some rows from a backend database in a script. Here's an example of that::
 import datetime
 from decimal import Decimal
 
-from .dConnection import dConnection
-from .dCursorMixin import dCursorMixin
-from .dConnectInfo import dConnectInfo
-from .dTable import dTable
-from .dDataSet import dDataSet
 import dabo
 from dabo.dException import FieldNotFoundException
+
+from .dConnectInfo import dConnectInfo
+from .dConnection import dConnection
+from .dCursorMixin import dCursorMixin
+from .dDataSet import dDataSet
+from .dTable import dTable
 
 daboTypes = {
     "C": str,  ## text

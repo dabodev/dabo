@@ -1,21 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import io
 import imghdr
+import io
 import os
 
 import wx
 
-from .. import ui
-from .. import events
-from .. import settings
+from .. import events, settings, ui
 from ..dLocalize import _
 from ..lib import utils
-from . import makeDynamicProperty
-from . import dDataControlMixin
-from . import dForm
-from . import dImageMixin
+from . import dDataControlMixin, dForm, dImageMixin, makeDynamicProperty
 
 # See if PIL is installed
 _USE_PIL = True

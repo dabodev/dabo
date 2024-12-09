@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import ui
-from .. import events
-from .. import application
-from .. import settings
-from ..dObject import dObject
+from .. import application, events, settings, ui
 from ..dLocalize import _
+from ..dObject import dObject
 from ..lib.utils import ustr
 from . import makeDynamicProperty
 

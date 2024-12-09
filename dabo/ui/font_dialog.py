@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import ui
-from .. import dConstants
+from .. import dConstants, ui
 
 
 class dFontDialog(wx.FontDialog):

@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-from .. import biz
-from .. import events
-from .. import application
-from .. import settings
-from .. import dException
-from .. import ui
+from .. import application, biz, dException, events, settings, ui
 from ..dLocalize import _
 from ..dObject import dObject
 from ..dPref import dPref

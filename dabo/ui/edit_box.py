@@ -3,8 +3,7 @@ import wx
 
 from .. import ui
 from ..dLocalize import _
-from . import dTextBoxMixin
-from . import makeDynamicProperty
+from . import dTextBoxMixin, makeDynamicProperty
 
 
 # The EditBox is just a TextBox with some additional styles.

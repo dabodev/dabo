@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import datetime
 import decimal
+
 import dabo
-from dabo.dLocalize import _
-from .dBackend import dBackend
 import dabo.dException as dException
-from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
+from dabo.dLocalize import _
 from dabo.lib.utils import ustr
+
+from .dBackend import dBackend
 from .dCursorMixin import dCursorMixin
+from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 
 
 class MySQLAutoReconnectCursor(dCursorMixin):
@@ -47,8 +49,7 @@ class MySQL(dBackend):
 
         kwargs = {}
         # pymysql doesn't provide decimal converter by default, so we do it here
-        from pymysql import converters
-        from pymysql import constants
+        from pymysql import constants, converters
 
         DECIMAL = constants.FIELD_TYPE.DECIMAL
         conversions = converters.conversions.copy()

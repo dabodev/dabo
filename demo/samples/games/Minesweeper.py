@@ -20,21 +20,18 @@ import datetime
 import random
 
 import dabo
-import dabo.db
 import dabo.biz
-import dabo.ui
+import dabo.db
+import dabo.dEvents as dEvents
 import dabo.lib.StopWatch as StopWatch
+import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
-from dabo.lib.utils import ustr
-import dabo.dEvents as dEvents
 
 # import dabo.lib.datanav as datanav
 from dabo.lib import specParser
-
-from dabo.ui import dPanel
-from dabo.ui import dForm
-
+from dabo.lib.utils import ustr
+from dabo.ui import dForm, dPanel
 
 # Dabo MineSweeper
 # This is a demo of Dabo's UI - no bizobj or database layer.

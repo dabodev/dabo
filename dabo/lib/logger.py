@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-import sys, os, time
-from dabo.dObject import dObject
+import os
+import sys
+import time
+
 from dabo.dLocalize import _
+from dabo.dObject import dObject
 from dabo.lib.utils import ustr
 
 

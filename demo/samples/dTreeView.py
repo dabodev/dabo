@@ -1,16 +1,9 @@
 # -*- coding: utf-8 -*-
 import dabo
-import dabo.ui
 import dabo.dEvents as dEvents
+import dabo.ui
 from dabo.dLocalize import _
-
-
-from dabo.ui import dMenu
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dCheckBox
-from dabo.ui import dTreeView
-from dabo.ui import dButton
+from dabo.ui import dButton, dCheckBox, dMenu, dPanel, dSizer, dTreeView
 
 dTreeView = dabo.ui.dTreeView
 

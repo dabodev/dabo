@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 import dabo
-import dabo.ui
 import dabo.dEvents as dEvents
+import dabo.ui
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-
-
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dCheckBox
-from dabo.ui import dDropdownList
-from dabo.ui import dGridSizer
-from dabo.ui import dBorderSizer
-from dabo.ui import dSpinner
+from dabo.ui import (
+    dBorderSizer,
+    dCheckBox,
+    dDropdownList,
+    dGridSizer,
+    dLabel,
+    dPanel,
+    dSizer,
+    dSpinner,
+)
 
 dPageStyled = dabo.ui.dPageStyled
 

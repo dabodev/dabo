@@ -9,7 +9,6 @@ import warnings
 
 from . import settings
 
-
 _defaultLanguage, _defaultEncoding = locale.getdefaultlocale()
 
 if _defaultLanguage is None:

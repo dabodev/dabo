@@ -4,21 +4,10 @@ import sys
 
 import wx
 
-from .. import dColors
-from .. import lib
-from .. import ui
-from .. import events
-from .. import settings
+from .. import dColors, events, lib, settings, ui
 from ..dLocalize import _
 from ..lib.utils import ustr
-from . import dPageFrameMixin
-from . import dPage
-from . import dCheckBox
-from . import dCheckBox
-from . import dCheckBox
-from . import dLabel
-from . import dDropdownList
-from . import dSizer
+from . import dCheckBox, dDropdownList, dLabel, dPage, dPageFrameMixin, dSizer
 
 dabo_module = settings.get_dabo_package()
 

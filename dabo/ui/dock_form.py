@@ -4,18 +4,9 @@ import wx.lib.agw.aui as aui
 
 PaneInfo = aui.AuiPaneInfo
 
+from .. import events, settings, ui
 from ..dLocalize import _
-from .. import events
-from .. import settings
-from .. import ui
-from . import dButton
-from . import dCheckBox
-from . import dForm
-from . import dPanel
-from . import dShellForm
-from . import dSizer
-from . import dStatusBar
-from . import makeDynamicProperty
+from . import dButton, dCheckBox, dForm, dPanel, dShellForm, dSizer, dStatusBar, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

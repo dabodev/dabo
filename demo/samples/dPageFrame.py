@@ -1,17 +1,9 @@
 # -*- coding: utf-8 -*-
 import dabo
-import dabo.ui
 import dabo.dEvents as dEvents
+import dabo.ui
 from dabo.dLocalize import _
-
-
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-
-from dabo.ui import dDropdownList
-from dabo.ui import dGridSizer
-from dabo.ui import dBorderSizer
+from dabo.ui import dBorderSizer, dDropdownList, dGridSizer, dLabel, dPanel, dSizer
 
 dPageFrame = dabo.ui.dPageFrame
 

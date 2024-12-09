@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import os
+import random
+import time
+
 import dabo
 import dabo.biz as biz
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
-import random
-import time
-import os
 
 
 class BubbleBizobj(biz.dBizobj):

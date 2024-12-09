@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import dabo.ui
-import dabo.icons
 import glob
 import os
-from distutils.core import setup
+
 import py2exe
+from distutils.core import setup
+
+import dabo.icons
+import dabo.ui
 
 # Find the location of the dabo icons:
 iconDir = os.path.split(dabo.icons.__file__)[0]

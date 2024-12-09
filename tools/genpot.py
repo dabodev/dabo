@@ -1,6 +1,7 @@
 """This script scans project directories and generates the .pot files needed for localization."""
 
 import os
+
 import popen2
 
 

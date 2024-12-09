@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from .. import ui
-from .. import events
+from .. import events, ui
 from ..dLocalize import _
-from . import makeDynamicProperty
+from . import dPanel, makeDynamicProperty
 from . import dPemMixin as PM
-from . import dPanel
 
 
 class dTimer(PM):

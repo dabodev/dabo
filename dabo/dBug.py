@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+import inspect
 import os
 import sys
 import time
-import inspect
 from io import StringIO
 
 from . import settings

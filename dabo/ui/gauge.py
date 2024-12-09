@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import ui
+from .. import events, ui
 from ..dLocalize import _
-from . import makeDynamicProperty
-from . import dControlMixin
-from .. import events
+from . import dControlMixin, makeDynamicProperty
 
 
 class dGauge(dControlMixin, wx.Gauge):

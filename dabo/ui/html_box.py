@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
+import datetime
 import os
 import re
 import string
 import types
-import urllib.request, urllib.error, urllib.parse
+import urllib.error
 import urllib.parse
-import datetime
+import urllib.request
 
 import wx.html
 
-from .. import ui
-from .. import events
+from .. import events, ui
 from ..dLocalize import _
-from . import makeDynamicProperty
-from . import dControlMixin
+from . import dControlMixin, makeDynamicProperty
 
 try:
     import webbrowser as wb

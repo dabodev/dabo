@@ -2,20 +2,20 @@
 import time
 
 import dabo
-import dabo.ui
 import dabo.dEvents as dEvents
+import dabo.ui
 from dabo.dApp import dApp
 from dabo.dLocalize import _
 from dabo.lib.utils import ustr
 from dabo.ui import dForm
 
 if __name__ == "__main__":
-    from BubblePanel import BubblePanel
     from BubbleBizobj import BubbleBizobj
+    from BubblePanel import BubblePanel
     from StatsForm import StatsForm
 else:
-    from .BubblePanel import BubblePanel
     from .BubbleBizobj import BubbleBizobj
+    from .BubblePanel import BubblePanel
     from .StatsForm import StatsForm
 
 

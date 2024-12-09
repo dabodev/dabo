@@ -9,15 +9,14 @@ This was copied and modified from John Bair's recipe at aspn.activestate.com:
 import codecs
 import locale
 import os
-import six
 import string
 from xml.parsers import expat
 
-from .. import settings
-from .. import dException
+import six
+
+from .. import dException, settings
 from ..dLocalize import _
-from .utils import resolvePath
-from .utils import ustr
+from .utils import resolvePath, ustr
 
 default_encoding = settings.getEncoding()
 # Normalize the names, as xml.sax running on Gtk will complain for some variations

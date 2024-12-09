@@ -26,13 +26,11 @@ namespace at runtime, eg::
 
 import functools
 import importlib
-
 import locale
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
-
 
 ### Settings - begin
 

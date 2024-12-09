@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from ..dLocalize import _
 from .. import ui
+from ..dLocalize import _
 from . import dControlItemMixin
 
 

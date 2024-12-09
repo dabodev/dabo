@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 from ... import ui
 from ...dLocalize import _
-from .. import dBitmapButton
-from .. import dButton
-from .. import dCheckBox
-from .. import dColumn
-from .. import dDialog
-from .. import dGrid
-from .. import dLabel
-from .. import dMenu
-from .. import dPanel
-from .. import dSizer
-from .. import dStandardButtonDialog
+from .. import (
+    dBitmapButton,
+    dButton,
+    dCheckBox,
+    dColumn,
+    dDialog,
+    dGrid,
+    dLabel,
+    dMenu,
+    dPanel,
+    dSizer,
+    dStandardButtonDialog,
+)
 
 
 class LblMessage(dLabel):

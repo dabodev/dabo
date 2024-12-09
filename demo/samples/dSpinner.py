@@ -1,18 +1,9 @@
 # -*- coding: utf-8 -*-
 import dabo
-import dabo.ui
 import dabo.dEvents as dEvents
+import dabo.ui
 from dabo.dLocalize import _
-
-
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dButton
-from dabo.ui import dCheckBox
-from dabo.ui import dSpinner
-from dabo.ui import dGridSizer
-from dabo.ui import dTextBox
+from dabo.ui import dButton, dCheckBox, dGridSizer, dLabel, dPanel, dSizer, dSpinner, dTextBox
 
 dSpinner = dabo.ui.dSpinner
 

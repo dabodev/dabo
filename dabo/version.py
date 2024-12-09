@@ -1,6 +1,5 @@
-from pathlib import Path
-
 import tomllib as toml
+from pathlib import Path
 
 
 def get_version():

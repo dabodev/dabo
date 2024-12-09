@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
-from decimal import Decimal as decimal
 import locale
 import operator
 import sys
+from decimal import Decimal as decimal
 
 import wx
 
-from .. import ui
-from .. import events
-from .. import settings
+from .. import events, settings, ui
 from ..dLocalize import _
 from ..lib.utils import ustr
-from . import dDataControlMixin
-from . import dDataPanel
-from . import dKeys
-from . import dSizer
-from . import dTextBox
-from . import makeDynamicProperty
-from . import makeProxyProperty
+from . import (
+    dDataControlMixin,
+    dDataPanel,
+    dKeys,
+    dSizer,
+    dTextBox,
+    makeDynamicProperty,
+    makeProxyProperty,
+)
 
 dabo_module = settings.get_dabo_package()
 

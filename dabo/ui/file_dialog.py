@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import application
-from .. import ui
-from .. import dConstants
+from .. import application, dConstants, ui
 from ..dLocalize import _
 
 

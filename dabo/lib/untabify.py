@@ -3,9 +3,9 @@
 
 """Replace tabs with spaces in argument files.  Print names of changed files."""
 
+import getopt
 import os
 import sys
-import getopt
 
 
 def main():

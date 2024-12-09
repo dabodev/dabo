@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-import dabo
-import dabo.ui
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _
-from dabo.ui import makeProxyProperty
 import random
-from dabo.ui import dPanel
+
+import dabo
+import dabo.dEvents as dEvents
+import dabo.ui
+from dabo.dLocalize import _
+from dabo.ui import dPanel, makeProxyProperty
 
 
 class BubblePanel(dPanel):

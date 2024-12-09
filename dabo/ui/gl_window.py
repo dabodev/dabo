@@ -2,11 +2,9 @@
 import wx
 from wx import glcanvas
 
-from .. import application
-from .. import ui
+from .. import application, ui
 from ..dLocalize import _
-from . import dControlMixin
-from . import makeDynamicProperty
+from . import dControlMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

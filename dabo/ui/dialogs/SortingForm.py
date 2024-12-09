@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
+from ... import events, ui
 from ...dLocalize import _
 from .. import dOkCancelDialog
-from ... import events
-from ... import ui
 
 
 class SortingForm(dOkCancelDialog):

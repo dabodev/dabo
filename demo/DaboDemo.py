@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
 import os
 import platform
+import sys
+
 import dabo
 from dabo.dApp import dApp
 

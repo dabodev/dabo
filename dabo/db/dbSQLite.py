@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
 import re
-import six
 import sys
 
-from .. import application
-from .. import settings
+import six
+
+from .. import application, settings
+from ..dException import DBFileDoesNotExistException, dException
 from ..dLocalize import _
-from ..dException import dException, DBFileDoesNotExistException
-from .dBackend import dBackend
-from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
-from .dCursorMixin import dCursorMixin
 from ..lib.utils import ustr
+from .dBackend import dBackend
+from .dCursorMixin import dCursorMixin
+from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 
 dabo_module = settings.get_dabo_package()
 

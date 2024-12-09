@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-import sys, os, os.path
-from . import serialization
-from . import report
+import os
+import os.path
+import sys
+
+from . import report, serialization
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

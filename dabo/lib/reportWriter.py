@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 import copy
 import datetime
-import locale
-import sys
-import os
-
 import decimal
+import locale
+import os
+import sys
 
 Decimal = decimal.Decimal
 
+from .. import application, settings
 from ..dLocalize import _
 from ..lib.dates import getStringFromDate
-from .. import settings
-from .. import application
 
 ######################################################
 # Very first thing: check for required libraries:
@@ -50,24 +48,24 @@ del _failedLibs
 #######################################################
 
 import io
-import reportlab.pdfgen.canvas as canvas
+
 import reportlab.graphics.shapes as shapes
 import reportlab.lib.pagesizes as pagesizes
-import reportlab.lib.units as units
 import reportlab.lib.styles as styles
+import reportlab.lib.units as units
+import reportlab.pdfgen.canvas as canvas
 import reportlab.platypus as platypus
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase.pdfmetrics import getRegisteredFontNames, registerFont
+from reportlab.pdfbase.ttfonts import TTFError, TTFont
+from reportlab.rl_config import TTFSearchPath
 
 # import reportlab.lib.colors as colors
 from ..settings import getEncoding
-from .xmltodict import xmltodict
-from .xmltodict import dicttoxml
-from .caselessDict import CaselessDict
-from reportlab.lib.utils import ImageReader
-from .utils import ustr, resolvePathAndUpdate
-from reportlab.pdfbase.pdfmetrics import registerFont, getRegisteredFontNames
-from reportlab.pdfbase.ttfonts import TTFont, TTFError
-from reportlab.rl_config import TTFSearchPath
 from . import reportUtils
+from .caselessDict import CaselessDict
+from .utils import resolvePathAndUpdate, ustr
+from .xmltodict import dicttoxml, xmltodict
 
 # The below block tried to use the experimental para.Paragraph which
 # handles more html tags, including hyperlinks. However, I couldn't
@@ -3074,7 +3072,9 @@ class ReportWriter(object):
 
     def _getUniqueName(self):
         """Returns a name that should be unique, but it doesn't check to make sure."""
-        import time, hashlib, random
+        import hashlib
+        import random
+        import time
 
         t1 = time.time()
         t2 = t1 + random.random()

@@ -3,6 +3,7 @@ containing translation data on dabodev.com.
 """
 
 import os
+
 import popen2
 import pymysql
 

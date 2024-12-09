@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from ... import ui
-from ... import events
-from .. import dKeys
-from .. import dOkCancelDialog
+from ... import events, ui
 from ...dLocalize import _
+from .. import dKeys, dOkCancelDialog
 
 
 class HotKeyEditor(dOkCancelDialog):

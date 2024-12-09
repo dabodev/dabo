@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
+import os.path
 import sys
 import xml.sax
 from io import StringIO
-import os.path
 
-from .. import application
-from .. import settings
-from . import utils
+from .. import application, settings
 from ..dLocalize import _
+from . import utils
 
 # Tuple containing all file-based database types.
 FILE_DATABASES = ("sqlite",)

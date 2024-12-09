@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+
 from dabo.dLocalize import _
+from dabo.lib.RemoteConnector import RemoteConnector
+
 from .dBackend import dBackend
 from .dbSQLite import SQLite
-from dabo.lib.RemoteConnector import RemoteConnector
 
 
 class Web(SQLite):

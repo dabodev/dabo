@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from pathlib import Path
-import random
 import os
+import random
+from pathlib import Path
 
 import dabo
 import dabo.ui
@@ -10,15 +10,14 @@ from dabo.dApp import dApp
 from dabo.dLocalize import _
 
 if __name__ == "__main__":
-    import demo
     import cardlib
+
+    import demo
 else:
     from . import cardlib
 
 
-from dabo.ui import dTimer
-from dabo.ui import dPanel
-from dabo.ui import dForm
+from dabo.ui import dForm, dPanel, dTimer
 
 
 class MontanaDeck(cardlib.PokerDeck):

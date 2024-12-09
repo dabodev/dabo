@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
-import dabo
-import dabo.ui
-import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 import datetime
 
-
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dColumn
-from dabo.ui import dGridSizer
-from dabo.ui import dRadioList
-from dabo.ui import dButton
-from dabo.ui import dSpinner
-from dabo.ui import dLine
-from dabo.ui import dCheckBox
+import dabo
+import dabo.dEvents as dEvents
+import dabo.ui
+from dabo.dLocalize import _
+from dabo.ui import (
+    dButton,
+    dCheckBox,
+    dColumn,
+    dGridSizer,
+    dLabel,
+    dLine,
+    dPanel,
+    dRadioList,
+    dSizer,
+    dSpinner,
+)
 
 dGrid = dabo.ui.dGrid
 

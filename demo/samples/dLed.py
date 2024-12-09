@@ -2,16 +2,16 @@
 import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-
-
-from dabo.ui import dLabel
-from dabo.ui import dPanel
-from dabo.ui import dSizer
-from dabo.ui import dLed
-from dabo.ui import dDropdownList
-from dabo.ui import dGridSizer
-from dabo.ui import dBorderSizer
-from dabo.ui import dToggleButton
+from dabo.ui import (
+    dBorderSizer,
+    dDropdownList,
+    dGridSizer,
+    dLabel,
+    dLed,
+    dPanel,
+    dSizer,
+    dToggleButton,
+)
 
 dLed = dabo.ui.dLed
 
