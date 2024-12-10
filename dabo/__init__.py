@@ -43,10 +43,6 @@ def makeDaboDirectories(homedir=None):
         os.chdir(curr_loc)
 
 
-# Ensure that the minimal structure is present
-makeDaboDirectories()
-
-
 def _load_base_modules():
     from . import dConstants, dException, dObject, events
 
