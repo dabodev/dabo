@@ -279,8 +279,8 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self._showWhiteSpace = False
         self._useStyleTimer = False
         self._tabWidth = 4
-        self._useTabs = True
-        self._backSpaceUnindents = False
+        self._useTabs = False
+        self._backSpaceUnindents = True
         self._showCallTips = True
         self._codeCompletion = True
         self._syntaxColoring = True
@@ -2805,7 +2805,7 @@ Do you want to overwrite it?"""
         None,
         _(
             "Indentation will only use space characters if useTabs is False; if True, it will "
-            "use a combination of tabs and spaces (default=True)  (bool)"
+            "use a combination of tabs and spaces (default=False)  (bool)"
         ),
     )
 
@@ -2816,7 +2816,7 @@ Do you want to overwrite it?"""
         _(
             "If set True then backspace, when in indentation, will go back TabWidth positions; "
             "if set False then backspace will go back only one position. If UseTabs is True this "
-            "should be set to False. (default=False)  (bool)"
+            "should be set to False. (default=True)  (bool)"
         ),
     )
 
