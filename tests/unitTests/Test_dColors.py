@@ -183,7 +183,7 @@ class TestTupleHexConversion(unittest.TestCase):
         self.assertRaises(dColors.InvalidCharError, dColors.colorTupleFromHex, "#$%uidkxb")
 
     def testHexToTupleCaseInsensitive(self):
-        """colorTupleFromHex should accept and give same result for both upper and lowercase input"""
+        """The method should accept and give same result for both upper and lowercase input"""
         lower = dColors.colorTupleFromHex("abcdef123")
         upper = dColors.colorTupleFromHex("ABCDEF123")
         self.assertEqual(lower, upper)
@@ -206,7 +206,8 @@ class TestColorTupleFromName(unittest.TestCase):
     Class Requirements for proper behavior go here:
         - colorTupleFromName should return a valid color tuple for all valid color name inputs
         - colorTupleFromName should return a valid color tuple for all valid hex string inputs
-        - colorTupleFromName should return a valid color tuple for all valid color tuple string inputs
+        - colorTupleFromName should return a valid color tuple for all valid color tuple
+          string inputs
         - colorTupleFromName should fail when recieving an input that is not a valid color name,
           hex string input, or color tuple string
     """
@@ -229,8 +230,10 @@ class TestColorTupleFromName(unittest.TestCase):
 
     # error tests
     def testColorNameError(self):
-        """colorTupleFromName should fail when given a string that is not a valid color name, hex string,
-        or color tuple string"""
+        """
+        colorTupleFromName should fail when given a string that is not a valid color name, hex
+        string, or color tuple string
+        """
         self.assertRaises(KeyError, dColors.colorTupleFromName, "Some Invalid Color Name")
 
 
@@ -244,7 +247,8 @@ class TestColorTupleFromString(unittest.TestCase):
     Class Requirements for proper behavior go here:
         - colorTupleFromString should return a valid tuple for all valid results
         - colorTupleFromString should fail when recieving an improperly formatted string
-        - colorTupleFromString should fail when there are not three elements in tuple representation of string
+        - colorTupleFromString should fail when there are not three elements in tuple
+          representation of string
         - colorTupleFromString should fail when elements in the string are not integers
         - colorTupleFromString should fail when integer elements are not in range 0-255
     """
@@ -273,11 +277,17 @@ class TestColorTupleFromString(unittest.TestCase):
         self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 1")
 
     def testTupleTooSmall(self):
-        """colorTupleFromString should fail when the number of integer elements in the string is below 3"""
+        """
+        colorTupleFromString should fail when the number of integer elements in the string
+        is below 3
+        """
         self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1)")
 
     def testTupleTooLarge(self):
-        """colorTupleFromString should fail when the number of integer elements in the string is above 3"""
+        """
+        colorTupleFromString should fail when the number of integer elements in the string
+        is above 3
+        """
         self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 1, 1)")
 
     def testTupleNonInteger(self):

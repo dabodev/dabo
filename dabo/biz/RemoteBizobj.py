@@ -166,7 +166,8 @@ class RemoteBizobj(dBizobj):
                         if currval != oldval:
                             raise dException.WebServerException(
                                 _(
-                                    "Update Conflict: the value in column '%s' has been changed by someone else."
+                                    "Update Conflict: the value in column '%s' has been changed "
+                                    "by someone else."
                                 )
                                 % col
                             )

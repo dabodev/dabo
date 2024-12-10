@@ -119,7 +119,8 @@ class HotKeyEditor(dOkCancelDialog):
         None,
         None,
         _(
-            "Returns True only if the current key is different than the starting value. (read-only) (bool)"
+            "Returns True only if the current key is different than the starting value. "
+            "(read-only) (bool)"
         ),
     )
 
@@ -128,7 +129,8 @@ class HotKeyEditor(dOkCancelDialog):
         None,
         None,
         _(
-            "Reflects the presence of the Ctrl key in the selected key combo. Default=False. (read-only) (bool)"
+            "Reflects the presence of the Ctrl key in the selected key combo. Default=False. "
+            "(read-only) (bool)"
         ),
     )
 
@@ -158,6 +160,7 @@ class HotKeyEditor(dOkCancelDialog):
         None,
         None,
         _(
-            "Reflects the presence of the Alt key in the selected key combo. Default=False. (read-only) (bool)"
+            "Reflects the presence of the Alt key in the selected key combo. Default=False. "
+            "(read-only) (bool)"
         ),
     )

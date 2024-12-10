@@ -72,8 +72,6 @@ class Manifest(object):
                 if ext in okTypes:
                     fullPath = os.path.join(dirname, fn)
                     relativePath = os.path.join(reldir, fn)
-                    #                     modtm = datetime.datetime.fromtimestamp(os.stat(fullPath)[8])
-                    #                     ret[relativePath] = modtm.strftime(cls.dtFormat)
                     ret[relativePath] = os.stat(fullPath)[8]
         return ret
 

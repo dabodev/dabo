@@ -37,10 +37,10 @@ To run Dabo, and apps based on Dabo, you need:
    * Macintosh OSX 10.5 or higher
    * Linux 2.6 or higher with X11 running and Gtk2
 
-How you get started is pretty much up to you. There are two related projects: `dabo_demo`, which contains demonstrtion
-code for the various Dabo classes, and `dabo_`ide`, which contains tools for creating Dabo applications visually. Please
-note that the `dabo_ide` tools worked great when they were written in the mid-2000s, but have not been fully updated to
-the modern Python tools.
+How you get started is pretty much up to you. There are two related projects: `dabo_demo`, which
+contains demonstrtion code for the various Dabo classes, and `dabo_`ide`, which contains tools for
+creating Dabo applications visually. Please note that the `dabo_ide` tools worked great when they
+were written in the mid-2000s, but have not been fully updated to the modern Python tools.
 
 For some quick results for the impatient, once you've installed Dabo using the
 standard ```python setup.py install``` method, do this from your Python

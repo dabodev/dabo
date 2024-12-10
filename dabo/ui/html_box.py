@@ -259,7 +259,8 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
         None,
         None,
         _(
-            "Currently selected text. Returns the empty string if nothing is selected. Read-only  (str)"
+            "Currently selected text. Returns the empty string if nothing is selected. Read-only  "
+            "(str)"
         ),
     )
 
@@ -324,19 +325,19 @@ class _dHtmlBox_test(dHtmlBox):
                 </tr>
             </table>
         </center>
-        <p><b><font size="+2" color="#FFFFFF">dHtmlBox</font></b> is a Dabo UI widget that is designed to display html text.
-        Be careful, though, because the widget doesn't support advanced functions like
-        Javascript parsing.</p>
-        <p>It's better to think of it as a way to display <b>rich text</b> using
-        <font size="+1" color="#993300">HTML markup</font>, rather
-        than a web browser replacement, although you <i>can</i> create links that will open
-        in a web browser, like this: <a href="http://wiki.dabodev.com">Dabo Wiki</a>.</p>
+        <p><b><font size="+2" color="#FFFFFF">dHtmlBox</font></b> is a Dabo UI widget that is
+        designed to display html text.  Be careful, though, because the widget doesn't support
+        advanced functions like Javascript parsing.</p> <p>It's better to think of it as a way to
+        display <b>rich text</b> using <font size="+1" color="#993300">HTML markup</font>, rather
+        than a web browser replacement, although you <i>can</i> create links that will open in a web
+        browser, like this: <a href="http://wiki.dabodev.com">Dabo Wiki</a>.</p>
 
         <p>&nbsp;</p>
         <div align="center"><img src="daboIcon.ico"></div>
 
-        <p align="center"><b><a href="http://dabodev.com">Dabo</a></b> is brought to you by <b>Ed Leafe</b>, <b>Paul McNett</b>,
-        and others in the open source community. Copyright &copy; 2004-%s
+        <p align="center"><b><a href="http://dabodev.com">Dabo</a></b> is brought to you by <b>Ed
+        Leafe</b>, <b>Paul McNett</b>, and others in the open source community. Copyright &copy;
+        2004-%s
         </p>
         </body>
         </html>

@@ -240,7 +240,8 @@ class dCursorMixin(dObject):
                 tfv = type(field_val)
                 dabo_module.error(
                     _(
-                        f"_correctFieldType() failed for field: '{field_name}' ({func}); value: {field_val} ({tfv})"
+                        f"_correctFieldType() failed for field: '{field_name}' ({func}); "
+                        f"value: {field_val} ({tfv})"
                     )
                 )
 
@@ -290,17 +291,19 @@ class dCursorMixin(dObject):
                             continue
                         if ok:
                             # change self.Encoding and log the message
-                            ## pkm 2010-10-21: I think that mismatched encoding should be treated as exceptional,
-                            ##                 and shouldn't trigger changing the cursor Encoding which should
-                            ##                 have been set based on what the database reported (currently it is
-                            ##                 not set that way, but I hope it will be in the future). But it is
-                            ##                 nice to at least try some different common encodings if the default
-                            ##                 one doesn't work, especially since Dabo currently allows non-utf8-encoded
-                            ##                 bytes to get saved to the database.
+                            ## pkm 2010-10-21: I think that mismatched encoding should be treated
+                            ##   as exceptional, and shouldn't trigger changing the cursor
+                            ##   Encoding which should have been set based on what the database
+                            ##   reported (currently it is not set that way, but I hope it will
+                            ##   be in the future). But it is nice to at least try some different
+                            ##   common encodings if the default one doesn't work, especially
+                            ##   since Dabo currently allows non-utf8-encoded bytes to get saved
+                            ##   to the database.
                             # self.Encoding = enc
                             dabo_module.error(
                                 _(
-                                    f"Field {field_name}: Incorrect unicode encoding set; using '{enc}' instead"
+                                    f"Field {field_name}: Incorrect unicode encoding set; "
+                                    f"using '{enc}' instead"
                                 )
                             )
                             return ret
@@ -1029,11 +1032,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 if not ignore:
                     sft, stv = ustr(fldType), ustr(type(val))
                     tbl = self.Table
-                    msg = (
-                        _(
-                            "!!! Data Type Mismatch: table=%(tbl)s; field=%(fld)s. Expecting: %(sft)s; got: %(stv)s"
-                        )
-                        % locals()
+                    msg = _(
+                        f"!!! Data Type Mismatch: table={tbl}; field={fld}. Expecting: {sft}; "
+                        f"got: {stv}"
                     )
                     dabo_module.error(msg)
 

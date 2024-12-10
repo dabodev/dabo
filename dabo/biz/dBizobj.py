@@ -49,7 +49,8 @@ class dBizobj(dObject):
         # This starts as a list that will hold cursors created in the initial process
         # if RequeryOnLoad is True. This is necessary because not all of the required
         # properties will have been set at this point.
-        # It will be set to None in the _afterInit() code, to indicate that it is no longer relevant.
+        # It will be set to None in the _afterInit() code, to indicate that it is no longer
+        # relevant.
         self.__cursorsToRequery = []
         self._requeryOnLoad = self._extractKey((properties, kwargs), "RequeryOnLoad", False)
         self.setConnection(conn)
@@ -1542,14 +1543,15 @@ class dBizobj(dObject):
             for child in self._children:
                 # Let the child update to the current record:
                 child.setCurrentParent()
-                # consolidation note: 1) requeryAllChildren() checked for child.isAnyChanged();
-                #                      2) _resetChildrenParent instead checked for child.RowCount == 0
-                # I think both are wrong. In #1, you'd never get a requery of that child if there was
-                # one changed record in the hierarchy, plus there are performance issues in running
-                # that check. In #2, you'd never get a child requery unless RowCount was 0. I'm leaving
-                # both of those conditions out completely for now, although that is most certainly
-                # wrong as well, but at least we are now consistent in behavior between e.g. self.first()
-                # and self.RowNumber = 0.
+                # consolidation note:
+                #   1) requeryAllChildren() checked for child.isAnyChanged();
+                #   2) _resetChildrenParent instead checked for child.RowCount == 0
+                # I think both are wrong. In #1, you'd never get a requery of that child if there
+                # was one changed record in the hierarchy, plus there are performance issues in
+                # running that check. In #2, you'd never get a child requery unless RowCount was 0.
+                # I'm leaving both of those conditions out completely for now, although that is most
+                # certainly wrong as well, but at least we are now consistent in behavior between
+                # e.g. self.first() and self.RowNumber = 0.
                 if (
                     updateChildren
                     and child.RequeryWithParent
@@ -2510,9 +2512,9 @@ class dBizobj(dObject):
             mainDoc = "Hook method called %s %s." % (mode, action)
         if additionalDoc is None:
             if mode == "before":
-                additionalDoc = """Subclasses can put in additional code to run, and/or return a non-empty
-string to signify that the action should not happen. The contents
-of the string will be displayed to the user."""
+                additionalDoc = """Subclasses can put in additional code to run, and/or return a
+non-empty string to signify that the action should not happen. The contents of the string will be
+displayed to the user."""
             else:
                 additionalDoc = ""
 

@@ -220,14 +220,13 @@ class dControlItemMixin(dDataControlMixin):
                     except ValueError:
                         invalidSelections.append(key)
 
-            ### pkm: getBlankValue() returns None, so if there isn't a Key for None (the default) the
-            ###      update cycle will result in the ValueError, which isn't friendly default behavior.
-            ###      So, I'm making it so that None values in *any* dControlItem class will be allowed.
-            ###      We can discuss whether we should expose a property to control this behavior or not.
-            # if len(value) == 0 or (self._isMultiSelect() and invalidSelections == [None]):
+            # pkm: getBlankValue() returns None, so if there isn't a Key for None (the default) the
+            # update cycle will result in the ValueError, which isn't friendly default behavior. So
+            # I'm making it so that None values in *any* dControlItem class will be allowed. We can
+            # discuss whether we should expose a property to control this behavior or not.
             if len(value) == 0 or invalidSelections == [None]:
-                # Value being set to an empty tuple, list, or dict, or to None in a Multi-Select control,
-                # which means "nothing is selected":
+                # Value being set to an empty tuple, list, or dict, or to None in a Multi-Select
+                # control, which means "nothing is selected":
                 self._resetChoices()
                 invalidSelections = []
 
@@ -237,10 +236,9 @@ class dControlItemMixin(dDataControlMixin):
                 dataField = self.DataField
                 raise ValueError(
                     _(
-                        "Trying to set %(snm)s.Value (DataSource: '%(dataSource)s', "
-                        "DataField: '%(dataField)s') to these invalid selections: %(invalidSelections)s"
+                        f"Trying to set {sn}m.Value (DataSource: '{dataSource}', "DataField: "
+                        f"'{dataField}') to these invalid selections: {invalidSelections}"
                     )
-                    % locals()
                 )
 
         else:

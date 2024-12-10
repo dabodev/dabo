@@ -385,7 +385,8 @@ class Form(dui.dForm):
                     dui.dLabel,
                     RegID="label",
                     Caption=_(
-                        "You can customize grid appearence by selecting\nthe columns you wish to see bellow:"
+                        "You can customize grid appearence by selecting\nthe columns you wish "
+                        "to see below:"
                     ),
                     WordWrap=True,
                 )

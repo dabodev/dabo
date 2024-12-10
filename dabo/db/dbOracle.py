@@ -59,7 +59,6 @@ class Oracle(dBackend):
         return "%s%s%s" % (sqt, val, sqt)
 
     def getTables(self, cursor, includeSystemTables=False):
-        # sqlstr = "select table_name from all_tables where tablespace_name NOT IN ('SYSTEM', 'SYSAUX')"
         sqlstr = "select table_name from user_tables"
         cursor.execute(sqlstr)
         rs = cursor.getDataSet()
@@ -89,8 +88,10 @@ class Oracle(dBackend):
         except KeyError:
             pkField = None
         # Now get the field info
-        sqlstr = """SELECT column_name, data_type, COALESCE(data_precision, data_length) "LENGTH",
-                data_scale "SCALE" FROM all_tab_columns WHERE table_name = '%s' ORDER BY column_id"""
+        sqlstr = (
+            "SELECT column_name, data_type, COALESCE(data_precision, data_length) 'LENGTH', "
+            "data_scale 'SCALE' FROM all_tab_columns WHERE table_name = '%s' ORDER BY column_id"
+        )
         cursor.execute(sqlstr % tableName)
         rs = cursor.getDataSet()
         fields = []

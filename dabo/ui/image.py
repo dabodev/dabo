@@ -396,7 +396,8 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         None,
         None,
         _(
-            "Number of frames in the current image. Will be 1 for most images, but can be greater for animated GIFs, ICOs and some TIFF files. (read-only) (int)"
+            "Number of frames in the current image. Will be 1 for most images, but can be greater "
+            "for animated GIFs, ICOs and some TIFF files. (read-only) (int)"
         ),
     )
 
@@ -428,8 +429,10 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             of the following:
 
                 =============== ===================
-                Clip            Only that part of the image that fits in the control's size is displayed
-                Proportional    The image resizes to fit the control without changing its original proportions. (default)
+                Clip            Only that part of the image that fits in the control's size
+                                is displayed
+                Proportional    The image resizes to fit the control without changing its
+                                original proportions. (default)
                 Stretch         The image resizes to the Height/Width of the control.
                 =============== ===================
 

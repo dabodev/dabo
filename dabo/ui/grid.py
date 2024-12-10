@@ -1799,7 +1799,8 @@ class dColumn(wx._core.Object, dPemMixin):
         _(
             """Horizontal alignment for all cells in this column. (str)
                 Acceptable values are:
-                    'Automatic': The cell's contents will align right for numeric data, left for text. (default)
+                    'Automatic': The cell's contents will align right for numeric data,
+                                 left for text. (default)
                     'Left'
                     'Center'
                     'Right' """
@@ -1895,9 +1896,9 @@ class dColumn(wx._core.Object, dPemMixin):
         _setSortKey,
         None,
         _(
-            """Defines how this column will be sorted should a sort be issued. Must be a callable that
-            complies with the standard pythonic sort key function. See python.org's documentation for list.sort
-            more information. (callable)"""
+            """Defines how this column will be sorted should a sort be issued. Must be a callable
+            that complies with the standard pythonic sort key function. See python.org's
+            documentation for list.sort more information. (callable)"""
         ),
     )
 
@@ -2985,8 +2986,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
             elif av == "Center":
                 y = top + (ht / 2) + (tht / 2) - yadj
 
-            # Note: leaving this here. It was the old way of drawing Captions for columns, but it didn't work in the
-            # latest wxPython. 
+            # Note: leaving this here. It was the old way of drawing Captions for columns, but it
+            # didn't work in the latest wxPython.
             # txt = self.drawText(
             #     "%s" % colObj.Caption,
             #     x,
@@ -3213,11 +3214,14 @@ class dGrid(dControlMixin, wx.grid.Grid):
                     sortList.sort(key=sortKey, reverse=(sortOrder == "DESC"))
                 except TypeError as exc:
                     s = (
-                        "Unable to sort this column. Conflicting, or unknown, data types within the column make it impossible to sort implicitly. "
-                        "Please supply a sort key method to the column, via the SortKey property, to delegate sort behavior to."
+                        "Unable to sort this column. Conflicting, or unknown, data types within "
+                        "the column make it impossible to sort implicitly. Please supply a sort "
+                        "key method to the column, via the SortKey property, to delegate sort "
+                        "behavior to."
                     )
                     if colObj.SortKey is not None:
-                        # the preceding exception information will be useful for developers to debug their SortKey method
+                        # the preceding exception information will be useful for debugging
+                        # their SortKey method
                         raise TypeError(s)
                     else:
                         # There is no user provided SortKey
@@ -4080,9 +4084,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
     _onContextMenu = _onGridMouseRightClick
 
     def _onGridHeaderMouseLeftDown(self, evt):
-        # Clicking a column header will select that column, like a spreadsheet, even when SelectionMode is set to
-        # something else. Row mode seems to work correctly, but Cell mode doesn't, so this code will save the selection,
-        # and then restore it after.
+        # Clicking a column header will select that column, like a spreadsheet, even when
+        # SelectionMode is set to something else. Row mode seems to work correctly, but Cell mode
+        # doesn't, so this code will save the selection, and then restore it after.
         self._lastHeaderMousePosition = evt.EventData["mousePosition"]
         self._headerDragging = False
         self._headerSizing = False
@@ -4122,7 +4126,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 self.RowHeight = self.GetRowSize(row)
             except wx._core.PyAssertionError:
                 # pkm: I don't understand how it could have gotten this far, but
-                #       I got an error report that the c++ assertion row>=0 && row<m_numrows failed.
+                #      I got an error report that the c++ assertion row>=0 && row<m_numrows failed.
                 pass
 
     def _onGridCellSelected(self, evt):
@@ -4454,7 +4458,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
     def __onWxGridEditorShown(self, evt):
         self.raiseEvent(events.GridCellEditBegin, evt)
 
-        # Need to reapply the edit controls dynamic properties. (Be careful to not inflate the editors refcount)
+        # Need to reapply the edit controls dynamic properties. (Be careful to not inflate the
+        # editors refcount)
         editor = self.GetCellEditor(evt.GetRow(), evt.GetCol())
         ctrl = editor.GetControl()
         editor.DecRef()
@@ -5858,15 +5863,6 @@ ui.dGrid = dGrid
 class _dGrid_test(dGrid):
     def initProperties(self):
         thisYear = datetime.datetime.now().year
-        # ds = [
-        # {"name" : "Ed Leafe", "age" : thisYear - 1957, "coder" :  True, "color": "cornsilk"},
-        # {"name" : "Paul McNett", "age" : thisYear - 1969, "coder" :     True, "color": "wheat"},
-        # {"name" : "Ted Roche", "age" : thisYear - 1958, "coder" :  True, "color": "goldenrod"},
-        # {"name" : "Derek Jeter", "age": thisYear - 1974, "coder" :    False, "color": "white"},
-        # {"name" : "Halle Berry", "age" : thisYear - 1966, "coder" :     False, "color": "orange"},
-        # {"name" : "Steve Wozniak", "age" : thisYear - 1950, "coder" :  True, "color": "yellow"},
-        # {"name" : "LeBron James", "age" : thisYear - 1984, "coder" :  False, "color": "gold"},
-        # {"name" : "Madeline Albright", "age" : thisYear - 1937, "coder" :  False, "color": "red"}]
         ds = [
             {"name": "Ed Leafe", "age": 23.09, "coder": True, "color": "cornsilk"},
             {"name": "Paul McNett", "age": 34.07, "coder": True, "color": "wheat"},
@@ -5886,8 +5882,8 @@ class _dGrid_test(dGrid):
                 "color": "gold",
             },
             {
-                "name": "Madeline Albright",
-                "age": thisYear - 1937,
+                "name": "Barack Obama",
+                "age": thisYear - 1961,
                 "coder": False,
                 "color": "red",
             },

@@ -182,9 +182,9 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             else:
                 raise ValueError(
                     _(
-                        "Invalid value passed for 'colNum' parameter: '%s'. Only column numbers or the word 'all' are valid."
+                        f"Invalid value passed for 'colNum' parameter: '{colNum}'. Only column "
+                        "numbers or the word 'all' are valid."
                     )
-                    % colNum
                 )
         else:
             curr = self.getColExpand(colNum)
@@ -211,9 +211,9 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             else:
                 raise ValueError(
                     _(
-                        "Invalid value passed for 'rowNum' parameter: '%s'. Only row numbers or the word 'all' are valid."
+                        f"Invalid value passed for 'rowNum' parameter: '{rowNum}'. Only row "
+                        "numbers or the word 'all' are valid."
                     )
-                    % rowNum
                 )
         else:
             curr = self.getRowExpand(rowNum)

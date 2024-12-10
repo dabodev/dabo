@@ -47,6 +47,6 @@ unittest.TextTestRunner(verbosity=2).run(allTiersTestSuite)
 
 if coverage:
     coverage.stop()
-    # You can uncomment this to get test coverage on a particular module, but if you want to
-    # see the entire report for dabo, run "python CoverageReport.py".  I would pipe it to a file though
+    # You can uncomment this to get test coverage on a particular module, but if you want to see the
+    # entire report for dabo, run "python CoverageReport.py". I would pipe it to a file though.
     # coverage.report([dabo.dColors, dabo.dObject, dabo])

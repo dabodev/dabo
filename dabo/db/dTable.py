@@ -14,12 +14,16 @@ class dTable(dObject):
         To define a temporary table named 'mytemp' that has ? fields,
         where the fields are:
 
-            ============= ======================
-            field 1:      'theid', it is an autoincrementing field that uses a 2 byte integer
-            field 2:      'first_name', it is a string field that has a max of 25 characters, part of an indexes 'idx_first' and 'idx_name'
-            field 3:      'last_name', it is a string field that has a max of 25 characters, NULL's are not allowed, part of an indexes 'idx_last' and 'idx_name'
-            field 4:      'amount_owes', it is a float that has a total of 8 decimal places, 2 of the decimal places are to the right of the point, uses 8 bytes, and the default is 0
-            ============= ======================
+            ========  ======================
+            field 1:  'theid', it is an autoincrementing field that uses a 2 byte integer
+            field 2:  'first_name', it is a string field that has a max of 25 characters,
+                      part of an indexes 'idx_first' and 'idx_name'
+            field 3:  'last_name', it is a string field that has a max of 25 characters,
+                      NULL's are not allowed, part of an indexes 'idx_last' and 'idx_name'
+            field 4:  'amount_owes', it is a float that has a total of 8 decimal places,
+                      2 of the decimal places are to the right of the point, uses 8 bytes,
+                      and the default is 0
+            ========  ======================
 
     Code Example::
 

@@ -341,7 +341,8 @@ class dNode(dObject):
         None,
         None,
         _(
-            "Full dot-separated string of the captions of this node and its ancestors (read-only) (str)"
+            "Full dot-separated string of the captions of this node and its ancestors (read-only) "
+            "(str)"
         ),
     )
 
@@ -1061,7 +1062,8 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         #     wx.TREE_HITTEST_ONITEMINDENT: In the indentation associated with an item.
         #     wx.TREE_HITTEST_ONITEMLABEL: On the label (string) associated with an item.
         #     wx.TREE_HITTEST_ONITEMRIGHT: In the area to the right of an item.
-        #     wx.TREE_HITTEST_ONITEMSTATEICON: On the state icon for a tree view item that is in a user-defined state.
+        #     wx.TREE_HITTEST_ONITEMSTATEICON: On the state icon for a tree view item that is in a
+        #       user-defined state.
         #     wx.TREE_HITTEST_TOLEFT: To the right of the client area.
         #     wx.TREE_HITTEST_TORIGHT: To the left of the client area.
         ret = None

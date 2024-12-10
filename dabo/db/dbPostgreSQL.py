@@ -130,7 +130,8 @@ class Postgres(dBackend):
         for rec1 in cursor.getDataSet():
             record.append(rec1["tablename"])
         cursor.execute(
-            "SELECT schemaname||'.'||viewname as tablename FROM pg_views WHERE schemaname NOT IN('information_schema', 'pg_catalog')"
+            "SELECT schemaname||'.'||viewname as tablename FROM pg_views WHERE schemaname NOT "
+            "IN('information_schema', 'pg_catalog')"
         )
 
         for rec in cursor.getDataSet():
@@ -252,11 +253,10 @@ class Postgres(dBackend):
         """
         Return the ID of the last inserted row, or None.
 
-        When inserting a new record in a table that auto-generates a PK (such
-        as a serial data type) value, different databases have their own way of retrieving that value.
-        With Postgres a sequence is created.  The SQL statement determines the sequence name
-        ('table_pkid_seq') and needs three parameters the schema name, table name, and the primary
-        key field for the table.
+        When inserting a new record in a table that auto-generates a PK (such as a serial data type)
+        value, different databases have their own way of retrieving that value.  With Postgres a
+        sequence is created.  The SQL statement determines the sequence name ('table_pkid_seq') and
+        needs three parameters the schema name, table name, and the primary key field for the table.
 
         cursor.KeyField = primary field
         cursor.Table = returns 'schema.table' for the cursor

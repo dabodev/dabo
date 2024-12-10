@@ -148,7 +148,8 @@ class PlotMarkers(_TraceMixin, plot.PolyMarker):
             self.attributes["marker"] = val
         else:
             raise ValueError(
-                "MarkerShape must be either 'circle', 'dot', 'square', 'triangle', 'triangle_down', 'cross', or 'plus'"
+                "MarkerShape must be either 'circle', 'dot', 'square', 'triangle', "
+                "'triangle_down', 'cross', or 'plus'"
             )
 
     def _getMarkerSize(self):
@@ -321,8 +322,6 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         # -----------
 
     def setDefaults(self):
-        # Font(pointSize, family, style, weight, underline=False, faceName=EmptyString, encoding=FONTENCODING_DEFAULT)
-        # self.SetFont(wx.Font(10,wx.FONTFAMILY_SWISS,wx.NORMAL, wx.FONTWEIGHT_NORMAL,wx.FONTWEIGHT_NORMAL))
         self.SetFont(wx.Font(10, wx.FONTFAMILY_SWISS, wx.NORMAL, wx.FONTWEIGHT_NORMAL))
         self.SetFontSizeAxis(10)
         self.SetFontSizeLegend(7)

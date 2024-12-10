@@ -54,7 +54,8 @@ class SimpleCrypt(object):
 
     def showWarning(self):
         warnings.warn(
-            "WARNING: SimpleCrypt is not secure. Please see http://wiki.dabodev.com/SimpleCrypt for more information"
+            "WARNING: SimpleCrypt is not secure. Please see http://wiki.dabodev.com/SimpleCrypt "
+            "for more information"
         )
 
     def encrypt(self, aString):

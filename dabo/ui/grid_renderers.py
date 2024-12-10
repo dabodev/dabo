@@ -13,7 +13,9 @@ class ImageRenderer(wx.grid.GridCellRenderer):
         super(ImageRenderer, self).__init__(*args, **kwargs)
 
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
-        """Customisation Point: Draw the data from grid in the rectangle with attributes using the dc"""
+        """
+        Customisation Point: Draw the data from grid in the rectangle with attributes using the dc
+        """
         self.clip(dc, rect)
 
         # We use our custom attr, not the one wx passes:
@@ -197,7 +199,9 @@ class AbstractTextRenderer(wx.grid.GridCellRenderer):
     """
 
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
-        """Customisation Point: Draw the data from grid in the rectangle with attributes using the dc"""
+        """
+        Customisation Point: Draw the data from grid in the rectangle with attributes using the dc
+        """
         self.clip(dc, rect)
 
         # We use our custom attr, not the one wx passes:

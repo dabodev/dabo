@@ -228,7 +228,8 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
                 self.select(row)
         else:
             dabo_module.error(
-                "'selectAll()' may only be called on List Controls that designated as MultipleSelect"
+                "'selectAll()' may only be called on List Controls that designated as "
+                "MultipleSelect"
             )
 
     def unselectAll(self):
@@ -815,7 +816,8 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         _setExpandToFit,
         None,
         _(
-            "When True (default), the column designated by ExpandColumn expands to fill the width of the control.  (bool)"
+            "When True (default), the column designated by ExpandColumn expands to fill the width "
+            "of the control.  (bool)"
         ),
     )
 
@@ -872,7 +874,8 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         _setSortOnHeaderClick,
         None,
         _(
-            "When True (default), clicking a column header cycles the sorting on that column.  (bool)"
+            "When True (default), clicking a column header cycles the sorting on that column.  "
+            "(bool)"
         ),
     )
 

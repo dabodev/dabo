@@ -419,7 +419,8 @@ class RemoteConnector(object):
         None,
         None,
         _(
-            "Reference to the object that opens URLs and optionally authenticates.  (read-only) (urllib2.urlopener)"
+            "Reference to the object that opens URLs and optionally authenticates."
+            "  (read-only) (urllib2.urlopener)"
         ),
     )
 

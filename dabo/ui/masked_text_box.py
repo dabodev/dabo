@@ -431,12 +431,12 @@ if __name__ == "__main__":
             lbl.FontSize += 2
             sz.append(lbl, colSpan=2, halign="center")
             """The below code does not work in some versions of wxPython because of a bug discovered
-            in wxPython 2.8.9.1 maskededit.py.  If you find that you have such a version, either upgrade
-            to a newer wxPython, or you can fix it in your own wx code. Find the line in
-            'lib/masked/maskededit.py' that reads:
-            'if field._forcelower and key in range(97,123):'
-            and replace it with
-            'if field._forcelower and key in range(65,90):'  """
+            in wxPython 2.8.9.1 maskededit.py.  If you find that you have such a version, either
+            upgrade to a newer wxPython, or you can fix it in your own wx code. Find the line in
+            'lib/masked/maskededit.py' that reads: 'if field._forcelower and key in range(97,123):'
+            and replace it with 'if field._forcelower
+            and key in
+            range(65,90):'  """
             sz.append(
                 dLabel(
                     pg1,
@@ -474,7 +474,8 @@ versions of wxPython)""",
             lbl = dLabel(
                 pg1,
                 FontItalic=True,
-                Caption="The 'No Mask' value can never be valid,\nand will be cleared when the control loses focus.",
+                Caption="The 'No Mask' value can never be valid,\nand will be cleared when the "
+                "control loses focus.",
             )
             lbl.FontSize -= 2
             sz.append(lbl, colSpan=2, halign="center")
@@ -499,7 +500,8 @@ versions of wxPython)""",
             lbl = dLabel(
                 pg3,
                 Caption="Check/Uncheck the following InputCodes to apply them\n"
-                + "to the textbox below. Then type into the textbox to see\nthe effect that each code has.",
+                + "to the textbox below. Then type into the textbox to see\nthe effect that "
+                "each code has.",
                 FontBold=True,
                 Alignment="Center",
             )

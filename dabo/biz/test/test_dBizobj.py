@@ -303,7 +303,8 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         temp = bizMain.getTempCursor(test_sql, (bizMain.Record.pk,))
         self.assertEqual(bizChild.RowCount, temp.Record.count)
 
-        # test case 2: False in parent but True in child: won't save child changes but will keep prompting
+        # test case 2: False in parent but True in child: won't save child changes but will keep
+        # prompting
         bizMain.SaveNewUnchanged = False
         bizChild.new()
         self.assertEqual(bizChild.RowCount, 4)

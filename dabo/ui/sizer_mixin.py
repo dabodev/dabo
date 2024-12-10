@@ -1080,7 +1080,7 @@ class dSizerMixin(dObject):
         None,
         None,
         _(
-            "List of all the spacer items that are directly managed by this sizer  (list of spacer items"
+            "List of all the spacer items directly managed by this sizer  (list of spacer items)"
         ),
     )
 

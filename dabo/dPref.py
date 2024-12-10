@@ -105,11 +105,11 @@ class dPref(object):
             if not pref_db:
                 prefdir = utils.getUserAppDataDirectory(appName)
                 if prefdir is None:
-                    # pkm: This happened to me on a webserver where the user is www-data who doesn't have
-                    #      a home directory. I actually don't care about preferences in this case but I
-                    #      wasn't able to set dApp.PreferenceManager to None unfortunately, so we'll just
-                    #      punt and put the preference db in the working directory (up to your webapp to
-                    #      chdir() accordingly)..
+                    # pkm: This happened to me on a webserver where the user is www-data who doesn't
+                    # have a home directory. I actually don't care about preferences in this case
+                    # but I wasn't able to set dApp.PreferenceManager to None unfortunately, so
+                    # we'll just punt and put the preference db in the working directory (up to your
+                    # webapp to chdir() accordingly)..
                     prefdir = os.getcwd()
                 pref_db = os.path.join(prefdir, "DaboPreferences.db")
             if cxn:
@@ -123,7 +123,8 @@ class dPref(object):
             # Make sure that the table exists
             if not "daboprefs" in self._cursor.getTables():
                 self._cursor.execute(
-                    "create table daboprefs (ckey text not null, ctype text not null, cvalue text not null)"
+                    "create table daboprefs (ckey text not null, ctype text not null, "
+                    "cvalue text not null)"
                 )
                 self._cursor.commitTransaction()
         else:

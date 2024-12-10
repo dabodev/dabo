@@ -328,8 +328,8 @@ fileSystemEncoding = sys.getfilesystemencoding() or locale.getdefaultlocale()[1]
 
 @functools.lru_cache
 def get_dabo_package():
-    """This returns a reference to the main dabo package, which will allow its methods and attributes to be available
-    throughout the Dabo codebase.
+    """This returns a reference to the main dabo package, which will allow its methods and
+    attributes to be available throughout the Dabo codebase.
     """
     try:
         return sys.modules["dabo"]

@@ -170,11 +170,6 @@ class dApp(dObject):
     isDesigner = False
 
     def __init__(self, selfStart=False, ignoreScriptDir=False, properties=None, *args, **kwargs):
-        # Defer setting locale until the wx.App can do so (otherwise you can create a split-state between
-        # the OS and wx, which wx does not like.
-        #  if loadUserLocale:
-        #   locale.setlocale(locale.LC_ALL, '')
-
         # Some apps, such as the visual tools, are meant to be run from directories
         # other than that where they are located. In those cases, use the current dir.
         self._ignoreScriptDir = ignoreScriptDir
@@ -1440,16 +1435,16 @@ try again when it is running.
                             os.path.split(os.path.join(os.getcwd(), calledScript))[0]
                         )
                         if issubdir(scriptDir, appDir):
-                            # The directory where the main script is executing is a subdirectory of the
-                            # location of the application object in use. So we can safely make the app
-                            # directory the HomeDirectory.
+                            # The directory where the main script is executing is a subdirectory of
+                            # the location of the application object in use. So we can safely make
+                            # the app directory the HomeDirectory.
                             hd = appDir
                         else:
-                            # The directory where the main script is executing is *not* a subdirectory
-                            # of the location of the app object in use. The app object is likely an
-                            # instance of a raw dApp. So the only thing we can really do is make the
-                            # HomeDirectory the location of the main script, since we can't guess at
-                            # the application's directory structure.
+                            # The directory where the main script is executing is *not* a
+                            # subdirectory of the location of the app object in use. The app object
+                            # is likely an instance of a raw dApp. So the only thing we can really
+                            # do is make the HomeDirectory the location of the main script, since we
+                            # can't guess at the application's directory structure.
                             dabo_module.info(
                                 "Can't deduce HomeDirectory:setting to the script directory."
                             )
@@ -1683,7 +1678,8 @@ try again when it is running.
         _setDefaultForm,
         None,
         _(
-            """The form class to open by default, automatically, after app instantiation.  (form class reference)"""
+            """The form class to open by default, automatically, after app instantiation.  "
+            "(form class reference)"""
         ),
     )
     default_form = DefaultForm  ## backwards-compatibility

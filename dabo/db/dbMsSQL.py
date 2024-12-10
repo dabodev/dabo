@@ -148,7 +148,9 @@ select table_schema + '.' + table_name AS table_name
                 "DATETIME": "T",
                 "DATETIME2": "T",
                 "DECIMAL": "N",
-                "DOUBLE": "G",  ## G maps to Long (INT), but this could be wrong if it is supposed to be a double float.
+                # G maps to Long (INT), but this could be wrong
+                # if it is supposed to be a double float.
+                "DOUBLE": "G",
                 "ENUM": "C",
                 "FLOAT": "F",
                 "GEOMETRY": "?",

@@ -230,7 +230,9 @@ class dDockPanel(dPanel):
         del self._propDelayDict
 
     def getState(self):
-        """Returns the local name and a string that can be used to restore the state of this pane."""
+        """
+        Returns the local name and a string that can be used to restore the state of this pane.
+        """
         inf = self._Manager.SavePaneInfo(self._PaneInfo)
         try:
             infPairs = (qq.split("=") for qq in inf.split(";"))
@@ -724,7 +726,8 @@ class dDockPanel(dPanel):
         _setBottom,
         None,
         _(
-            "Position in pixels of the bottom side of the panel. Read-only when docked; read-write when floating  (int)"
+            "Position in pixels of the bottom side of the panel. Read-only when docked; "
+            "read-write when floating  (int)"
         ),
     )
 
@@ -744,7 +747,8 @@ class dDockPanel(dPanel):
         _setDestroyOnClose,
         None,
         _(
-            "When the panel's Close button is clicked, does the panel get destroyed (True) or just hidden (False, default)  (bool)"
+            "When the panel's Close button is clicked, does the panel get destroyed (True) "
+            "or just hidden (False, default)  (bool)"
         ),
     )
 
@@ -848,7 +852,8 @@ class dDockPanel(dPanel):
         _setGripperPosition,
         None,
         _(
-            "If a gripper is shown, is it on the Top or Left side? Default = 'Left'  ('Top' or 'Left')"
+            "If a gripper is shown, is it on the Top or Left side? Default = 'Left'  "
+            "('Top' or 'Left')"
         ),
     )
 
@@ -857,7 +862,8 @@ class dDockPanel(dPanel):
         _setHeight,
         None,
         _(
-            "Position in pixels of the height of the panel. Read-only when docked; read-write when floating  (int)"
+            "Position in pixels of the height of the panel. Read-only when docked; read-write "
+            "when floating  (int)"
         ),
     )
 
@@ -866,7 +872,8 @@ class dDockPanel(dPanel):
         _setLeft,
         None,
         _(
-            "Position in pixels of the left side of the panel. Read-only when docked; read-write when floating  (int)"
+            "Position in pixels of the left side of the panel. Read-only when docked; read-write "
+            "when floating  (int)"
         ),
     )
 
@@ -910,7 +917,8 @@ class dDockPanel(dPanel):
         _setRight,
         None,
         _(
-            "Position in pixels of the right side of the panel. Read-only when docked; read-write when floating  (int)"
+            "Position in pixels of the right side of the panel. Read-only when docked; read-write "
+            "when floating  (int)"
         ),
     )
 
@@ -982,7 +990,8 @@ class dDockPanel(dPanel):
         _setTop,
         None,
         _(
-            "Position in pixels of the top side of the panel. Read-only when docked; read-write when floating  (int)"
+            "Position in pixels of the top side of the panel. Read-only when docked; read-write "
+            "when floating  (int)"
         ),
     )
 
@@ -1000,7 +1009,8 @@ class dDockPanel(dPanel):
         _setWidth,
         None,
         _(
-            "Position in pixels of the width of the panel. Read-only when docked; read-write when floating  (int)"
+            "Position in pixels of the width of the panel. Read-only when docked; read-write "
+            "when floating  (int)"
         ),
     )
 

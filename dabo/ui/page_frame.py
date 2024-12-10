@@ -683,7 +683,8 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         _setShowDropdownTabList,
         None,
         _(
-            """Specifies whether the dropdown tab list button is visible in the menu (bool) (Default=False)
+            """Specifies whether the dropdown tab list button is visible in the menu (bool)
+            (Default=False)
             Setting this property to True will set ShowNavButtons to False"""
         ),
     )
@@ -700,7 +701,8 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         _setShowMenuOnSingleTab,
         None,
         _(
-            "Specifies whether the tab thumbs and nav buttons are shown when there is a single tab. (bool) (Default=True)"
+            "Specifies whether the tab thumbs and nav buttons are shown when there is a single "
+            "tab. (bool) (Default=True)"
         ),
     )
 
@@ -709,7 +711,8 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         _setShowNavButtons,
         None,
         _(
-            """Specifies whether the left and right nav buttons are visible in the menu (bool) (Default=True)
+            """Specifies whether the left and right nav buttons are visible in the menu (bool)
+            (Default=True)
             Setting this property to True will set ShowDropdownTabList to False"""
         ),
     )

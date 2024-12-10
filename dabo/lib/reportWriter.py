@@ -464,10 +464,10 @@ class ReportObject(CaselessDict):
         #            if prop.lower() == "fontname":
         #                desProps[prop]["type"] = list
         #                desProps[prop]["values"] = ['"Courier"', '"Courier-Bold"',
-        #                        '"Courier-Oblique"', '"Courier-BoldOblique"', '"Helvetica"',
-        #                        '"Helvetica-Bold"', '"Helvetica-Oblique"', '"Helvetica-BoldOblique"',
-        #                        '"Times-Roman"', '"Times-Bold"', '"Times-Italic"',
-        #                        '"Times-BoldItalic"', '"Symbol"', '"ZapfDingbats"']
+        #                    '"Courier-Oblique"', '"Courier-BoldOblique"', '"Helvetica"',
+        #                    '"Helvetica-Bold"', '"Helvetica-Oblique"', '"Helvetica-BoldOblique"',
+        #                    '"Times-Roman"', '"Times-Bold"', '"Times-Italic"',
+        #                    '"Times-BoldItalic"', '"Symbol"', '"ZapfDingbats"']
         #            if prop.lower() == "hanchor":
         #                desProps[prop]["type"] = list
         #                desProps[prop]["values"] = ['"Left"', '"Center"', '"Right"']
@@ -675,9 +675,10 @@ class Report(ReportObject):
         self.AvailableProps["StringifyDates"] = toPropDict(
             bool,
             True,
-            """If True, expressions in String objects that evaluate to a datetime.date will get displayed
-                in the report as a string as returned by dabo.lib.getStringFromDate(), which will
-                result in the date getting displayed as set by settings.dateFormat or the user's locale.""",
+            """If True, expressions in String objects that evaluate to a datetime.date will get
+            displayed in the report as a string as returned by dabo.lib.getStringFromDate(),
+            which will result in the date getting displayed as set by settings.dateFormat or
+            the user's locale.""",
         )
 
         self.MajorProperty = "Title"
@@ -1159,7 +1160,8 @@ class Image(Drawable):
 
                 "scale" or "stretch" will change the image size to fit the frame.
                 "clip" will display the image in the frame as-is.
-                "proportional" resizes the image to fit in the frame without changing its proportions.""",
+                "proportional" resizes the image to fit in the frame without changing
+                    its proportions.""",
         )
 
         self.MajorProperty = "expr"
@@ -1362,12 +1364,14 @@ class SpanningRectangle(Rectangle):
         self.AvailableProps["x"] = toPropDict(
             float,
             0.0,
-            """Specifies the x of the starting point of the rectangle, in the group or page header.""",
+            """Specifies the x of the starting point of the rectangle, in the group or
+            page header.""",
         )
         self.AvailableProps["y"] = toPropDict(
             float,
             0.0,
-            """Specifies the y of the starting point of the rectangle, in the group or page header.""",
+            """Specifies the y of the starting point of the rectangle, in the group or
+            page header.""",
         )
         self.AvailableProps["xFooter"] = toPropDict(
             float,
@@ -2279,8 +2283,8 @@ class ReportWriter(object):
                         and objNeededHeight + p_height > height
                         and not overrideExpr
                     ):
-                        # We are going to need to truncate the output; find the amount of data we can print
-                        # and print that, followed by "..."
+                        # We are going to need to truncate the output; find the amount of data we
+                        # can print and print that, followed by "..."
                         availableHeight = height - objNeededHeight
                         p = ParaClass("...", s)
                         p_height = p.wrap(columnWidth - padLeft - padRight, None)[1]
@@ -2293,7 +2297,7 @@ class ReportWriter(object):
                             trial_p = ParaClass("%s..." % prior_para, s)
                             trial_height = trial_p.wrap(columnWidth - padLeft - padRight, None)[1]
                             if trial_height > availableHeight:
-                                # It worked before, so just remove the final 3 chars and be done with it:
+                                # It worked before, so just remove the final 3 chars
                                 p = ParaClass("%s..." % prior_para[:-3], s)
                                 p_height = p.wrap(columnWidth - padLeft - padRight, None)[1]
                                 objNeededHeight += p_height
@@ -2335,14 +2339,17 @@ class ReportWriter(object):
                     story.append((p, p_height))
 
                 def hackDeferredPara():
-                    """When a paragraph wraps to the next page, the last line won't print if this isn't done."""
+                    """
+                    When a paragraph wraps to the next page, the last line won't print
+                    if this isn't done.
+                    """
                     append_p = ParaClass("Hack: see hackDeferredPara() in reportWriter.py", s)
                     p_height = p.wrap(99999, None)[1]
                     story.append((append_p, p_height))
 
                 if False and obj.getProp("Height") is None and paras:
-                    ## pkm 2012-09-12: I'm finding I don't need the hackDeferredPara() as I'm seeing the
-                    ##                 append_p string at the end of my memo.
+                    ## pkm 2012-09-12: I'm finding I don't need the hackDeferredPara() as I'm
+                    ##  seeing the append_p string at the end of my memo.
                     hackDeferredPara()
 
         neededHeight = objNeededHeight + padTop + padBottom
@@ -2626,10 +2633,11 @@ class ReportWriter(object):
                                 storyheight + bandHeight - self.getPt(obj.getProp("y"))
                             )  ## y could be dep. on band height.
                             if needed - availableHeight > 30:
-                                # This memo alone will make a new page get generated before printing anything
-                                # and there's significant overflow; let the memo start and then the normal
-                                # mechanism to flow just the memo can happen. Don't want to do this in all
-                                # cases, though, only when the contents would flow to a new page.
+                                # This memo alone will make a new page get generated before printing
+                                # anything and there's significant overflow; let the memo start and
+                                # then the normal mechanism to flow just the memo can happen. Don't
+                                # want to do this in all cases, though, only when the contents would
+                                # flow to a new page.
                                 storyheight = obj.getProp("Height_def")
                                 needed = storyheight + bandHeight - self.getPt(obj.getProp("y"))
                             maxBandHeight = max(maxBandHeight, needed)

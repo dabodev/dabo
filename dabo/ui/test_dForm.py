@@ -50,9 +50,9 @@ class Test_dForm(unittest.TestCase):
 
         ## force the frm to get the first record:
         frm.first()
-        frm.update(
-            interval=0
-        )  ## need to force the update here because it is delayed by default, which doesn't work for scripted tests.
+        # need to force the update here because it is delayed by default, which doesn't work for
+        # scripted tests.
+        frm.update(interval=0)
 
     def tearDown(self):
         self.biz = None
@@ -65,7 +65,8 @@ class Test_dForm(unittest.TestCase):
         childTableName = self.temp_child_table_name
         biz._CurrentCursor.executescript(
             """
-create table %(tableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cField CHAR, iField INT, nField DECIMAL (8,2));
+create table %(tableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cField CHAR, iField INT,
+    nField DECIMAL (8,2));
 insert into %(tableName)s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23);
 insert into %(tableName)s (cField, iField, nField) values ("Edward Leafe", 42, 42.42);
 insert into %(tableName)s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76);

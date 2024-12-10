@@ -836,7 +836,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 try:
                     setter(strVal)
                 except ValueError as e:
-                    # PVG: maskedtextedit sometimes fails, on value error..allow the code to continue
+                    # PVG: maskedtextedit sometimes fails, on value error..allow the code
+                    # to continue
                     uv = ustr(strVal)
                     ue = ustr(e)
                     dabo_module.error(_("Error setting value to '%(uv)s': " "%(ue)s") % locals())
@@ -878,7 +879,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
         _setStrictDateEntry,
         None,
         _(
-            """Specifies whether date values must be entered in strict ISO8601 format. Default=False.
+            """Specifies whether date values must be entered in strict ISO8601 format.
+            Default=False.
 
             If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,
             which will be coerced into sensible date values automatically."""

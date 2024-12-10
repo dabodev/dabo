@@ -89,7 +89,8 @@ def autoCreateTables(noAccessDialog=None):
                         Caption=_(
                             """For the DB Admin:
  The tables must either created by:
-  1. using this program by TEMPORARLY giving this program access to the database to create the needed tables.
+  1. using this program by TEMPORARLY giving this program access to the database to create
+     the needed tables.
   2. or executing all the quries in the 'queries.sql' file."""
                         ),
                     )
@@ -101,7 +102,8 @@ def autoCreateTables(noAccessDialog=None):
                     lblinst2 = self.addObject(
                         dui.dLabel,
                         Caption=_(
-                            "DBA, please enter the username and password that has access to create tables for database on server '%(hst)s' and database '%(db)s'"
+                            "DBA, please enter the username and password that has access to "
+                            "create tables for database on server '%(hst)s' and database '%(db)s'"
                         )
                         % locals(),
                     )

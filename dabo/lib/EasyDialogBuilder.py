@@ -70,17 +70,21 @@ class EasyDialogBuilder(object):
         :param parent: Dabo object that is the parent of the controls, normally a panel or a form
         :param str caption: The caption for the control box
         :param tuple controlFields: A tuple of tuples, see below
-        :param bool grid: When True objects are put into a grid sizer for even controlfield alignment.  When False all objects are put into boxSizers so the control fields line up with the end of their labels
+        :param bool grid: When True objects are put into a grid sizer for even controlfield
+               alignment. When False all objects are put into boxSizers so the control fields line
+               up with the end of their labels.
         :param bool hasRegIDs: When True all control objects will be assigned regIDs.
-        :param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
+        :param bool bindHitEvents: When True all the control objects hit events will be bound to
+               functions in the form of onHit_controlName
         :rtype: ui.dSizer
 
         controlFields tuple:
             =========== ====================
-            control        a Dabo control or the string "file" which produces a textbox with a button to get a file
+            control     a Dabo control or the string "file" which produces a textbox with a
+                        button to get a file
             name        a string to name this particular control
-            label        a string that appears on the label
-            properties    optional dictionary of properties for the control
+            label       a string that appears on the label
+            properties  optional dictionary of properties for the control
             =========== ====================
 
         .. note::
@@ -117,17 +121,21 @@ class EasyDialogBuilder(object):
         :param parent: Dabo object that is the parent of the controls, normally a panel or a form
         :param caption: The caption for the control box
         :param tuple controlFields: A tuple of tuples, see below
-        :param bool grid: When True objects are put into a grid sizer for even controlfield alignment.  When False all objects are put into boxSizers so the control fields line up with the end of their labels
+        :param bool grid: When True objects are put into a grid sizer for even control field
+                alignment. When False all objects are put into boxSizers so the control fields
+                line up with the end of their labels
         :param bool hasRegIDs: When True all control objects will be assigned regIDs.
-        :param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
+        :param bool bindHitEvents: When True all the control objects hit events will be found to
+                functions in the form of onHit_controlName
         :rtype: ui.dSizer
 
         controlFields tuple:
             =========== ====================
-            control        a Dabo control or the string "file" which produces a textbox with a button to get a file
+            control     a Dabo control or the string "file" which produces a textbox with a
+                        button to get a file
             name        a string to name this particular control
-            label        a string that appears on the label
-            properties    optional dictionary of properties for the control
+            label       a string that appears on the label
+            properties  optional dictionary of properties for the control
             =========== ====================
 
         .. note::
@@ -195,11 +203,13 @@ class EasyDialogBuilder(object):
     ):
         """
         :param parent: Dabo object that is the parent of the controls, normally a panel or a form
-        :param control: Dabo class (not an instantiated object) of the control that you want in the form.
+        :param control: Dabo class (not an instantiated object) of the control that you want in
+                the form.
         :param str name: Name of the control
         :param str labelTitle: The label next to the control
         :param bool hasRegIDs: When True all control objects will be assigned regIDs.
-        :param bool bindHitEvents: When True all the control objects hit events will be found to functions in the form of onHit_controlName
+        :param bool bindHitEvents: When True all the control objects hit events will be found
+                to functions in the form of onHit_controlName
         :rtype: list of controls
 
         """

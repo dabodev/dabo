@@ -112,8 +112,8 @@ dUICursors = None
 def load_namespace():
     """Add all the UI classes to the ui namespace.
 
-    This must be called before any UI work can be done. This is done automatically when dabo is imported,
-    so you should never have to call it manually.
+    This must be called before any UI work can be done. This is done automatically when dabo is
+    imported, so you should never have to call it manually.
 
     IMPORTANT: the order of these imports should not be changed without extensive testing, as some
     classes inherit from or otherwise reference other classes, so those referenced classes need to

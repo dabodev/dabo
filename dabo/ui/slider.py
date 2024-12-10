@@ -202,7 +202,7 @@ class dSlider(dDataControlMixin, wx.Slider):
         None,
         _(
             """When True, the position of the Min and Max values are reversed. Must be set
-            when the object is created; setting it afterwards has no effect. Default=False  (bool)"""
+            when the object is created; setting it afterwards has no effect. Default=False (bool)"""
         ),
     )
 

@@ -36,13 +36,15 @@ class Test_Many_To_Many(unittest.TestCase):
 
     def createSchema(self):
         self.crs.execute(
-            "create table person (pkid INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT, last_name TEXT);"
+            "create table person (pkid INTEGER PRIMARY KEY AUTOINCREMENT, first_name TEXT, "
+            "last_name TEXT);"
         )
         self.crs.execute(
             "create table company (pkid INTEGER PRIMARY KEY AUTOINCREMENT, company TEXT);"
         )
         self.crs.execute(
-            "create table employees (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, company_id INT);"
+            "create table employees (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, "
+            "company_id INT);"
         )
         self.crs.execute("insert into person (first_name, last_name) values ('Ed', 'Leafe')")
         self.crs.execute("insert into person (first_name, last_name) values ('Paul', 'McNett')")
@@ -52,7 +54,8 @@ class Test_Many_To_Many(unittest.TestCase):
             "create table fan_club (pkid INTEGER PRIMARY KEY AUTOINCREMENT, performer TEXT);"
         )
         self.crs.execute(
-            "create table membership (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, fan_club_id INT);"
+            "create table membership (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, "
+            "fan_club_id INT);"
         )
         self.crs.execute("insert into fan_club (performer) values ('Green Day')")
         self.crs.execute("insert into fan_club (performer) values ('The Clash')")
@@ -61,10 +64,12 @@ class Test_Many_To_Many(unittest.TestCase):
 
         # Table with NOT NULL restriction.
         self.crs.execute(
-            "create table restricted (pkid INTEGER PRIMARY KEY AUTOINCREMENT, regular TEXT, nonull TEXT NOT NULL);"
+            "create table restricted (pkid INTEGER PRIMARY KEY AUTOINCREMENT, regular TEXT, "
+            "nonull TEXT NOT NULL);"
         )
         self.crs.execute(
-            "create table rest_alloc (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, restricted_id INT);"
+            "create table rest_alloc (pkid INTEGER PRIMARY KEY AUTOINCREMENT, person_id INT, "
+            "restricted_id INT);"
         )
         self.crs.execute(
             "insert into restricted (regular, nonull) values ('some_value', 'another_value')"

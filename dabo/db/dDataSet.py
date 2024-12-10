@@ -485,7 +485,9 @@ class dDataSet(tuple):
         None,
         None,
         _(
-            """If filters have been applied, returns the unfiltered dataset that would be returned if removeFilters() had been called. If no filters have been applied, returns self  (dDataSet)"""
+            "If filters have been applied, returns the unfiltered dataset that would be returned "
+            "if removeFilters() had been called. If no filters have been applied, returns "
+            "self  (dDataSet)"
         ),
     )
 

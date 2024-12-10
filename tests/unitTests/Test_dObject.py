@@ -159,13 +159,17 @@ class TestParentProperty(BaseTestdObject):
 class TestPreferenceManagerProperty(BaseTestdObject):
     """
     Test List:
-        - Set dObject.PreferenceManager to n. dObject.PreferenceManagier should be equal to n. (round trip test)
+        - Set dObject.PreferenceManager to n. dObject.PreferenceManagier should be equal to n.
+          (round trip test)
         - dObject.PreferenceManager should fail when set to an object not of type dPref
         - initial conditon test???
     """
 
     def testRoundTrip(self):
-        """Set dObject.PreferenceManager to n. dObject.PreferenceManagier should be equal to n. (round trip test)"""
+        """
+        Set dObject.PreferenceManager to n. dObject.PreferenceManagier should be equal to n.
+        (round trip test)
+        """
         from dabo.dPref import dPref
 
         testDPref = dPref()

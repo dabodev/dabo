@@ -84,7 +84,6 @@ class dDateTextBox(ui.dTextBox):
         return super(dDateTextBox, self)._beforeInit(*args, **kwargs)
 
     def _afterInit(self):
-        # self.Value = datetime.date.today()  ## no, don't set default, it could override val. in db.
         if not self.Value:
             self.update()  ## First try to get it from the db
         if not self.Value and self.Value is not None:

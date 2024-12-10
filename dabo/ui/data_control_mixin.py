@@ -212,8 +212,8 @@ class dDataControlMixin(ui.dControlMixin):
                 isChanged = curVal != oldVal
         if isChanged:
             # In some situations, e.g. if control is bound to widget property, changes of property
-            # value can cause recursive call to the flushValue() method.
-            # To prevent such situation we have to check the _from_flushValue attribute at the beginning.
+            # value can cause recursive call to the flushValue() method. To prevent such situation
+            # we have to check the _from_flushValue attribute at the beginning.
             self._from_flushValue = True
             if not self._DesignerMode:
                 if (self.DataSource or isinstance(self.DataSource, dPref)) and self.DataField:
@@ -222,9 +222,9 @@ class dDataControlMixin(ui.dControlMixin):
                         try:
                             ret = src.setFieldVal(self.DataField, curVal)
                         except dException.FieldNotFoundException:
-                            # First see if DataField refers to an attribute of the bizobj. If so, if it is
-                            # a method, it is read-only, so do not try to assign to it. Otherwise, set
-                            # the attribute to the value.
+                            # First see if DataField refers to an attribute of the bizobj. If so, if
+                            # it is a method, it is read-only, so do not try to assign to it.
+                            # Otherwise, set the attribute to the value.
                             att = getattr(self.Source, self.DataField, None)
                             if att is None:
                                 raise
@@ -544,15 +544,17 @@ class dDataControlMixin(ui.dControlMixin):
                         # Warn about possible unsupported behavior.
                         dabo_module.info(
                             _(
-                                "DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems."
+                                "DataSource '%s' does not inherit from a proper Dabo class. "
+                                "This may result in unsupported problems."
                             )
                             % ds.__repr__()
                         )
                     else:
                         self._srcIsBizobj = isinstance(ds, biz.dBizobj)
                 # This allow to use bizobj attribute as data field, instead of table field.
-                # Also fix r6665 issue when NoRecordsException is raised before FieldNotFoundException exception.
-                # It's tricky, because object attribute/property takes precedence before data field of the same name.
+                # Also fix r6665 issue when NoRecordsException is raised before
+                # FieldNotFoundException exception.  It's tricky, because object attribute/property
+                # takes precedence before data field of the same name.
                 if self._srcIsBizobj:
                     self._srcIsBizobj = not hasattr(self.__src, self.DataField)
             if (
