@@ -244,15 +244,6 @@ def makeDynamicProperty(prop, additionalDoc=None):
     DynamicCaption = makeDynamicProperty(Caption)
 
     """
-#     propName = None
-#     frame = inspect.currentframe()
-#     for k, v in list(frame.f_locals.items()):
-#         if v is prop:
-#             propName = k
-#             break
-#     if not propName:
-#         raise ValueError
-
     def fget(self):
         return self._dynamic.get(prop)
 
@@ -265,18 +256,19 @@ def makeDynamicProperty(prop, additionalDoc=None):
         else:
             self._dynamic[prop] = func
 
-    propName = ""
+    # Note: properties in Python3 no longer have access to their names. So this docstring
+    # will need to be updated to make more sense.
+    propName = "<some property>"
     doc = (
         _(
-            """Dynamically determine the value of the %(propName)s property.
+            f"""Dynamically determine the value of the {propName} property.
 
 Specify a function and optional arguments that will get called from the
 update() method. The return value of the function will get set to the
-%(propName)s property. If Dynamic%(propName)s is set to None (the default), %(propName)s
+{propName} property. If {DynamicpropName} is set to None (the default),{propName} 
 will not be dynamically evaluated.
 """
         )
-        % locals()
     )
 
     if additionalDoc:

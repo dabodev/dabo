@@ -1511,7 +1511,6 @@ class dPemMixin(dObject):
             else:
                 args = ()
             prop.fset(self, func(*args))
-#             setattr(obj, prop, func(*args))
 
     def refresh(self, fromRefresh=False):
         """Repaints this control and all contained objects."""
