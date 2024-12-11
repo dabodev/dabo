@@ -265,7 +265,7 @@ def makeDynamicProperty(prop, additionalDoc=None):
 
 Specify a function and optional arguments that will get called from the
 update() method. The return value of the function will get set to the
-{propName} property. If {DynamicpropName} is set to None (the default),{propName} 
+{propName} property. If Dynamic{propName} is set to None (the default),{propName} 
 will not be dynamically evaluated.
 """
         )
