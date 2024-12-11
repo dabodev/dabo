@@ -236,7 +236,7 @@ class dControlItemMixin(dDataControlMixin):
                 dataField = self.DataField
                 raise ValueError(
                     _(
-                        f"Trying to set {sn}m.Value (DataSource: '{dataSource}', "DataField: "
+                        f"Trying to set {sn}m.Value (DataSource: '{dataSource}', DataField: "
                         f"'{dataField}') to these invalid selections: {invalidSelections}"
                     )
                 )

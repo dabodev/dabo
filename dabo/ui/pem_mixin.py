@@ -6,7 +6,12 @@ import types
 
 import wx
 
-from .. import dColors, dException, events, lib, settings, ui
+from .. import dColors
+from .. import dException
+from .. import events
+from .. import lib
+from .. import settings
+from .. import ui
 from ..dLocalize import _
 from ..dObject import dObject
 from ..lib.utils import dictStringify, ustr
@@ -1505,7 +1510,8 @@ class dPemMixin(dObject):
                 func = func[0]
             else:
                 args = ()
-            setattr(obj, prop, func(*args))
+            prop.fset(self, func(*args))
+#             setattr(obj, prop, func(*args))
 
     def refresh(self, fromRefresh=False):
         """Repaints this control and all contained objects."""

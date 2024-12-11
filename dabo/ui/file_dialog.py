@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import application, dConstants, ui
+from .. import application
+from .. import dConstants
+from .. import settings
+from .. import ui
 from ..dLocalize import _
 
 
@@ -122,7 +125,9 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
         else:
             self._multiple = False
         if parent is None:
-            parent = application.get_application().ActiveForm
+            app = settings.get_application()
+            if app and app.ActiveForm:
+                parent = app.ActiveForm
         super(dFileDialog, self).__init__(
             parent=parent,
             message=message,

@@ -244,27 +244,28 @@ def makeDynamicProperty(prop, additionalDoc=None):
     DynamicCaption = makeDynamicProperty(Caption)
 
     """
-    propName = None
-    frame = inspect.currentframe()
-    for k, v in list(frame.f_locals.items()):
-        if v is prop:
-            propName = k
-            break
-    if not propName:
-        raise ValueError
+#     propName = None
+#     frame = inspect.currentframe()
+#     for k, v in list(frame.f_locals.items()):
+#         if v is prop:
+#             propName = k
+#             break
+#     if not propName:
+#         raise ValueError
 
     def fget(self):
-        return self._dynamic.get(propName)
+        return self._dynamic.get(prop)
 
     def fset(self, func):
         if func is None:
             # For safety and housekeeping, delete the dynamic prop completely,
             # instead of just setting to None.
-            if propName in self._dynamic:
-                del self._dynamic[propName]
+            if prop in self._dynamic:
+                del self._dynamic[prop]
         else:
-            self._dynamic[propName] = func
+            self._dynamic[prop] = func
 
+    propName = ""
     doc = (
         _(
             """Dynamically determine the value of the %(propName)s property.
@@ -1335,7 +1336,10 @@ def getFileAndType(*args, **kwargs):
     if idx is None:
         ret = (pth, idx)
     else:
-        ret = (pth, args[idx])
+        try:
+            ret = (pth, args[idx])
+        except IndexError:
+            ret = (pth, idx)
     return ret
 
 
