@@ -49,23 +49,19 @@ class dListBox(dControlItemMixin, wx.ListBox):
             else:
                 self.SetSelection(ii)
 
-    def _getMultipleSelect(self):
+    @property
+    def MultipleSelect(self):
+        """Can multiple items be selected at once?  (bool)"""
         return self._hasWindowStyleFlag(wx.LB_EXTENDED)
 
-    def _setMultipleSelect(self, val):
+    @MultipleSelect.setter
+    def MultipleSelect(self, val):
         if bool(val):
             self._delWindowStyleFlag(wx.LB_SINGLE)
             self._addWindowStyleFlag(wx.LB_EXTENDED)
         else:
             self._delWindowStyleFlag(wx.LB_EXTENDED)
             self._addWindowStyleFlag(wx.LB_SINGLE)
-
-    MultipleSelect = property(
-        _getMultipleSelect,
-        _setMultipleSelect,
-        None,
-        _("Can multiple items be selected at once?  (bool)"),
-    )
 
     DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
 

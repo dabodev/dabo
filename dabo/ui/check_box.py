@@ -3,6 +3,7 @@ import wx
 
 from .. import ui
 from ..dLocalize import _
+from ..lib.utils import get_super_property_value, set_super_property_value
 from . import dDataControlMixin, makeDynamicProperty
 
 
@@ -49,13 +50,21 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
         return False
 
     # property get/set functions
-    def _getAlignment(self):
+    @property
+    def Alignment(self):
+        """
+        Specifies the alignment of the text.
+
+            Left  : Checkbox to left of text (default)
+            Right : Checkbox to right of text
+        """
         if self._hasWindowStyleFlag(wx.ALIGN_RIGHT):
             return "Right"
         else:
             return "Left"
 
-    def _setAlignment(self, val):
+    @Alignment.setter
+    def Alignment(self, val):
         self._delWindowStyleFlag(wx.ALIGN_RIGHT)
         if val.lower()[0] == "r":
             self._addWindowStyleFlag(wx.ALIGN_RIGHT)
@@ -64,32 +73,51 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
         else:
             raise ValueError(_("The only possible values are 'Left' and 'Right'."))
 
-    def _getThreeState(self):
+    @property
+    def ThreeState(self):
+        """
+        Specifies wether the checkbox support 3 states.
+
+            True  : Checkbox supports 3 states: True, False, Null
+            False : Checkbox supports 2 states: True, False (default)
+        """
         return self._hasWindowStyleFlag(wx.CHK_3STATE)
 
-    def _setThreeState(self, val):
+    @ThreeState.setter
+    def ThreeState(self, val):
         self._delWindowStyleFlag(wx.CHK_3STATE)
         if val == True:
             self._addWindowStyleFlag(wx.CHK_3STATE)
 
-    def _getUserThreeState(self):
+    @property
+    def UserThreeState(self):
+        """
+        Specifies whether the user is allowed to set the third state.
+
+            True  : User is allowed to set the third state.
+            False : User isn't allowed to set the third state.(default)
+        """
         return self._hasWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER)
 
-    def _setUserThreeState(self, val):
+    @UserThreeState.setter
+    def UserThreeState(self, val):
         self._delWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER)
         if val == True:
             self._addWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER)
 
-    def _getValue(self):
+    @property
+    def Value(self):
+        """Specifies the current state of the control (the value of the field). (varies)"""
         if not self._hasWindowStyleFlag(wx.CHK_3STATE):
-            return dDataControlMixin._getValue(self)
+            return get_super_property_value(self, "Value")
         else:
             return self._3StateToValue.get(self.Get3StateValue(), None)
 
-    def _setValue(self, val):
+    @Value.setter
+    def Value(self, val):
         if self._constructed():
             if not self._hasWindowStyleFlag(wx.CHK_3STATE):
-                dDataControlMixin._setValue(self, val)
+                set_super_property_value(self, "Value", val)
             else:
                 try:
                     state = self._ValueTo3State[val]
@@ -98,50 +126,6 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
                 self.Set3StateValue(state)
         else:
             self._properties["Value"] = val
-
-    # property definitions follow:
-    Alignment = property(
-        _getAlignment,
-        _setAlignment,
-        None,
-        _(
-            """Specifies the alignment of the text.
-
-                Left  : Checkbox to left of text (default)
-                Right : Checkbox to right of text"""
-        ),
-    )
-
-    ThreeState = property(
-        _getThreeState,
-        _setThreeState,
-        None,
-        _(
-            """Specifies wether the checkbox support 3 states.
-
-                True  : Checkbox supports 3 states
-                False : Checkbox supports 2 states (default)"""
-        ),
-    )
-
-    UserThreeState = property(
-        _getUserThreeState,
-        _setUserThreeState,
-        None,
-        _(
-            """Specifies whether the user is allowed to set the third state.
-
-                True  : User is allowed to set the third state.
-                False : User isn't allowed to set the third state.(default)"""
-        ),
-    )
-
-    Value = property(
-        _getValue,
-        _setValue,
-        None,
-        _("Specifies the current state of the control (the value of the field). (varies)"),
-    )
 
     DynamicAlignment = makeDynamicProperty(Alignment)
     DynamicThreeState = makeDynamicProperty(ThreeState)

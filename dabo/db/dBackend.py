@@ -664,43 +664,38 @@ class dBackend(dObject):
             wt = self._keepAliveThread = WorkerThread(self)
             wt.start()
 
-    def _getEncoding(self):
-        """Get backend encoding."""
+    @property
+    def Encoding(self):
+        """Backend encoding  (str)"""
         try:
             return self._encoding
         except AttributeError:
             self._encoding = dabo.getEncoding()
             return self._encoding
 
-    def _setEncoding(self, enc):
+    @Encoding.setter
+    def Encoding(self, enc):
         """
         Set backend encoding. Must be overridden in the subclass
         to notify database about proper charset conversion.
         """
         self._encoding = enc
 
-    def _getKeepAliveInterval(self):
+    @property
+    def KeepAliveInterval(self):
+        """
+        Specifies how often a KeepAlive query should be sent to the server.
+
+        Defaults to None, meaning we never send a KeepAlive query. The interval
+        is expressed in seconds.
+        """
         try:
             ret = self._keepAliveInterval
         except AttributeError:
             ret = self._keepAliveInterval = None
         return ret
 
-    def _setKeepAliveInterval(self, val):
+    @KeepAliveInterval.setter
+    def KeepAliveInterval(self, val):
         self._keepAliveInterval = val
         self._applyKeepAlive()
-
-    Encoding = property(_getEncoding, _setEncoding, None, _("Backend encoding  (str)"))
-
-    KeepAliveInterval = property(
-        _getKeepAliveInterval,
-        _setKeepAliveInterval,
-        None,
-        _(
-            """Specifies how often a KeepAlive query should be sent to the server.
-
-            Defaults to None, meaning we never send a KeepAlive query. The interval
-            is expressed in seconds.
-            """
-        ),
-    )

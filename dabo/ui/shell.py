@@ -122,12 +122,30 @@ class _LookupPanel(dPanel):
         if num:
             self.lstMatch.PositionValue = num - 1
 
-    def _getHistory(self):
+    # Property definitions
+    @property
+    def DisplayedHistory(self):
+        """Filtered copy of the History  (dDataSet)"""
+        if self._displayedHistory is None:
+            self._displayedHistory = self.History
+        return self._displayedHistory
+
+    @DisplayedHistory.setter
+    def DisplayedHistory(self, val):
+        if self._constructed():
+            self._displayedHistory = val
+        else:
+            self._properties["DisplayedHistory"] = val
+
+    @property
+    def History(self):
+        """Dataset containing the command history  (dDataSet)"""
         if self._history is None:
             self._history = db.dDataSet()
         return self._history
 
-    def _setHistory(self, val):
+    @History.setter
+    def History(self, val):
         if self._constructed():
             self._history = self._displayedHistory = val
             try:
@@ -137,31 +155,6 @@ class _LookupPanel(dPanel):
                 pass
         else:
             self._properties["History"] = val
-
-    def _getDisplayedHistory(self):
-        if self._displayedHistory is None:
-            self._displayedHistory = self.History
-        return self._displayedHistory
-
-    def _setDisplayedHistory(self, val):
-        if self._constructed():
-            self._displayedHistory = val
-        else:
-            self._properties["DisplayedHistory"] = val
-
-    DisplayedHistory = property(
-        _getDisplayedHistory,
-        _setDisplayedHistory,
-        None,
-        _("Filtered copy of the History  (dDataSet)"),
-    )
-
-    History = property(
-        _getHistory,
-        _setHistory,
-        None,
-        _("Dataset containing the command history  (dDataSet)"),
-    )
 
 
 class dShell(dControlMixin, wx.py.shell.Shell):
@@ -336,22 +329,14 @@ class dShell(dControlMixin, wx.py.shell.Shell):
             return
         return super(dShell, self).OnKeyDown(evt)
 
-    def _getFontSize(self):
-        return self._fontSize
-
-    def _setFontSize(self, val):
-        if self._constructed():
-            self._fontSize = val
-            self.setDefaultFont(self._fontFace, self._fontSize)
-            self.setPyFont(self._fontFace, self._fontSize)
-            self.Application.setUserSetting("shell.fontsize", self._fontSize)
-        else:
-            self._properties["FontSize"] = val
-
-    def _getFontFace(self):
+    # Property definitions
+    @property
+    def FontFace(self):
+        """Name of the font face used in the shell  (str)"""
         return self._fontFace
 
-    def _setFontFace(self, val):
+    @FontFace.setter
+    def FontFace(self, val):
         if self._constructed():
             self._fontFace = val
             self.setDefaultFont(self._fontFace, self._fontSize)
@@ -360,16 +345,20 @@ class dShell(dControlMixin, wx.py.shell.Shell):
         else:
             self._properties["FontFace"] = val
 
-    FontFace = property(
-        _getFontFace,
-        _setFontFace,
-        None,
-        _("Name of the font face used in the shell  (str)"),
-    )
+    @property
+    def FontSize(self):
+        """Size of the font used in the shell  (int)"""
+        return self._fontSize
 
-    FontSize = property(
-        _getFontSize, _setFontSize, None, _("Size of the font used in the shell  (int)")
-    )
+    @FontSize.setter
+    def FontSize(self, val):
+        if self._constructed():
+            self._fontSize = val
+            self.setDefaultFont(self._fontFace, self._fontSize)
+            self.setPyFont(self._fontFace, self._fontSize)
+            self.Application.setUserSetting("shell.fontsize", self._fontSize)
+        else:
+            self._properties["FontSize"] = val
 
 
 ui.dShell = dShell
@@ -440,7 +429,6 @@ class dShellForm(dSplitForm):
             RegID="edtCode",
             Language="python",
             OnKeyDown=self.onCodeKeyDown,
-            OnMouseRightDown=self.onCodeRightDown,
             DroppedTextHandler=self,
             DroppedFileHandler=self,
         )
@@ -505,7 +493,7 @@ Ctrl-Up/Down to scroll through history."""
         self.shell.interp.locals["self"] = ns
 
         self.Caption = _("dShellForm: self is %s") % ns.Name
-        self.setStatusText(_("Use this shell to interact with the runtime environment"))
+        self.updateStatusText(_("Use this shell to interact with the runtime environment"))
         self.MenuBar = dBaseMenuBar()
         self.fillMenu()
         self.shell.SetFocus()
@@ -660,19 +648,18 @@ Ctrl-Up/Down to scroll through history."""
             self._codeStackPos = newpos
             self.edtCode.Value = code
 
-    def onCodeRightDown(self, evt):
-        ui.info("Code!")
-
     def onOutputRightDown(self, evt):
         pop = dMenu()
-        pop.append(_("Clear"), OnHit=self.onClearOutput)
+        itm = pop.append(_("Clear Output"), OnHit=self.onClearOutput)
         if self.edtOut.SelectionLength:
             pop.append(_("Copy"), OnHit=self.Application.onEditCopy)
         self.showContextMenu(pop)
         evt.stop()
 
     def onClearOutput(self, evt):
-        self.edtOut.Value = ""
+        print("ON CLEAR CALLED! " * 22)
+        ed = self.edtOut
+        ed.Value = ""
 
     def onShellContext(self, evt):
         pop = dMenu()
@@ -768,25 +755,34 @@ Ctrl-Up/Down to scroll through history."""
     def getBaseShellClass(cls):
         return dShell
 
-    def _getFontSize(self):
-        return self.shell.FontSize
-
-    def _setFontSize(self, val):
-        if self._constructed():
-            self.shell.FontSize = val
-        else:
-            self._properties["FontSize"] = val
-
-    def _getFontFace(self):
+    # Property definitions
+    @property
+    def FontFace(self):
+        """Name of the font face used in the shell  (str)"""
         return self.shell.FontFace
 
-    def _setFontFace(self, val):
+    @FontFace.setter
+    def FontFace(self, val):
         if self._constructed():
             self.shell.FontFace = val
         else:
             self._properties["FontFace"] = val
 
-    def _getHistoryPanel(self):
+    @property
+    def FontSize(self):
+        """Size of the font used in the shell  (int)"""
+        return self.shell.FontSize
+
+    @FontSize.setter
+    def FontSize(self, val):
+        if self._constructed():
+            self.shell.FontSize = val
+        else:
+            self._properties["FontSize"] = val
+
+    @property
+    def HistoryPanel(self):
+        """Popup to display the command history  (read-only) (dDialog)"""
         fp = self.FloatingPanel
         try:
             create = self._historyPanel is None
@@ -800,19 +796,28 @@ Ctrl-Up/Down to scroll through history."""
             fp.fitToSizer()
         return self._historyPanel
 
-    def _getShellClass(self):
+    @property
+    def ShellClass(self):
         return self._shellClass
 
-    def _setShellClass(self, val):
+    @ShellClass.setter
+    def ShellClass(self, val):
+        """Class to use for the interactive shell  (dShell)"""
         if self._constructed():
             self._shellClass = val
         else:
             self._properties["ShellClass"] = val
 
-    def _getSplitState(self):
+    @property
+    def SplitState(self):
+        """
+        Controls whether the output is in a separate pane (default) or intermixed with the commands.
+        (bool)
+        """
         return self._splitState
 
-    def _setSplitState(self, val):
+    @SplitState.setter
+    def SplitState(self, val):
         if self._splitState != val:
             self._splitState = val
             if val:
@@ -823,41 +828,6 @@ Ctrl-Up/Down to scroll through history."""
                 self.unsplit()
                 self.shell.interp.stdout = self._stdOut
                 self.shell.interp.stderr = self._stdErr
-
-    FontFace = property(
-        _getFontFace,
-        _setFontFace,
-        None,
-        _("Name of the font face used in the shell  (str)"),
-    )
-
-    FontSize = property(
-        _getFontSize, _setFontSize, None, _("Size of the font used in the shell  (int)")
-    )
-
-    _HistoryPanel = property(
-        _getHistoryPanel,
-        None,
-        None,
-        _("Popup to display the command history  (read-only) (dDialog)"),
-    )
-
-    ShellClass = property(
-        _getShellClass,
-        _setShellClass,
-        None,
-        _("Class to use for the interactive shell  (dShell)"),
-    )
-
-    SplitState = property(
-        _getSplitState,
-        _setSplitState,
-        None,
-        _(
-            """Controls whether the output is in a separate pane (default)
-            or intermixed with the commands.  (bool)"""
-        ),
-    )
 
     DynamicSplitState = makeDynamicProperty(SplitState)
 

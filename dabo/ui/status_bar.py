@@ -45,22 +45,18 @@ class dStatusBar(dControlMixin, wx.StatusBar):
         if self._platformIsWindows:
             self.refresh()
 
-    def _getFieldCount(self):
+    @property
+    def FieldCount(self):
+        """Number of areas, or 'fields', in the status bar. Default=1  (int)"""
         return self._fieldCount
 
-    def _setFieldCount(self, val):
+    @FieldCount.setter
+    def FieldCount(self, val):
         if self._constructed():
             self._fieldCount = val
             self.SetFieldsCount(val)
         else:
             self._properties["FieldCount"] = val
-
-    FieldCount = property(
-        _getFieldCount,
-        _setFieldCount,
-        None,
-        _("Number of areas, or 'fields', in the status bar. Default=1  (int)"),
-    )
 
 
 ui.dStatusBar = dStatusBar

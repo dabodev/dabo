@@ -335,139 +335,108 @@ class dToolBar(dControlMixin, wx.ToolBar):
                 return idx
         return None
 
-    def _getDockable(self):
+    @property
+    def Dockable(self):
+        """
+        Specifies whether the toolbar can be docked and undocked.  (bool)
+
+        .. note::
+
+        Currently, this only seems to work on Linux, and can't be changed after
+        instantiation. Default is True.
+        """
         return self._hasWindowStyleFlag(wx.TB_DOCKABLE)
 
-    def _setDockable(self, val):
+    @Dockable.setter
+    def Dockable(self, val):
         self._delWindowStyleFlag(wx.TB_DOCKABLE)
         if val:
             self._addWindowStyleFlag(wx.TB_DOCKABLE)
 
-    def _getMaxHt(self):
+    @property
+    def MaxHt(self):
+        """
+        Specifies the maximum height of added buttons.  (int)
+
+        When set to zero, there will be no height limit.
+        """
         try:
             v = self._maxHt
         except AttributeError:
             v = self._maxHt = 0
         return v
 
-    def _setMaxHt(self, val):
+    @MaxHt.setter
+    def MaxHt(self, val):
         self._maxHt = val
         if self._constructed():
             self._updBmpSize()
         else:
             self._properties["MaxHeight"] = val
 
-    def _getMaxWd(self):
+    @property
+    def MaxWd(self):
+        """
+        Specifies the maximum width of added buttons.  (int)
+
+        When set to zero, there will be no width limit.
+        """
         try:
             v = self._maxWd
         except AttributeError:
             v = self._maxWd = 0
         return v
 
-    def _setMaxWd(self, val):
+    @MaxWd.setter
+    def MaxWd(self, val):
         self._maxWd = val
         if self._constructed():
             self._updBmpSize()
         else:
             self._properties["MaxWidth"] = val
 
-    def _getShowCaptions(self):
+    @property
+    def ShowCaptions(self):
+        """Specifies whether the text captions are shown in the toolbar. Default=False  (bool)"""
         return self._hasWindowStyleFlag(wx.TB_TEXT)
 
-    def _setShowCaptions(self, val):
+    @ShowCaptions.setter
+    def ShowCaptions(self, val):
         self._delWindowStyleFlag(wx.TB_TEXT)
         if val:
             self._addWindowStyleFlag(wx.TB_TEXT)
         if self._constructed():
             self._realize()
 
-    def _getShowIcons(self):
+    @property
+    def ShowIcons(self):
+        """
+        Specifies whether the icons are shown in the toolbar.  (bool)
+
+        Note that you can set both ShowCaptions and ShowIcons to False, but in that case, the icons
+        will still show. Default=True.
+        """
         return not self._hasWindowStyleFlag(wx.TB_NOICONS)
 
-    def _setShowIcons(self, val):
+    @ShowIcons.setter
+    def ShowIcons(self, val):
         self._delWindowStyleFlag(wx.TB_NOICONS)
         if not val:
             self._addWindowStyleFlag(wx.TB_NOICONS)
         if self._constructed():
             self._realize()
 
-    def _getToolbarItemClass(self):
+    @property
+    def ToolbarItemClass(self):
+        """Class to instantiate for toolbar items. Default=dToolBarItem.  (varies)"""
         return self._toolbarItemClass
 
-    def _setToolbarItemClass(self, val):
+    @ToolbarItemClass.setter
+    def ToolbarItemClass(self, val):
         if self._constructed():
             self._toolbarItemClass = val
         else:
             self._properties["ToolbarItemClass"] = val
-
-    Dockable = property(
-        _getDockable,
-        _setDockable,
-        None,
-        _(
-            """
-        Specifies whether the toolbar can be docked and undocked.  (bool)
-
-        .. note::
-
-            Currently, this only seems to work on Linux, and can't be changed after
-            instantiation. Default is True.
-
-        """
-        ),
-    )
-
-    MaxHeight = property(
-        _getMaxHt,
-        _setMaxHt,
-        None,
-        _(
-            """Specifies the maximum height of added buttons.  (int)
-
-        When set to zero, there will be no height limit."""
-        ),
-    )
-
-    MaxWidth = property(
-        _getMaxWd,
-        _setMaxWd,
-        None,
-        _(
-            """Specifies the maximum width of added buttons.  (int)
-
-        When set to zero, there will be no width limit."""
-        ),
-    )
-
-    ShowCaptions = property(
-        _getShowCaptions,
-        _setShowCaptions,
-        None,
-        _(
-            """Specifies whether the text captions are shown in the toolbar.  (bool)
-
-        Default is False."""
-        ),
-    )
-
-    ShowIcons = property(
-        _getShowIcons,
-        _setShowIcons,
-        None,
-        _(
-            """Specifies whether the icons are shown in the toolbar.  (bool)
-
-        Note that you can set both ShowCaptions and ShowIcons to False, but in
-        that case, the icons will still show. Default is True."""
-        ),
-    )
-
-    ToolbarItemClass = property(
-        _getToolbarItemClass,
-        _setToolbarItemClass,
-        None,
-        _("""Class to instantiate for toolbar items. Default=dToolBarItem.  (varies)"""),
-    )
 
     DynamicShowCaptions = makeDynamicProperty(ShowCaptions)
     DynamicShowIcons = makeDynamicProperty(ShowIcons)
@@ -537,98 +506,71 @@ class dToolBarItem(dObject):
         # Placeholder to satisfy some wx layer code.
         return True
 
-    def _getCanToggle(self):
+    @property
+    def CanToggle(self):
+        """
+        Specifies whether the toolbar item can be toggled.  (bool)
+
+        For toggleable items, the Value property will tell you if the item is
+        currently toggled or not.
+        """
         return bool(self._wxToolBarItem.CanBeToggled())
 
-    def _setCanToggle(self, val):
+    @CanToggle.setter
+    def CanToggle(self, val):
         self._wxToolBarItem.ToggleTool(bool(val))
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """Specifies the text caption of the toolbar item.
+
+        You will only see the caption if dToolBar.ShowCaptions is set to True.
+        """
         return self._wxToolBarItem.GetLabel()
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         self._wxToolBarItem.SetLabel(val)
         if self.Parent:
             ui.callAfter(self.Parent._recreateItem, self)
 
-    def _getEnabled(self):
+    @property
+    def Enabled(self):
+        """Specifies whether the user may interact with the button."""
         return self.Parent.GetToolEnabled(self._id)
 
-    def _setEnabled(self, val):
+    @Enabled.setter
+    def Enabled(self, val):
         if self.Parent:
             self.Parent.EnableTool(self._id, bool(val))
         else:
             self.Enable(bool(val))
 
-    def _getParent(self):
-        ## Calling GetToolBar() on a free item causes a segfault.
-        # return self._wxToolBarItem.GetToolBar()
+    @property
+    def Parent(self):
+        """Contains an object reference to the containing toolbar."""
         return self._parent
 
-    def _getValue(self):
+    @property
+    def Value(self):
+        """
+        Specifies whether the toolbar item is toggled or not.  (bool)
+
+        For items with CanToggle = True, returns one of True or False, depending on the state of the
+        button. For items with CanToggle = False, returns None.
+        """
         if self.CanToggle:
             return bool(self.Parent.GetToolState(self._id))
         return None
 
-    def _setValue(self, val):
+    @Value.setter
+    def Value(self, val):
         assert self.CanToggle, "Can't set Value on a non-toggleable tool."
         if self.Parent:
             self.Parent.ToggleTool(self._id, bool(val))
         else:
             if bool(self.IsToggled()) != bool(val):
                 self.Toggle()
-
-    CanToggle = property(
-        _getCanToggle,
-        _setCanToggle,
-        None,
-        _(
-            """
-            Specifies whether the toolbar item can be toggled.  (bool)
-
-            For toggleable items, the Value property will tell you if the item is
-            currently toggled or not."""
-        ),
-    )
-
-    Caption = property(
-        _getCaption,
-        _setCaption,
-        None,
-        _(
-            """Specifies the text caption of the toolbar item.
-
-            You will only see the caption if dToolBar.ShowCaptions is set to True.
-            """
-        ),
-    )
-
-    Enabled = property(
-        _getEnabled,
-        _setEnabled,
-        None,
-        _("""Specifies whether the user may interact with the button."""),
-    )
-
-    Parent = property(
-        _getParent,
-        None,
-        None,
-        _("""Contains an object reference to the containing toolbar."""),
-    )
-
-    Value = property(
-        _getValue,
-        _setValue,
-        None,
-        _(
-            """Specifies whether the toolbar item is toggled or not.  (bool)
-
-            For items with CanToggle = True, returns one of True or False, depending
-            on the state of the button. For items with CanToggle = False, returns
-            None."""
-        ),
-    )
 
     DynamicCaption = makeDynamicProperty(Caption)
     DynamicEnabled = makeDynamicProperty(Enabled)

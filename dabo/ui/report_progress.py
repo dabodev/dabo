@@ -62,33 +62,26 @@ class dReportProgress(dPanel):
     def cancel(self):
         self.ProcessObject.cancel()
 
-    def _getCaption(self):
+    # Property definitions
+    @property
+    def Caption(self):
+        """Specifies the caption of the progress bar."""
         return self.lblTitle.Caption
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         self.lblTitle.Caption = val
         self.fitToSizer()
 
-    def _getProcessObject(self):
+    @property
+    def ProcessObject(self):
+        """Specifies the object that is processing (a dReportWriter instance, for example)."""
         self._processObject = getattr(self, "_processObject", None)
         return self._processObject
 
-    def _setProcessObject(self, val):
+    @ProcessObject.setter
+    def ProcessObject(self, val):
         self._processObject = val
-
-    Caption = property(
-        _getCaption,
-        _setCaption,
-        None,
-        _("""Specifies the caption of the progress bar."""),
-    )
-
-    ProcessObject = property(
-        _getProcessObject,
-        _setProcessObject,
-        None,
-        _("""Specifies the object that is processing (a dReportWriter instance, for example)."""),
-    )
 
 
 ui.dReportProgress = dReportProgress

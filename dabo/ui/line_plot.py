@@ -30,61 +30,44 @@ from . import dControlMixin, makeDynamicProperty
 
 
 class _TraceMixin(object):
-    # Property Getters and Setters
-    def _getCaption(self):
+    # Property Definitions
+    @property
+    def Caption(self):
+        """The caption in the legend (default='') (str)"""
         return self.attributes["legend"]
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         self.attributes["legend"] = ustr(val)
 
-    def _getPoints(self):
+    @property
+    def Points(self):
+        """The points that are plotted on the trace (list)"""
         return self._points
 
-    def _setPoints(self, val):
+    @Points.setter
+    def Points(self, val):
         for point in val:
             if not ((point is tuple) and (len(point) == 2)):
                 raise ValueError("Points must be tuples of length 2")
 
-    def _getTraceColor(self):
+    @property
+    def TraceColor(self):
+        """The color of the plotted trace. Must be a wx.NamedColour (default='black') (str)"""
         return self.attributes["colour"]
 
-    def _setTraceColor(self, val):
+    @TraceColor.setter
+    def TraceColor(self, val):
         self.attributes["colour"] = val
 
-    def _getTraceWidth(self):
+    @property
+    def TraceWidth(self):
+        """The width of the plotted trace (default=1) (int)"""
         return self.attributes["width"]
 
-    def _setTraceWidth(self, val):
+    @TraceWidth.setter
+    def TraceWidth(self, val):
         self.attributes["width"] = int(val)
-
-    # Property Definitions
-    Caption = property(
-        _getCaption,
-        _setCaption,
-        None,
-        _("The caption in the legend (default='') (str)"),
-    )
-
-    Points = property(
-        _getPoints,
-        _setPoints,
-        None,
-        _("The points that are plotted on the trace (list)"),
-    )
-
-    TraceColor = property(
-        _getTraceColor,
-        _setTraceColor,
-        None,
-        _("The color of the plotted trace.  Must be a wx.NamedColour (default='black') (str)"),
-    )
-
-    TraceWidth = property(
-        _getTraceWidth,
-        _setTraceWidth,
-        None,
-        _("The width of the plotted trace (default=1) (int)"),
-    )
 
 
 class PlotLine(_TraceMixin, plot.PolyLine):
@@ -92,11 +75,14 @@ class PlotLine(_TraceMixin, plot.PolyLine):
         self._lineStyle = "solid"
         plot.PolyLine.__init__(self, *args, **kwargs)
 
-    # Property Getters and Setters
-    def _getLineStyle(self):
+    # Property Definitions
+    @property
+    def LineStyle(self):
+        """The drawn style of the plotted line (default='solid') ('solid', 'dot', or 'dash')"""
         return self._lineStyle
 
-    def _setLineStyle(self, val):
+    @LineStyle.setter
+    def LineStyle(self, val):
         if val in ["solid", "dot", "dash"]:
             self.attributes["style"] = dict(
                 solid=wx.PENSTYLE_SOLID, dot=wx.PENSTYLE_DOT, dash=wx.PENSTYLE_DOT_DASH
@@ -105,25 +91,20 @@ class PlotLine(_TraceMixin, plot.PolyLine):
         else:
             raise ValueError("LineStyle must be either 'solid', 'dash', or 'dot'")
 
-    # Property Definitions
-    LineStyle = property(
-        _getLineStyle,
-        _setLineStyle,
-        None,
-        _("The drawn style of the plotted line (default='solid') ('solid', 'dot', or 'dash')"),
-    )
-
 
 class PlotMarkers(_TraceMixin, plot.PolyMarker):
     def __init__(self, *args, **kwargs):
         self._fillStyle = "solid"
         plot.PolyMarker.__init__(self, *args, **kwargs)
 
-    # Property getters and setters
-    def _getFillStyle(self):
+    # Property definitions
+    @property
+    def FillStyle(self):
+        """The fill style for the marker (default='solid') ('solid' or 'empty')"""
         return self._fillStyle
 
-    def _setFillStyle(self, val):
+    @FillStyle.setter
+    def FillStyle(self, val):
         if val in ["solid", "empty"]:
             self.attributes["style"] = dict(solid=wx.PENSTYLE_SOLID, empty=wx.PENSTYLE_TRANSPARENT)[
                 val
@@ -132,10 +113,24 @@ class PlotMarkers(_TraceMixin, plot.PolyMarker):
         else:
             raise ValueError("LineStyle must be either 'solid' or 'empty'")
 
-    def _getMarkerShape(self):
+    @property
+    def MarkerShape(self):
+        """
+        The style for the marker (default='circle) (str)
+
+        The marker style can be any of the following:
+            - 'circle'
+            - 'dot'
+            - 'square'
+            - 'triangle'
+            - 'triangle_down'
+            - 'cross'
+            - 'plus'
+        """
         return self.attributes["marker"]
 
-    def _setMarkerShape(self, val):
+    @MarkerShape.setter
+    def MarkerShape(self, val):
         if val in [
             "circle",
             "dot",
@@ -152,44 +147,14 @@ class PlotMarkers(_TraceMixin, plot.PolyMarker):
                 "'triangle_down', 'cross', or 'plus'"
             )
 
-    def _getMarkerSize(self):
+    @property
+    def MarkerSize(self):
+        """The size of the marker (default=2) (int)"""
         return self.attributes["size"]
 
-    def _setMarkerSize(self, val):
+    @MarkerSize.setter
+    def MarkerSize(self, val):
         self.attributes["size"] = int(val)
-
-    # Property definitions
-    FillStyle = property(
-        _getFillStyle,
-        _setFillStyle,
-        None,
-        _("The fill style for the marker (default='solid') ('solid' or 'empty')"),
-    )
-
-    MarkerShape = property(
-        _getMarkerShape,
-        _setMarkerShape,
-        None,
-        _(
-            """The style for the marker (default='circle) (str)
-
-            The marker style can be any of the following:
-                - 'circle'
-                - 'dot'
-                - 'square'
-                - 'triangle'
-                - 'triangle_down'
-                - 'cross'
-                - 'plus'"""
-        ),
-    )
-
-    MarkerSize = property(
-        _getMarkerSize,
-        _setMarkerSize,
-        None,
-        _("The size of the marker (default=2) (int)"),
-    )
 
 
 class dLinePlot(dControlMixin, plot.PlotCanvas):
@@ -329,102 +294,138 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         self.SetXSpec("auto")
         self.SetYSpec("auto")
 
-    # Property getters and setters
-    def _getAxisFontSize(self):
+    # Property definitions
+    @property
+    def AxisFontSize(self):
+        """Font size of the axis labels (default=15) (int)"""
         return self._fontSizeAxis
 
-    def _setAxisFontSize(self, val):
+    @AxisFontSize.setter
+    def AxisFontSize(self, val):
         if self._constructed():
             self._fontSizeAxis = int(val)
             self.Redraw()
         else:
             self._properties["AxisFontSize"] = val
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """Title of the graph (str)"""
         return self._plotManager.getTitle()
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         if self._constructed():
             self._plotManager.setTitle(val)
             self.Redraw()
         else:
             self._properties["Caption"] = val
 
-    def _getEnableDrag(self):
+    @property
+    def EnableDrag(self):
+        """Determines whether drag is enabled (bool)"""
         return self._dragEnabled
 
-    def _setEnableDrag(self, val):
+    @EnableDrag.setter
+    def EnableDrag(self, val):
         self.SetEnableDrag(val)
 
-    def _getEnableZoom(self):
+    @property
+    def EnableZoom(self):
+        """Determines whether zoom is enabled"""
         return self._zoomEnabled
 
-    def _setEnableZoom(self, val):
+    @EnableZoom.setter
+    def EnableZoom(self, val):
         self.SetEnableZoom(val)
 
-    def _getFontSize(self):
+    @property
+    def FontSize(self):
+        """The font size of the caption"""
         return self._fontSizeTitle
 
-    def _setFontSize(self, val):
+    @FontSize.setter
+    def FontSize(self, val):
         self._fontSizeTitle = val
 
-    def _getLegendFontSize(self):
+    @property
+    def LegendFontSize(self):
+        """Font size of the legend (default=7) (int)"""
         return self._fontSizeLegend
 
-    def _setLegendFontSize(self, val):
+    @LegendFontSize.setter
+    def LegendFontSize(self, val):
         self._fontSizeLegend = int(val)
         self.Redraw()
 
-    def _getLogScale(self):
+    @property
+    def LogScale(self):
+        """Determines whether each axis is on a logscale (tuple)"""
         return self._logscale
 
-    def _setLogScale(self, val):
+    @LogScale.setter
+    def LogScale(self, val):
         if self._constructed():
             self.setLogScale(val)
             self.Redraw()
         else:
             self._properties["LogScale"] = val
 
-    def _getShowCaption(self):
+    @property
+    def ShowCaption(self):
+        """Determines if the Caption is shown (default=True) (bool)"""
         return self._titleEnabled
 
-    def _setShowCaption(self, val):
+    @ShowCaption.setter
+    def ShowCaption(self, val):
         if self._constructed():
             self.SetEnableTitle(val)
         else:
             self._properties["ShowCaption"] = val
 
-    def _getShowGrid(self):
+    @property
+    def ShowGrid(self):
+        """Determines if grid lines are shown (default=False) (bool)"""
         return self._gridEnabled
 
-    def _setShowGrid(self, val):
+    @ShowGrid.setter
+    def ShowGrid(self, val):
         if self._constructed():
             return self.SetEnableGrid(val)
         else:
             self._properties["ShowGrid"] = val
 
-    def _getShowLegend(self):
+    @property
+    def ShowLegend(self):
+        """Determines if the legend is shown (default=False) (bool)"""
         return self._legendEnabled
 
-    def _setShowLegend(self, val):
+    @ShowLegend.setter
+    def ShowLegend(self, val):
         if self._constructed():
             self.SetEnableLegend(val)
         else:
             self._properties["ShowLegend"] = val
 
-    def _getShowPointLabel(self):
+    @property
+    def ShowPointLabel(self):
+        """Determines if the point labels are shown (bool)"""
         return self._pointLabelEnabled
 
-    def _setShowPointLabel(self, val):
+    @ShowPointLabel.setter
+    def ShowPointLabel(self, val):
         if self._constructed():
             self.SetEnablePointLabel = True
         else:
             self._properties["ShowPointLabel"] = val
 
-    def _getShowScrollbars(self):
+    @property
+    def ShowScrollbars(self):
+        """Determines if scrollbars are shown (default=False)  (bool)"""
         return self.GetShowScrollbars()
 
-    def _setShowScrollbars(self, val):
+    @ShowScrollbars.setter
+    def ShowScrollbars(self, val):
         if self._constructed():
             if val:
                 self.SetShowScrollbars(True)
@@ -434,16 +435,22 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         else:
             self._properties["ShowScrollbars"] = val
 
-    def _getTraces(self):
+    @property
+    def Traces(self):
+        """List of all of the traces currently being plotted (list)"""
         return self._plotManager.objects
 
-    def _setTraces(self, val):
+    @Traces.setter
+    def Traces(self, val):
         self._plotManager.objects = val
 
-    def _getUseScientificNotation(self):
+    @property
+    def UseScientificNotation(self):
+        """Determines if scientific notation is used for the display (default=False) (bool)"""
         return self._useScientificNotation
 
-    def _setUseScientificNotation(self, val):
+    @UseScientificNotation.setter
+    def UseScientificNotation(self, val):
         if self._constructed():
             if val:
                 self._useScientificNotation = True
@@ -453,20 +460,31 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         else:
             self._properties["UseScientificNotation"] = val
 
-    def _getXAxisLabel(self):
+    @property
+    def XAxisLabel(self):
+        """Label for the x-axis (string)"""
         return self._plotManager.getXLabel()
 
-    def _setXAxisLabel(self, val):
+    @XAxisLabel.setter
+    def XAxisLabel(self, val):
         if self._constructed():
             self._plotManager.setXLabel(val)
             self.Redraw()
         else:
             self._properties["XAxisLabel"] = val
 
-    def _getXAxisType(self):
+    @property
+    def XAxisType(self):
+        """
+        Defines x axis type. Can be 'none', 'min' or 'auto' where:
+            'none' - shows no axis or tick mark values
+            'min' - shows min bounding box values
+            'auto' - rounds axis range to sensible values
+        """
         return self._xSpec
 
-    def _setXAxisType(self, val):
+    @XAxisType.setter
+    def XAxisType(self, val):
         if self._constructed():
             if val in ["auto", "min", "none"]:
                 self._xSpec = val
@@ -476,20 +494,31 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         else:
             self._properties["XAxisType"] = val
 
-    def _getYAxisLabel(self):
+    @property
+    def YAxisLabel(self):
+        """Label for the y-axis (string)"""
         return self._plotManager.getYLabel()
 
-    def _setYAxisLabel(self, val):
+    @YAxisLabel.setter
+    def YAxisLabel(self, val):
         if self._constructed():
             self._plotManager.setYLabel(val)
             self.Redraw()
         else:
             self._properties["YAxisLabel"] = val
 
-    def _getYAxisType(self):
+    @property
+    def YAxisType(self):
+        """
+        Defines y axis type. Can be 'none', 'min' or 'auto' where:
+            'none' - shows no axis or tick mark values
+            'min' - shows min bounding box values
+            'auto' - rounds axis range to sensible values
+        """
         return self._ySpec
 
-    def _setYAxisType(self, val):
+    @YAxisType.setter
+    def YAxisType(self, val):
         if self._constructed():
             if val in ["auto", "min", "none"]:
                 self._ySpec = val
@@ -498,122 +527,6 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
                 raise ValueError("YAxisType must be either 'none', 'min', or 'auto'")
         else:
             self._properties["YAxisType"] = val
-
-    # Property definitions
-    AxisFontSize = property(
-        _getAxisFontSize,
-        _setAxisFontSize,
-        None,
-        _("Font size of the axis labels (default=15) (int)"),
-    )
-
-    Caption = property(_getCaption, _setCaption, None, _("Title of the graph (str)"))
-
-    EnableDrag = property(
-        _getEnableDrag,
-        _setEnableDrag,
-        None,
-        _("Determines whether drag is enabled (bool)"),
-    )
-
-    EnableZoom = property(
-        _getEnableZoom, _setEnableZoom, None, _("Determines whether zoom is enabled")
-    )
-
-    FontSize = property(_getFontSize, _setFontSize, None, _("The font size of the caption"))
-
-    LegendFontSize = property(
-        _getLegendFontSize,
-        _setLegendFontSize,
-        None,
-        _("Font size of the legend (default=7) (int)"),
-    )
-
-    LogScale = property(
-        _getLogScale,
-        _setLogScale,
-        None,
-        _("Determines whether each axis is on a logscale (tuple)"),
-    )
-
-    ShowCaption = property(
-        _getShowCaption,
-        _setShowCaption,
-        None,
-        _("Determines if the Caption is show (default=True) (bool)"),
-    )
-
-    ShowGrid = property(
-        _getShowGrid,
-        _setShowGrid,
-        None,
-        _("Determines if grid lines are shown (default=False) (bool)"),
-    )
-
-    ShowLegend = property(
-        _getShowLegend,
-        _setShowLegend,
-        None,
-        _("Determines if the legend is shown (default=False) (bool)"),
-    )
-
-    ShowPointLabel = property(
-        _getShowPointLabel,
-        _setShowPointLabel,
-        None,
-        _("Determines if the point labels are shown (bool)"),
-    )
-
-    ShowScrollbars = property(
-        _getShowScrollbars,
-        _setShowScrollbars,
-        None,
-        _("Determines if scrollbars are shown (default=False)  (bool)"),
-    )
-
-    Traces = property(
-        _getTraces,
-        _setTraces,
-        None,
-        _("List of all of the traces currently being plotted (list)"),
-    )
-
-    UseScientificNotation = property(
-        _getUseScientificNotation,
-        _setUseScientificNotation,
-        None,
-        _("Determines if scientific notation is used for the display (default=False) (bool)"),
-    )
-
-    XAxisLabel = property(_getXAxisLabel, _setXAxisLabel, None, _("Label for the x-axis (string)"))
-
-    XAxisType = property(
-        _getXAxisType,
-        _setXAxisType,
-        None,
-        _(
-            """Defines x axis type. Can be 'none', 'min' or 'auto'
-    where:
-        'none' - shows no axis or tick mark values
-        'min' - shows min bounding box values
-        'auto' - rounds axis range to sensible values"""
-        ),
-    )
-
-    YAxisLabel = property(_getYAxisLabel, _setYAxisLabel, None, _("Label for the y-axis (string)"))
-
-    YAxisType = property(
-        _getYAxisType,
-        _setYAxisType,
-        None,
-        _(
-            """defines y axis type. Can be 'none', 'min' or 'auto'
-    where:
-        'none' - shows no axis or tick mark values
-        'min' - shows min bounding box values
-        'auto' - rounds axis range to sensible values"""
-        ),
-    )
 
 
 ui.dLinePlot = dLinePlot

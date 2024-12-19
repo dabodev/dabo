@@ -1284,32 +1284,43 @@ try again when it is running.
         if frm is self.ActiveForm:
             self.uiApp.ActiveForm = None
 
-    def _getAboutFormClass(self):
+    @property
+    def AboutFormClass(self):
+        """Specifies the form class to use for the application's About screen."""
         return getattr(self, "_aboutFormClass", None)
 
-    def _setAboutFormClass(self, val):
+    @AboutFormClass.setter
+    def AboutFormClass(self, val):
         self._aboutFormClass = val
 
-    def _getActiveForm(self):
+    @property
+    def ActiveForm(self):
+        """Returns the form that currently has focus, or None.  (dForm)"""
         if hasattr(self, "uiApp") and self.uiApp is not None:
             return self.uiApp.ActiveForm
         else:
             return None
 
-    def _setActiveForm(self, frm):
+    @ActiveForm.setter
+    def ActiveForm(self, frm):
         try:
             self.uiApp._setActiveForm(frm)
         except AttributeError:
             # self.uiApp hasn't been created yet.
             pass
 
-    def _getAutoImportConnections(self):
+    @property
+    def AutoImportConnections(self):
+        """Specifies whether .cnxml connection files are automatically imported. (Default True)"""
         return getattr(self, "_autoImportConnections", True)
 
-    def _setAutoImportConnections(self, val):
+    @AutoImportConnections.setter
+    def AutoImportConnections(self, val):
         self._autoImportConnections = bool(val)
 
-    def _getBasePrefKey(self):
+    @dObject.BasePrefKey.getter
+    def BasePrefKey(self):
+        """Override the getter for this property"""
         try:
             ret = self._basePrefKey
         except AttributeError:
@@ -1340,57 +1351,95 @@ try again when it is running.
                 ret = ret.decode(settings.fileSystemEncoding)
         return ret
 
-    def _setBasePrefKey(self, val):
-        super(dApp, self)._setBasePrefKey(val)
-
-    def _getCrypto(self):
+    @property
+    def Crypto(self):
+        """Reference to the object that provides cryptographic services.  (varies)"""
         if getattr(self, "_cryptoProvider", None) is None:
             # Use the default crypto
             self._cryptoProvider = SimpleCrypt()
         return self._cryptoProvider
 
-    def _setCrypto(self, val):
+    @Crypto.setter
+    def Crypto(self, val):
         self._cryptoProvider = val
 
-    def _setCryptoKey(self, val):
+    @property
+    def CryptoKey(self):
+        """
+        When set, creates a DES crypto object if PyCrypto is installed. Note that
+        each time this property is set, a new PyCrypto instance is created, and
+        any previous crypto objects are released. Write-only.  (varies)
+        """
+        raise ValueError("The CryptoKey property is write-only")
+
+    @CryptoKey.setter
+    def CryptoKey(self, val):
         self._cryptoProvider = SimpleCrypt(key=val)
 
-    def _getDefaultMenuBarClass(self):
+    @property
+    def DefaultForm(self):
+        """
+        The form class to open by default, automatically, after app instantiation.
+        (form class reference)
+        """
+        return getattr(self, "_defaultForm", None)
+
+    @DefaultForm.setter
+    def DefaultForm(self, val):
+        self._defaultForm = val
+
+    @property
+    def DefaultMenuBarClass(self):
+        """
+        The class used by all forms in the application when no specific MenuBarClass
+        is specified  (ui.dMenuBar)
+        """
         try:
             cls = self._defaultMenuBarClass
         except AttributeError:
             cls = self._defaultMenuBarClass = ui.dBaseMenuBar
         return cls
 
-    def _setDefaultMenuBarClass(self, val):
+    @DefaultMenuBarClass.setter
+    def DefaultMenuBarClass(self, val):
         self._defaultMenuBarClass = val
 
-    def _getDrawSizerOutlines(self):
+    @property
+    def DrawSizerOutlines(self):
+        """Determines if sizer outlines are drawn on the ActiveForm.  (bool)"""
         try:
             return self.uiApp.DrawSizerOutlines
         except AttributeError:
             # self.uiApp hasn't been created yet.
             return False
 
-    def _setDrawSizerOutlines(self, val):
+    @DrawSizerOutlines.setter
+    def DrawSizerOutlines(self, val):
         self.uiApp.DrawSizerOutlines = val
 
-    def _getDefaultForm(self):
-        return getattr(self, "_defaultForm", None)
-
-    def _setDefaultForm(self, val):
-        self._defaultForm = val
-
-    def _getEncoding(self):
+    @property
+    def Encoding(self):
+        """Name of encoding to use for unicode  (str)"""
         return settings.getEncoding()
 
-    def _getFormsToOpen(self):
+    @property
+    def FormsToOpen(self):
+        """List of forms to open after App instantiation.  (list of form class references)"""
         return getattr(self, "_formsToOpen", [])
 
-    def _setFormsToOpen(self, val):
+    @FormsToOpen.setter
+    def FormsToOpen(self, val):
         self._formsToOpen = val
 
-    def _getHomeDirectory(self):
+    @property
+    def HomeDirectory(self):
+        """
+        Specifies the application's home directory. (string)
+
+        The HomeDirectory is the top-level directory for your application files, the directory
+        where your main script lives. You never know what the current directory will be on a
+        given system, but HomeDirectory will always get you to your files.
+        """
         # start with the current directory as a default
         hd = os.getcwd()
         try:
@@ -1457,26 +1506,54 @@ try again when it is running.
             self._homeDirectory = hd
         return hd
 
-    def _setHomeDirectory(self, val):
+    @HomeDirectory.setter
+    def HomeDirectory(self, val):
         if os.path.exists(val):
             self._homeDirectory = os.path.abspath(val)
         else:
             dabo_module.error(_("Setting App HomeDirectory: Path does not exist. '%s'") % val)
 
-    def _getIcon(self):
+    @property
+    def Icon(self):
+        """
+        Specifies the icon to use on all forms and dialogs by default.
+
+        The value passed can be a binary icon bitmap, a filename, or a sequence of filenames.
+        Providing a sequence of filenames pointing to icons at expected dimensions like 16, 22, and
+        32 px means that the system will not have to scale the icon, resulting in a much better
+        appearance.
+        """
         return getattr(self, "_icon", "daboIcon.ico")
 
-    def _setIcon(self, val):
+    @Icon.setter
+    def Icon(self, val):
         self._icon = val
 
-    def _getLoginDialogClass(self):
+    @property
+    def LoginDialogClass(self):
+        """The class to use for logging in."""
         defaultDialogClass = ui.dialogs.login.Login
         return getattr(self, "_loginDialogClass", defaultDialogClass)
 
-    def _setLoginDialogClass(self, val):
+    @LoginDialogClass.setter
+    def LoginDialogClass(self, val):
         self._loginDialogClass = val
 
-    def _getMainForm(self):
+    @property
+    def MainForm(self):
+        """The object reference to the main form of the application, or None.
+
+        The MainForm gets instantiated automatically during application setup,
+        based on the value of MainFormClass. If you want to swap in your own
+        MainForm instance, do it after setup() but before start(), as in::
+
+        >>> from application import dApp
+        >>> app = dApp()
+        >>> app.setup()
+        >>> app.MainForm = myMainFormInstance
+        >>> app.start()
+
+        """
         try:
             frm = self._mainForm
         except AttributeError:
@@ -1484,11 +1561,25 @@ try again when it is running.
             self._mainForm = None
         return frm
 
-    def _setMainForm(self, val):
+    @MainForm.setter
+    def MainForm(self, val):
         self.uiApp.setMainForm(val)
         self._mainForm = val
 
-    def _getMainFormClass(self):
+    @property
+    def MainFormClass(self):
+        """Specifies the class to instantiate for the main form.
+
+        This can be a class reference, or the path to a .cdxml file. Defaults to the dFormMain base
+        class. Set to None if you don't want a main form, or set to your own main form class. Do
+        this before calling dApp.start(), as in::
+
+        >>> from application import dApp
+        >>> app = dApp()
+        >>> app.MainFormClass = MyMainFormClass
+        >>> app.start()
+
+        """
         try:
             cls = self._mainFormClass
         except AttributeError:
@@ -1496,18 +1587,28 @@ try again when it is running.
             self._mainFormClass = cls
         return cls
 
-    def _setMainFormClass(self, val):
+    @MainFormClass.setter
+    def MainFormClass(self, val):
         self._mainFormClass = val
 
-    def _getNoneDisp(self):
+    @property
+    def NoneDisp(self):
+        """Text to display for null (None) values.  (str)"""
         v = self._noneDisplay = getattr(self, "_noneDisplay", _("< None >"))
         return v
 
-    def _setNoneDisp(self, val):
+    @NoneDisp.setter
+    def NoneDisp(self, val):
         assert isinstance(val, str)
         self._noneDisplay = val
 
-    def _getPlatform(self):
+    @property
+    def Platform(self):
+        """
+        Returns the platform we are running on.
+
+        This will be one of 'Mac', 'Win' or 'GTK'.  (str)
+        """
         try:
             uiApp = self.uiApp
         except AttributeError:
@@ -1517,7 +1618,8 @@ try again when it is running.
         else:
             return "?"
 
-    def _getPreferenceDialogClass(self):
+    @property
+    def PreferenceDialogClass(self):
         try:
             return self._preferenceDialogClass
         except AttributeError:
@@ -1526,17 +1628,43 @@ try again when it is running.
 
             return PreferenceDialog
 
-    def _setPreferenceDialogClass(self, val):
+    @PreferenceDialogClass.setter
+    def PreferenceDialogClass(self, val):
+        """
+        Specifies the dialog to use for the application's user preferences.
+
+        If None, the application will try to run the active form's onEditPreferences()
+        method, if any. Otherwise, the preference dialog will be instantiated and
+        shown when the user chooses to see the preferences.
+        """
         self._preferenceDialogClass = val
 
-    def _getReleasePreferenceDialog(self):
+    @property
+    def ReleasePreferenceDialog(self):
+        """
+        Do we automatically destroy a preference dialog when closed?
+
+        If False, the preference dialog will remain hidden in memory after closed, resulting in
+        better performance when bringing up the dialog more than once.
+
+        Note that you'll still have to handle intercepting your dialog's Close event and
+        hiding it instead of releasing, or you'll be battling dead object errors.
+        """
         ret = self._releasePreferenceDialog = getattr(self, "_releasePreferenceDialog", True)
         return ret
 
-    def _setReleasePreferenceDialog(self, val):
+    @ReleasePreferenceDialog.setter
+    def ReleasePreferenceDialog(self, val):
         self._releasePreferenceDialog = bool(val)
 
-    def _getRemoteProxy(self):
+    @property
+    def _RemoteProxy(self):
+        """
+        RemoteConnector when running the app remotely.
+
+        If this bizobj is being run remotely, returns a reference to the RemoteConnector
+        object that will handle communication with the server. Read-only  (RemoteConnector)
+        """
         if self.SourceURL:
             try:
                 return self._remoteProxy
@@ -1546,7 +1674,17 @@ try again when it is running.
         else:
             return None
 
-    def _getSearchDelay(self):
+    @property
+    def SearchDelay(self):
+        """
+        Specifies the delay before incrementeal searching begins.  (int)
+
+        As the user types, the search string is modified. If the time between keystrokes exceeds
+        SearchDelay (milliseconds), the search will run and the search string will be cleared.
+
+        The value set here in the Application object will become the default for all objects that
+        provide incremental searching application-wide.
+        """
         try:
             return self._searchDelay
         except AttributeError:
@@ -1555,51 +1693,92 @@ try again when it is running.
             #     lengthening this to 500 ms.
             return 500
 
-    def _setSearchDelay(self, value):
+    @SearchDelay.setter
+    def SearchDelay(self, value):
         self._searchDelay = int(value)
 
-    def _getSecurityManager(self):
+    @property
+    def SecurityManager(self):
+        """
+        Specifies the Security Manager, if any.
+
+        You must subclass dSecurityManager, overriding the appropriate hooks and properties, and
+        then set dApp.SecurityManager to an instance of your subclass. There is no security manager
+        by default - you explicitly set this to use Dabo security.
+        """
         try:
             return self._securityManager
         except AttributeError:
             return None
 
-    def _setSecurityManager(self, value):
+    @SecurityManager.setter
+    def SecurityManager(self, value):
         if self.SecurityManager:
             warnings.warn(_("SecurityManager previously set"), Warning)
         self._securityManager = value
 
-    def _getShowCommandWindowMenu(self):
+    @property
+    def ShowCommandWindowMenu(self):
+        """
+        Specifies whether the command window option is shown in the menu.
+
+        If True (the default), there will be a File|Command Window option available in the base
+        menu. If False, your code can still start the command window by calling
+        app.showCommandWindow() directly.
+        """
         try:
             v = self._showCommandWindowMenu
         except AttributeError:
             v = self._showCommandWindowMenu = True
         return v
 
-    def _setShowCommandWindowMenu(self, val):
+    @ShowCommandWindowMenu.setter
+    def ShowCommandWindowMenu(self, val):
         self._showCommandWindowMenu = bool(val)
 
-    def _getShowSizerLinesMenu(self):
+    @property
+    def ShowSizerLinesMenu(self):
+        """
+        Specifies whether the "Show Sizer Lines" option is shown in the menu.
+
+        If True (the default), there will be a View|Show Sizer Lines option available in the base
+        menu.
+        """
         try:
             v = self._showSizerLinesMenu
         except AttributeError:
             v = self._showSizerLinesMenu = True
         return v
 
-    def _setShowSizerLinesMenu(self, val):
+    @ShowSizerLinesMenu.setter
+    def ShowSizerLinesMenu(self, val):
         self._showSizerLinesMenu = bool(val)
 
-    def _getSourceURL(self):
+    @property
+    def SourceURL(self):
+        """
+        If this app's source files are updated dynamically via the web, this is the base URL to
+        which the source file's name will be appended.  Default="" (i.e., no source on the
+        internet).  (str)
+        """
         try:
             return self._sourceURL
         except AttributeError:
             self._sourceURL = ""
             return self._sourceURL
 
-    def _setSourceURL(self, val):
+    @SourceURL.setter
+    def SourceURL(self, val):
         self._sourceURL = val
 
-    def _getUserSettingProvider(self):
+    @property
+    def UserSettingProvider(self):
+        """
+        Specifies the reference to the object providing user preference persistence.
+
+        The default UserSettingProvider will save user preferences inside the .dabo
+        directory inside the user's home directory.
+        """
         try:
             ret = self._userSettingProvider
         except AttributeError:
@@ -1609,326 +1788,24 @@ try again when it is running.
                 ret = self._userSettingProvider = None
         return ret
 
-    def _setUserSettingProvider(self, val):
+    @UserSettingProvider.setter
+    def UserSettingProvider(self, val):
         self._userSettingProvider = val
 
-    def _getUserSettingProviderClass(self):
+    @property
+    def UserSettingProviderClass(self):
+        """
+        Specifies the class to use for user preference persistence.
+
+        The default UserSettingProviderClass will save user preferences inside the .dabo directory
+        inside the user's home directory, and will be instantiated by Dabo automatically.
+        """
         try:
             ret = self._userSettingProviderClass
         except AttributeError:
             ret = self._userSettingProviderClass = dUserSettingProvider.dUserSettingProvider
         return ret
 
-    def _setUserSettingProviderClass(self, val):
+    @UserSettingProviderClass.setter
+    def UserSettingProviderClass(self, val):
         self._userSettingProviderClass = val
-
-    AboutFormClass = property(
-        _getAboutFormClass,
-        _setAboutFormClass,
-        None,
-        _("Specifies the form class to use for the application's About screen."),
-    )
-
-    ActiveForm = property(
-        _getActiveForm,
-        _setActiveForm,
-        None,
-        _("Returns the form that currently has focus, or None.  (dForm)"),
-    )
-
-    AutoImportConnections = property(
-        _getAutoImportConnections,
-        _setAutoImportConnections,
-        None,
-        _("Specifies whether .cnxml connection files are automatically imported. (Default True)"),
-    )
-
-    BasePrefKey = property(
-        _getBasePrefKey,
-        _setBasePrefKey,
-        None,
-        _(
-            """Base key used when saving/restoring preferences. This differs
-            from the default definition of this property in that if it is empty, it
-            will return the ActiveForm's BasePrefKey or the MainForm's BasePrefKey
-            in that order. (str)"""
-        ),
-    )
-
-    Crypto = property(
-        _getCrypto,
-        _setCrypto,
-        None,
-        _("Reference to the object that provides cryptographic services.  (varies)"),
-    )
-
-    CryptoKey = property(
-        None,
-        _setCryptoKey,
-        None,
-        _(
-            """When set, creates a DES crypto object if PyCrypto is installed. Note that
-            each time this property is set, a new PyCrypto instance is created, and
-            any previous crypto objects are released. Write-only.  (varies)"""
-        ),
-    )
-
-    DefaultForm = property(
-        _getDefaultForm,
-        _setDefaultForm,
-        None,
-        _(
-            """The form class to open by default, automatically, after app instantiation.  "
-            "(form class reference)"""
-        ),
-    )
-    default_form = DefaultForm  ## backwards-compatibility
-
-    DefaultMenuBarClass = property(
-        _getDefaultMenuBarClass,
-        _setDefaultMenuBarClass,
-        None,
-        _(
-            """The class used by all forms in the application when no specific MenuBarClass
-            is specified  (ui.dMenuBar)"""
-        ),
-    )
-
-    DrawSizerOutlines = property(
-        _getDrawSizerOutlines,
-        _setDrawSizerOutlines,
-        None,
-        _("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"),
-    )
-
-    Encoding = property(_getEncoding, None, None, _("Name of encoding to use for unicode  (str)"))
-
-    FormsToOpen = property(
-        _getFormsToOpen,
-        _setFormsToOpen,
-        None,
-        _("""List of forms to open after App instantiation.  (list of form class references)"""),
-    )
-    formsToOpen = FormsToOpen  ## backwards-compatibility
-
-    HomeDirectory = property(
-        _getHomeDirectory,
-        _setHomeDirectory,
-        None,
-        _(
-            """Specifies the application's home directory. (string)
-
-            The HomeDirectory is the top-level directory for your application files,
-            the directory where your main script lives. You never know what the
-            current directory will be on a given system, but HomeDirectory will always
-            get you to your files."""
-        ),
-    )
-
-    Icon = property(
-        _getIcon,
-        _setIcon,
-        None,
-        _(
-            """Specifies the icon to use on all forms and dialogs by default.
-
-            The value passed can be a binary icon bitmap, a filename, or a
-            sequence of filenames. Providing a sequence of filenames pointing to
-            icons at expected dimensions like 16, 22, and 32 px means that the
-            system will not have to scale the icon, resulting in a much better
-            appearance."""
-        ),
-    )
-
-    LoginDialogClass = property(
-        _getLoginDialogClass,
-        _setLoginDialogClass,
-        None,
-        _("""The class to use for logging in."""),
-    )
-
-    MainForm = property(
-        _getMainForm,
-        _setMainForm,
-        None,
-        _(
-            """The object reference to the main form of the application, or None.
-
-            The MainForm gets instantiated automatically during application setup,
-            based on the value of MainFormClass. If you want to swap in your own
-            MainForm instance, do it after setup() but before start(), as in::
-
-            >>> from application import dApp
-            >>> app = dApp()
-            >>> app.setup()
-            >>> app.MainForm = myMainFormInstance
-            >>> app.start()
-
-            """
-        ),
-    )
-
-    MainFormClass = property(
-        _getMainFormClass,
-        _setMainFormClass,
-        None,
-        _(
-            """Specifies the class to instantiate for the main form. Can be a
-            class reference, or the path to a .cdxml file.
-
-            Defaults to the dFormMain base class. Set to None if you don't want a
-            main form, or set to your own main form class. Do this before calling
-            dApp.start(), as in::
-
-            >>> from application import dApp
-            >>> app = dApp()
-            >>> app.MainFormClass = MyMainFormClass
-            >>> app.start()
-
-            """
-        ),
-    )
-
-    NoneDisplay = property(
-        _getNoneDisp,
-        _setNoneDisp,
-        None,
-        _("Text to display for null (None) values.  (str)"),
-    )
-
-    Platform = property(
-        _getPlatform,
-        None,
-        None,
-        _(
-            """Returns the platform we are running on. This will be
-            one of 'Mac', 'Win' or 'GTK'.  (str)"""
-        ),
-    )
-
-    PreferenceDialogClass = property(
-        _getPreferenceDialogClass,
-        _setPreferenceDialogClass,
-        None,
-        _(
-            """Specifies the dialog to use for the application's user preferences.
-
-            If None, the application will try to run the active form's onEditPreferences()
-            method, if any. Otherwise, the preference dialog will be instantiated and
-            shown when the user chooses to see the preferences."""
-        ),
-    )
-
-    ReleasePreferenceDialog = property(
-        _getReleasePreferenceDialog,
-        _setReleasePreferenceDialog,
-        None,
-        _(
-            """If False, the preference dialog will remain hidden in memory after closed,
-            resulting in better performance when bringing up the dialog more than once.
-
-            Note that you'll still have to handle intercepting your dialog's Close event and
-            hiding it instead of releasing, or you'll be battling dead object errors."""
-        ),
-    )
-
-    _RemoteProxy = property(
-        _getRemoteProxy,
-        None,
-        None,
-        _(
-            """If this bizobj is being run remotely, returns a reference to the RemoteConnector
-            object that will handle communication with the server.  (read-only) (RemoteConnector)"""
-        ),
-    )
-
-    SearchDelay = property(
-        _getSearchDelay,
-        _setSearchDelay,
-        None,
-        _(
-            """Specifies the delay before incrementeal searching begins.  (int)
-
-            As the user types, the search string is modified. If the time between
-            keystrokes exceeds SearchDelay (milliseconds), the search will run and
-            the search string    will be cleared.
-
-            The value set here in the Application object will become the default for
-            all objects that provide incremental searching application-wide."""
-        ),
-    )
-
-    SecurityManager = property(
-        _getSecurityManager,
-        _setSecurityManager,
-        None,
-        _(
-            """Specifies the Security Manager, if any.
-
-            You must subclass dSecurityManager, overriding the appropriate hooks
-            and properties, and then set dApp.SecurityManager to an instance of your
-            subclass. There is no security manager by default - you explicitly set
-            this to use Dabo security."""
-        ),
-    )
-
-    ShowCommandWindowMenu = property(
-        _getShowCommandWindowMenu,
-        _setShowCommandWindowMenu,
-        None,
-        _(
-            """Specifies whether the command window option is shown in the menu.
-
-            If True (the default), there will be a File|Command Window option
-            available in the base menu. If False, your code can still start the
-            command window by calling app.showCommandWindow() directly."""
-        ),
-    )
-
-    ShowSizerLinesMenu = property(
-        _getShowSizerLinesMenu,
-        _setShowSizerLinesMenu,
-        None,
-        _(
-            """Specifies whether the "Show Sizer Lines" option is shown in the menu.
-
-            If True (the default), there will be a View|Show Sizer Lines option
-            available in the base menu."""
-        ),
-    )
-
-    SourceURL = property(
-        _getSourceURL,
-        _setSourceURL,
-        None,
-        _(
-            """If this app's source files are updated dynamically via the web,
-            this is the base URL to which the source file's name will be appended.
-            Default="" (i.e., no source on the internet).  (str)"""
-        ),
-    )
-
-    UserSettingProvider = property(
-        _getUserSettingProvider,
-        _setUserSettingProvider,
-        None,
-        _(
-            """Specifies the reference to the object providing user preference persistence.
-
-            The default UserSettingProvider will save user preferences inside the .dabo
-            directory inside the user's home directory."""
-        ),
-    )
-
-    UserSettingProviderClass = property(
-        _getUserSettingProviderClass,
-        _setUserSettingProviderClass,
-        None,
-        _(
-            """Specifies the class to use for user preference persistence.
-
-            The default UserSettingProviderClass will save user preferences inside the .dabo
-            directory inside the user's home directory, and will be instantiated by Dabo
-            automatically."""
-        ),
-    )

@@ -67,14 +67,8 @@ class dCheckList(dControlItemMixin, wx.CheckListBox):
             ui.callAfter(self.Check, index, True)
 
     def _getMultipleSelect(self):
+        """MultipleSelect for dCheckList is always True."""
         return True
-
-    MultipleSelect = property(
-        _getMultipleSelect,
-        None,
-        None,
-        _("MultipleSelect for dCheckList is always True."),
-    )
 
 
 ui.dCheckList = dCheckList

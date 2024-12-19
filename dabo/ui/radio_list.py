@@ -343,18 +343,23 @@ class dRadioList(dControlItemMixin, wx.Panel):
         val = (val, 0) if self.Orientation[:1].lower() == "h" else (0, val)
         return val
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-    def _getButtonClass(self):
+    # Property definitions
+    @property
+    def ButtonClass(self):
+        """Class to use for the radio buttons. Default=_dRadioButton  (_dRadioButton)"""
         return self._buttonClass
 
-    def _setButtonClass(self, val):
+    @ButtonClass.setter
+    def ButtonClass(self, val):
         self._buttonClass = val
 
-    def _getButtonSpacing(self):
+    @property
+    def ButtonSpacing(self):
+        """Spacing in pixels between buttons in the control  (int)"""
         return self._buttonSpacing
 
-    def _setButtonSpacing(self, val):
+    @ButtonSpacing.setter
+    def ButtonSpacing(self, val):
         if self._constructed():
             self._buttonSpacing = val
             self._checkSizer()
@@ -366,13 +371,16 @@ class dRadioList(dControlItemMixin, wx.Panel):
         else:
             self._properties["ButtonSpacing"] = val
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """String to display on the box surrounding the control  (str)"""
         ret = self._caption
         if isinstance(self.Sizer, ui.dBorderSizer):
             ret = self._caption = self.Sizer.Caption
         return ret
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         if self._constructed():
             self._checkSizer()
             self._caption = val
@@ -387,14 +395,20 @@ class dRadioList(dControlItemMixin, wx.Panel):
         else:
             self._properties["Caption"] = val
 
-    def _getChoices(self):
+    @property
+    def Choices(self):
+        """
+        Specifies the string choices to display in the list.  (list of str). Read-write at runtime.
+        The list index becomes the PositionValue, and the string becomes the StringValue.
+        """
         try:
             _choices = self._choices
         except AttributeError:
             _choices = self._choices = []
         return _choices
 
-    def _setChoices(self, choices):
+    @Choices.setter
+    def Choices(self, choices):
         if self._constructed():
             self._checkSizer()
             # Save the current values for possible re-setting afterwards.
@@ -438,10 +452,17 @@ class dRadioList(dControlItemMixin, wx.Panel):
         else:
             self._properties["Choices"] = choices
 
-    def _getOrientation(self):
+    @property
+    def Orientation(self):
+        """
+        Specifies whether this is a vertical or horizontal RadioList.  (str) Possible values:
+            'Vertical' (the default)
+            'Horizontal'
+        """
         return getattr(self, "_orientation", "Vertical")
 
-    def _setOrientation(self, val):
+    @Orientation.setter
+    def Orientation(self, val):
         if self._constructed():
             self._checkSizer()
             if val[0].lower() not in "hv":
@@ -452,20 +473,29 @@ class dRadioList(dControlItemMixin, wx.Panel):
         else:
             self._properties["Orientation"] = val
 
-    def _getPositionValue(self):
+    @property
+    def PositionValue(self):
+        """
+        Specifies the position (index) of the selected button.  (int) Read-write at runtime.
+        Returns the current position, or sets the current position.
+        """
         return self._selpos
 
-    def _setPositionValue(self, val):
+    @PositionValue.setter
+    def PositionValue(self, val):
         if self._constructed():
             self._selpos = val
             self._setSelection(val)
         else:
             self._properties["PositionValue"] = val
 
-    def _getShowBox(self):
+    @property
+    def ShowBox(self):
+        """Is the surrounding box visible?  (bool)"""
         return self._showBox
 
-    def _setShowBox(self, val):
+    @ShowBox.setter
+    def ShowBox(self, val):
         if self._constructed():
             fromSz = self.Sizer
             if fromSz is None:
@@ -533,20 +563,30 @@ class dRadioList(dControlItemMixin, wx.Panel):
         else:
             self._properties["ShowBox"] = val
 
-    def _getSizerClass(self):
+    @property
+    def SizerClass(self):
+        """Class to use for the border sizer. Default=dBorderSizer  (dSizer)"""
         return self._sizerClass
 
-    def _setSizerClass(self, val):
+    @SizerClass.setter
+    def SizerClass(self, val):
         self._sizerClass = val
 
-    def _getStringValue(self):
+    @property
+    def StringValue(self):
+        """
+        Specifies the text of the selected button.  (str) Read-write at runtime.  Returns the text
+        of the current item, or changes the current position to the position with the specified
+        text. An exception is raised if there is no position with matching text.
+        """
         try:
             ret = self._items[self._selpos].Caption
         except IndexError:
             ret = None
         return ret
 
-    def _setStringValue(self, val):
+    @StringValue.setter
+    def StringValue(self, val):
         if self._constructed():
             try:
                 idx = [btn._index for btn in self._items if btn.Caption == val][0]
@@ -557,85 +597,6 @@ class dRadioList(dControlItemMixin, wx.Panel):
                     raise ValueError(_("No radio button matching '%s' was found.") % val)
         else:
             self._properties["StringValue"] = val
-
-    # Property definitions:
-    ButtonClass = property(
-        _getButtonClass,
-        _setButtonClass,
-        None,
-        _("Class to use for the radio buttons. Default=_dRadioButton  (_dRadioButton)"),
-    )
-
-    ButtonSpacing = property(
-        _getButtonSpacing,
-        _setButtonSpacing,
-        None,
-        _("Spacing in pixels between buttons in the control  (int)"),
-    )
-
-    Caption = property(
-        _getCaption,
-        _setCaption,
-        None,
-        _("String to display on the box surrounding the control  (str)"),
-    )
-
-    Choices = property(
-        _getChoices,
-        _setChoices,
-        None,
-        _(
-            """Specifies the string choices to display in the list.
-            -> List of strings. Read-write at runtime.
-            The list index becomes the PositionValue, and the string
-            becomes the StringValue."""
-        ),
-    )
-
-    Orientation = property(
-        _getOrientation,
-        _setOrientation,
-        None,
-        _(
-            """Specifies whether this is a vertical or horizontal RadioList.
-            String. Possible values:
-                'Vertical' (the default)
-                'Horizontal'"""
-        ),
-    )
-
-    PositionValue = property(
-        _getPositionValue,
-        _setPositionValue,
-        None,
-        _(
-            """Specifies the position (index) of the selected button.
-            Integer. Read-write at runtime.
-            Returns the current position, or sets the current position."""
-        ),
-    )
-
-    ShowBox = property(_getShowBox, _setShowBox, None, _("Is the surrounding box visible?  (bool)"))
-
-    SizerClass = property(
-        _getSizerClass,
-        _setSizerClass,
-        None,
-        _("Class to use for the border sizer. Default=dBorderSizer  (dSizer)"),
-    )
-
-    StringValue = property(
-        _getStringValue,
-        _setStringValue,
-        None,
-        _(
-            """Specifies the text of the selected button.
-            String. Read-write at runtime.
-            Returns the text of the current item, or changes the current position
-            to the position with the specified text. An exception is raised if there
-            is no position with matching text."""
-        ),
-    )
 
     DynamicOrientation = makeDynamicProperty(Orientation)
     DynamicPositionValue = makeDynamicProperty(PositionValue)

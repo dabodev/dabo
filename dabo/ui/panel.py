@@ -147,26 +147,38 @@ class _BasePanelMixin(object):
                 dc.Clear()  # make sure you clear the bitmap!
         super(_PanelMixin, self)._redraw(dc)
 
-    # property get/set/del functions follow:
-    def _getActiveControl(self):
+    # property definitions follow:
+    @property
+    def ActiveControl(self):
+        """Specifies which control in the panel has the keyboard focus."""
         return getattr(self, "_activeControl", None)
 
-    def _setActiveControl(self, obj):
+    @ActiveControl.setter
+    def ActiveControl(self, obj):
         obj.setFocus()
 
-    def _getAlwaysResetSizer(self):
+    @property
+    def AlwaysResetSizer(self):
+        """
+        When True, the sizer settings are always cleared before a layout() is called.
+        This may be necessary when a panel needs to reduce its size. Default=False   (bool)
+        """
         return self._alwaysResetSizer
 
-    def _setAlwaysResetSizer(self, val):
+    @AlwaysResetSizer.setter
+    def AlwaysResetSizer(self, val):
         if self._constructed():
             self._alwaysResetSizer = val
         else:
             self._properties["AlwaysResetSizer"] = val
 
-    def _getBuffered(self):
+    @property
+    def Buffered(self):
+        """Does this panel use double-buffering to create smooth redrawing?  (bool)"""
         return self._buffered
 
-    def _setBuffered(self, val):
+    @Buffered.setter
+    def Buffered(self, val):
         if self._buffered == val:
             return
         self._buffered = val
@@ -179,28 +191,37 @@ class _BasePanelMixin(object):
             #             self.Unbind(wx.EVT_PAINT)
             self.Unbind(wx.EVT_SIZE)
 
-    def _getMinSizerHeight(self):
+    @property
+    def MinSizerHeight(self):
+        """Minimum height for the panel. Default=10px  (int)"""
         return self._minSizerHeight
 
-    def _setMinSizerHeight(self, val):
+    @MinSizerHeight.setter
+    def MinSizerHeight(self, val):
         if self._constructed():
             self._minSizerHeight = val
         else:
             self._properties["MinSizerHeight"] = val
 
-    def _getMinSizerWidth(self):
+    @property
+    def MinSizerWidth(self):
+        """Minimum width for the panel. Default=10px  (int)"""
         return self._minSizerWidth
 
-    def _setMinSizerWidth(self, val):
+    @MinSizerWidth.setter
+    def MinSizerWidth(self, val):
         if self._constructed():
             self._minSizerWidth = val
         else:
             self._properties["MinSizerWidth"] = val
 
-    def _getSquare(self):
+    @property
+    def Square(self):
+        """When True, the panel will keep all sides the same length. Default=False  (bool)"""
         return self._square
 
-    def _setSquare(self, val):
+    @Square.setter
+    def Square(self, val):
         self._square = val
         if self._constructed():
             self._square = val
@@ -210,54 +231,6 @@ class _BasePanelMixin(object):
                 self.unbindEvent(events.Resize, self._onResizeSquare)
         else:
             self._properties["Square"] = val
-
-    ActiveControl = property(
-        _getActiveControl,
-        _setActiveControl,
-        None,
-        _("""Specifies which control in the panel has the keyboard focus."""),
-    )
-
-    AlwaysResetSizer = property(
-        _getAlwaysResetSizer,
-        _setAlwaysResetSizer,
-        None,
-        _(
-            """When True, the sizer settings are always cleared before a layout() is called.
-            This may be necessary when a panel needs to reduce its size. Default=False   (bool)"""
-        ),
-    )
-
-    Buffered = property(
-        _getBuffered,
-        _setBuffered,
-        None,
-        _("Does this panel use double-buffering to create smooth redrawing?  (bool)"),
-    )
-
-    MinSizerHeight = property(
-        _getMinSizerHeight,
-        _setMinSizerHeight,
-        None,
-        _("Minimum height for the panel. Default=10px  (int)"),
-    )
-
-    MinSizerWidth = property(
-        _getMinSizerWidth,
-        _setMinSizerWidth,
-        None,
-        _("Minimum width for the panel. Default=10px  (int)"),
-    )
-
-    Square = property(
-        _getSquare,
-        _setSquare,
-        None,
-        _(
-            """When True, the panel will keep all of its sides the same length.
-            Default=False  (bool)"""
-        ),
-    )
 
 
 class _PanelMixin(dControlMixin, _BasePanelMixin):
@@ -411,17 +384,23 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
             x, y = self.GetViewStart()
             self.Scroll(x, y + (direction * sz))
 
-    def _getChildren(self):
-        ret = super(ui.dScrollPanel, self)._getChildren()
+    @property
+    def Children(self):
+        """Child controls of this panel. Excludes the wx-specific scroll bars  (list of objects)"""
+        ret = super(ui.dScrollPanel, self).Children
         return [kid for kid in ret if isinstance(kid, ui.dPemMixin)]
 
-    def _setChildren(self, val):
+    @Children.setter
+    def Children(self, val):
         super(dScrollPanel, self)._setChildren(val)
 
-    def _getHorizontalScroll(self):
+    @property
+    def HorizontalScroll(self):
+        """Controls whether this object will scroll horizontally (default=True)  (bool)"""
         return self._horizontalScroll
 
-    def _setHorizontalScroll(self, val, do=False):
+    @HorizontalScroll.setter
+    def HorizontalScroll(self, val, do=False):
         if do:
             self._horizontalScroll = val
             self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
@@ -431,10 +410,13 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
             # on Mac at least, this is needed when setting from the constructor.
             ui.callAfter(self._setHorizontalScroll, val, do=True)
 
-    def _getVerticalScroll(self):
+    @property
+    def VerticalScroll(self):
+        """Controls whether this object will scroll vertically (default=True)  (bool)"""
         return self._verticalScroll
 
-    def _setVerticalScroll(self, val, do=False):
+    @VerticalScroll.setter
+    def VerticalScroll(self, val, do=False):
         if do:
             self._verticalScroll = val
             self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
@@ -442,30 +424,6 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
             self.SetScrollRate(rt[0], {True: rt[1], False: 0}[val])
         else:
             ui.callAfter(self._setVerticalScroll, val, do=True)
-
-    Children = property(
-        _getChildren,
-        _setChildren,
-        None,
-        _(
-            """Child controls of this panel. This excludes the wx-specific
-            scroll bars  (list of objects)"""
-        ),
-    )
-
-    HorizontalScroll = property(
-        _getHorizontalScroll,
-        _setHorizontalScroll,
-        None,
-        _("Controls whether this object will scroll horizontally (default=True)  (bool)"),
-    )
-
-    VerticalScroll = property(
-        _getVerticalScroll,
-        _setVerticalScroll,
-        None,
-        _("Controls whether this object will scroll vertically (default=True)  (bool)"),
-    )
 
     DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
     DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)

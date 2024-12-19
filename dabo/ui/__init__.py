@@ -187,6 +187,7 @@ def load_namespace():
     from . import image_mixin
     from . import image
     from . import media_control
+    from . import borderless_button
     from . import toggle_button
     from . import bitmap
     from . import bitmap_button
@@ -240,10 +241,13 @@ def makeDynamicProperty(prop, additionalDoc=None):
     Call this in your class definition, after you've defined the property
     you'd like to make dynamic. For example:"
 
-    Caption = property(_getCaption, _setCaption, None, None)
+    @property
+    def Caption(self):
+        ...
     DynamicCaption = makeDynamicProperty(Caption)
 
     """
+
     def fget(self):
         return self._dynamic.get(prop)
 
@@ -259,16 +263,14 @@ def makeDynamicProperty(prop, additionalDoc=None):
     # Note: properties in Python3 no longer have access to their names. So this docstring
     # will need to be updated to make more sense.
     propName = "<some property>"
-    doc = (
-        _(
-            f"""Dynamically determine the value of the {propName} property.
+    doc = _(
+        f"""Dynamically determine the value of the {propName} property.
 
 Specify a function and optional arguments that will get called from the
 update() method. The return value of the function will get set to the
 {propName} property. If Dynamic{propName} is set to None (the default),{propName} 
 will not be dynamically evaluated.
 """
-        )
     )
 
     if additionalDoc:
@@ -488,7 +490,8 @@ def setAfter(obj, prop, val):
         fnc = getattr(obj.__class__, prop).fset
         wx.CallAfter(fnc, obj, val)
     except Exception as e:
-        dabo_module.log.error(
+        dabo_module = settings.get_dabo_package()
+        dabo_module.error(
             _("setAfter() failed to set property '%(prop)s' to value '%(val)s': %(e)s.") % locals()
         )
 
@@ -502,7 +505,8 @@ def setAfterInterval(interval, obj, prop, val):
         fnc = getattr(obj.__class__, prop).fset
         callAfterInterval(interval, fnc, obj, val)
     except Exception as e:
-        dabo_module.log.error(
+        dabo_module = settings.get_dabo_package()
+        dabo_module.error(
             _("setAfterInterval() failed to set property '%(prop)s' to value '%(val)s': %(e)s.")
             % locals()
         )
@@ -573,7 +577,8 @@ def continueEvent(evt):
         if isinstance(evt, events.dEvent):
             pass
         else:
-            dabo_module.log.error(
+            dabo_module = settings.get_dabo_package()
+            dabo_module.error(
                 "Incorrect event class (%s) passed to continueEvent. Error: %s"
                 % (ustr(evt), ustr(e))
             )
@@ -587,7 +592,8 @@ def discontinueEvent(evt):
         if isinstance(evt, events.dEvent):
             pass
         else:
-            dabo_module.log.error(
+            dabo_module = settings.get_dabo_package()
+            dabo_module.error(
                 "Incorrect event class (%s) passed to continueEvent. Error: %s"
                 % (ustr(evt), ustr(e))
             )
@@ -1217,7 +1223,8 @@ def getDate(dt=None):
     try:
         mm, dd, yy = dt.month, dt.day, dt.year
     except AttributeError:
-        dabo_module.log.error(_("Invalid date value passed to getDate(): %s") % dt)
+        dabo_module = settings.get_dabo_package()
+        dabo_module.error(_("Invalid date value passed to getDate(): %s") % dt)
         return None
     dlg = wx.lib.calendar.CalenDlg(_getActiveForm(), mm, dd, yy)
     dlg.Centre()
@@ -1260,7 +1267,8 @@ def getFont(font=None):
     else:
         if not isinstance(font, dFont):
             # This will help identify older code
-            dabo_module.log.error("Invalid font class passed to getFont")
+            dabo_module = settings.get_dabo_package()
+            dabo_module.error("Invalid font class passed to getFont")
             return None
         param = font._nativeFont
     dlg = ui.dFontDialog(_getActiveForm(), param)
@@ -1437,6 +1445,7 @@ def getSystemInfo(returnType=None):
     else:
         appVersion = "?"
         appName = "Dabo"
+    dabo_module = settings.get_dabo_package()
     ds.append({"name": "Dabo Version:", "value": dabo_module.get_version()})
     ds.append(
         {
@@ -1546,6 +1555,7 @@ def _checkForRawXML(srcFile):
         try:
             srcFile = utils.resolvePathAndUpdate(srcFile)
         except IOError as e:
+            dabo_module = settings.get_dabo_package()
             dabo_module.error(_("Class file '%s' not found") % srcFile)
             raise
     return srcFile, isRawXML
@@ -1943,6 +1953,7 @@ def getPositionInSizer(obj):
                 if szitem.GetWindow() == obj:
                     return pos
         # If we reached here, something's wrong!
+        dabo_module = settings.get_dabo_package()
         dabo_module.error(_("Containing sizer did not match item %s") % obj.Name)
         return None
     elif isinstance(sz, wx.GridBagSizer):

@@ -94,117 +94,90 @@ class dSecurityManager(dObject):
         """
         return False
 
-    def _getLoginAttemptsAllowed(self):
+    @property
+    def LoginAttemptsAllowed(self):
+        """Specifies the number of attempts the user has to login successfully."""
         try:
             return self._loginAttemptsAllowed
         except AttributeError:
             return 3
 
-    def _setLoginAttemptsAllowed(self, value):
+    @LoginAttemptsAllowed.setter
+    def LoginAttemptsAllowed(self, value):
         self._loginAttemptsAllowed = int(value)
 
-    def _getLoginMessage(self):
+    @property
+    def LoginMessage(self):
+        """Specifies the message to initially display on the login form."""
         try:
             m = self._loginMessage
         except AttributeError:
             m = self._loginMessage = _("Please enter your login information.")
         return m
 
-    def _setLoginMessage(self, val):
+    @LoginMessage.setter
+    def LoginMessage(self, val):
         self._loginMessage = val
 
-    def _getLoginPause(self):
+    @property
+    def LoginPause(self):
+        """Number of seconds to wait between successive login attempts."""
         try:
             return self._loginPause
         except AttributeError:
             return 0.25
 
-    def _setLoginPause(self, value):
+    @LoginPause.setter
+    def LoginPause(self, value):
         self._loginPause = float(value)
 
-    def _getRequireAppLogin(self):
+    @property
+    def RequireAppLogin(self):
+        """Specifies whether the user is required to login at app startup."""
         try:
             return self._requireAppLogin
         except AttributeError:
             return True
 
-    def _setRequireAppLogin(self, value):
+    @RequireAppLogin.setter
+    def RequireAppLogin(self, value):
         self._requireAppLogin = bool(value)
 
-    def _getUserName(self):
-        try:
-            return self.__userName
-        except AttributeError:
-            return None
-
-    def _getUserCaption(self):
+    @property
+    def UserCaption(self):
+        """The long descriptive name of the logged-on user."""
         try:
             return self._userCaption
         except AttributeError:
             return ""
 
-    def _setUserCaption(self, value):
+    @UserCaption.setter
+    def UserCaption(self, value):
         if isinstance(value, str):
             self._userCaption = value
         else:
             raise TypeError("User caption must be string or unicode.")
 
-    def _getUserGroups(self):
+    @property
+    def UserGroups(self):
+        """
+        The tuple of groups that the user belongs to.
+
+        Business objects can be configured to selectively allow/deny various types of access based
+        on the group(s) of the logged-in user.
+        """
         try:
             return self.__userGroups
         except AttributeError:
             return ()
 
-    LoginAttemptsAllowed = property(
-        _getLoginAttemptsAllowed,
-        _setLoginAttemptsAllowed,
-        None,
-        _("""Specifies the number of attempts the user has to login successfully."""),
-    )
-
-    LoginMessage = property(
-        _getLoginMessage,
-        _setLoginMessage,
-        None,
-        _("""Specifies the message to initially display on the login form."""),
-    )
-
-    LoginPause = property(
-        _getLoginPause,
-        _setLoginPause,
-        None,
-        _("""Number of seconds to wait between successive login attempts."""),
-    )
-
-    RequireAppLogin = property(
-        _getRequireAppLogin,
-        _setRequireAppLogin,
-        None,
-        _("""Specifies whether the user is required to login at app startup."""),
-    )
-
-    UserCaption = property(
-        _getUserCaption,
-        _setUserCaption,
-        None,
-        _("""The long descriptive name of the logged-on user."""),
-    )
-
-    UserGroups = property(
-        _getUserGroups,
-        None,
-        None,
-        _(
-            """The tuple of groups that the user belongs to.
-
-        Business objects can be configured to selectively allow/deny various types
-        of access based on the group(s) of the logged-in user."""
-        ),
-    )
-
-    UserName = property(
-        _getUserName, None, None, _("""The name of the logged-on user. Read-only.""")
-    )
+    @property
+    def UserName(self):
+        """The name of the logged-on user. Read-only."""
+        try:
+            return self.__userName
+        except AttributeError:
+            return None
 
 
 if __name__ == "__main__":

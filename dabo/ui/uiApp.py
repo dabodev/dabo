@@ -1273,7 +1273,9 @@ these automatic updates."""
         newForm.update()
         newForm.show()
 
-    def _getActiveForm(self):
+    @property
+    def ActiveForm(self):
+        """Returns the form that currently has focus, or None.    (dForm)"""
         af = getattr(self, "_activeForm", None)
         if af is None:
             af = wx.GetActiveWindow()
@@ -1283,38 +1285,24 @@ these automatic updates."""
                 return afc
         return af
 
-    def _setActiveForm(self, frm):
+    @ActiveForm.setter
+    def ActiveForm(self, frm):
         self._activeForm = frm
 
-    def _getDrawSizerOutlines(self):
+    @property
+    def DrawSizerOutlines(self):
+        """Determines if sizer outlines are drawn on the ActiveForm.  (bool)"""
         return self._drawSizerOutlines
 
-    def _setDrawSizerOutlines(self, val):
+    @DrawSizerOutlines.setter
+    def DrawSizerOutlines(self, val):
         self._drawSizerOutlines = val
 
-    def _getPreferenceDialogClass(self):
+    @property
+    def PreferenceDialogClass(self):
+        """Class to instantiate for the application's preference editing  (dForm/dDialog)"""
         return self.dApp.PreferenceDialogClass
 
-    def _setPreferenceDialogClass(self, val):
+    @PreferenceDialogClass.setter
+    def PreferenceDialogClass(self, val):
         self.dApp.PreferenceDialogClass = val
-
-    ActiveForm = property(
-        _getActiveForm,
-        _setActiveForm,
-        None,
-        _("Returns the form that currently has focus, or None.    (dForm)"),
-    )
-
-    DrawSizerOutlines = property(
-        _getDrawSizerOutlines,
-        _setDrawSizerOutlines,
-        None,
-        _("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"),
-    )
-
-    PreferenceDialogClass = property(
-        _getPreferenceDialogClass,
-        _setPreferenceDialogClass,
-        None,
-        _("Class to instantiate for the application's preference editing  (dForm/dDialog)"),
-    )

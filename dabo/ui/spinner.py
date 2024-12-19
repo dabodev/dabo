@@ -295,66 +295,89 @@ class dSpinner(dDataPanel, wx.Control):
     def getBlankValue(self):
         return 0
 
-    # Property get/set definitions begin here
-    def _getButtonWidth(self):
+    # Property definitions begin here
+    @property
+    def ButtonWidth(self):
+        """Allows the developer to explicitly specify the width of the up/down buttons."""
         return self._proxy_spinner.Width
 
-    def _setButtonWidth(self, val):
+    @ButtonWidth.setter
+    def ButtonWidth(self, val):
         if self._constructed():
             self._proxy_spinner.Width = val
         else:
             self._properties["ButtonWidth"] = val
 
-    def _getChildren(self):
+    @property
+    def Children(self):
+        """
+        Returns a list of object references to the children of this object. Only applies to
+        containers. Children will be None for non-containers.  (list or None)
+        """
         # The native wx control will return the items that make up this composite
         # control, which our user doesn't want.
         return []
 
-    def _getIncrement(self):
+    @property
+    def Increment(self):
+        """Amount the control's value changes when the spinner buttons are clicked  (int/float)"""
         return self._increment
 
-    def _setIncrement(self, val):
+    @Increment.setter
+    def Increment(self, val):
         if self._constructed():
             self._increment = val
         else:
             self._properties["Increment"] = val
 
-    def _getMax(self):
+    @property
+    def Max(self):
+        """Maximum value for the control  (int/float)"""
         return self._max
 
-    def _setMax(self, val):
+    @Max.setter
+    def Max(self, val):
         if self._constructed():
             self._max = val
             self._checkBounds()
         else:
             self._properties["Max"] = val
 
-    def _getMin(self):
+    @property
+    def Min(self):
+        """Minimum value for the control  (int/float)"""
         return self._min
 
-    def _setMin(self, val):
+    @Min.setter
+    def Min(self, val):
         if self._constructed():
             self._min = val
             self._checkBounds()
         else:
             self._properties["Min"] = val
 
-    def _getSpinnerWrap(self):
+    @property
+    def SpinnerWrap(self):
+        """Specifies whether the spinner value wraps at the high/low value. (bool)"""
         return self._spinWrap
 
-    def _setSpinnerWrap(self, val):
+    @SpinnerWrap.setter
+    def SpinnerWrap(self, val):
         if self._constructed():
             self._spinWrap = val
         else:
             self._properties["SpinnerWrap"] = val
 
-    def _getValue(self):
+    @property
+    def Value(self):
+        """Value of the control  (int/float)"""
         try:
             return self._proxy_textbox.Value
         except AttributeError:
             return None
 
-    def _setValue(self, val):
+    @Value.setter
+    def Value(self, val):
         if self._constructed():
             self._proxy_textbox._inDataUpdate = self._inDataUpdate
             if isinstance(val, (int, float, decimal)):
@@ -369,44 +392,6 @@ class dSpinner(dDataPanel, wx.Control):
         else:
             self._properties["Value"] = val
 
-    ButtonWidth = property(
-        _getButtonWidth,
-        _setButtonWidth,
-        None,
-        _("""Allows the developer to explicitly specify the width of the up/down buttons."""),
-    )
-
-    Children = property(
-        _getChildren,
-        None,
-        None,
-        _(
-            """Returns a list of object references to the children of
-            this object. Only applies to containers. Children will be None for
-            non-containers.  (list or None)"""
-        ),
-    )
-
-    Increment = property(
-        _getIncrement,
-        _setIncrement,
-        None,
-        _("Amount the control's value changes when the spinner buttons are clicked  (int/float)"),
-    )
-
-    Max = property(_getMax, _setMax, None, _("Maximum value for the control  (int/float)"))
-
-    Min = property(_getMin, _setMin, None, _("Minimum value for the control  (int/float)"))
-
-    SpinnerWrap = property(
-        _getSpinnerWrap,
-        _setSpinnerWrap,
-        None,
-        _("Specifies whether the spinner value wraps at the high/low value. (bool)"),
-    )
-
-    Value = property(_getValue, _setValue, None, _("Value of the control  (int/float)"))
-
     DynamicIncrement = makeDynamicProperty(Increment)
     DynamicMax = makeDynamicProperty(Max)
     DynamicMin = makeDynamicProperty(Min)
@@ -415,11 +400,7 @@ class dSpinner(dDataPanel, wx.Control):
     # Pass-through props. These are simply ways of exposing the text control's props
     # through this control
     _proxyDict = {}
-    Alignment = makeProxyProperty(
-        _proxyDict,
-        "Alignment",
-        "_proxy_textbox",
-    )
+    Alignment = makeProxyProperty(_proxyDict, "Alignment", "_proxy_textbox")
     BackColor = makeProxyProperty(_proxyDict, "BackColor", ("_proxy_textbox", "self"))
     Enabled = makeProxyProperty(_proxyDict, "Enabled", ("self", "_proxy_spinner", "_proxy_textbox"))
     Font = makeProxyProperty(_proxyDict, "Font", "_proxy_textbox")

@@ -91,7 +91,10 @@ class dPage(dScrollPanel):
             ret = -1
         return ret
 
-    def _getCaption(self):
+    # Property definitions
+    @property
+    def Caption(self):
+        """The text identifying this particular page.  (str)"""
         # Need to determine which page we are
         ret = ""
         pos = self._getPagePosition()
@@ -101,7 +104,8 @@ class dPage(dScrollPanel):
             ret = self._caption
         return ret
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         self._caption = val
         if self._constructed():
             pos = self._getPagePosition()
@@ -110,47 +114,32 @@ class dPage(dScrollPanel):
         else:
             self._properties["Caption"] = val
 
-    def _getDeferredUpdates(self):
+    @property
+    def DeferredUpdates(self):
+        """Allow to defer controls updates until page become active.  (bool)"""
         return self._deferredUpdates
 
-    def _setDeferredUpdates(self, val):
+    @DeferredUpdates.setter
+    def DeferredUpdates(self, val):
         self._deferredUpdates = val
 
-    def _getImage(self):
+    @property
+    def Image(self):
+        """
+        Sets the image that is displayed on the page tab. This is determined by the key value
+        passed, which must refer to an image already added to the parent pageframe.
+
+        When used to retrieve an image, it returns the index of the page's image in the parent
+        pageframe's image list.  (int)
+        """
         return self.Parent.getPageImage(self)
 
-    def _setImage(self, imgKey):
+    @Image.setter
+    def Image(self, imgKey):
         if self._constructed():
             self.Parent.setPageImage(self, imgKey)
         else:
             self._properties["Image"] = imgKey
-
-    Caption = property(
-        _getCaption,
-        _setCaption,
-        None,
-        _("The text identifying this particular page.  (str)"),
-    )
-
-    DeferredUpdates = property(
-        _getDeferredUpdates,
-        _setDeferredUpdates,
-        None,
-        _("Allow to defer controls updates until page become active.  (bool)"),
-    )
-
-    Image = property(
-        _getImage,
-        _setImage,
-        None,
-        _(
-            """Sets the image that is displayed on the page tab. This is
-            determined by the key value passed, which must refer to an
-            image already added to the parent pageframe.
-            When used to retrieve an image, it returns the index of the
-            page's image in the parent pageframe's image list.   (int)"""
-        ),
-    )
 
     DynamicCaption = makeDynamicProperty(Caption)
     DynamicImage = makeDynamicProperty(Image)

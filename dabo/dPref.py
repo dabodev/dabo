@@ -505,35 +505,26 @@ class dPref(object):
         return False
 
     # Property definitions start here
-    def _getAutoPersist(self):
+    @property
+    def AutoPersist(self):
+        """Do property assignments automatically save themselves? Default=True  (bool)"""
         ret = self._autoPersist
         if ret and self._parent is not None:
             # Make sure all parents are also auto-persist
             ret = ret and self._parent.AutoPersist
         return ret
 
-    def _setAutoPersist(self, val):
+    @AutoPersist.setter
+    def AutoPersist(self, val):
         self._autoPersist = val
 
-    def _getFullPath(self):
+    @property
+    def FullPath(self):
+        """
+        The fully-qualified path to this object, consisting of all ancestor names along with
+        this name, joined by periods (read-only) (str)
+        """
         return self._getKey()
-
-    AutoPersist = property(
-        _getAutoPersist,
-        _setAutoPersist,
-        None,
-        _("Do property assignments automatically save themselves? Default=True  (bool)"),
-    )
-
-    FullPath = property(
-        _getFullPath,
-        None,
-        None,
-        _(
-            """The fully-qualified path to this object, consisting of all ancestor
-            names along with this name, joined by periods (read-only) (str)"""
-        ),
-    )
 
 
 if __name__ == "__main__":

@@ -202,7 +202,7 @@ class BaseForm(dFormMixin):
         self.bizobjs[bizobj.DataSource] = bizobj
         if len(self.bizobjs) == 1:
             self.PrimaryBizobj = bizobj
-        self.setStatusText("Bizobj '%s' %s." % (bizobj.DataSource, _("added")))
+        self.updateStatusText("Bizobj '%s' %s." % (bizobj.DataSource, _("added")))
         return bizobj
 
     def afterSetPrimaryBizobj(self):
@@ -247,7 +247,7 @@ class BaseForm(dFormMixin):
         if self.activeControlValid() is False:
             # Field validation failed
             return False
-        self.setStatusText("%s..." % (self.getCurrentRecordText(),), immediate=True)
+        self.updateStatusText("%s..." % (self.getCurrentRecordText(),), immediate=True)
         err = self.beforePointerMove()
         if err:
             self.notifyUser(err)
@@ -255,7 +255,7 @@ class BaseForm(dFormMixin):
 
         def bail(msg, meth=None, *args, **kwargs):
             if meth is None:
-                meth = self.setStatusText
+                meth = self.updateStatusText
             meth(msg, *args, **kwargs)
 
         try:
@@ -289,7 +289,7 @@ class BaseForm(dFormMixin):
         return True
 
     def _afterRowNavigation(self):
-        self.setStatusText(self.getCurrentRecordText(), immediate=True)
+        self.updateStatusText(self.getCurrentRecordText(), immediate=True)
         self.afterRowNavigation()
 
     def first(self, dataSource=None):
@@ -405,7 +405,7 @@ class BaseForm(dFormMixin):
             else:
                 bizobj.save(saveTheChildren=self.SaveChildren)
 
-            self.setStatusText(
+            self.updateStatusText(
                 _("Changes to %s saved.")
                 % (self.SaveAllRows and "all records" or "current record",)
             )
@@ -417,12 +417,12 @@ class BaseForm(dFormMixin):
 
         except dException.NoRecordsException as e:
             # No records were saved. No big deal; just let 'em know.
-            self.setStatusText(_("Nothing to save!"))
+            self.updateStatusText(_("Nothing to save!"))
             return True
 
         except (dException.BusinessRuleViolation, dException.DBQueryException) as e:
             txt = _("Save Failed")
-            self.setStatusText(txt)
+            self.updateStatusText(txt)
             msg = "%s:\n\n%s" % (txt, ustr(e))
             self.notifyUser(msg, severe=True, exception=e)
             return False
@@ -463,7 +463,7 @@ class BaseForm(dFormMixin):
                     cancelTheChildren=self.CancelChildren,
                 )
             self.update()
-            self.setStatusText(
+            self.updateStatusText(
                 _("Changes to %s canceled.")
                 % (self.SaveAllRows and "all records" or "current record",)
             )
@@ -574,7 +574,7 @@ class BaseForm(dFormMixin):
 
         if not bizobj.RowCount > 0:
             # Nothing to delete!
-            self.setStatusText(_("Nothing to delete!"))
+            self.updateStatusText(_("Nothing to delete!"))
             return
 
         err = self.beforeDelete()
@@ -592,7 +592,7 @@ class BaseForm(dFormMixin):
         if not prompt or ui.areYouSure(message, defaultNo=True, cancelButton=False):
             try:
                 bizobj.delete()
-                self.setStatusText(_("Record Deleted."))
+                self.updateStatusText(_("Record Deleted."))
                 # Notify listeners that the row number changed:
                 self.raiseEvent(events.RowNumChanged)
             except dException.ConnectionLostException as e:
@@ -666,7 +666,7 @@ class BaseForm(dFormMixin):
             )
 
         statusText = self.getCurrentRecordText(dataSource)
-        self.setStatusText(statusText)
+        self.updateStatusText(statusText)
 
         # Notify listeners that the row number changed:
         self.update()
@@ -937,30 +937,53 @@ Database error message: %s"""
         """
         pass
 
-    # Property get/set/del functions follow.
-    def _getCancelChildren(self):
+    # Property definitions
+    @property
+    def CancelChildren(self):
+        """Specifies whether changes are canceled from child bizobjs. (bool; default:True)"""
         try:
             return self._CancelChildren
         except AttributeError:
             return True
 
-    def _setCancelChildren(self, value):
+    @CancelChildren.setter
+    def CancelChildren(self, value):
         self._CancelChildren = bool(value)
 
-    def _getCheckForChanges(self):
+    @property
+    def CheckForChanges(self):
+        """
+        Specifies whether the user is prompted to save or discard changes. (bool)
+
+        If True (the default), when operations such as requery() or the closing of the form are
+        about to occur, the user will be presented with a dialog box asking whether to save changes,
+        discard changes, or cancel the operation that led to the dialog being presented.
+        """
         return self._checkForChanges
 
-    def _setCheckForChanges(self, value):
+    @CheckForChanges.setter
+    def CheckForChanges(self, value):
         self._checkForChanges = bool(value)
 
-    def _getDataUpdateDelay(self):
+    @property
+    def DataUpdateDelay(self):
+        """
+        Specifies synchronization delay in data updates from business to UI layer. (int; default:100
+        [ms])
+
+        Set to 0 or None to ensure controls reflect immediately to the data changes.
+        """
         return self._dataUpdateDelay
 
-    def _setDataUpdateDelay(self, val):
+    @DataUpdateDelay.setter
+    def DataUpdateDelay(self, val):
         self._dataUpdateDelay = val
 
-    def _getPrimaryBizobj(self):
+    @property
+    def PrimaryBizobj(self):
         """
+        Reference to the primary bizobj for this form  (dBizobj)
+
         The attribute '_primaryBizobj' should be a bizobj, but due
         to old code design, might be a data source name. These methods
         will handle the old style, but work primarily with the preferred
@@ -976,7 +999,8 @@ Database error message: %s"""
                 self._primaryBizobj = bo
         return bo
 
-    def _setPrimaryBizobj(self, bizOrDataSource):
+    @PrimaryBizobj.setter
+    def PrimaryBizobj(self, bizOrDataSource):
         if isinstance(bizOrDataSource, biz.dBizobj):
             self._primaryBizobj = bizOrDataSource
         else:
@@ -990,131 +1014,70 @@ Database error message: %s"""
             else:
                 dabo_module.info(_("bizobj for data source %s does not exist.") % bizOrDataSource)
 
-    def _getRequeryOnLoad(self):
+    @property
+    def RequeryOnLoad(self):
+        """Specifies whether an automatic requery happens when the form is loaded.  (bool)"""
         try:
             return self._requeryOnLoad
         except AttributeError:
             return False
 
-    def _setRequeryOnLoad(self, value):
+    @RequeryOnLoad.setter
+    def RequeryOnLoad(self, value):
         self._requeryOnLoad = bool(value)
 
-    def _getRowNavigationDelay(self):
+    @property
+    def RowNavigationDelay(self):
+        """
+        Specifies optional delay to wait for updating the entire form when the user is navigating
+        the records. (int; default=0 [ms])
+
+        Set to 0 or None to ensure that all controls reflect immediately to the data changes.
+        Setting to a positive non-zero value will result in the following behavior:
+
+        As the row number changes, events.RowNavigation events will fire and the
+        afterRowNavigation() hook method will be called, allowing your form code to update a
+        specific set of controls so the user knows the records are being navigated. The default
+        behavior will reflect the current row number in the form's status bar as row navigation is
+        occurring.
+
+        After a navigation and the RowNavigationDelay has passed, the form will be completely
+        updated and refreshed. events.RowNumChanged will be fired, and the hook afterPointerMove()
+        will be called.
+
+        Recommended setting if non-zero: 250 [ms]. Values under that result in the timer firing
+        before the user can navigate again, although this will be dependent on your specific
+        situation.
+        """
         return self._rowNavigationDelay
 
-    def _setRowNavigationDelay(self, val):
+    @RowNavigationDelay.setter
+    def RowNavigationDelay(self, val):
         self._rowNavigationDelay = val
 
-    def _getSaveAllRows(self):
+    @property
+    def SaveAllRows(self):
+        """Specifies whether changes are saved to all rows, or just the current row. (bool)"""
         try:
             return self._SaveAllRows
         except AttributeError:
             return True
 
-    def _setSaveAllRows(self, value):
+    @SaveAllRows.setter
+    def SaveAllRows(self, value):
         self._SaveAllRows = bool(value)
 
-    def _getSaveChildren(self):
+    @property
+    def SaveChildren(self):
+        """Specifies whether changes are saved to child bizobjs. (bool; default:True)"""
         try:
             return self._SaveChildren
         except AttributeError:
             return True
 
-    def _setSaveChildren(self, value):
+    @SaveChildren.setter
+    def SaveChildren(self, value):
         self._SaveChildren = bool(value)
-
-    # Property definitions:
-    CancelChildren = property(
-        _getCancelChildren,
-        _setCancelChildren,
-        None,
-        _("Specifies whether changes are canceled from child bizobjs. (bool; default:True)"),
-    )
-
-    CheckForChanges = property(
-        _getCheckForChanges,
-        _setCheckForChanges,
-        None,
-        _(
-            """Specifies whether the user is prompted to save or discard changes. (bool)
-
-            If True (the default), when operations such as requery() or the closing
-            of the form are about to occur, the user will be presented with a dialog
-            box asking whether to save changes, discard changes, or cancel the
-            operation that led to the dialog being presented."""
-        ),
-    )
-
-    DataUpdateDelay = property(
-        _getDataUpdateDelay,
-        _setDataUpdateDelay,
-        None,
-        _(
-            """Specifies synchronization delay in data updates from business
-            to UI layer. (int; default:100 [ms])
-
-            Set to 0 or None to ensure controls reflect immediately to the data changes.."""
-        ),
-    )
-
-    PrimaryBizobj = property(
-        _getPrimaryBizobj,
-        _setPrimaryBizobj,
-        None,
-        _("Reference to the primary bizobj for this form  (dBizobj)"),
-    )
-
-    RequeryOnLoad = property(
-        _getRequeryOnLoad,
-        _setRequeryOnLoad,
-        None,
-        _(
-            """Specifies whether an automatic requery happens when the
-            form is loaded.  (bool)"""
-        ),
-    )
-
-    RowNavigationDelay = property(
-        _getRowNavigationDelay,
-        _setRowNavigationDelay,
-        None,
-        _(
-            """Specifies optional delay to wait for updating the entire form when the user
-            is navigating the records. (int; default=0 [ms])
-
-            Set to 0 or None to ensure that all controls reflect immediately to the data changes.
-            Setting to a positive non-zero value will result in the following behavior:
-
-            As the row number changes, events.RowNavigation events will fire and the
-            afterRowNavigation() hook method will be called, allowing your form code to update a
-            specific set of controls so the user knows the records are being navigated. The
-            default behavior will reflect the current row number in the form's status bar as
-            row navigation is occurring.
-
-            After a navigation and the RowNavigationDelay has passed, the form will be
-            completely updated and refreshed. events.RowNumChanged will be fired, and the
-            hook afterPointerMove() will be called.
-
-            Recommended setting if non-zero: 250 [ms]. Values under that result in the timer
-            firing before the user can navigate again, although this will be dependent on your
-            specific situation.
-            """
-        ),
-    )
-
-    SaveAllRows = property(
-        _getSaveAllRows,
-        _setSaveAllRows,
-        None,
-        _("Specifies whether changes are saved to all rows, or just the current row. (bool)"),
-    )
-
-    SaveChildren = property(
-        _getSaveChildren,
-        _setSaveChildren,
-        None,
-        _("Specifies whether changes are saved to child bizobjs. (bool; default:True)"),
-    )
 
 
 class dForm(BaseForm, wx.Frame):
@@ -1173,13 +1136,35 @@ class dForm(BaseForm, wx.Frame):
         dForm._hackToFrame()
         return ret
 
-    def _getModal(self):
+    # Property definitions
+    @property
+    def Modal(self):
+        """
+        Specifies whether this dForm is modal or not  (bool)
+
+        A modal dForm runs its own event loop, blocking program flow until the form is hidden or
+        closed, exactly like a dDialog does it. This property may only be sent to the constructor,
+        and once instantiated you may not change the modality of a form. For example::
+
+                frm = dForm(Modal=True)
+
+        will create a modal form.
+
+        .. note::
+
+            That a modal dForm is actually a dDialog, and as such does not have the ability to
+            contain MenuBars, StatusBars, or ToolBars.
+
+        """
         return getattr(self, "_modal", False)
 
-    def _getVisible(self):
+    @property
+    def Visible(self):
+        """Specifies whether the form is shown or hidden.  (bool)"""
         return self.IsShown()
 
-    def _setVisible(self, val):
+    @Visible.setter
+    def Visible(self, val):
         if self._constructed():
             val = bool(val)
             if val and self.Modal:
@@ -1190,38 +1175,6 @@ class dForm(BaseForm, wx.Frame):
                 self.Show(val)
         else:
             self._properties["Visible"] = val
-
-    Modal = property(
-        _getModal,
-        None,
-        None,
-        _(
-            """Specifies whether this dForm is modal or not  (bool)
-
-            A modal dForm runs its own event loop, blocking program flow until the
-            form is hidden or closed, exactly like a dDialog does it. This property
-            may only be sent to the constructor, and once instantiated you may not
-            change the modality of a form. For example::
-
-                    frm = dForm(Modal=True)
-
-            will create a modal form.
-
-            .. note::
-
-                That a modal dForm is actually a dDialog, and as such does not
-                have the ability to contain MenuBars, StatusBars, or ToolBars.
-
-            """
-        ),
-    )
-
-    Visible = property(
-        _getVisible,
-        _setVisible,
-        None,
-        _("Specifies whether the form is shown or hidden.  (bool)"),
-    )
 
 
 class dToolForm(BaseForm, wx.MiniFrame):

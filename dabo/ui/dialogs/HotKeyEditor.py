@@ -84,83 +84,48 @@ class HotKeyEditor(dOkCancelDialog):
         self.layout()
         self.fitToSizer()
 
-    # Property definitions start here
-    def _getAlt(self):
+    # Property definitions
+    @property
+    def Alt(self):
+        """Reflects the presence of the Alt key in the selected key combo. Default=False.  (bool)"""
         return self._alt
 
-    def _getChanged(self):
+    @property
+    def Changed(self):
+        """
+        Returns True only if the current key is different than the starting value. (read-only)
+        (bool)
+        """
         orig = self._originalKeyString
         return orig is not None and (orig != self._keyText)
 
-    def _getCtrl(self):
+    @property
+    def Ctrl(self):
+        """
+        Reflects the presence of the Ctrl key in the selected key combo. Default=False.  (read-only)
+        (bool)
+        """
         return self._ctrl
 
-    def _getKeyChar(self):
+    @property
+    def KeyChar(self):
+        """The non-modifier key in the selected key combo. Default="""
         return self._keyChar
 
-    def _getKeyCode(self):
+    @property
+    def KeyCode(self):
+        """Underlying key code of the key/modifier combo. Default=-1 (read-only) (int)"""
         return self._keyCode
 
-    def _getKeyText(self):
+    @property
+    def KeyText(self):
+        """The displayed text for the key/modifier combo. Default="""
         return self._keyText
 
-    def _getShift(self):
+    @property
+    def Shift(self):
+        """
+        Reflects the presence of the Alt key in the selected key combo. Default=False.  (read-only)
+        (bool)
+        """
         return self._shift
-
-    Alt = property(
-        _getAlt,
-        None,
-        None,
-        _("Reflects the presence of the Alt key in the selected key combo. Default=False.  (bool)"),
-    )
-
-    Changed = property(
-        _getChanged,
-        None,
-        None,
-        _(
-            "Returns True only if the current key is different than the starting value. "
-            "(read-only) (bool)"
-        ),
-    )
-
-    Ctrl = property(
-        _getCtrl,
-        None,
-        None,
-        _(
-            "Reflects the presence of the Ctrl key in the selected key combo. Default=False. "
-            "(read-only) (bool)"
-        ),
-    )
-
-    KeyChar = property(
-        _getKeyChar,
-        None,
-        None,
-        _("The non-modifier key in the selected key combo. Default=" ". (read-only) (str)"),
-    )
-
-    KeyCode = property(
-        _getKeyCode,
-        None,
-        None,
-        _("Underlying key code of the key/modifier combo. Default=-1 (read-only) (int)"),
-    )
-
-    KeyText = property(
-        _getKeyText,
-        None,
-        None,
-        _("The displayed text for the key/modifier combo. Default=" " (read-only) (str)"),
-    )
-
-    Shift = property(
-        _getShift,
-        None,
-        None,
-        _(
-            "Reflects the presence of the Alt key in the selected key combo. Default=False. "
-            "(read-only) (bool)"
-        ),
-    )

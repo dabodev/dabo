@@ -180,10 +180,13 @@ class dPageFrameNoTabs(dPanel):
         pass
 
     # ------------------------------------
-    def _getPageClass(self):
+    @property
+    def PageClass(self):
+        """The default class used when adding new pages.  (dPage)"""
         return self._pageClass
 
-    def _setPageClass(self, val):
+    @PageClass.setter
+    def PageClass(self, val):
         if isinstance(val, str):
             from lib.DesignerClassConverter import DesignerClassConverter
 
@@ -192,10 +195,13 @@ class dPageFrameNoTabs(dPanel):
         elif issubclass(val, (dPage, dPanel)):
             self._pageClass = val
 
-    def _getPageCount(self):
+    @property
+    def PageCount(self):
+        """Returns the number of pages in this pageframe  (int)"""
         return len(self._pages)
 
-    def _setPageCount(self, val):
+    @PageCount.setter
+    def PageCount(self, val):
         diff = val - len(self._pages)
         if diff > 0:
             # Need to add pages
@@ -214,74 +220,47 @@ class dPageFrameNoTabs(dPanel):
             newPg = min(currPg, val - 1)
             self.SelectedPage = newPg
 
-    def _getPages(self):
+    @property
+    def Pages(self):
+        """List of all the pages.   (list)"""
         return self._pages
 
-    def _getPageSizerClass(self):
+    @property
+    def PageSizerClass(self):
+        """
+        Default sizer class for pages added automatically to this control. Set this to None to
+        prevent sizers from being automatically added to child pages. (dSizer or None)
+        """
         return self._pageSizerClass
 
-    def _setPageSizerClass(self, val):
+    @PageSizerClass.setter
+    def PageSizerClass(self, val):
         if self._constructed():
             self._pageSizerClass = val
         else:
             self._properties["PageSizerClass"] = val
 
-    def _getSelectedPage(self):
+    @property
+    def SelectedPage(self):
+        """Returns a reference to the currently displayed page  (dPage | dPanel)"""
         try:
             return self._activePage
         except AttributeError:
             return None
 
-    def _setSelectedPage(self, pg):
+    @SelectedPage.setter
+    def SelectedPage(self, pg):
         self.showPage(pg)
 
-    def _getSelectedPageNumber(self):
+    @property
+    def SelectedPageNumber(self):
+        """Returns a reference to the index of the currently displayed page  (int)"""
         return self.getPageNumber(self._activePage)
 
-    def _setSelectedPageNumber(self, val):
+    @SelectedPageNumber.setter
+    def SelectedPageNumber(self, val):
         pg = self.Pages[val]
         self.showPage(pg)
-
-    PageClass = property(
-        _getPageClass,
-        _setPageClass,
-        None,
-        _("The default class used when adding new pages.  (dPage)"),
-    )
-
-    PageCount = property(
-        _getPageCount,
-        _setPageCount,
-        None,
-        _("Returns the number of pages in this pageframe  (int)"),
-    )
-
-    Pages = property(_getPages, None, None, _("List of all the pages.   (list)"))
-
-    PageSizerClass = property(
-        _getPageSizerClass,
-        _setPageSizerClass,
-        None,
-        _(
-            """Default sizer class for pages added automatically to this control. Set
-            this to None to prevent sizers from being automatically added to child
-            pages. (dSizer or None)"""
-        ),
-    )
-
-    SelectedPage = property(
-        _getSelectedPage,
-        _setSelectedPage,
-        None,
-        _("Returns a reference to the currently displayed page  (dPage | dPanel)"),
-    )
-
-    SelectedPageNumber = property(
-        _getSelectedPageNumber,
-        _setSelectedPageNumber,
-        None,
-        _("Returns a reference to the index of the currently displayed page  (int)"),
-    )
 
     DynamicPageClass = makeDynamicProperty(PageClass)
     DynamicPageCount = makeDynamicProperty(PageCount)

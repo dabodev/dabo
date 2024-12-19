@@ -78,10 +78,13 @@ class dMenuItem(dPemMixin, wx.MenuItem):
                 cap = " "
             self.SetItemLabel(cap)
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """Specifies the text of the menu item."""
         return self._caption
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         if self._constructed():
             tabsplit = val.split("\t")
             if len(tabsplit) > 1:
@@ -93,41 +96,55 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         else:
             self._properties["Caption"] = val
 
-    def _getEnabled(self):
+    @property
+    def Enabled(self):
+        """Specifies whether the menu item can be interacted with."""
         return self.IsEnabled()
 
-    def _setEnabled(self, val):
+    @Enabled.setter
+    def Enabled(self, val):
         if self._constructed():
             self.Enable(bool(val))
         else:
             self._properties["Enabled"] = val
 
-    def _getForm(self):
+    @property
+    def Form(self):
+        """Specifies the containing form."""
         return self.Parent.Form
 
-    def _getHelpText(self):
+    @property
+    def HelpText(self):
+        """Specifies the help text associated with this menu. (str)"""
         return self.GetHelp()
 
-    def _setHelpText(self, val):
+    @HelpText.setter
+    def HelpText(self, val):
         if self._constructed():
             self.SetHelp(val)
         else:
             self._properties["HelpText"] = val
 
-    def _getHotKey(self):
+    @property
+    def HotKey(self):
+        """Key combination that will trigger the menu  (str)"""
         return self._hotKey
 
-    def _setHotKey(self, val):
+    @HotKey.setter
+    def HotKey(self, val):
         if self._constructed():
             self._hotKey = val
             self._redefine()
         else:
             self._properties["HotKey"] = val
 
-    def _getIcon(self):
+    @property
+    def Icon(self):
+        """Specifies the icon for the menu item."""
         return self.GetBitmap()
 
-    def _setIcon(self, val):
+    @Icon.setter
+    def Icon(self, val):
         if self._constructed():
             if val in (None, ""):
                 return
@@ -146,64 +163,33 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         else:
             self._properties["Icon"] = val
 
-    def _getItemID(self):
+    @property
+    def ItemID(self):
+        """
+        Identifying value for this menuitem. NOTE: there is no checking for duplicate values; it is
+        the responsibility to ensure that ItemID values are unique within a menu.  (varies)
+        """
         return self._itemID
 
-    def _setItemID(self, val):
+    @ItemID.setter
+    def ItemID(self, val):
         if self._constructed():
             self._itemID = val
         else:
             self._properties["ItemID"] = val
 
-    def _getParent(self):
+    @property
+    def Parent(self):
+        """Specifies the parent menu."""
         try:
             ret = self._parent
         except AttributeError:
             ret = self._parent = None
         return ret
 
-    def _setParent(self, val):
+    @Parent.setter
+    def Parent(self, val):
         self._parent = val
-
-    Caption = property(_getCaption, _setCaption, None, _("Specifies the text of the menu item."))
-
-    Enabled = property(
-        _getEnabled,
-        _setEnabled,
-        None,
-        _("Specifies whether the menu item can be interacted with."),
-    )
-
-    Form = property(_getForm, None, None, _("Specifies the containing form."))
-
-    HelpText = property(
-        _getHelpText,
-        _setHelpText,
-        None,
-        _("Specifies the help text associated with this menu. (str)"),
-    )
-
-    HotKey = property(
-        _getHotKey,
-        _setHotKey,
-        None,
-        _("Key combination that will trigger the menu  (str)"),
-    )
-
-    Icon = property(_getIcon, _setIcon, None, _("Specifies the icon for the menu item."))
-
-    ItemID = property(
-        _getItemID,
-        _setItemID,
-        None,
-        _(
-            """Identifying value for this menuitem. NOTE: there is no checking for
-            duplicate values; it is the responsibility to ensure that ItemID values
-            are unique within a menu.  (varies)"""
-        ),
-    )
-
-    Parent = property(_getParent, _setParent, None, _("Specifies the parent menu."))
 
     DynamicCaption = makeDynamicProperty(Caption)
     DynamicEnabled = makeDynamicProperty(Enabled)

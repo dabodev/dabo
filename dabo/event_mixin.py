@@ -58,10 +58,6 @@ class EventMixin(object):
 
         from . import ui
 
-        if eventClass == events.KeyChar and isinstance(self, ui.dForm):
-            import pudb
-
-            pudb.set_trace()
         eventSig = (eventClass, args, kwargs)
         if eventSig in self.__raisedEvents:
             # The event is already being handled, but one of the handlers caused it to be
@@ -73,7 +69,6 @@ class EventMixin(object):
         evtObject = kwargs.pop("eventObject", self)
 
         event = eventClass(evtObject, uiEvent=uiEvent, eventData=eventData, *args, **kwargs)
-
         # Now iterate the bindings, and execute the callbacks:
         if settings.reverseEventsOrder:
             bindings = reversed(self._EventBindings)
@@ -307,25 +302,21 @@ class EventMixin(object):
         for idx in toRemove:
             del self._EventBindings[idx]
 
-    def _getEventBindings(self):
+    @property
+    def _EventBindings(self):
+        """The list of event bindings ([Event, callback]) for this object."""
         try:
             return self._eventBindings
         except AttributeError:
             self._eventBindings = []
             return self._eventBindings
 
-    def _setEventBindings(self, val):
+    @_EventBindings.setter
+    def _EventBindings(self, val):
         if isinstance(val, list):
             self._eventBindings = val
         else:
-            raise ValueError("EventBindings must be a list.")
-
-    _EventBindings = property(
-        _getEventBindings,
-        _setEventBindings,
-        None,
-        _("The list of event bindings ([Event, callback]) for this object."),
-    )
+            raise ValueError("_EventBindings must be a list.")
 
 
 if __name__ == "__main__":

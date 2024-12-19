@@ -186,35 +186,64 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
         self._source = None
         self.clear()
 
-    def _getContentDimensions(self):
+    # Property definitions
+    @property
+    def ContentDimensions(self):
+        """
+        The native dimensions of the content, minus the player controls, if any.  (read-only)
+        (2-tuple of int)
+        """
         sc = self.ShowControls
         ret = self.GetBestSize().Get()
         self.ShowControls = sc
         return ret
 
+    @property
     @_timeConvertOut
-    def _getCurrentPosition(self):
+    def CurrentPosition(self):
+        """
+        The current playback position of the content in either milliseconds (default) or seconds,
+        depending on the setting of TimeInSeconds.  (int or float)
+        """
         return self.Tell()
 
+    @CurrentPosition.setter
     @_timeConvertIn
-    def _setCurrentPosition(self, val):
+    def CurrentPosition(self, val):
         if self._constructed():
             val = max(0, min(val, self.Length()))
             self.Seek(val)
         else:
             self._properties["CurrentPosition"] = val
 
-    def _getDisplayDimensions(self):
+    @property
+    def DisplayDimensions(self):
+        """
+        The native dimensions of the content and the player controls, if any.  When ShowControls is
+        False, or when audio content is loaded, this is identical to ContentDimensions. (read-only)
+        (2-tuple of int)
+        """
         return self.GetBestSize().Get()
 
+    @property
     @_timeConvertOut
-    def _getDuration(self):
+    def Duration(self):
+        """
+        Duration of the content in either milliseconds (default) or seconds, depending on the value
+        of TimeInSeconds.  (read-only) (int or float)
+        """
         return self.Length()
 
-    def _getLoop(self):
+    @property
+    def Loop(self):
+        """
+        Controls whether the content stops when it reaches the end (False; default), or whether it
+        restarts at the beginning (True).  (bool)
+        """
         return self._loop
 
-    def _setLoop(self, val):
+    @Loop.setter
+    def Loop(self, val):
         if self._constructed():
             self._loop = val
             self.unbindEvent(events.MediaFinished)
@@ -223,10 +252,19 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
         else:
             self._properties["Loop"] = val
 
-    def _getPlaybackRate(self):
+    @property
+    def PlaybackRate(self):
+        """
+        Controls the speed at which the content is played. A rate of 100 (default) plays at normal
+        speed; a rate of 200 would play back at double speed; 50 at half-speed, etc. Note that this
+        has undefined behavior when the content is not playing: it can either do nothing, or can
+        start the content playing immediately. Once the content stops, though, this value does not
+        persist.  (int)
+        """
         return self._playbackRate
 
-    def _setPlaybackRate(self, val):
+    @PlaybackRate.setter
+    def PlaybackRate(self, val):
         if self._constructed():
             if not self.Status == "Playing":
                 return
@@ -235,20 +273,34 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
         else:
             self._properties["PlaybackRate"] = val
 
-    def _getShowControls(self):
+    @property
+    def ShowControls(self):
+        """
+        Determines if the player controls are visible. Note that the specific controls that are
+        shown with the control depends on the platform and the type of content.  Default=True.
+        (bool)
+        """
         return self._showControls
 
-    def _setShowControls(self, val):
+    @ShowControls.setter
+    def ShowControls(self, val):
         if self._constructed():
             self._showControls = val
             self.ShowPlayerControls(val)
         else:
             self._properties["ShowControls"] = val
 
-    def _getSource(self):
+    @property
+    def Source(self):
+        """
+        This can be either a file path or a URI for the content displayed in this control. If the
+        value begins with 'http', it is assumed to be a URI rather than a local file path. Setting
+        the source to None will clear the control.  (str)
+        """
         return self._source
 
-    def _setSource(self, val):
+    @Source.setter
+    def Source(self, val):
         if self._constructed():
             if val is None:
                 self.Load("")
@@ -265,144 +317,42 @@ class dMediaControl(dControlMixin, wx.media.MediaCtrl):
         else:
             self._properties["Source"] = val
 
-    def _getStatus(self):
+    @property
+    def Status(self):
+        """
+        The current playback status. One of 'Playing', 'Paused', or 'Stopped'.  (read-only) (str)
+        """
         states = {0: "Stopped", 1: "Paused", 2: "Playing"}
         return states[self.GetState()]
 
-    def _getTimeInSeconds(self):
+    @property
+    def TimeInSeconds(self):
+        """
+        Determines whether we specify content length and position in seconds (default), or
+        milliseconds. Affects the Duration and CurrentPosition properties. Default=True  (bool)
+        """
         return self._timeInSeconds
 
-    def _setTimeInSeconds(self, val):
+    @TimeInSeconds.setter
+    def TimeInSeconds(self, val):
         if self._constructed():
             self._timeInSeconds = val
         else:
             self._properties["TimeInSeconds"] = val
 
-    def _getVolume(self):
+    @property
+    def Volume(self):
+        """
+        Controls the sound level. 100 (default) is full volume; 0 turns the sound off.  (int)
+        """
         return int(self.GetVolume() * 100)
 
-    def _setVolume(self, val):
+    @Volume.setter
+    def Volume(self, val):
         if self._constructed():
             self.SetVolume(val / 100.0)
         else:
             self._properties["Volume"] = val
-
-    ContentDimensions = property(
-        _getContentDimensions,
-        None,
-        None,
-        _(
-            """The native dimensions of the content, minus the player controls, if any.
-            (read-only) (2-tuple of int)"""
-        ),
-    )
-
-    CurrentPosition = property(
-        _getCurrentPosition,
-        _setCurrentPosition,
-        None,
-        _(
-            """The current playback position of the content in either milliseconds (default)
-            or seconds, depending on the setting of TimeInSeconds.  (int or float)"""
-        ),
-    )
-
-    DisplayDimensions = property(
-        _getDisplayDimensions,
-        None,
-        None,
-        _(
-            """The native dimensions of the content and the player controls, if any.
-            When ShowControls is False, or when audio content is loaded, this is identical
-            to ContentDimensions. (read-only) (2-tuple of int)"""
-        ),
-    )
-
-    Duration = property(
-        _getDuration,
-        None,
-        None,
-        _(
-            """Duration of the content in either milliseconds (default) or seconds, depending
-            on the value of TimeInSeconds.  (read-only) (int or float)"""
-        ),
-    )
-
-    Loop = property(
-        _getLoop,
-        _setLoop,
-        None,
-        _(
-            """Controls whether the content stops when it reaches the end (False; default),
-            or whether it restarts at the beginning (True).  (bool)"""
-        ),
-    )
-
-    PlaybackRate = property(
-        _getPlaybackRate,
-        _setPlaybackRate,
-        None,
-        _(
-            """Controls the speed at which the content is played. A rate of 100 (default)
-            plays at normal speed; a rate of 200 would play back at double speed; 50 at
-            half-speed, etc. Note that this has undefined behavior when the content is not
-            playing: it can either do nothing, or can start the content playing immediately.
-            Once the content stops, though, this value does not persist.  (int)"""
-        ),
-    )
-
-    ShowControls = property(
-        _getShowControls,
-        _setShowControls,
-        None,
-        _(
-            """Determines if the player controls are visible. Note that the specific controls
-            that are shown with the control depends on the platform and the type of content.
-            Default=True.  (bool)"""
-        ),
-    )
-
-    Source = property(
-        _getSource,
-        _setSource,
-        None,
-        _(
-            """This can be either a file path or a URI for the content displayed in this
-            control. If the value begins with 'http', it is assumed to be a URI rather than
-            a local file path. Setting the source to None will clear the control.  (str)"""
-        ),
-    )
-
-    Status = property(
-        _getStatus,
-        None,
-        None,
-        _(
-            """The current playback status. One of 'Playing', 'Paused', or 'Stopped'.
-            (read-only) (str)"""
-        ),
-    )
-
-    TimeInSeconds = property(
-        _getTimeInSeconds,
-        _setTimeInSeconds,
-        None,
-        _(
-            """Determines whether we specify content length and position in
-            seconds (default), or milliseconds. Affects the Duration and
-            CurrentPosition properties. Default=True  (bool)"""
-        ),
-    )
-
-    Volume = property(
-        _getVolume,
-        _setVolume,
-        None,
-        _(
-            """Controls the sound level. 100 (default) is full volume; 0 turns the
-            sound off.  (int)"""
-        ),
-    )
 
 
 ui.dMediaControl = dMediaControl

@@ -3,6 +3,7 @@ import wx
 
 from .. import events, ui
 from ..dLocalize import _
+from ..lib.utils import get_super_property_value, set_super_property_value
 from . import AlignmentMixin, dCheckBox, dControlMixin, dPanel, dSizer, makeDynamicProperty
 
 
@@ -60,55 +61,79 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
         self.Parent.unlockDisplayAll()
         self._inResizeEvent = False
 
-    # property get/set functions
-    def _getAutoResize(self):
+    # property definitions follow:
+    @property
+    def AutoResize(self):
+        """
+        Specifies whether the length of the caption determines the size of the label. This cannot be
+        True if WordWrap is also set to True. Default=True.  (bool)
+        """
         return not self._hasWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 
-    def _setAutoResize(self, val):
+    @AutoResize.setter
+    def AutoResize(self, val):
         self._delWindowStyleFlag(wx.ST_NO_AUTORESIZE)
         if not val:
             self._addWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 
-    def _getFontBold(self):
-        return super(dLabel, self)._getFontBold()
+    @property
+    def FontBold(self):
+        """Specifies if the font is bold-faced. (bool)"""
+        return get_super_property_value(self, "FontBold")
 
-    def _setFontBold(self, val):
-        super(dLabel, self)._setFontBold(val)
+    @FontBold.setter
+    def FontBold(self, val):
+        set_super_property_value(self, "FontBold", val)
         if self._constructed():
             # This will force an auto-resize
             self.SetLabel(self.GetLabel())
 
-    def _getFontFace(self):
-        return super(dLabel, self)._getFontFace()
+    @property
+    def FontFace(self):
+        """Specifies the font face. (str)"""
+        return get_super_property_value(self, "FontFace")
 
-    def _setFontFace(self, val):
-        super(dLabel, self)._setFontFace(val)
+    @FontFace.setter
+    def FontFace(self, val):
+        set_super_property_value(self, "FontFace", val)
         if self._constructed():
             # This will force an auto-resize
             self.SetLabel(self.GetLabel())
 
-    def _getFontItalic(self):
-        return super(dLabel, self)._getFontItalic()
+    @property
+    def FontItalic(self):
+        """Specifies whether font is italicized. (bool)"""
+        return get_super_property_value(self, "FontItalic")
 
-    def _setFontItalic(self, val):
-        super(dLabel, self)._setFontItalic(val)
+    @FontItalic.setter
+    def FontItalic(self, val):
+        set_super_property_value(self, "FontItalic", val)
         if self._constructed():
             # This will force an auto-resize
             self.SetLabel(self.GetLabel())
 
-    def _getFontSize(self):
-        return super(dLabel, self)._getFontSize()
+    @property
+    def FontSize(self):
+        """Specifies the point size of the font. (int)"""
+        return get_super_property_value(self, "FontSize")
 
-    def _setFontSize(self, val):
-        super(dLabel, self)._setFontSize(val)
+    @FontSize.setter
+    def FontSize(self, val):
+        set_super_property_value(self, "FontSize", val)
         if self._constructed():
             # This will force an auto-resize
             self.SetLabel(self.GetLabel())
 
-    def _getWordWrap(self):
+    @property
+    def WordWrap(self):
+        """
+        When True, the Caption is wrapped to the Width. Note that the control must have sufficient
+        Height to display any wrapped text. Default=False  (bool)
+        """
         return self._wordWrap
 
-    def _setWordWrap(self, val):
+    @WordWrap.setter
+    def WordWrap(self, val):
         if self._constructed():
             changed = self._wordWrap != val
             if not changed:
@@ -130,40 +155,6 @@ class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):
             self.__resizeExecute()
         else:
             self._properties["WordWrap"] = val
-
-    # property definitions follow:
-    AutoResize = property(
-        _getAutoResize,
-        _setAutoResize,
-        None,
-        _(
-            """Specifies whether the length of the caption determines
-            the size of the label. This cannot be True if WordWrap is
-            also set to True. Default=True.  (bool)"""
-        ),
-    )
-
-    FontBold = property(_getFontBold, _setFontBold, None, _("Sets the Bold of the Font (int)"))
-
-    FontFace = property(_getFontFace, _setFontFace, None, _("Sets the face of the Font (int)"))
-
-    FontItalic = property(
-        _getFontItalic, _setFontItalic, None, _("Sets the Italic of the Font (int)")
-    )
-
-    FontSize = property(_getFontSize, _setFontSize, None, _("Sets the size of the Font (int)"))
-
-    WordWrap = property(
-        _getWordWrap,
-        _setWordWrap,
-        None,
-        _(
-            """When True, the Caption is wrapped to the Width. Note
-            that the control must have sufficient Height to display any
-            wrapped text.
-            Default=False  (bool)"""
-        ),
-    )
 
     DynamicFontBold = makeDynamicProperty(FontBold)
     DynamicFontFace = makeDynamicProperty(FontFace)

@@ -37,61 +37,53 @@ class dLed(dDataPanel):
         super(dLed, self).update()
         self._inUpdate = False
 
-    # Getters and Setters
-    def _getColor(self):
+    # Property Definitions
+    @property
+    def Color(self):
+        """The current color of the LED (color)"""
         if self._on:
             return self._onColor
         else:
             return self._offColor
 
-    def _getOffColor(self):
+    @property
+    def OffColor(self):
+        """The color of the LED when it is off.  (color)"""
         return self._offColor
 
-    def _setOffColor(self, val):
+    @OffColor.setter
+    def OffColor(self, val):
         if self._constructed():
             self._offColor = val
             self.update()
         else:
             self._properties["OffColor"] = val
 
-    def _getOn(self):
+    @property
+    def On(self):
+        """Is the LED is on? Default=False  (bool)"""
         return self._on
 
-    def _setOn(self, val):
+    @On.setter
+    def On(self, val):
         if self._constructed():
             self._on = val
             self.update()
         else:
             self._properties["On"] = val
 
-    def _getOnColor(self):
+    @property
+    def OnColor(self):
+        """The color of the LED when it is on.  (color)"""
         return self._onColor
 
-    def _setOnColor(self, val):
+    @OnColor.setter
+    def OnColor(self, val):
         if self._constructed():
             self._onColor = val
             self.update()
         else:
             self._properties["OnColor"] = val
-
-    # Property Definitions
-    Color = property(_getColor, None, None, _("The current color of the LED (color)"))
-
-    OffColor = property(
-        _getOffColor,
-        _setOffColor,
-        None,
-        _("The color of the LED when it is off.  (color)"),
-    )
-
-    On = property(_getOn, _setOn, None, _("Is the LED is on? Default=False  (bool)"))
-
-    OnColor = property(
-        _getOnColor,
-        _setOnColor,
-        None,
-        _("The color of the LED when it is on.  (color)"),
-    )
 
     # To make this data-aware, we need a Value property. However,
     # we already have the 'On' property that does the exact same thing.

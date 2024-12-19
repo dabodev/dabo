@@ -193,11 +193,11 @@ class PropertyHelperMixin(object):
             for prop in _propDict:
                 if prop in ("Name", "NameBase"):
                     try:
-                        self._setName(_propDict[prop])
+                        self.Name = _propDict[prop]
                         continue
                     except NameError:
                         pass
-                propRef = eval("self.__class__.%s" % prop)
+                propRef = eval(f"self.__class__.{prop}")
                 if type(propRef) == property:
                     setter = propRef.fset
                     if setter is not None:
@@ -208,9 +208,9 @@ class PropertyHelperMixin(object):
                             setter(self, _propDict[prop])
                     else:
                         if not ignoreErrors:
-                            raise ValueError("Property '%s' is read-only." % prop)
+                            raise ValueError(f"Property '{prop}' is read-only.")
                 else:
-                    raise AttributeError("'%s' is not a property." % prop)
+                    raise AttributeError(f"'{prop}' is not a property.")
             if delayedSettings is not None:
                 for setter, val in list(delayedSettings.items()):
                     setter(self, val)
@@ -238,7 +238,7 @@ class PropertyHelperMixin(object):
                     # ignore
                     continue
                 else:
-                    raise AttributeError("'%s' is not a property." % prop)
+                    raise AttributeError(f"'{prop}' is not a property.")
             try:
                 valToSet = eval(val, context)
             except (TypeError, SyntaxError, NameError, AttributeError):
@@ -342,7 +342,7 @@ class PropertyHelperMixin(object):
 
             return d
         else:
-            raise AttributeError("%s is not a property." % name)
+            raise AttributeError(f"'{name}' is not a property.")
 
     getPropertyInfo = classmethod(getPropertyInfo)
 

@@ -2,12 +2,11 @@
 class CaselessDict(dict):
     """This is a normal Python dictionary that operates in a case-insensitive way."""
 
-    def _getOriginalCase(self):
+    @property
+    def _OriginalCase(self):
         if not hasattr(self, "_originalCase"):
             self._originalCase = {}
         return self._originalCase
-
-    _OriginalCase = property(_getOriginalCase)
 
     def __init__(self, otherDict=None, *args, **kwargs):
         self._originalCase = {}

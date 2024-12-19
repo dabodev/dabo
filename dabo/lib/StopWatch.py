@@ -28,14 +28,16 @@ class StopWatch(object):
             self._value += end - self._beg
             self._beg = 0.00
 
-    def _getRunning(self):
+    @property
+    def Running(self):
         try:
             v = self._running
         except AttributeError:
             v = self._running = False
         return v
 
-    def _getValue(self):
+    @property
+    def Value(self):
         v = self._value
 
         if self.Running:
@@ -43,9 +45,6 @@ class StopWatch(object):
             end = time.time()
             v += end - self._beg
         return v
-
-    Running = property(_getRunning)
-    Value = property(_getValue)
 
 
 if __name__ == "__main__":

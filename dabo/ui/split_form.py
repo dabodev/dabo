@@ -17,52 +17,69 @@ class dSplitForm(dForm):
     def split(self, dir=None):
         self.Splitter.split(dir)
 
-    def _getMinPanelSize(self):
+    @property
+    def MinPanelSize(self):
+        """Controls the minimum width/height of the panels.  (int)"""
         return self.Splitter.MinPanelSize
 
-    def _setMinPanelSize(self, val):
+    @MinPanelSize.setter
+    def MinPanelSize(self, val):
         if self._constructed():
             self.Splitter.MinPanelSize = val
         else:
             self._properties["MinPanelSize"] = val
 
-    def _getOrientation(self):
+    @property
+    def Orientation(self):
+        """Determines if the window splits Horizontally or Vertically.  (str)"""
         return self.Splitter.Orientation
 
-    def _setOrientation(self, val):
+    @Orientation.setter
+    def Orientation(self, val):
         if self._constructed():
             self.Splitter.Orientation = val
         else:
             self._properties["MinPanelSize"] = val
 
-    def _getPanel1(self):
+    @property
+    def Panel1(self):
+        """Returns the Top/Left panel.  (SplitterPanel)"""
         return self.Splitter.Panel1
 
-    def _setPanel1(self, pnl):
+    @Panel1.setter
+    def Panel1(self, pnl):
         if self._constructed():
             self.Splitter.Panel1 = pnl
         else:
             self._properties["Panel1"] = pnl
 
-    def _getPanel2(self):
+    @property
+    def Panel2(self):
+        """Returns the Bottom/Right panel.  (SplitterPanel)"""
         return self.Splitter.Panel2
 
-    def _setPanel2(self, pnl):
+    @Panel2.setter
+    def Panel2(self, pnl):
         if self._constructed():
             self.Splitter.Panel2 = pnl
         else:
             self._properties["Panel2"] = pnl
 
-    def _getSashPosition(self):
+    @property
+    def SashPosition(self):
+        """Position of the sash when the window is split.  (int)"""
         return self.Splitter.SashPosition
 
-    def _setSashPosition(self, val):
+    @SashPosition.setter
+    def SashPosition(self, val):
         if self._constructed():
             self.Splitter.SashPosition = val
         else:
             self._properties["SashPosition"] = val
 
-    def _getSplitter(self):
+    @property
+    def Splitter(self):
+        """Reference to the main splitter in the form  (dSplitter"""
         if self._splitter is None:
             win = self._splitter = dSplitter(
                 self, createPanes=True, createSizers=True, RegID="MainSplitter"
@@ -80,45 +97,6 @@ class dSplitForm(dForm):
             win.Visible = True
             ui.callAfter(addToSizer, self, win)
         return self._splitter
-
-    MinPanelSize = property(
-        _getMinPanelSize,
-        _setMinPanelSize,
-        None,
-        _("Controls the minimum width/height of the panels.  (int)"),
-    )
-
-    Orientation = property(
-        _getOrientation,
-        _setOrientation,
-        None,
-        _("Determines if the window splits Horizontally or Vertically.  (str)"),
-    )
-
-    Panel1 = property(
-        _getPanel1, _setPanel1, None, _("Returns the Top/Left panel.  (SplitterPanel)")
-    )
-
-    Panel2 = property(
-        _getPanel2,
-        _setPanel2,
-        None,
-        _("Returns the Bottom/Right panel.  (SplitterPanel)"),
-    )
-
-    SashPosition = property(
-        _getSashPosition,
-        _setSashPosition,
-        None,
-        _("Position of the sash when the window is split.  (int)"),
-    )
-
-    Splitter = property(
-        _getSplitter,
-        None,
-        None,
-        _("Reference to the main splitter in the form  (dSplitter"),
-    )
 
     DynamicMinPanelSize = makeDynamicProperty(MinPanelSize)
     DynamicOrientation = makeDynamicProperty(Orientation)

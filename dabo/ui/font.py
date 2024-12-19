@@ -30,19 +30,25 @@ class dFont(dObject):
     def _propsChanged(self):
         self.raiseEvent(events.FontPropertiesChanged)
 
-    def _getBold(self):
+    # Property definitions
+    @property
+    def Bold(self):
+        """Bold setting for this font  (bool)"""
         if self._nativeFont:
             return self._nativeFont.GetWeight() == wx.FONTWEIGHT_BOLD
         return False
 
-    def _setBold(self, val):
+    @Bold.setter
+    def Bold(self, val):
         if val:
             self._nativeFont.SetWeight(wx.FONTWEIGHT_BOLD)
         else:
             self._nativeFont.SetWeight(wx.FONTWEIGHT_NORMAL)
         self._propsChanged()
 
-    def _getDescription(self):
+    @property
+    def Description(self):
+        """Read-only plain text description of the font  (str)"""
         ret = self.Face + " " + ustr(self.Size)
         if self.Bold:
             ret += " B"
@@ -50,12 +56,15 @@ class dFont(dObject):
             ret += " I"
         return ret
 
-    def _getFace(self):
+    @property
+    def Face(self):
+        """Name of the font face  (str)"""
         if self._nativeFont:
             return self._nativeFont.GetFaceName()
         return ""
 
-    def _setFace(self, val):
+    @Face.setter
+    def Face(self, val):
         if not val:
             return
         availableFonts = ui.getAvailableFonts()
@@ -96,19 +105,24 @@ class dFont(dObject):
 
         self._propsChanged()
 
-    def _getItalic(self):
+    @property
+    def Italic(self):
+        """Italic setting for this font  (bool)"""
         if self._nativeFont:
             return self._nativeFont.GetStyle() == wx.FONTSTYLE_ITALIC
         return False
 
-    def _setItalic(self, val):
+    @Italic.setter
+    def Italic(self, val):
         if val:
             self._nativeFont.SetStyle(wx.FONTSTYLE_ITALIC)
         else:
             self._nativeFont.SetStyle(wx.FONTSTYLE_NORMAL)
         self._propsChanged()
 
-    def _getSize(self):
+    @property
+    def Size(self):
+        """Size in points for this font  (int)"""
         ret = None
         if self._useMacFontScaling():
             ret = self._macNonScaledSize
@@ -121,7 +135,8 @@ class dFont(dObject):
                 ret = 9
         return ret
 
-    def _setSize(self, val):
+    @Size.setter
+    def Size(self, val):
         # Round to closest int
         val = round(val)
         if self._useMacFontScaling():
@@ -136,37 +151,23 @@ class dFont(dObject):
     def _useMacFontScaling(self):
         return wx.Platform == "__WXMAC__" and settings.macFontScaling
 
-    def _getUnderline(self):
+    @property
+    def Underline(self):
+        """Underline setting for this font  (bool)"""
         if self._nativeFont:
             return self._nativeFont.GetUnderlined()
         return False
 
-    def _setUnderline(self, val):
+    @Underline.setter
+    def Underline(self, val):
         self._nativeFont.SetUnderlined(val)
         self._propsChanged()
 
-    Bold = property(_getBold, _setBold, None, _("Bold setting for this font  (bool)"))
+    # Aliases for the various properties
     FontBold = Bold
-
-    Description = property(
-        _getDescription,
-        None,
-        None,
-        _("Read-only plain text description of the font  (str)"),
-    )
-
-    Face = property(_getFace, _setFace, None, _("Name of the font face  (str)"))
     FontFace = Face
-
-    Italic = property(_getItalic, _setItalic, None, _("Italic setting for this font  (bool)"))
     FontItalic = Italic
-
-    Size = property(_getSize, _setSize, None, _("Size in points for this font  (int)"))
     FontSize = Size
-
-    Underline = property(
-        _getUnderline, _setUnderline, None, _("Underline setting for this font  (bool)")
-    )
     FontUnderline = Underline
 
 

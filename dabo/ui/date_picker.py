@@ -276,144 +276,107 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
             ue = ustr(e)
             dabo_module.error(_("Object '%(nm)s' has the following error: %(ue)s") % locals())
 
-    def _getAllowNullDate(self):
+    ## Property definitions
+    @property
+    def AllowNullDate(self):
+        """If True enable Null vale in date. (bool)(Default=False)"""
         return self._hasWindowStyleFlag(wx.adv.DP_ALLOWNONE)
 
-    def _setAllowNullDate(self, val):
+    @AllowNullDate.setter
+    def AllowNullDate(self, val):
         if val:
             self._addWindowStyleFlag(wx.adv.DP_ALLOWNONE)
         else:
             self._delWindowStyleFlag(wx.adv.DP_ALLOWNONE)
 
-    def _getForceShowCentury(self):
+    @property
+    def ForceShowCentury(self):
+        """Regardless of locale setting, century is shown if True. Default=False  (bool)"""
         return self._hasWindowStyleFlag(wx.adv.DP_SHOWCENTURY)
 
-    def _setForceShowCentury(self):
+    @ForceShowCentury.setter
+    def ForceShowCentury(self):
         if val:
             self._addWindowStyleFlag(wx.adv.DP_SHOWCENTURY)
         else:
             self._delWindowStyleFlag(wx.adv.DP_SHOWCENTURY)
 
-    def _getInvalidBackColor(self):
+    @property
+    def InvalidBackColor(self):
+        """
+        Color value used for illegal values or values out-of-teh bounds. Default: Yellow  (str)
+        """
         return self._invalidBackColor
 
-    def _setInvalidBackColor(self, val):
+    @InvalidBackColor.setter
+    def InvalidBackColor(self, val):
         self._invalidBackColor = val
 
-    def _getIsDateValid(self):
+    @property
+    def IsDateValid(self):
+        """Read-only property tells if Value holds valid date type value."""
         return self.Value is not None
 
-    def _getMaxValue(self):
+    @property
+    def MaxValue(self):
+        """Holds upper value limit. Default=None  (date, tuple, str)"""
         return self._getPyValue(dateTimeWx2Py(self.UpperLimit))
 
-    def _setMaxValue(self, val):
+    @MaxValue.setter
+    def MaxValue(self, val):
         if self._constructed():
             val = self._getWxValue(val)
             self.SetRange(self.LowerLimit, val)
         else:
             self._properties["MinValue"] = val
 
-    def _getMinValue(self):
+    @property
+    def MinValue(self):
+        """Holds lower value limit. Default=None  (date, tuple, str)"""
         return self._getPyValue(dateTimeWx2Py(self.LowerLimit))
 
-    def _setMinValue(self, val):
+    @MinValue.setter
+    def MinValue(self, val):
         if self._constructed():
             val = self._getWxValue(val)
             self.SetRange(val, self.UpperLimit)
         else:
             self._properties["MinValue"] = val
 
-    def _getPickerMode(self):
+    @property
+    def PickerMode(self):
+        """
+        Creates control with spin or dropdown calendar. (str)
+        Available values are:
+            - Spin
+            - Dropdown (default)
+        """
         if self._hasWindowStyleFlag(wx.DP_DROPDOWN):
             mode = "Dropdown"
         else:
             mode = "Spin"
         return mode
 
-    def _setPickerMode(self, val):
+    @PickerMode.setter
+    def PickerMode(self, val):
         mode = val[:1].lower()
         if mode in "ds":
             self._addWindowStyleFlag({"d": wx.DP_DROPDOWN, "s": wx.DP_SPIN}[mode])
         else:
             raise ValueError(_("The only allowed values are: 'Dropdown', 'Spin'."))
 
-    def _getValueMode(self):
+    @property
+    def ValueMode(self):
+        """Enables handling Timestamp type. (str)(Default="""
         return {"d": "Date", "t": "Timestamp"}[self._valueMode]
 
-    def _setValueMode(self, val):
+    @ValueMode.setter
+    def ValueMode(self, val):
         val = val[:1].lower()
         if val in "dt":
             self._valueMode = val
         else:
             raise ValueError(_("The only allowed values are: 'Date', 'Timestamp'."))
-
-    # Property definitions:
-    AllowNullDate = property(
-        _getAllowNullDate,
-        _setAllowNullDate,
-        None,
-        _("""If True enable Null vale in date. (bool)(Default=False)"""),
-    )
-
-    ForceShowCentury = property(
-        _getForceShowCentury,
-        _setForceShowCentury,
-        None,
-        _(
-            """Regardless of locale setting, century is shown if True. (bool)
-        (Default=False)"""
-        ),
-    )
-
-    IsDateValid = property(
-        _getIsDateValid,
-        None,
-        None,
-        _("""Read-only property tells if Value holds valid date type value."""),
-    )
-
-    InvalidBackColor = property(
-        _getInvalidBackColor,
-        _setInvalidBackColor,
-        None,
-        _(
-            """Color value used for illegal values or values out-of-teh bounds. (str)
-        (Default="Yellow")"""
-        ),
-    )
-
-    MaxValue = property(
-        _getMaxValue,
-        _setMaxValue,
-        None,
-        _("""Holds upper value limit. (date, tuple, str)(Default=None)"""),
-    )
-
-    MinValue = property(
-        _getMinValue,
-        _setMinValue,
-        None,
-        _("""Holds lower value limit. (date, tuple, str)(Default=None)"""),
-    )
-
-    PickerMode = property(
-        _getPickerMode,
-        _setPickerMode,
-        None,
-        _(
-            """Creates control with spin or dropdown calendar. (str)
-        Available values are:
-            - Spin
-            - Dropdown (default)"""
-        ),
-    )
-
-    ValueMode = property(
-        _getValueMode,
-        _setValueMode,
-        None,
-        _("""Enables handling Timestamp type. (str)(Default="Date")"""),
-    )
 
     DynamicMaxValue = makeDynamicProperty(MaxValue)
     DynamicMinValue = makeDynamicProperty(MinValue)

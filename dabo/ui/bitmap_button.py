@@ -58,24 +58,40 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
                 bmp.GetHeight() + self._bmpBorder,
             )
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-
-    def _getAutoSize(self):
+    # Property definitions:
+    @property
+    def AutoSize(self):
+        """Controls whether the button resizes when the Picture changes. (bool)"""
         return self._autoSize
 
-    def _setAutoSize(self, val):
+    @AutoSize.setter
+    def AutoSize(self, val):
         self._autoSize = val
 
-    def _getBmpBorder(self):
+    @property
+    def Bitmap(self):
+        return self.GetBitmapLabel()
+
+    @property
+    def BitmapBorder(self):
+        """Extra space around the bitmap, used when auto-sizing.  (int)"""
         return self._bmpBorder
 
-    def _setBmpBorder(self, val):
+    @BitmapBorder.setter
+    def BitmapBorder(self, val):
         self._bmpBorder = val
         if self._autoSize:
             self._sizeToBitmap()
 
-    def _getBorderStyle(self):
+    @property
+    def BorderStyle(self):
+        """
+        Specifies the type of border for this window. (String).
+
+            Possible choices are:
+                "None" - No border
+                "Simple" - Border like a regular button
+        """
         if self._hasWindowStyleFlag(wx.BU_AUTODRAW):
             return "Simple"
         elif self._hasWindowStyleFlag(wx.NO_BORDER):
@@ -83,7 +99,8 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         else:
             return "Default"
 
-    def _setBorderStyle(self, val):
+    @BorderStyle.setter
+    def BorderStyle(self, val):
         self._delWindowStyleFlag(wx.NO_BORDER)
         self._delWindowStyleFlag(wx.BU_AUTODRAW)
 
@@ -92,20 +109,26 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         elif val == "Simple":
             self._addWindowStyleFlag(wx.BU_AUTODRAW)
 
-    def _getCancelButton(self):
+    @property
+    def CancelButton(self):
+        """Specifies whether this Bitmap button gets clicked on -Escape-."""
         # need to implement
         return False
 
-    def _setCancelButton(self, val):
+    @CancelButton.setter
+    def CancelButton(self, val):
         warnings.warn(_("CancelButton isn't implemented yet."), Warning)
 
-    def _getDefaultButton(self):
+    @property
+    def DefaultButton(self):
+        """Specifies whether this Bitmap button gets clicked on -Enter-."""
         if self.Parent is not None:
             return self.Parent.GetDefaultItem() == self
         else:
             return False
 
-    def _setDefaultButton(self, val):
+    @DefaultButton.setter
+    def DefaultButton(self, val):
         if self._constructed():
             if val:
                 if self.Parent is not None:
@@ -119,13 +142,18 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         else:
             self._properties["DefaultButton"] = val
 
-    def _getDownBitmap(self):
+    @property
+    def DownBitmap(self):
+        """The bitmap displayed on the button when it is depressed.  (wx.Bitmap)"""
         return self.GetBitmapSelected()
 
-    def _getDownPicture(self):
+    @property
+    def DownPicture(self):
+        """Specifies the image displayed on the button when it is depressed.  (str)"""
         return self._downPicture
 
-    def _setDownPicture(self, val):
+    @DownPicture.setter
+    def DownPicture(self, val):
         self._downPicture = val
         if self._constructed():
             if isinstance(val, wx.Bitmap):
@@ -136,13 +164,18 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         else:
             self._properties["DownPicture"] = val
 
-    def _getFocusBitmap(self):
+    @property
+    def FocusBitmap(self):
+        """The bitmap displayed on the button when it receives focus.  (wx.Bitmap)"""
         return self.GetBitmapFocus()
 
-    def _getFocusPicture(self):
+    @property
+    def FocusPicture(self):
+        """Specifies the image displayed on the button when it receives focus.  (str)"""
         return self._focusPicture
 
-    def _setFocusPicture(self, val):
+    @FocusPicture.setter
+    def FocusPicture(self, val):
         self._focusPicture = val
         if self._constructed():
             if isinstance(val, wx.Bitmap):
@@ -153,13 +186,16 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         else:
             self._properties["FocusPicture"] = val
 
-    def _getNormalBitmap(self):
-        return self.GetBitmapLabel()
-
-    def _getNormalPicture(self):
+    @property
+    def Picture(self):
+        """
+        Specifies the image normally displayed on the button. This is the default if none of the
+        other *Picture properties are specified.  (str)
+        """
         return self._picture
 
-    def _setNormalPicture(self, val):
+    @Picture.setter
+    def Picture(self, val):
         self._picture = val
         if self._constructed():
             if isinstance(val, wx.Bitmap):
@@ -176,95 +212,6 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
                 self._sizeToBitmap()
         else:
             self._properties["Picture"] = val
-
-    # Property definitions:
-    AutoSize = property(
-        _getAutoSize,
-        _setAutoSize,
-        None,
-        _("Controls whether the button resizes when the Picture changes. (bool)"),
-    )
-
-    Bitmap = property(
-        _getNormalBitmap,
-        None,
-        None,
-        _("""The bitmap normally displayed on the button.  (wx.Bitmap)"""),
-    )
-
-    BitmapBorder = property(
-        _getBmpBorder,
-        _setBmpBorder,
-        None,
-        _("""Extra space around the bitmap, used when auto-sizing.  (int)"""),
-    )
-
-    BorderStyle = property(
-        _getBorderStyle,
-        _setBorderStyle,
-        None,
-        _(
-            """Specifies the type of border for this window. (String).
-
-                Possible choices are:
-                    "None" - No border
-                    "Simple" - Border like a regular button
-            """
-        ),
-    )
-
-    CancelButton = property(
-        _getCancelButton,
-        _setCancelButton,
-        None,
-        _("Specifies whether this Bitmap button gets clicked on -Escape-."),
-    )
-
-    DefaultButton = property(
-        _getDefaultButton,
-        _setDefaultButton,
-        None,
-        _("Specifies whether this Bitmap button gets clicked on -Enter-."),
-    )
-
-    DownBitmap = property(
-        _getDownBitmap,
-        None,
-        None,
-        _("The bitmap displayed on the button when it is depressed.  (wx.Bitmap)"),
-    )
-
-    DownPicture = property(
-        _getDownPicture,
-        _setDownPicture,
-        None,
-        _("Specifies the image displayed on the button when it is depressed.  (str)"),
-    )
-
-    FocusBitmap = property(
-        _getFocusBitmap,
-        None,
-        None,
-        _("The bitmap displayed on the button when it receives focus.  (wx.Bitmap)"),
-    )
-
-    FocusPicture = property(
-        _getFocusPicture,
-        _setFocusPicture,
-        None,
-        _("Specifies the image displayed on the button when it receives focus.  (str)"),
-    )
-
-    Picture = property(
-        _getNormalPicture,
-        _setNormalPicture,
-        None,
-        _(
-            """Specifies the image normally displayed on the button.  This is the
-        default if none of the other Picture properties are
-        specified.  (str)"""
-        ),
-    )
 
     DynamicAutoSize = makeDynamicProperty(AutoSize)
     DynamicBitmap = makeDynamicProperty(Bitmap)

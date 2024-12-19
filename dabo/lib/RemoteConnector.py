@@ -345,23 +345,31 @@ class RemoteConnector(object):
         flds = json.loads(enc)
         return flds
 
-    def _getConnection(self):
+    @property
+    def Connection(self):
+        """Reference to the connection object for the bizobj being decorated  (db.dConnection)"""
         return self.obj._getConnection()
 
-    def _getPassword(self):
+    @property
+    def Password(self):
+        """Plain-text password for authentication on the remote server. (str)"""
         try:
             ci = self.Connection.ConnectInfo
             return ci.decrypt(ci.Password)
         except AttributeError:
             return ""
 
-    def _getRemoteHost(self):
+    @property
+    def RemoteHost(self):
+        """Host to use as the remote server  (read-only) (str)"""
         try:
             return urllib.parse.urlparse(self.UrlBase)[1]
         except IndexError:
             return ""
 
-    def _getUrlBase(self):
+    @property
+    def UrlBase(self):
+        """URL for the remote server  (read-only) (str)"""
         if self._baseURL:
             # Set explicitly by the launch() method
             return self._baseURL
@@ -377,7 +385,12 @@ class RemoteConnector(object):
                 app.SourceURL = ret
         return ret
 
-    def _getUrlOpener(self):
+    @property
+    def UrlOpener(self):
+        """
+        Reference to the object that opens URLs and optionally authenticates.  (read-only)
+        (urllib2.urlopener)
+        """
         if self._urlOpener is None:
             # Create an OpenerDirector with support for HTTP Digest Authentication...
             auth_handler = urllib.request.HTTPDigestAuthHandler()
@@ -385,48 +398,10 @@ class RemoteConnector(object):
             self._urlOpener = urllib.request.build_opener(auth_handler)
         return self._urlOpener
 
-    def _getUserName(self):
+    @property
+    def UserName(self):
+        """Username for authentication on the remote server  (str)"""
         try:
             return self.Connection.ConnectInfo.User
         except AttributeError:
             return ""
-
-    Connection = property(
-        _getConnection,
-        None,
-        None,
-        _("Reference to the connection object for the bizobj being decorated  (db.dConnection)"),
-    )
-
-    Password = property(
-        _getPassword,
-        None,
-        None,
-        _("Plain-text password for authentication on the remote server. (str)"),
-    )
-
-    RemoteHost = property(
-        _getRemoteHost,
-        None,
-        None,
-        _("Host to use as the remote server  (read-only) (str)"),
-    )
-
-    UrlBase = property(_getUrlBase, None, None, _("URL for the remote server  (read-only) (str)"))
-
-    UrlOpener = property(
-        _getUrlOpener,
-        None,
-        None,
-        _(
-            "Reference to the object that opens URLs and optionally authenticates."
-            "  (read-only) (urllib2.urlopener)"
-        ),
-    )
-
-    UserName = property(
-        _getUserName,
-        None,
-        None,
-        _("Username for authentication on the remote server  (str)"),
-    )

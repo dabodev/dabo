@@ -89,20 +89,29 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         """Removes all styles from the selected text"""
         self.SelectionPlain = True
 
-    def _getCurrentBackColor(self):
+    ## property definitions
+    @property
+    def CurrentBackColor(self):
+        """Background color at the current insertion point.  (RGB 3-tuple)"""
         ds = self.GetDefaultStyle()
         ret = ds.GetBackgroundColour()[:3]
         return ret
 
-    def _getCurrentForeColor(self):
+    @property
+    def CurrentForeColor(self):
+        """Foreground color at the current insertion point.  (RGB 3-tuple)"""
         ds = self.GetDefaultStyle()
         ret = ds.GetTextColour()[:3]
         return ret
 
-    def _getCurrentFontBold(self):
+    @property
+    def CurrentFontBold(self):
+        """Font bold status at the current insertion point.  (str)"""
         return "Bold" in self._getCurrentStyle()
 
-    def _getCurrentFontFace(self):
+    @property
+    def CurrentFontFace(self):
+        """Font face at the current insertion point.  (str)"""
         ds = self.GetDefaultStyle()
         # Default to the current font face for the control
         ret = self.FontFace
@@ -110,10 +119,14 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
             ret = ds.GetFont().GetFaceName()
         return ret
 
-    def _getCurrentFontItalic(self):
+    @property
+    def CurrentFontItalic(self):
+        """Font italic status at the current insertion point.  (str)"""
         return "Italic" in self._getCurrentStyle()
 
-    def _getCurrentFontSize(self):
+    @property
+    def CurrentFontSize(self):
+        """Font size at the current insertion point.  (str)"""
         ds = self.GetDefaultStyle()
         # Default to the current font face for the control
         ret = self.FontSize
@@ -121,10 +134,18 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
             ret = ds.GetFont().GetPointSize()
         return ret
 
-    def _getCurrentFontUnderline(self):
+    @property
+    def CurrentFontUnderline(self):
+        """Font underline status at the current insertion point.  (str)"""
         return "Underline" in self._getCurrentStyle()
 
-    def _getCurrentStyle(self):
+    @property
+    def CurrentStyle(self):
+        """
+        Returns the style in effect at the current insertion point. In other words, it is the style
+        that will be applied to text that is typed at that position. Returns a tuple containing one
+        or more of 'Plain', 'Bold', 'Italic', 'Underline'.  (read-only) (tuple)
+        """
         ds = self.GetDefaultStyle()
         out = []
         if ds.HasFont():
@@ -146,25 +167,33 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
             out = ["Plain"]
         return tuple(out)
 
-    def _getInsertionPosition(self):
+    @property
+    def InsertionPosition(self):
+        """Current position of the insertion point in the control.  (int)"""
         return self.GetInsertionPoint()
 
-    def _setInsertionPosition(self, val):
+    @InsertionPosition.setter
+    def InsertionPosition(self, val):
         if self._constructed():
             self.SetInsertionPoint(val)
         else:
             self._properties["InsertionPosition"] = val
 
-    def _getReadOnly(self):
+    @property
+    def ReadOnly(self):
+        """Specifies whether or not the text can be edited. (bool)"""
         return not self.IsEditable()
 
-    def _setReadOnly(self, val):
+    @ReadOnly.setter
+    def ReadOnly(self, val):
         if self._constructed():
             self.SetEditable(not bool(val))
         else:
             self._properties["ReadOnly"] = val
 
-    def _getSelectionBackColor(self):
+    @property
+    def SelectionBackColor(self):
+        """Color of the current selection's background.  (RGB 3-tuple)"""
         if not self.HasSelection():
             return None
         rng = self.GetSelectionRange()
@@ -172,7 +201,8 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         st = self.GetStyleForRange(rng, ta)
         return ta.BackgroundColour[:3]
 
-    def _setSelectionBackColor(self, val):
+    @SelectionBackColor.setter
+    def SelectionBackColor(self, val):
         if self._constructed():
             try:
                 wxc = wx.Colour(*val)
@@ -187,25 +217,39 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         else:
             self._properties["SelectionBackColor"] = val
 
-    def _getSelectionEnd(self):
+    @property
+    def SelectionEnd(self):
+        """
+        Returns the end position of the current text selection, or None if no text
+        is selected. (int)
+        """
         ret = self._getSelectionRange()[1]
         if ret is None:
             ret = self._getInsertionPosition()
         return ret
 
-    def _setSelectionEnd(self, val):
+    @SelectionEnd.setter
+    def SelectionEnd(self, val):
         if self._constructed():
             self._setSelectionRange((self._getSelectionStart(), val))
         else:
             self._properties["SelectionEnd"] = val
 
-    def _getSelectionFontBold(self):
+    @property
+    def SelectionFontBold(self):
+        """
+        Reflects the Bold status of the current selection. This will be True if every character in
+        the selection is bold; if even one character is not bold, this will be False. If there is no
+        selection, this will be None. Setting this affects all selected text; it has no effect if no
+        text is selected  (bool)
+        """
         if self.HasSelection():
             return self.IsSelectionBold()
         else:
             return None
 
-    def _setSelectionFontBold(self, val):
+    @SelectionFontBold.setter
+    def SelectionFontBold(self, val):
         if self._constructed():
             if not self.HasSelection:
                 return
@@ -219,7 +263,14 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         else:
             self._properties["SelectionFontBold"] = val
 
-    def _getSelectionFontFace(self):
+    @property
+    def SelectionFontFace(self):
+        """
+        Reflects the FontFace status of the current selection. If multiple faces are used throughout
+        the selection, the face at the beginning of the selection will be returned. If there is no
+        selection, None will be returned. Setting this affects all selected text; it has no effect
+        if no text is selected  (str)
+        """
         if not self.HasSelection():
             return None
         rng = self.GetSelectionRange()
@@ -228,7 +279,8 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         fnt = ta.Font
         return fnt.FaceName
 
-    def _setSelectionFontFace(self, val):
+    @SelectionFontFace.setter
+    def SelectionFontFace(self, val):
         if self._constructed():
             rng = self.GetSelectionRange()
             ta = wx.richtext.TextAttrEx()
@@ -238,13 +290,21 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         else:
             self._properties["SelectionFontFace"] = val
 
-    def _getSelectionFontItalic(self):
+    @property
+    def SelectionFontItalic(self):
+        """
+        Reflects the Italic status of the current selection. This will be True if every character in
+        the selection is italic; if even one character is not italic, this will be False. If there
+        is no selection, this will be None. Setting this affects all selected text; it has no effect
+        if no text is selected  (bool)
+        """
         if self.HasSelection():
             return self.IsSelectionItalics()
         else:
             return None
 
-    def _setSelectionFontItalic(self, val):
+    @SelectionFontItalic.setter
+    def SelectionFontItalic(self, val):
         if self._constructed():
             if not self.HasSelection:
                 return
@@ -258,7 +318,14 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         else:
             self._properties["SelectionFontItalic"] = val
 
-    def _getSelectionFontSize(self):
+    @property
+    def SelectionFontSize(self):
+        """
+        Reflects the FontSize status of the current selection. If multiple sizes are used throughout
+        the selection, the size at the beginning of the selection will be returned. If there is no
+        selection, None will be returned. Setting this affects all selected text; it has no effect
+        if no text is selected  (int)
+        """
         if not self.HasSelection():
             return None
         rng = self.GetSelectionRange()
@@ -267,7 +334,8 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         fnt = ta.Font
         return fnt.GetPointSize()
 
-    def _setSelectionFontSize(self, val):
+    @SelectionFontSize.setter
+    def SelectionFontSize(self, val):
         if self._constructed():
             rng = self.GetSelectionRange()
             ta = wx.richtext.TextAttrEx()
@@ -277,13 +345,21 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         else:
             self._properties["SelectionFontSize"] = val
 
-    def _getSelectionFontUnderline(self):
+    @property
+    def SelectionFontUnderline(self):
+        """
+        Reflects the Underline status of the current selection. This will be True if every character
+        in the selection is underlined; if even one character is not underlined, this will be False.
+        If there is no selection, this will be None. Setting this affects all selected text; it has
+        no effect if no text is selected  (bool)
+        """
         if self.HasSelection():
             return self.IsSelectionUnderlined()
         else:
             return None
 
-    def _setSelectionFontUnderline(self, val):
+    @SelectionFontUnderline.setter
+    def SelectionFontUnderline(self, val):
         if self._constructed():
             if not self.HasSelection:
                 return
@@ -297,7 +373,9 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         else:
             self._properties["SelectionFontUnderline"] = val
 
-    def _getSelectionForeColor(self):
+    @property
+    def SelectionForeColor(self):
+        """Color of the current selection's text.  (RGB 3-tuple)"""
         if not self.HasSelection():
             return None
         rng = self.GetSelectionRange()
@@ -305,7 +383,8 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         st = self.GetStyleForRange(rng, ta)
         return ta.TextColour[:3]
 
-    def _setSelectionForeColor(self, val):
+    @SelectionForeColor.setter
+    def SelectionForeColor(self, val):
         if self._constructed():
             try:
                 wxc = wx.Colour(*val)
@@ -320,24 +399,39 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         else:
             self._properties["SelectionForeColor"] = val
 
-    def _getSelectionPlain(self):
+    @property
+    def SelectionPlain(self):
+        """
+        Reflects the Plain status of the current selection. This will be True if every character in
+        the selection is neither bold, italic or underlined. If there is no selection, this will be
+        None. Setting this affects all selected text; it has no effect if no text is selected
+        (bool)
+        """
         sel = self.GetSelectionRange()
         return self.HasCharacterAttributes(sel, self._styleObj)
 
-    def _setSelectionPlain(self, val):
+    @SelectionPlain.setter
+    def SelectionPlain(self, val):
         if self._constructed():
             self.SelectionFontBold = self.SelectionFontItalic = self.SelectionFontUnderline = False
         else:
             self._properties["SelectionPlain"] = val
 
-    def _getSelectionRange(self):
+    @property
+    def SelectionRange(self):
+        """
+        Returns/sets the position of the current selected text. No selection is represented by
+        (None, None). You can also unselect all text by setting this property to None.
+        (2-tuple of int or None)
+        """
         selFrom, selTo = self.GetSelectionRange()
         if (selFrom < 0) and (selTo < 0):
             return (None, None)
         else:
             return (selFrom, selTo)
 
-    def _setSelectionRange(self, val):
+    @SelectionRange.setter
+    def SelectionRange(self, val):
         if self._constructed():
             if (val is None) or (None in val):
                 self.SelectNone()
@@ -346,214 +440,23 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
         else:
             self._properties["SelectionRange"] = val
 
-    def _getSelectionStart(self):
+    @property
+    def SelectionStart(self):
+        """
+        Returns the beginning position of the current text selection, or None if no text is
+        selected. (int)
+        """
         ret = self._getSelectionRange()[0]
         if ret is None:
             ret = self._getInsertionPosition()
         return ret
 
-    def _setSelectionStart(self, val):
+    @SelectionStart.setter
+    def SelectionStart(self, val):
         if self._constructed():
             self._setSelectionRange((val, self._getSelectionEnd()))
         else:
             self._properties["SelectionStart"] = val
-
-    CurrentBackColor = property(
-        _getCurrentBackColor,
-        None,
-        None,
-        _("Background color at the current insertion point.  (RGB 3-tuple)"),
-    )
-
-    CurrentForeColor = property(
-        _getCurrentForeColor,
-        None,
-        None,
-        _("Background color at the current insertion point.  (RGB 3-tuple)"),
-    )
-
-    CurrentFontBold = property(
-        _getCurrentFontBold,
-        None,
-        None,
-        _("Font bold status at the current insertion point.  (str)"),
-    )
-
-    CurrentFontFace = property(
-        _getCurrentFontFace,
-        None,
-        None,
-        _("Font face at the current insertion point.  (str)"),
-    )
-
-    CurrentFontItalic = property(
-        _getCurrentFontItalic,
-        None,
-        None,
-        _("Font italic status at the current insertion point.  (str)"),
-    )
-
-    CurrentFontSize = property(
-        _getCurrentFontSize,
-        None,
-        None,
-        _("Font size at the current insertion point.  (int)"),
-    )
-
-    CurrentFontUnderline = property(
-        _getCurrentFontUnderline,
-        None,
-        None,
-        _("Font underline status at the current insertion point.  (str)"),
-    )
-
-    CurrentStyle = property(
-        _getCurrentStyle,
-        None,
-        None,
-        _(
-            """Returns the style in effect at the current insertion point.
-            In other words, it is the style that will be applied to text that is
-            typed at that position. Returns a tuple containing one or more
-            of 'Plain', 'Bold', 'Italic', 'Underline'.  (read-only) (tuple)"""
-        ),
-    )
-
-    InsertionPosition = property(
-        _getInsertionPosition,
-        _setInsertionPosition,
-        None,
-        _("Current position of the insertion point in the control.  (int)"),
-    )
-
-    ReadOnly = property(
-        _getReadOnly,
-        _setReadOnly,
-        None,
-        _("Specifies whether or not the text can be edited. (bool)"),
-    )
-
-    SelectionBackColor = property(
-        _getSelectionBackColor,
-        _setSelectionBackColor,
-        None,
-        _("Color of the current selection's background.  (RGB 3-tuple)"),
-    )
-
-    SelectionFontBold = property(
-        _getSelectionFontBold,
-        _setSelectionFontBold,
-        None,
-        _(
-            """Reflects the Bold status of the current selection. This will be
-            True if every character in the selection is bold; if even one character
-            is not bold, this will be False. If there is no selection, this will be
-            None. Setting this affects all selected text; it has no effect if no
-            text is selected  (bool)"""
-        ),
-    )
-
-    SelectionEnd = property(
-        _getSelectionEnd,
-        _setSelectionEnd,
-        None,
-        _(
-            """Returns the end position of the current text selection,
-            or None if no text is selected. (int)"""
-        ),
-    )
-
-    SelectionFontFace = property(
-        _getSelectionFontFace,
-        _setSelectionFontFace,
-        None,
-        _(
-            """Reflects the FontFace status of the current selection. If multiple
-            faces are used throughout the selection, the face at the beginning of
-            the selection will be returned. If there is no selection, None will be
-            returned. Setting this affects all selected text; it has no effect if no
-            text is selected  (str)"""
-        ),
-    )
-
-    SelectionFontItalic = property(
-        _getSelectionFontItalic,
-        _setSelectionFontItalic,
-        None,
-        _(
-            """Reflects the Italic status of the current selection. This will be
-            True if every character in the selection is Italic; if even one character
-            is not Italic, this will be False. If there is no selection, this will be
-            None. Setting this affects all selected text; it has no effect if no
-            text is selected  (bool)"""
-        ),
-    )
-
-    SelectionFontSize = property(
-        _getSelectionFontSize,
-        _setSelectionFontSize,
-        None,
-        _(
-            """Reflects the FontSize status of the current selection. If multiple
-            sizes are used throughout the selection, the size at the beginning of
-            the selection will be returned. If there is no selection, None will be
-            returned. Setting this affects all selected text; it has no effect if no
-            text is selected  (int)"""
-        ),
-    )
-
-    SelectionFontUnderline = property(
-        _getSelectionFontUnderline,
-        _setSelectionFontUnderline,
-        None,
-        _(
-            """Reflects the Underline status of the current selection. This will be
-            True if every character in the selection is underlined; if even one character
-            is not underlined, this will be False. If there is no selection, this will be
-            None. Setting this affects all selected text; it has no effect if no
-            text is selected  (bool)"""
-        ),
-    )
-
-    SelectionForeColor = property(
-        _getSelectionForeColor,
-        _setSelectionForeColor,
-        None,
-        _("Color of the current selection's text.  (RGB 3-tuple)"),
-    )
-
-    SelectionPlain = property(
-        _getSelectionPlain,
-        _setSelectionPlain,
-        None,
-        _(
-            """Reflects the Plain status of the current selection. This will be
-            True if every character in the selection is neither bold, italic or
-            underlined. If there is no selection, this will be None. Setting this
-            affects all selected text; it has no effect if no text is selected  (bool)"""
-        ),
-    )
-
-    SelectionRange = property(
-        _getSelectionRange,
-        _setSelectionRange,
-        None,
-        _(
-            """Returns/sets the position of the current selected text. No selection
-            is represented by (None, None). You can also unselect all text by setting
-            this property to None. (2-tuple of int or None)"""
-        ),
-    )
-
-    SelectionStart = property(
-        _getSelectionStart,
-        _setSelectionStart,
-        None,
-        _(
-            """Returns the beginning position of the current text selection,
-            or None if no text is selected. (int)"""
-        ),
-    )
 
 
 ui.dRichTextBox = dRichTextBox
@@ -746,6 +649,7 @@ Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit ame
 faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed
 consequat, leo eget bibendum sodales, augue velit cursus nunc.
 """
+
 
 if __name__ == "__main__":
     from ..application import dApp

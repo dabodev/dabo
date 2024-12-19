@@ -69,25 +69,33 @@ class dSlider(dDataControlMixin, wx.Slider):
             self.flushValue()
             super(dSlider, self)._onWxHit(evt)
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-    def _getContinuous(self):
+    # Property definitions
+    @property
+    def Continuous(self):
+        """
+        When True, the Hit event is raised as the slider moves. When False (default), it is only
+        raised when the thumb control is released.  (bool)
+        """
         try:
             ret = self._continuous
         except AttributeError:
             ret = self._continuous = True
         return ret
 
-    def _setContinuous(self, val):
+    @Continuous.setter
+    def Continuous(self, val):
         if self._constructed():
             self._continuous = val
         else:
             self._properties["Continuous"] = val
 
-    def _getMax(self):
+    @property
+    def Max(self):
+        """Specifies the maximum value for the Slider. Default=100  (int)"""
         return self.GetMax()
 
-    def _setMax(self, val):
+    @Max.setter
+    def Max(self, val):
         if self._constructed():
             currmin = self.GetMin()
             currval = min(self.GetValue(), val)
@@ -96,10 +104,13 @@ class dSlider(dDataControlMixin, wx.Slider):
         else:
             self._properties["Max"] = val
 
-    def _getMin(self):
+    @property
+    def Min(self):
+        """Specifies the minimum value for the Slider. Default=0  (int)"""
         return self.GetMin()
 
-    def _setMin(self, val):
+    @Min.setter
+    def Min(self, val):
         if self._constructed():
             currmax = self.GetMax()
             currval = max(self.GetValue(), val)
@@ -108,13 +119,19 @@ class dSlider(dDataControlMixin, wx.Slider):
         else:
             self._properties["Min"] = val
 
-    def _getOrientation(self):
+    @property
+    def Orientation(self):
+        """
+        Specifies whether the Slider is displayed as Horizontal or Vertical.  Default='Horizontal'
+        (str)
+        """
         if self.GetWindowStyle() & wx.SL_VERTICAL:
             return "Vertical"
         else:
             return "Horizontal"
 
-    def _setOrientation(self, val):
+    @Orientation.setter
+    def Orientation(self, val):
         tickpos = self._tickPosition
         isHoriz = val.lower()[:1] == "h"
         if isHoriz and tickpos in ("Left", "Right"):
@@ -132,23 +149,41 @@ class dSlider(dDataControlMixin, wx.Slider):
         else:
             self._addWindowStyleFlag(wx.SL_VERTICAL)
 
-    def _getReversed(self):
+    @property
+    def Reversed(self):
+        """
+        When True, the position of the Min and Max values are reversed. Must be set when the object
+        is created; setting it afterwards has no effect. Default=False (bool)
+        """
         return self._reversed
 
-    def _setReversed(self, val):
+    @Reversed.setter
+    def Reversed(self, val):
         # Ignore this once constructed
         if not self._constructed():
             self._reversed = val
 
-    def _getShowLabels(self):
+    @property
+    def ShowLabels(self):
+        """
+        Specifies if the labels are shown on the slider. Must be set when the object is created;
+        setting it afterwards has no effect. Default=True  (bool)
+        """
         return self.GetWindowStyle() & wx.SL_LABELS > 0
 
-    def _setShowLabels(self, val):
+    @ShowLabels.setter
+    def ShowLabels(self, val):
         self._delWindowStyleFlag(wx.SL_LABELS)
         if val:
             self._addWindowStyleFlag(wx.SL_LABELS)
 
-    def _getTickPosition(self):
+    @property
+    def TickPosition(self):
+        """
+        Position of the tick marks; must be one of Top, Bottom (default), Left or Right. Not fully
+        supported on all platforms. Must be set during object creation; has no effect once created.
+        (str)
+        """
         try:
             tp = self._tickPosition[0].upper()
         except TypeError:
@@ -156,76 +191,11 @@ class dSlider(dDataControlMixin, wx.Slider):
             return "Bottom"
         return {"T": "Top", "B": "Bottom", "L": "Left", "R": "Right"}[tp]
 
-    def _setTickPosition(self, val):
+    @TickPosition.setter
+    def TickPosition(self, val):
         # Ignore this once constructed
         if not self._constructed():
             self._tickPosition = val
-
-    # Property definitions:
-    Continuous = property(
-        _getContinuous,
-        _setContinuous,
-        None,
-        _(
-            """When True, the Hit event is raised as the slider moves. When False (default),
-            it is only raised when the thumb control is released.  (bool)"""
-        ),
-    )
-
-    Max = property(
-        _getMax,
-        _setMax,
-        None,
-        _("Specifies the maximum value for the Slider. Default=100  (int)"),
-    )
-
-    Min = property(
-        _getMin,
-        _setMin,
-        None,
-        _("Specifies the minimum value for the Slider. Default=0  (int)"),
-    )
-
-    Orientation = property(
-        _getOrientation,
-        _setOrientation,
-        None,
-        _(
-            """Specifies whether the Slider is displayed as Horizontal or Vertical.
-            Default='Horizontal'  (str)"""
-        ),
-    )
-
-    Reversed = property(
-        _getReversed,
-        _setReversed,
-        None,
-        _(
-            """When True, the position of the Min and Max values are reversed. Must be set
-            when the object is created; setting it afterwards has no effect. Default=False (bool)"""
-        ),
-    )
-
-    ShowLabels = property(
-        _getShowLabels,
-        _setShowLabels,
-        None,
-        _(
-            """Specifies if the labels are shown on the slider. Must be set when the object is
-            created; setting it afterwards has no effect. Default=True  (bool)"""
-        ),
-    )
-
-    TickPosition = property(
-        _getTickPosition,
-        _setTickPosition,
-        None,
-        _(
-            """Position of the tick marks; must be one of Top, Bottom (default), Left or Right.
-            Not fully supported on all platforms. Must be set during object creation; has no
-            effect once created.  (str)"""
-        ),
-    )
 
     DynamicOrientation = makeDynamicProperty(Orientation)
     DynamicMax = makeDynamicProperty(Max)

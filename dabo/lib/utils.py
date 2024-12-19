@@ -25,6 +25,29 @@ except ImportError:
     shell, shellcon = None, None
 
 
+def get_super_property(obj, prop):
+    """Objects may need to reference a property in their superclass"""
+    mro = obj.__class__.__mro__
+    ret = None
+    for sup in mro[1:]:
+        ret = getattr(sup, prop, None)
+        if ret:
+            break
+    return ret
+
+
+def get_super_property_value(obj, prop):
+    """Objects may need to get the value of a property in their superclass"""
+    sup_prop = get_super_property(obj, prop)
+    return sup_prop.fget(obj)
+
+
+def set_super_property_value(obj, prop, val):
+    """Objects may need to set the value of a property in their superclass"""
+    sup_prop = get_super_property(obj, prop)
+    return sup_prop.fset(obj, val)
+
+
 # can't compare NoneType to some types: sort None lower than anything else:
 def noneSortKey(vv):
     vv = vv[0]

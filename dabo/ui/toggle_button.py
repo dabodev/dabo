@@ -50,20 +50,26 @@ class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButto
     def getBlankValue(self):
         return False
 
-    def _getBezelWidth(self):
+    @property
+    def BezelWidth(self):
+        """Width of the bezel on the sides of the button. Default=5  (int)"""
         return self.GetBezelWidth()
 
-    def _setBezelWidth(self, val):
+    @BezelWidth.setter
+    def BezelWidth(self, val):
         if self._constructed():
             self.SetBezelWidth(val)
             self.Refresh()
         else:
             self._properties["BezelWidth"] = val
 
-    def _getDownPicture(self):
+    @property
+    def DownPicture(self):
+        """Picture displayed when the button is pressed  (str)"""
         return self._downPicture
 
-    def _setDownPicture(self, val):
+    @DownPicture.setter
+    def DownPicture(self, val):
         if self._constructed():
             self._downPicture = val
             if isinstance(val, wx.Bitmap):
@@ -75,10 +81,13 @@ class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButto
         else:
             self._properties["DownPicture"] = val
 
-    def _getPicture(self):
+    @property
+    def Picture(self):
+        """Picture used for the normal (unselected) state  (str)"""
         return self._picture
 
-    def _setPicture(self, val):
+    @Picture.setter
+    def Picture(self, val):
         if self._constructed():
             self._picture = val
             if isinstance(val, wx.Bitmap):
@@ -90,27 +99,6 @@ class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButto
             self.refresh()
         else:
             self._properties["Picture"] = val
-
-    BezelWidth = property(
-        _getBezelWidth,
-        _setBezelWidth,
-        None,
-        _("Width of the bezel on the sides of the button. Default=5  (int)"),
-    )
-
-    DownPicture = property(
-        _getDownPicture,
-        _setDownPicture,
-        None,
-        _("Picture displayed when the button is pressed  (str)"),
-    )
-
-    Picture = property(
-        _getPicture,
-        _setPicture,
-        None,
-        _("Picture used for the normal (unselected) state  (str)"),
-    )
 
 
 ui.dToggleButton = dToggleButton

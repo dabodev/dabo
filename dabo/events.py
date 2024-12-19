@@ -119,50 +119,31 @@ class dEvent(object):
                 % (self.__class__.__module__, self.__class__.__name__, att)
             )
 
-    def _getContinue(self):
+    @property
+    def Continue(self):
         return self._continue
 
-    def _setContinue(self, val):
+    @Continue.setter
+    def Continue(self, val):
         self._continue = bool(val)
 
-    def _getEventObject(self):
+    @property
+    def EventObject(self):
+        """Specifies whether the event is allowed to continue on to the next handler.  (bool)"""
         return self._eventObject
 
-    def _setEventObject(self, obj):
+    @EventObject.setter
+    def EventObject(self, obj):
         self._eventObject = obj
 
-    def _getEventData(self):
+    @property
+    def EventData(self):
+        """References the object that emitted the event.  (obj)"""
         return self._eventData
 
-    def _setEventData(self, dict):
+    @EventData.setter
+    def EventData(self, dict):
         self._eventData = dict
-
-    Continue = property(
-        _getContinue,
-        _setContinue,
-        None,
-        _(
-            """Specifies whether the event is allowed to continue
-            on to the next handler.  (bool)"""
-        ),
-    )
-
-    EventObject = property(
-        _getEventObject,
-        _setEventObject,
-        None,
-        _("References the object that emitted the event.  (obj)" ""),
-    )
-
-    EventData = property(
-        _getEventData,
-        _setEventData,
-        None,
-        _(
-            """Dictionary of data name/value pairs associated
-            with the event.  (dict)"""
-        ),
-    )
 
 
 # Eventually deprecate Event
@@ -180,6 +161,8 @@ class DataEvent(dEvent):
 
 class EditorEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dEditor)
 
     appliesToClass = classmethod(appliesToClass)
@@ -187,6 +170,8 @@ class EditorEvent(dEvent):
 
 class GridEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dGrid)
 
     appliesToClass = classmethod(appliesToClass)
@@ -194,6 +179,7 @@ class GridEvent(dEvent):
 
 class KeyEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
         from .application import dApp
 
         return issubclass(objectClass, (ui.dPemMixin, dApp))
@@ -203,6 +189,8 @@ class KeyEvent(dEvent):
 
 class ListControlEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, (ui.dListControl,))
 
     appliesToClass = classmethod(appliesToClass)
@@ -210,6 +198,8 @@ class ListControlEvent(dEvent):
 
 class MenuEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, (ui.dMenu, ui.dMenuItem, ui.dMenuBar))
 
     appliesToClass = classmethod(appliesToClass)
@@ -217,6 +207,8 @@ class MenuEvent(dEvent):
 
 class MouseEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -224,6 +216,8 @@ class MouseEvent(dEvent):
 
 class ControlNavigationEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, (ui.dPage, ui.dForm))
 
     appliesToClass = classmethod(appliesToClass)
@@ -231,6 +225,8 @@ class ControlNavigationEvent(dEvent):
 
 class SashEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dSplitter)
 
     appliesToClass = classmethod(appliesToClass)
@@ -238,6 +234,8 @@ class SashEvent(dEvent):
 
 class CalendarEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dCalendar)
 
     appliesToClass = classmethod(appliesToClass)
@@ -245,6 +243,8 @@ class CalendarEvent(dEvent):
 
 class TreeEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dTreeView)
 
     appliesToClass = classmethod(appliesToClass)
@@ -252,6 +252,8 @@ class TreeEvent(dEvent):
 
 class SpinnerEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dSpinner)
 
     appliesToClass = classmethod(appliesToClass)
@@ -272,6 +274,8 @@ class ReportEvent(dEvent):
 
 class ScrollEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, (ui.dScrollPanel, ui.dGrid))
 
     appliesToClass = classmethod(appliesToClass)
@@ -279,6 +283,8 @@ class ScrollEvent(dEvent):
 
 class MediaEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dMediaControl)
 
     appliesToClass = classmethod(appliesToClass)
@@ -288,6 +294,7 @@ class Activate(dEvent):
     """Occurs when the form or application becomes active."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
         from .application import dApp
 
         return issubclass(objectClass, (dApp, ui.dForm, ui.dFormMain, ui.dDialog))
@@ -299,6 +306,8 @@ class Close(dEvent):
     """Occurs when the user closes the form."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, (ui.dForm, ui.dFormMain, ui.dDialog))
 
     appliesToClass = classmethod(appliesToClass)
@@ -308,6 +317,8 @@ class Create(dEvent):
     """Occurs after the control or form is created."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -324,6 +335,8 @@ class ChildBorn(dEvent):
         super(ChildBorn, self).__init__(*args, **kwargs)
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(
             objectClass,
             (
@@ -354,6 +367,7 @@ class Deactivate(dEvent):
     """Occurs when another form becomes active."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
         from .application import dApp
 
         return issubclass(objectClass, (dApp, ui.dForm, ui.dFormMain, ui.dDialog))
@@ -365,6 +379,8 @@ class Destroy(dEvent):
     """Occurs when the control or form is destroyed."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -374,6 +390,8 @@ class FontPropertiesChanged(dEvent):
     """Occurs when the properties of a dFont have changed."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -385,6 +403,8 @@ class Hit(dEvent):
     """
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(
             objectClass,
             (
@@ -418,6 +438,8 @@ class Idle(dEvent):
     """
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -427,6 +449,8 @@ class GotFocus(dEvent):
     """Occurs when the control gets the focus."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -456,6 +480,8 @@ class LostFocus(dEvent):
     """Occurs when the control loses the focus."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -480,6 +506,8 @@ class MenuClose(MenuEvent):
     """Occurs when a menu has just been closed."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -489,6 +517,8 @@ class Move(dEvent):
     """Occurs when the control's position changes."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -602,6 +632,8 @@ class Paint(dEvent):
     """Occurs when it is time to paint the control."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -611,6 +643,8 @@ class BackgroundErased(dEvent):
     """Occurs when a window background has been erased and needs repainting."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -620,6 +654,8 @@ class PageChanged(dEvent):
     """Occurs when a page in a pageframe-like control changes"""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         try:
             return issubclass(
                 objectClass,
@@ -644,6 +680,8 @@ class PageChanging(dEvent):
     """Occurs when the current page in a pageframe-like control is about to change"""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         try:
             return issubclass(
                 objectClass,
@@ -668,6 +706,8 @@ class PageClosed(dEvent):
     """Occurs when a page in a dPageStyled control is closed"""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPageStyled)
 
     appliesToClass = classmethod(appliesToClass)
@@ -677,6 +717,8 @@ class PageClosing(dEvent):
     """Occurs when a page in a dPageStyled control is about to close"""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPageStyled)
 
     appliesToClass = classmethod(appliesToClass)
@@ -686,6 +728,8 @@ class PageContextMenu(dEvent):
     """Occurs when the user requests a context event for a dPage"""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPage)
 
     appliesToClass = classmethod(appliesToClass)
@@ -695,6 +739,8 @@ class PageEnter(dEvent):
     """Occurs when the page becomes the active page."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPage)
 
     appliesToClass = classmethod(appliesToClass)
@@ -704,6 +750,8 @@ class PageLeave(dEvent):
     """Occurs when a different page becomes active."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPage)
 
     appliesToClass = classmethod(appliesToClass)
@@ -713,6 +761,8 @@ class Resize(dEvent):
     """Occurs when the control or form is resized."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -722,6 +772,8 @@ class SearchButtonClicked(dEvent):
     """Occurs when the user clicks the search button in a dSearchBox."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, (ui.dSearchBox,))
 
     appliesToClass = classmethod(appliesToClass)
@@ -731,6 +783,8 @@ class SearchCancelButtonClicked(dEvent):
     """Occurs when the user clicks the cancel button in a dSearchBox."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, (ui.dSearchBox,))
 
     appliesToClass = classmethod(appliesToClass)
@@ -740,6 +794,8 @@ class SlidePanelChange(dEvent):
     """Occurs when a panel in a dSlidePanelControl control is hidden or shown."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, (ui.dSlidePanelControl, ui.dSlidePanel))
 
     appliesToClass = classmethod(appliesToClass)
@@ -749,6 +805,8 @@ class SlidePanelCaptionClick(dEvent):
     """Occurs when the caption bar of a dSlidePanel is clicked."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, (ui.dFoldPanelBar, ui.dSlidePanel))
 
     appliesToClass = classmethod(appliesToClass)
@@ -1115,6 +1173,8 @@ class ValueChanged(dEvent):
     """
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dDataControlMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -1135,6 +1195,8 @@ class Update(dEvent):
     """
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
@@ -1144,6 +1206,8 @@ class HtmlLinkClicked(dEvent):
     """Occurs when a link in a dHtmlBox control is clicked."""
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dHtmlBox)
 
     appliesToClass = classmethod(appliesToClass)
@@ -1155,6 +1219,8 @@ class SpinUp(SpinnerEvent):
     """
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dSpinner)
 
     appliesToClass = classmethod(appliesToClass)
@@ -1166,6 +1232,8 @@ class SpinDown(SpinnerEvent):
     """
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dSpinner)
 
     appliesToClass = classmethod(appliesToClass)
@@ -1177,6 +1245,8 @@ class Spinner(SpinnerEvent):
     """
 
     def appliesToClass(eventClass, objectClass):
+        from . import ui
+
         return issubclass(objectClass, ui.dSpinner)
 
     appliesToClass = classmethod(appliesToClass)

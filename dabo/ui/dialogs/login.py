@@ -112,17 +112,18 @@ class Login(dOkCancelDialog):
         self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
         super(Login, self).runOK()
 
-    def _getIconFile(self):
+    @property
+    def IconFile(self):
+        """Specifies the icon to use."""
         ret = getattr(self, "_iconFile", None)
         if not ret:
             ret = self._iconFile = dabo.icons.getIconFileName("daboIcon048.png")
         return ret
 
-    def _setIconFile(self, val):
+    @IconFile.setter
+    def IconFile(self, val):
         self._iconFile = val
         self.bm.Picture = val
-
-    IconFile = property(_getIconFile, _setIconFile, None, _("Specifies the icon to use."))
 
 
 if __name__ == "__main__":

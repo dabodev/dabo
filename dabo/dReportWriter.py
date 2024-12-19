@@ -68,7 +68,9 @@ class dReportWriter(dObject, ReportWriter):
             win.Form.fitToSizer()
             ui.yieldUI(_safe=True)
 
-    def _getEncoding(self):
+    @property
+    def Encoding(self):
+        """Specifies the encoding for unicode strings.  (str)"""
         try:
             v = self._encoding
         except AttributeError:
@@ -76,65 +78,47 @@ class dReportWriter(dObject, ReportWriter):
             self._encoding = v
         return v
 
-    def _setEncoding(self, val):
+    @Encoding.setter
+    def Encoding(self, val):
         self._encoding = val
 
-    def _getHomeDirectory(self):
+    @property
+    def HomeDirectory(self):
+        """Specifies the home directory for the report.
+
+        Resources on disk (image files, etc.) will be looked for relative to the HomeDirectory if
+        specified with relative pathing. The HomeDirectory should be the directory that contains the
+        report form file. If you set self.ReportFormFile, HomeDirectory will be set for you
+        automatically. Otherwise, it will get set to self.Application.HomeDirectory.
+        """
         try:
             v = self._homeDirectory
         except AttributeError:
             v = self._homeDirectory = self.Application.HomeDirectory
         return v
 
-    def _setHomeDirectory(self, val):
+    @HomeDirectory.setter
+    def HomeDirectory(self, val):
         self._homeDirectory = val
 
-    def _getProgressControl(self):
+    @property
+    def ProgressControl(self):
+        """Specifies the control to receive progress updates.
+
+        The specified control will be updated with every record processed. It must have a
+        updateProgress(current_row, num_rows) method.
+
+        For the default control, use ui.dReportProgress.
+        """
         try:
             v = self._progressControl
         except AttributeError:
             v = self._progressControl = None
         return v
 
-    def _setProgressControl(self, val):
+    @ProgressControl.setter
+    def ProgressControl(self, val):
         self._progressControl = val
-
-    Encoding = property(
-        _getEncoding,
-        _setEncoding,
-        None,
-        _("Specifies the encoding for unicode strings.  (str)"),
-    )
-
-    HomeDirectory = property(
-        _getHomeDirectory,
-        _setHomeDirectory,
-        None,
-        _(
-            """Specifies the home directory for the report.
-
-        Resources on disk (image files, etc.) will be looked for relative to the
-        HomeDirectory if specified with relative pathing. The HomeDirectory should
-        be the directory that contains the report form file. If you set
-        self.ReportFormFile, HomeDirectory will be set for you automatically.
-        Otherwise, it will get set to self.Application.HomeDirectory."""
-        ),
-    )
-
-    ProgressControl = property(
-        _getProgressControl,
-        _setProgressControl,
-        None,
-        _(
-            """Specifies the control to receive progress updates.
-
-        The specified control will be updated with every record processed. It must have
-        a updateProgress(current_row, num_rows) method.
-
-        For the default control, use ui.dReportProgress.
-        """
-        ),
-    )
 
 
 if __name__ == "__main__":

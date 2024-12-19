@@ -94,23 +94,18 @@ class dConnection(dObject):
         """
         return bool(self._connectInfo.RemoteHost)
 
-    def _getConnInfo(self):
+    @property
+    def ConnInfo(self):
+        """The connectInfo for the connection.  (dConnectInfo)"""
         return self._connectInfo
 
-    def _getName(self):
+    @property
+    def Name(self):
+        """The name of the connection.  (str)"""
         try:
             return self.ConnectInfo.Name
         except AttributeError:
             return "?"
-
-    ConnectInfo = property(
-        _getConnInfo,
-        None,
-        None,
-        _("The connectInfo for the connection.  (dConnectInfo)"),
-    )
-
-    Name = property(_getName, None, None, _("The name of the connection.  (str)"))
 
 
 if __name__ == "__main__":
