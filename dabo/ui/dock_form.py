@@ -266,12 +266,17 @@ class dDockPanel(dPanel):
             obj = self
         return obj.GetSize().Get()
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-    def _getBottom(self):
+    # Property definitions
+    @property
+    def Bottom(self):
+        """
+        Position in pixels of the bottom side of the panel. Read-only when docked; read-write when
+        floating  (int)
+        """
         return self.__getPosition()[1] + self.__getSize()[1]
 
-    def _setBottom(self, val):
+    @Bottom.setter
+    def Bottom(self, val):
         if self._constructed():
             if self.Floating:
                 self.FloatingBottom = val
@@ -280,24 +285,30 @@ class dDockPanel(dPanel):
         else:
             self._properties["Bottom"] = val
 
-    def _getBottomDockable(self):
+    @property
+    def BottomDockable(self):
+        """Can the panel be docked to the bottom edge of the form? Default=True  (bool)"""
         return self._bottomDockable
 
-    def _setBottomDockable(self, val):
+    @BottomDockable.setter
+    def BottomDockable(self, val):
         if self._constructed():
             self._PaneInfo.BottomDockable(val)
             self._updateAUI()
         else:
             self._properties["BottomDockable"] = val
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """Text that appears in the title bar  (str)"""
         try:
             return self._caption
         except AttributeError:
             self._caption = ""
             return self._caption
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         if self._constructed():
             self._caption = val
             self._PaneInfo.Caption(val)
@@ -305,10 +316,16 @@ class dDockPanel(dPanel):
         else:
             self._properties["Caption"] = val
 
-    def _getDestroyOnClose(self):
+    @property
+    def DestroyOnClose(self):
+        """
+        When the panel's Close button is clicked, does the panel get destroyed (True) or just hidden
+        (False, default)  (bool)
+        """
         return self._destroyOnClose
 
-    def _setDestroyOnClose(self, val):
+    @DestroyOnClose.setter
+    def DestroyOnClose(self, val):
         if self._constructed():
             self._destroyOnClose = val
             self._PaneInfo.DestroyOnClose(val)
@@ -316,12 +333,15 @@ class dDockPanel(dPanel):
         else:
             self._properties["DestroyOnClose"] = val
 
-    def _getDockable(self):
+    @property
+    def Dockable(self):
+        """Can the panel be docked to the form? Default=True  (bool)"""
         return (
             self._bottomDockable or self._leftDockable or self._rightDockable or self._topDockable
         )
 
-    def _setDockable(self, val):
+    @Dockable.setter
+    def Dockable(self, val):
         if self._constructed():
             self._dockable = self._bottomDockable = self._leftDockable = self._rightDockable = (
                 self._topDockable
@@ -333,10 +353,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["Dockable"] = val
 
-    def _getDocked(self):
+    @property
+    def Docked(self):
+        """Determines whether the pane is floating (False) or docked (True)  (bool)"""
         return self._PaneInfo.IsDocked()
 
-    def _setDocked(self, val):
+    @Docked.setter
+    def Docked(self, val):
         if self._constructed():
             curr = self._PaneInfo.IsDocked()
             chg = False
@@ -351,10 +374,16 @@ class dDockPanel(dPanel):
         else:
             self._properties["Docked"] = val
 
-    def _getDockSide(self):
+    @property
+    def DockSide(self):
+        """
+        Side of the form that the panel is either currently docked to, or would be if dock() were to
+        be called. Possible values are 'Left', 'Right', 'Top' and 'Bottom'.  (str)
+        """
         return {1: "Top", 2: "Right", 3: "Bottom", 4: "Left"}[self._PaneInfo.dock_direction]
 
-    def _setDockSide(self, val):
+    @DockSide.setter
+    def DockSide(self, val):
         if self._constructed():
             vUp = val[0].upper()
             self._PaneInfo.dock_direction = {"T": 1, "R": 2, "B": 3, "L": 4}[vUp]
@@ -362,10 +391,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["DockSide"] = val
 
-    def _getFloatable(self):
+    @property
+    def Floatable(self):
+        """Can the panel be undocked from the form and float independently? Default=True  (bool)"""
         return self._floatable
 
-    def _setFloatable(self, val):
+    @Floatable.setter
+    def Floatable(self, val):
         if self._constructed():
             self._floatable = val
             self._PaneInfo.Floatable(val)
@@ -373,10 +405,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["Floatable"] = val
 
-    def _getFloating(self):
+    @property
+    def Floating(self):
+        """Determines whether the pane is floating (True) or docked (False)  (bool)"""
         return self._PaneInfo.IsFloating()
 
-    def _setFloating(self, val):
+    @Floating.setter
+    def Floating(self, val):
         if self._constructed():
             curr = self._PaneInfo.IsFloating()
             chg = False
@@ -391,10 +426,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["Floating"] = val
 
-    def _getFloatingBottom(self):
+    @property
+    def FloatingBottom(self):
+        """Bottom coordinate of the panel when floating  (int)"""
         return self.FloatingPosition[1] + self.FloatingSize[1]
 
-    def _setFloatingBottom(self, val):
+    @FloatingBottom.setter
+    def FloatingBottom(self, val):
         if self._constructed():
             ht = self.FloatingSize[1]
             self._floatingPosition = (self.FloatingPosition[0], val - ht)
@@ -403,10 +441,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["FloatingBottom"] = val
 
-    def _getFloatingHeight(self):
+    @property
+    def FloatingHeight(self):
+        """Height of the panel when floating  (int)"""
         return self.FloatingSize[1]
 
-    def _setFloatingHeight(self, val):
+    @FloatingHeight.setter
+    def FloatingHeight(self, val):
         if self._constructed():
             self._floatingSize = (self.FloatingSize[0], val)
             if self._PaneInfo.IsFloating():
@@ -417,10 +458,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["FloatingHeight"] = val
 
-    def _getFloatingLeft(self):
+    @property
+    def FloatingLeft(self):
+        """Left coordinate of the panel when floating  (int)"""
         return self.FloatingPosition[0]
 
-    def _setFloatingLeft(self, val):
+    @FloatingLeft.setter
+    def FloatingLeft(self, val):
         if self._constructed():
             self._floatingPosition = (val, self.FloatingPosition[1])
             self._PaneInfo.FloatingPosition(self._floatingPosition)
@@ -428,20 +472,26 @@ class dDockPanel(dPanel):
         else:
             self._properties["FloatingLeft"] = val
 
-    def _getFloatingPosition(self):
+    @property
+    def FloatingPosition(self):
+        """Position of the panel when floating  (2-tuple of ints)"""
         return self._PaneInfo.floating_pos.Get()
 
-    def _setFloatingPosition(self, val):
+    @FloatingPosition.setter
+    def FloatingPosition(self, val):
         if self._constructed():
             self._PaneInfo.FloatingPosition(val)
             self.Form._refreshState(0)
         else:
             self._properties["FloatingPosition"] = val
 
-    def _getFloatingRight(self):
+    @property
+    def FloatingRight(self):
+        """Right coordinate of the panel when floating  (int)"""
         return self.FloatingPosition[0] + self.FloatingSize[0]
 
-    def _setFloatingRight(self, val):
+    @FloatingRight.setter
+    def FloatingRight(self, val):
         if self._constructed():
             wd = self.FloatingSize[0]
             self._floatingPosition = (val - wd, self.FloatingPosition[1])
@@ -450,20 +500,26 @@ class dDockPanel(dPanel):
         else:
             self._properties["FloatingRight"] = val
 
-    def _getFloatingSize(self):
+    @property
+    def FloatingSize(self):
+        """Size of the panel when floating  (2-tuple of ints)"""
         return self._PaneInfo.floating_size.Get()
 
-    def _setFloatingSize(self, val):
+    @FloatingSize.setter
+    def FloatingSize(self, val):
         if self._constructed():
             self._PaneInfo.FloatingSize(val)
             self.Form._refreshState(0)
         else:
             self._properties["FloatingSize"] = val
 
-    def _getFloatingTop(self):
+    @property
+    def FloatingTop(self):
+        """Top coordinate of the panel when floating  (int)"""
         return self.FloatingPosition[1]
 
-    def _setFloatingTop(self, val):
+    @FloatingTop.setter
+    def FloatingTop(self, val):
         if self._constructed():
             self._floatingPosition = (self.FloatingPosition[0], val)
             self._PaneInfo.FloatingPosition(self._floatingPosition)
@@ -471,10 +527,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["FloatingTop"] = val
 
-    def _getFloatingWidth(self):
+    @property
+    def FloatingWidth(self):
+        """Width of the panel when floating  (int)"""
         return self.FloatingSize[0]
 
-    def _setFloatingWidth(self, val):
+    @FloatingWidth.setter
+    def FloatingWidth(self, val):
         if self._constructed():
             self._floatingSize = (val, self.FloatingSize[1])
             if self._PaneInfo.IsFloating():
@@ -485,10 +544,15 @@ class dDockPanel(dPanel):
         else:
             self._properties["FloatingWidth"] = val
 
-    def _getGripperPosition(self):
+    @property
+    def GripperPosition(self):
+        """
+        If a gripper is shown, is it on the Top or Left side? Default = 'Left' ('Top' or 'Left')
+        """
         return self._gripperPosition
 
-    def _setGripperPosition(self, val):
+    @GripperPosition.setter
+    def GripperPosition(self, val):
         if self._constructed():
             val = val[0].lower()
             if not val in ("l", "t"):
@@ -499,10 +563,16 @@ class dDockPanel(dPanel):
         else:
             self._properties["GripperPosition"] = val
 
-    def _getHeight(self):
+    @property
+    def Height(self):
+        """
+        Position in pixels of the height of the panel. Read-only when docked; read-write when
+        floating  (int)
+        """
         return self.__getSize()[1]
 
-    def _setHeight(self, val):
+    @Height.setter
+    def Height(self, val):
         if self._constructed():
             if self.Floating:
                 self.FloatingHeight = val
@@ -511,10 +581,16 @@ class dDockPanel(dPanel):
         else:
             self._properties["Height"] = val
 
-    def _getLeft(self):
+    @property
+    def Left(self):
+        """
+        Position in pixels of the left side of the panel. Read-only when docked; read-write when
+        floating  (int)
+        """
         return self.__getPosition()[0]
 
-    def _setLeft(self, val):
+    @Left.setter
+    def Left(self, val):
         if self._constructed():
             if self.Floating:
                 self.FloatingLeft = val
@@ -523,27 +599,35 @@ class dDockPanel(dPanel):
         else:
             self._properties["Left"] = val
 
-    def _getLeftDockable(self):
+    @property
+    def LeftDockable(self):
+        """Can the panel be docked to the left edge of the form? Default=True  (bool)"""
         return self._leftDockable
 
-    def _setLeftDockable(self, val):
+    @LeftDockable.setter
+    def LeftDockable(self, val):
         if self._constructed():
             self._PaneInfo.LeftDockable(val)
             self._updateAUI()
         else:
             self._properties["LeftDockable"] = val
 
-    def _getManager(self):
+    @property
+    def Manager(self):
+        """Reference to the AUI manager (for internal use only).  (_dDockManager)"""
         try:
             mgr = self._mgr
         except AttributeError:
             mgr = self._mgr = self.Form._mgr
         return mgr
 
-    def _getMovable(self):
+    @property
+    def Movable(self):
+        """Can the panel be moved (True, default), or is it in a fixed position (False).  (bool)"""
         return self._movable
 
-    def _setMovable(self, val):
+    @Movable.setter
+    def Movable(self, val):
         if self._constructed():
             self._movable = val
             self._PaneInfo.Movable(val)
@@ -551,17 +635,22 @@ class dDockPanel(dPanel):
         else:
             self._properties["Movable"] = val
 
-    def _getPaneInfo(self):
+    @property
+    def PaneInfo(self):
+        """Reference to the AUI PaneInfo object (for internal use only).  (wx.aui.PaneInfo)"""
         try:
             mgr = self._mgr
         except AttributeError:
             mgr = self._mgr = self.Form._mgr
         return mgr.GetPane(self)
 
-    def _getResizable(self):
+    @property
+    def Resizable(self):
+        """Can the panel be resized? Default=True  (bool)"""
         return self._resizable
 
-    def _setResizable(self, val):
+    @Resizable.setter
+    def Resizable(self, val):
         if self._constructed():
             self._resizable = val
             self._PaneInfo.Resizable(val)
@@ -569,10 +658,16 @@ class dDockPanel(dPanel):
         else:
             self._properties["Resizable"] = val
 
-    def _getRight(self):
+    @property
+    def Right(self):
+        """
+        Position in pixels of the right side of the panel. Read-only when docked; read-write when
+        floating  (int)
+        """
         return self.__getPosition()[0] + self.__getSize()[0]
 
-    def _setRight(self, val):
+    @Right.setter
+    def Right(self, val):
         if self._constructed():
             if self.Floating:
                 self.FloatingRight = val
@@ -581,20 +676,26 @@ class dDockPanel(dPanel):
         else:
             self._properties["Right"] = val
 
-    def _getRightDockable(self):
+    @property
+    def RightDockable(self):
+        """Can the panel be docked to the right edge of the form? Default=True  (bool)"""
         return self._rightDockable
 
-    def _setRightDockable(self, val):
+    @RightDockable.setter
+    def RightDockable(self, val):
         if self._constructed():
             self._PaneInfo.RightDockable(val)
             self._updateAUI()
         else:
             self._properties["RightDockable"] = val
 
-    def _getShowBorder(self):
+    @property
+    def ShowBorder(self):
+        """Should the panel's border be shown when floating?  (bool)"""
         return self._showBorder
 
-    def _setShowBorder(self, val):
+    @ShowBorder.setter
+    def ShowBorder(self, val):
         if self._constructed():
             self._showBorder = val
             self._PaneInfo.PaneBorder(val)
@@ -602,10 +703,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["ShowBorder"] = val
 
-    def _getShowCaption(self):
+    @property
+    def ShowCaption(self):
+        """Should the panel's Caption be shown when it is docked? Default=True  (bool)"""
         return self._showCaption
 
-    def _setShowCaption(self, val):
+    @ShowCaption.setter
+    def ShowCaption(self, val):
         if self._constructed():
             self._showCaption = val
             self._PaneInfo.CaptionVisible(val)
@@ -613,10 +717,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["ShowCaption"] = val
 
-    def _getShowCloseButton(self):
+    @property
+    def ShowCloseButton(self):
+        """Does the panel display a close button when floating? Default=True  (bool)"""
         return self._showCloseButton
 
-    def _setShowCloseButton(self, val):
+    @ShowCloseButton.setter
+    def ShowCloseButton(self, val):
         if self._constructed():
             self._showCloseButton = val
             self._PaneInfo.CloseButton(val)
@@ -628,10 +735,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["ShowCloseButton"] = val
 
-    def _getShowGripper(self):
+    @property
+    def ShowGripper(self):
+        """Does the panel display a draggable gripper? Default=False  (bool)"""
         return self._showGripper
 
-    def _setShowGripper(self, val):
+    @ShowGripper.setter
+    def ShowGripper(self, val):
         if self._constructed():
             if val == self._showGripper:
                 return
@@ -641,10 +751,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["ShowGripper"] = val
 
-    def _getShowMaximizeButton(self):
+    @property
+    def ShowMaximizeButton(self):
+        """Does the panel display a maximize button when floating? Default=False  (bool)"""
         return self._showMaximizeButton
 
-    def _setShowMaximizeButton(self, val):
+    @ShowMaximizeButton.setter
+    def ShowMaximizeButton(self, val):
         if self._constructed():
             self._showMaximizeButton = val
             self._PaneInfo.MaximizeButton(val)
@@ -652,10 +765,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["ShowMaximizeButton"] = val
 
-    def _getShowMinimizeButton(self):
+    @property
+    def ShowMinimizeButton(self):
+        """Does the panel display a minimize button when floating? Default=False  (bool)"""
         return self._showMinimizeButton
 
-    def _setShowMinimizeButton(self, val):
+    @ShowMinimizeButton.setter
+    def ShowMinimizeButton(self, val):
         if self._constructed():
             self._showMinimizeButton = val
             self._PaneInfo.MinimizeButton(val)
@@ -663,10 +779,13 @@ class dDockPanel(dPanel):
         else:
             self._properties["ShowMinimizeButton"] = val
 
-    def _getShowPinButton(self):
+    @property
+    def ShowPinButton(self):
+        """Does the panel display a pin button when floating? Default=False  (bool)"""
         return self._showPinButton
 
-    def _setShowPinButton(self, val):
+    @ShowPinButton.setter
+    def ShowPinButton(self, val):
         if self._constructed():
             self._showPinButton = val
             self._PaneInfo.PinButton(val)
@@ -674,13 +793,21 @@ class dDockPanel(dPanel):
         else:
             self._properties["ShowPinButton"] = val
 
-    def _getToolbar(self):
+    @property
+    def Toolbar(self):
+        """Returns True if this is a Toolbar pane. Default=False  (bool)"""
         return self._toolbar
 
-    def _getTop(self):
+    @property
+    def Top(self):
+        """
+        Position in pixels of the top side of the panel. Read-only when docked; read-write when
+        floating  (int)
+        """
         return self.__getPosition()[1]
 
-    def _setTop(self, val):
+    @Top.setter
+    def Top(self, val):
         if self._constructed():
             if self.Floating:
                 self.FloatingTop = val
@@ -689,30 +816,42 @@ class dDockPanel(dPanel):
         else:
             self._properties["Top"] = val
 
-    def _getTopDockable(self):
+    @property
+    def TopDockable(self):
+        """Can the panel be docked to the top edge of the form? Default=True  (bool)"""
         return self._topDockable
 
-    def _setTopDockable(self, val):
+    @TopDockable.setter
+    def TopDockable(self, val):
         if self._constructed():
             self._PaneInfo.TopDockable(val)
             self._updateAUI()
         else:
             self._properties["TopDockable"] = val
 
-    def _getVisible(self):
+    @property
+    def Visible(self):
+        """Is the panel shown?  (bool)"""
         return self._PaneInfo.IsShown()
 
-    def _setVisible(self, val):
+    @Visible.setter
+    def Visible(self, val):
         if self._constructed():
             self._PaneInfo.Show(val)
             self._updateAUI()
         else:
             self._properties["Visible"] = val
 
-    def _getWidth(self):
+    @property
+    def Width(self):
+        """
+        Position in pixels of the width of the panel. Read-only when docked; read-write when
+        floating  (int)
+        """
         return self.__getSize()[0]
 
-    def _setWidth(self, val):
+    @Width.setter
+    def Width(self, val):
         if self._constructed():
             if self.Floating:
                 self.FloatingWidth = val
@@ -720,299 +859,6 @@ class dDockPanel(dPanel):
                 dabo_module.error(_("Cannot set the Size of a docked panel"))
         else:
             self._properties["Width"] = val
-
-    Bottom = property(
-        _getBottom,
-        _setBottom,
-        None,
-        _(
-            "Position in pixels of the bottom side of the panel. Read-only when docked; "
-            "read-write when floating  (int)"
-        ),
-    )
-
-    BottomDockable = property(
-        _getBottomDockable,
-        _setBottomDockable,
-        None,
-        _("Can the panel be docked to the bottom edge of the form? Default=True  (bool)"),
-    )
-
-    Caption = property(
-        _getCaption, _setCaption, None, _("Text that appears in the title bar  (str)")
-    )
-
-    DestroyOnClose = property(
-        _getDestroyOnClose,
-        _setDestroyOnClose,
-        None,
-        _(
-            "When the panel's Close button is clicked, does the panel get destroyed (True) "
-            "or just hidden (False, default)  (bool)"
-        ),
-    )
-
-    Dockable = property(
-        _getDockable,
-        _setDockable,
-        None,
-        _("Can the panel be docked to the form? Default=True  (bool)"),
-    )
-
-    Docked = property(
-        _getDocked,
-        _setDocked,
-        None,
-        _("Determines whether the pane is floating (False) or docked (True)  (bool)"),
-    )
-
-    DockSide = property(
-        _getDockSide,
-        _setDockSide,
-        None,
-        _(
-            """Side of the form that the panel is either currently docked to,
-            or would be if dock() were to be called. Possible values are
-            'Left', 'Right', 'Top' and 'Bottom'.  (str)"""
-        ),
-    )
-
-    Floatable = property(
-        _getFloatable,
-        _setFloatable,
-        None,
-        _("Can the panel be undocked from the form and float independently? Default=True  (bool)"),
-    )
-
-    Floating = property(
-        _getFloating,
-        _setFloating,
-        None,
-        _("Determines whether the pane is floating (True) or docked (False)  (bool)"),
-    )
-
-    FloatingBottom = property(
-        _getFloatingBottom,
-        _setFloatingBottom,
-        None,
-        _("Bottom coordinate of the panel when floating  (int)"),
-    )
-
-    FloatingHeight = property(
-        _getFloatingHeight,
-        _setFloatingHeight,
-        None,
-        _("Height of the panel when floating  (int)"),
-    )
-
-    FloatingLeft = property(
-        _getFloatingLeft,
-        _setFloatingLeft,
-        None,
-        _("Left coordinate of the panel when floating  (int)"),
-    )
-
-    FloatingPosition = property(
-        _getFloatingPosition,
-        _setFloatingPosition,
-        None,
-        _("Position of the panel when floating  (2-tuple of ints)"),
-    )
-
-    FloatingRight = property(
-        _getFloatingRight,
-        _setFloatingRight,
-        None,
-        _("Right coordinate of the panel when floating  (int)"),
-    )
-
-    FloatingSize = property(
-        _getFloatingSize,
-        _setFloatingSize,
-        None,
-        _("Size of the panel when floating  (2-tuple of ints)"),
-    )
-
-    FloatingTop = property(
-        _getFloatingTop,
-        _setFloatingTop,
-        None,
-        _("Top coordinate of the panel when floating  (int)"),
-    )
-
-    FloatingWidth = property(
-        _getFloatingWidth,
-        _setFloatingWidth,
-        None,
-        _("Width of the panel when floating  (int)"),
-    )
-
-    GripperPosition = property(
-        _getGripperPosition,
-        _setGripperPosition,
-        None,
-        _(
-            "If a gripper is shown, is it on the Top or Left side? Default = 'Left'  "
-            "('Top' or 'Left')"
-        ),
-    )
-
-    Height = property(
-        _getHeight,
-        _setHeight,
-        None,
-        _(
-            "Position in pixels of the height of the panel. Read-only when docked; read-write "
-            "when floating  (int)"
-        ),
-    )
-
-    Left = property(
-        _getLeft,
-        _setLeft,
-        None,
-        _(
-            "Position in pixels of the left side of the panel. Read-only when docked; read-write "
-            "when floating  (int)"
-        ),
-    )
-
-    LeftDockable = property(
-        _getLeftDockable,
-        _setLeftDockable,
-        None,
-        _("Can the panel be docked to the left edge of the form? Default=True  (bool)"),
-    )
-
-    _Manager = property(
-        _getManager,
-        None,
-        None,
-        _("Reference to the AUI manager (for internal use only).  (_dDockManager)"),
-    )
-
-    Movable = property(
-        _getMovable,
-        _setMovable,
-        None,
-        _("Can the panel be moved (True, default), or is it in a fixed position (False).  (bool)"),
-    )
-
-    _PaneInfo = property(
-        _getPaneInfo,
-        None,
-        None,
-        _("Reference to the AUI PaneInfo object (for internal use only).  (wx.aui.PaneInfo)"),
-    )
-
-    Resizable = property(
-        _getResizable,
-        _setResizable,
-        None,
-        _("Can the panel be resized? Default=True  (bool)"),
-    )
-
-    Right = property(
-        _getRight,
-        _setRight,
-        None,
-        _(
-            "Position in pixels of the right side of the panel. Read-only when docked; read-write "
-            "when floating  (int)"
-        ),
-    )
-
-    RightDockable = property(
-        _getRightDockable,
-        _setRightDockable,
-        None,
-        _("Can the panel be docked to the right edge of the form? Default=True  (bool)"),
-    )
-
-    ShowBorder = property(
-        _getShowBorder,
-        _setShowBorder,
-        None,
-        _("Should the panel's border be shown when floating?  (bool)"),
-    )
-
-    ShowCaption = property(
-        _getShowCaption,
-        _setShowCaption,
-        None,
-        _("Should the panel's Caption be shown when it is docked? Default=True  (bool)"),
-    )
-
-    ShowCloseButton = property(
-        _getShowCloseButton,
-        _setShowCloseButton,
-        None,
-        _("Does the panel display a close button when floating? Default=True  (bool)"),
-    )
-
-    ShowGripper = property(
-        _getShowGripper,
-        _setShowGripper,
-        None,
-        _("Does the panel display a draggable gripper? Default=False  (bool)"),
-    )
-
-    ShowMaximizeButton = property(
-        _getShowMaximizeButton,
-        _setShowMaximizeButton,
-        None,
-        _("Does the panel display a maximize button when floating? Default=False  (bool)"),
-    )
-
-    ShowMinimizeButton = property(
-        _getShowMinimizeButton,
-        _setShowMinimizeButton,
-        None,
-        _("Does the panel display a minimize button when floating? Default=False  (bool)"),
-    )
-
-    ShowPinButton = property(
-        _getShowPinButton,
-        _setShowPinButton,
-        None,
-        _("Does the panel display a pin button when floating? Default=False  (bool)"),
-    )
-
-    Toolbar = property(
-        _getToolbar,
-        None,
-        None,
-        _("Returns True if this is a Toolbar pane. Default=False  (bool)"),
-    )
-
-    Top = property(
-        _getTop,
-        _setTop,
-        None,
-        _(
-            "Position in pixels of the top side of the panel. Read-only when docked; read-write "
-            "when floating  (int)"
-        ),
-    )
-
-    TopDockable = property(
-        _getTopDockable,
-        _setTopDockable,
-        None,
-        _("Can the panel be docked to the top edge of the form? Default=True  (bool)"),
-    )
-
-    Visible = property(_getVisible, _setVisible, None, _("Is the panel shown?  (bool)"))
-
-    Width = property(
-        _getWidth,
-        _setWidth,
-        None,
-        _(
-            "Position in pixels of the width of the panel. Read-only when docked; read-write "
-            "when floating  (int)"
-        ),
-    )
 
     DynamicCaption = makeDynamicProperty(Caption)
 
@@ -1101,15 +947,19 @@ class dDockForm(dForm):
             if ps:
                 self._mgr.LoadPerspective(ps)
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-    def _getCenterPanel(self):
+    # Property definitions
+    @property
+    def CenterPanel(self):
+        """Reference to the center (i.e., non-docking) panel. (read-only) (dPanel)"""
         return self._centerPanel
 
-    def _getShowActivePanel(self):
+    @property
+    def ShowActivePanel(self):
+        """When True, the title bar of the active pane is highlighted. Default=False  (bool)"""
         return bool(self._mgr.GetFlags() & flag_show_active)
 
-    def _setShowActivePanel(self, val):
+    @ShowActivePanel.setter
+    def ShowActivePanel(self, val):
         if self._constructed():
             self._transparentDrag = val
             flags = self._mgr.GetFlags()
@@ -1121,10 +971,13 @@ class dDockForm(dForm):
         else:
             self._properties["ShowActivePanel"] = val
 
-    def _getTransparentDrag(self):
+    @property
+    def TransparentDrag(self):
+        """When dragging panes, do they appear transparent? Default=True  (bool)"""
         return bool(self._mgr.GetFlags() & flag_transparent_drag)
 
-    def _setTransparentDrag(self, val):
+    @TransparentDrag.setter
+    def TransparentDrag(self, val):
         if self._constructed():
             self._transparentDrag = val
             flags = self._mgr.GetFlags()
@@ -1135,27 +988,6 @@ class dDockForm(dForm):
             self._mgr.SetFlags(newFlags)
         else:
             self._properties["TransparentDrag"] = val
-
-    CenterPanel = property(
-        _getCenterPanel,
-        None,
-        None,
-        _("Reference to the center (i.e., non-docking) panel. (read-only) (dPanel)"),
-    )
-
-    ShowActivePanel = property(
-        _getShowActivePanel,
-        _setShowActivePanel,
-        None,
-        _("When True, the title bar of the active pane is highlighted. Default=False  (bool)"),
-    )
-
-    TransparentDrag = property(
-        _getTransparentDrag,
-        _setTransparentDrag,
-        None,
-        _("When dragging panes, do they appear transparent? Default=True  (bool)"),
-    )
 
 
 class _dDockForm_test(dDockForm):

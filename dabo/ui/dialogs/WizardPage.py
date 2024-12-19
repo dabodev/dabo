@@ -96,11 +96,14 @@ class WizardPage(dScrollPanel):
         """
         return -1
 
-    # Property definitions.
-    def _getCaption(self):
+    # Property definitions
+    @property
+    def Caption(self):
+        """The text that appears as the title of the page  (str)"""
         return self._caption
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         if self._constructed():
             self._caption = val
             if self._titleLabel:
@@ -109,120 +112,89 @@ class WizardPage(dScrollPanel):
         else:
             self._properties["Caption"] = val
 
-    def _getPicture(self):
+    @property
+    def Picture(self):
+        """
+        Normally None, but you can set it to some other image to have the wizard display a different
+        picture for this page  (None or image path)
+        """
         return self._picture
 
-    def _setPicture(self, val):
+    @Picture.setter
+    def Picture(self, val):
         if self._constructed():
             self._picture = val
         else:
             self._properties["Picture"] = val
 
-    def _getTitleBold(self):
+    @property
+    def TitleBold(self):
+        """Controls whether the title text is bold.  (bool)"""
         try:
             return self._titleFontBold
         except AttributeError:
             self._titleFontBold = self.FontBold
             return self._titleFontBold
 
-    def _setTitleBold(self, val):
+    @TitleBold.setter
+    def TitleBold(self, val):
         self._titleFontBold = val
         if self._titleLabel:
             self._titleLabel.FontBold = val
             self.layout()
 
-    def _getTitleFace(self):
+    @property
+    def TitleFace(self):
+        """Name of the font face used for the Title.  (string)"""
         try:
             return self._titleFontFace
         except AttributeError:
             self._titleFontFace = self.FontFace
             return self._titleFontFace
 
-    def _setTitleFace(self, val):
+    @TitleFace.setter
+    def TitleFace(self, val):
         self._titleFontFace = val
         if self._titleLabel:
             self._titleLabel.FontFace = val
             self.layout()
 
-    def _getTitleItalic(self):
+    @property
+    def TitleItalic(self):
+        """Controls whether the title text is italic.  (bool)"""
         try:
             return self._titleFontItalic
         except AttributeError:
             self._titleFontItalic = self.FontItalic
             return self._titleFontItalic
 
-    def _setTitleItalic(self, val):
+    @TitleItalic.setter
+    def TitleItalic(self, val):
         self._titleFontItalic = val
         if self._titleLabel:
             self._titleLabel.FontItalic = val
             self.layout()
 
-    def _getTitleSize(self):
+    @property
+    def TitleSize(self):
+        """Size in points for the Title (default=18).  (int)"""
         return self._titleFontSize
 
-    def _setTitleSize(self, val):
+    @TitleSize.setter
+    def TitleSize(self, val):
         self._titleFontSize = val
         if self._titleLabel:
             self._titleLabel.FontSize = val
             self.layout()
 
-    def _getWizard(self):
+    @property
+    def Wizard(self):
+        """Reference to the wizard form this page is in  (Wizard object)"""
         ret = self._wizard
         if ret is None:
             ret = self.Form
         return ret
 
-    def _setWizard(self, val):
+    @Wizard.setter
+    def Wizard(self, val):
         self._wizard = val
-
-    Caption = property(
-        _getCaption,
-        _setCaption,
-        None,
-        _("The text that appears as the title of the page  (str)"),
-    )
-
-    Picture = property(
-        _getPicture,
-        _setPicture,
-        None,
-        _(
-            """Normally None, but you can set it to some other image to have the wizard display
-            a different picture for this page  (None or image path)"""
-        ),
-    )
-
-    TitleBold = property(
-        _getTitleBold,
-        _setTitleBold,
-        None,
-        _("Controls whether the title text is bold.  (bool)"),
-    )
-
-    TitleFace = property(
-        _getTitleFace,
-        _setTitleFace,
-        None,
-        _("Name of the font face used for the Title.  (string)"),
-    )
-
-    TitleItalic = property(
-        _getTitleItalic,
-        _setTitleItalic,
-        None,
-        _("Controls whether the title text is italic.  (bool)"),
-    )
-
-    TitleSize = property(
-        _getTitleSize,
-        _setTitleSize,
-        None,
-        _("Size in points for the Title (default=18).  (int)"),
-    )
-
-    Wizard = property(
-        _getWizard,
-        _setWizard,
-        None,
-        _("Reference to the wizard form this page is in  (Wizard object)"),
-    )

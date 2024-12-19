@@ -65,15 +65,13 @@ class Page(Serializable):
         super(Page, self).__init__(**args)
         self.header = self.footer = self.background = self.foreground = self.detail = None
 
+    @property
     def height(self):
         return self.size[1]
 
-    height = property(height)
-
+    @property
     def width(self):
         return self.size[0]
-
-    width = property(width)
 
     def _drawHeader(self, canvas, env):
         if self.header:

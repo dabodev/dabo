@@ -120,7 +120,12 @@ class dConnectInfo(dObject):
     def getBackendObject(self):
         return self._backendObject
 
-    def _getCrypto(self):
+    @property
+    def Crypto(self):
+        """
+        Reference to the object that provides cryptographic services if run
+        outside of an application.  (varies)
+        """
         try:
             ret = self.Application.Crypto
         except AttributeError:
@@ -133,22 +138,28 @@ class dConnectInfo(dObject):
             ret = self._cryptoProvider = SimpleCrypt()
         return self._cryptoProvider
 
-    def _setCrypto(self, val):
+    @Crypto.setter
+    def Crypto(self, val):
         self._cryptoProvider = val
 
-    def _getCustomParameters(self):
+    @property
+    def CustomParameters(self):
+        """Additional parameters passed to backend object connect method. (dict)"""
         try:
             return self._customParameters.copy()
         except AttributeError:
             return {}
 
-    def _getDbType(self):
+    @property
+    def DbType(self):
+        """Name of the backend database type.  (str)"""
         try:
             return self._dbType
         except AttributeError:
             return None
 
-    def _setDbType(self, dbType):
+    @DbType.setter
+    def DbType(self, dbType):
         """Set the backend type for the connection if valid."""
         _oldObject = self._backendObject
         # As other backends are coded into the framework, we will need
@@ -201,133 +212,101 @@ class dConnectInfo(dObject):
             self._dbType = None
             self._backendObject = None
 
-    def _getDatabase(self):
+    @property
+    def Database(self):
+        """The database name to login to. (str)"""
         return self._database
 
-    def _setDatabase(self, database):
+    @Database.setter
+    def Database(self, database):
         self._database = database
 
-    def _getHost(self):
+    @property
+    def Host(self):
+        """The host name or ip address. (str)"""
         return self._host
 
-    def _setHost(self, host):
+    @Host.setter
+    def Host(self, host):
         self._host = host
 
-    def _getKeepAliveInterval(self):
+    @property
+    def KeepAliveInterval(self):
+        """
+        Specifies how often a KeepAlive query should be sent to the server. (int)
+
+        Defaults to None, meaning we never send a KeepAlive query. The interval
+        is expressed in seconds.
+        """
         return self._keepAliveInterval
 
-    def _setKeepAliveInterval(self, val):
+    @KeepAliveInterval.setter
+    def KeepAliveInterval(self, val):
         if not val:
             val = None
         else:
             val = int(val)
         self._keepAliveInterval = val
 
-    def _getName(self):
+    @property
+    def Name(self):
+        """The name used to reference this connection. (str)"""
         return self._name
 
-    def _setName(self, val):
+    @Name.setter
+    def Name(self, val):
         self._name = val
 
-    def _getPassword(self):
+    @property
+    def Password(self):
+        """The encrypted password of the user. (str)"""
         return self._password
 
-    def _setPassword(self, password):
+    @Password.setter
+    def Password(self, password):
         self._password = password
 
-    def _setPlainPassword(self, val):
+    @property
+    def PlainTextPassword(self):
+        """
+        Write-only property that encrypts the value and stores that in the Password
+        property. (str)
+        """
+        raise AttributeError("PlainTextPassword property is write-only")
+
+    @PlainTextPassword.setter
+    def PlainTextPassword(self, val):
         self._password = self.encrypt(val)
 
-    def _getPort(self):
+    @property
+    def Port(self):
+        """The port to connect on (may not be applicable for all databases). (int)"""
         return self._port
 
-    def _setPort(self, port):
+    @Port.setter
+    def Port(self, port):
         try:
             self._port = int(port)
         except ValueError:
             self._port = None
 
-    def _getRemoteHost(self):
+    @property
+    def RemoteHost(self):
+        """When running as a web app, this holds the host URL. (str)"""
         return self._remoteHost
 
-    def _setRemoteHost(self, host):
+    @RemoteHost.setter
+    def RemoteHost(self, host):
         self._remoteHost = host
 
-    def _getUser(self):
+    @property
+    def User(self):
+        """The user name. (str)"""
         return self._user
 
-    def _setUser(self, user):
+    @User.setter
+    def User(self, user):
         self._user = user
-
-    Crypto = property(
-        _getCrypto,
-        _setCrypto,
-        None,
-        _(
-            """Reference to the object that provides cryptographic services if run
-            outside of an application.  (varies)"""
-        ),
-    )
-
-    CustomParameters = property(
-        _getCustomParameters,
-        None,
-        None,
-        _("""Additional parameters passed to backend object connect method. (dict)"""),
-    )
-
-    DbType = property(_getDbType, _setDbType, None, _("Name of the backend database type.  (str)"))
-
-    Database = property(_getDatabase, _setDatabase, None, _("The database name to login to. (str)"))
-
-    Host = property(_getHost, _setHost, None, _("The host name or ip address. (str)"))
-
-    KeepAliveInterval = property(
-        _getKeepAliveInterval,
-        _setKeepAliveInterval,
-        None,
-        _(
-            """Specifies how often a KeepAlive query should be sent to the server. (int)
-
-            Defaults to None, meaning we never send a KeepAlive query. The interval
-            is expressed in seconds.
-            """
-        ),
-    )
-
-    Name = property(
-        _getName, _setName, None, _("The name used to reference this connection. (str)")
-    )
-
-    Password = property(
-        _getPassword, _setPassword, None, _("The encrypted password of the user. (str)")
-    )
-
-    PlainTextPassword = property(
-        None,
-        _setPlainPassword,
-        None,
-        _(
-            """Write-only property that encrypts the value and stores that
-                in the Password property. (str)"""
-        ),
-    )
-
-    Port = property(
-        _getPort,
-        _setPort,
-        None,
-        _("The port to connect on (may not be applicable for all databases). (int)"),
-    )
-
-    RemoteHost = property(
-        _getRemoteHost,
-        _setRemoteHost,
-        None,
-        _("When running as a web app, this holds the host URL. (str)"),
-    )
-
-    User = property(_getUser, _setUser, None, _("The user name. (str)"))
 
 
 if __name__ == "__main__":

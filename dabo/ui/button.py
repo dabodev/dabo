@@ -49,12 +49,14 @@ class dButton(ui.dControlMixin, wx.Button):
                 if otherCancelButton:
                     otherCancelButton._onCancelButton(evt, recurse=False)
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-    def _getCancelButton(self):
+    # Property definitions
+    @property
+    def CancelButton(self):
+        """Specifies whether this command button gets clicked on -Escape-."""
         return self.GetId() == wx.ID_CANCEL
 
-    def _setCancelButton(self, val):
+    @CancelButton.setter
+    def CancelButton(self, val):
         if self._constructed():
             ## pkm: We can bind the key to self, Parent, or Form (or any object).
             ##      If bound to self, the <esc> keypress will only fire the Hit
@@ -84,14 +86,17 @@ class dButton(ui.dControlMixin, wx.Button):
                 self._preInitProperties["id"] = wx.ID_CANCEL
             self._properties["CancelButton"] = val
 
-    def _getDefaultButton(self):
+    @property
+    def DefaultButton(self):
+        """Specifies whether this command button gets clicked on -Enter-."""
         try:
             v = self._defaultButton
         except AttributeError:
             v = self._defaultButton = False
         return v
 
-    def _setDefaultButton(self, value):
+    @DefaultButton.setter
+    def DefaultButton(self, value):
         if self._constructed():
             if value:
                 # Need to unset default from any other buttons:
@@ -114,21 +119,6 @@ class dButton(ui.dControlMixin, wx.Button):
             self._defaultButton = value
         else:
             self._properties["DefaultButton"] = value
-
-    # Property definitions:
-    CancelButton = property(
-        _getCancelButton,
-        _setCancelButton,
-        None,
-        _("Specifies whether this command button gets clicked on -Escape-."),
-    )
-
-    DefaultButton = property(
-        _getDefaultButton,
-        _setDefaultButton,
-        None,
-        _("Specifies whether this command button gets clicked on -Enter-."),
-    )
 
     DynamicCancelButton = ui.makeDynamicProperty(CancelButton)
     DynamicDefaultButton = ui.makeDynamicProperty(DefaultButton)

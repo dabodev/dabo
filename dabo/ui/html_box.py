@@ -128,28 +128,41 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
 
         return pat.sub(repl, val)
 
-    def _getHorizontalScroll(self):
+    # Property definitions
+    @property
+    def HorizontalScroll(self):
+        """Controls whether this object will scroll horizontally (default=True)  (bool)"""
         return self._horizontalScroll
 
-    def _setHorizontalScroll(self, val):
+    @HorizontalScroll.setter
+    def HorizontalScroll(self, val):
         self._horizontalScroll = val
         self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
         rt = self.GetScrollPixelsPerUnit()
         self.SetScrollRate({True: rt[0], False: 0}[val], rt[1])
 
-    def _getOpenLinksInBrowser(self):
+    @property
+    def OpenLinksInBrowser(self):
+        """
+        When True, clicking on an HREF link will open the URL in the default web browser instead of
+        in the control itself. Default=False.  (bool)
+        """
         return self._openLinksInBrowser
 
-    def _setOpenLinksInBrowser(self, val):
+    @OpenLinksInBrowser.setter
+    def OpenLinksInBrowser(self, val):
         if self._constructed():
             self._openLinksInBrowser = val
         else:
             self._properties["OpenLinksInBrowser"] = val
 
-    def _getPage(self):
+    @property
+    def Page(self):
+        """URL or file path of the current page being displayed. (default='')  (string)"""
         return self._page
 
-    def _setPage(self, val):
+    @Page.setter
+    def Page(self, val):
         if not self._constructed():
             self._properties["Page"] = val
             return
@@ -178,19 +191,43 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
                 self._page = ""
                 self.SetPage(self._source)
 
-    def _getRespondToLinks(self):
+    @property
+    def RespondToLinks(self):
+        """When True (default), clicking a link will attempt to load that linked page.  (bool)"""
         return self._respondToLinks
 
-    def _setRespondToLinks(self, val):
+    @RespondToLinks.setter
+    def RespondToLinks(self, val):
         self._respondToLinks = val
 
-    def _getSelectedText(self):
+    @property
+    def SelectedText(self):
+        """
+        Currently selected text. Returns the empty string if nothing is selected. Read-only (str)
+        """
         return self.SelectionToText()
 
-    def _getSource(self):
+    @property
+    def ShowScrollBars(self):
+        """When True (default), scrollbars will be shown as needed.  (bool)"""
+        return not self._hasWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
+
+    @ShowScrollBars.setter
+    def ShowScrollBars(self, val):
+        if bool(val):
+            self._delWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
+            self._addWindowStyleFlag(wx.html.HW_SCROLLBAR_AUTO)
+        else:
+            self._delWindowStyleFlag(wx.html.HW_SCROLLBAR_AUTO)
+            self._addWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
+
+    @property
+    def Source(self):
+        """Html source of the current page being display. (default='')  (string)"""
         return self._source
 
-    def _setSource(self, val):
+    @Source.setter
+    def Source(self, val):
         if not self._constructed():
             self._properties["Source"] = val
             return
@@ -200,103 +237,28 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
             val = self.setImageURLs(val)
             self.SetPage(val)
 
-    def _getShowScrollBars(self):
-        return not self._hasWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
-
-    def _setShowScrollBars(self, val):
-        if bool(val):
-            self._delWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
-            self._addWindowStyleFlag(wx.html.HW_SCROLLBAR_AUTO)
-        else:
-            self._delWindowStyleFlag(wx.html.HW_SCROLLBAR_AUTO)
-            self._addWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
-
-    def _getText(self):
+    @property
+    def Text(self):
+        """
+        Returns the displayed plain text content of the control, free of any HTML markup. Read-only
+        (str)
+        """
         return self.ToText()
 
-    def _getVerticalScroll(self):
+    @property
+    def VerticalScroll(self):
+        """Controls whether this object will scroll vertically (default=True)  (bool)"""
         return self._verticalScroll
 
-    def _setVerticalScroll(self, val):
+    @VerticalScroll.setter
+    def VerticalScroll(self, val):
         self._verticalScroll = val
         self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
         rt = self.GetScrollPixelsPerUnit()
         self.SetScrollRate(rt[0], {True: rt[1], False: 0}[val])
 
-    HorizontalScroll = property(
-        _getHorizontalScroll,
-        _setHorizontalScroll,
-        None,
-        _("Controls whether this object will scroll horizontally (default=True)  (bool)"),
-    )
-
-    OpenLinksInBrowser = property(
-        _getOpenLinksInBrowser,
-        _setOpenLinksInBrowser,
-        None,
-        _(
-            """When True, clicking on an HREF link will open the URL in the default web browser
-            instead of in the control itself. Default=False.  (bool)"""
-        ),
-    )
-
-    Page = property(
-        _getPage,
-        _setPage,
-        None,
-        _("URL or file path of the current page being displayed. (default='')  (string)"),
-    )
-
-    RespondToLinks = property(
-        _getRespondToLinks,
-        _setRespondToLinks,
-        None,
-        _("When True (default), clicking a link will attempt to load that linked page.  (bool)"),
-    )
-
-    SelectedText = property(
-        _getSelectedText,
-        None,
-        None,
-        _(
-            "Currently selected text. Returns the empty string if nothing is selected. Read-only  "
-            "(str)"
-        ),
-    )
-
-    ShowScrollBars = property(
-        _getShowScrollBars,
-        _setShowScrollBars,
-        None,
-        _("When Tru (default), scrollbars will be shown as needed.  (bool)"),
-    )
-
-    Source = property(
-        _getSource,
-        _setSource,
-        None,
-        _("Html source of the current page being display. (default='')  (string)"),
-    )
-
-    Text = property(
-        _getText,
-        None,
-        None,
-        _(
-            """Returns the displayed plain text content of the control, free of any
-            HTML markup. Read-only  (str)"""
-        ),
-    )
-
     # alias to fall in line with the rest of Dabo.
     Value = Source
-
-    VerticalScroll = property(
-        _getVerticalScroll,
-        _setVerticalScroll,
-        None,
-        _("Controls whether this object will scroll vertically (default=True)  (bool)"),
-    )
 
     DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
     DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)

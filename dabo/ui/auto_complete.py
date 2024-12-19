@@ -611,37 +611,113 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
         else:
             self.SetChoices(choices)
 
-    ##                                ##
-    ##  Property getters and setters  ##
-    ##                                ##
-    def _getDataSource(self):
-        try:
-            src = self._dataSource
-        except AttributeError:
-            src = self._dataSource = None
-        return src
+    ##  Property definitions  ##
+    @property
+    def Choices(self):
+        """
+        The choices to put in the dropdown list when no DataSource or DataSet is provided.  (list)
 
-    def _setDataSource(self, src):
+        This list can consist of strings (one-dimensional) or sublists of strings (two-dimensional)
+        and the number of columns in the list will be set accordingly. All sublists must be of the
+        same length.
+
+        If DataSource or DataSet are defined, this field becomes read-only and returns the choices
+        currently in the list.
+        """
+        return self.GetChoices()
+
+    @Choices.setter
+    def Choices(self, choices):
         if self._constructed():
-            self._dataSource = src
-            ui.callAfter(self.listFromDS)
+            if self.DataSource or self.DataSet:
+                raise ValueError("Cannot set Choices: DataSource or DataSet already defined.")
+            try:
+                choices[0]
+            except:
+                raise ValueError(
+                    "Cannot set Choices: A single or multi-columna"
+                    "list with at least one element must be provided."
+                )
+            ui.callAfter(self._setDynamicChoices, choices)
         else:
-            self._properties["DataSource"] = src
+            self._properties["Choices"] = choices
 
-    def _getDataFields(self):
+    @property
+    def ColNames(self):
+        """
+        The names used to label columns.  (list of strs)
+
+        If this list is of a different length than the number of columns, blank column names will be
+        added or extra column names ignored as appropriate.
+        """
+        return self._colNames
+
+    @ColNames.setter
+    def ColNames(self, names):
+        if self._constructed():
+            self._colNames = names
+            self._userColNames = False if names is None else True
+
+        else:
+            self._properties["ColNames"] = names
+
+    @property
+    def FetchField(self):
+        """
+        The field or column displayed in the text box when a value is selected from the list.
+        (str or int)
+
+        When given a field name, selecting an entry in the dropdown list will diplay the
+        corresponding field's value for that entry in the text box. If an int is provided, columns
+        are chosen by index (starting with 0). If not set, the field specified by SearchField will
+        be used.
+        """
+        try:
+            fld = self._fetchField
+        except AttributeError:
+            fld = self._fetchField = None
+        return fld
+
+    @FetchField.setter
+    def FetchField(self, fld):
+        if self._constructed():
+            self._fetchField = fld
+            if isinstance(fld, int):
+                self._colFetch = fld
+        else:
+            self._properties["FetchField"] = fld
+
+    @property
+    def DataFields(self):
+        """
+        The fields from the data set to display in the list.  (list of strs)
+
+        Fields will be displayed in order of this list. If not set, all fields in the data set will
+        be displayed in default order.
+        """
         try:
             fld = self._dataFields
         except AttributeError:
             fld = self._dataFields = None
         return fld
 
-    def _setDataFields(self, flds):
+    @DataFields.setter
+    def DataFields(self, flds):
         if self._constructed():
             self._dataFields = flds
         else:
             self._properties["DataFields"] = flds
 
-    def _getDataSet(self):
+    @property
+    def DataSet(self):
+        """
+        The set of data displayed in the list.  (set of dicts)
+
+        When DataSource isn't defined, setting DataSet to a set of dicts, such as what you get from
+        calling dBizobj.getDataSet(), will define the source of the data that the list displays.
+
+        If DataSource is defined, DataSet is read-only and returns the data set from the bizobj.
+        """
         ds = None
         biz = self.DataSource
         if biz:
@@ -660,7 +736,8 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
                 ds = self._dataSet = None
         return ds
 
-    def _setDataSet(self, ds):
+    @DataSet.setter
+    def DataSet(self, ds):
         if self._constructed():
             if self.DataSource:
                 raise ValueError("Cannot set DataSet: DataSource defined.")
@@ -669,153 +746,51 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
         else:
             self._properties["DataSet"] = ds
 
-    def _getSearchField(self):
+    @property
+    def DataSource(self):
+        """
+        The source of the data to display in the list.  (str)
+
+        This corresponds to a bizobj with a matching DataSource on the form,
+        and setting this makes it impossible to set DataSet.
+        """
+        try:
+            src = self._dataSource
+        except AttributeError:
+            src = self._dataSource = None
+        return src
+
+    @DataSource.setter
+    def DataSource(self, src):
+        if self._constructed():
+            self._dataSource = src
+            ui.callAfter(self.listFromDS)
+        else:
+            self._properties["DataSource"] = src
+
+    @property
+    def SearchField(self):
+        """
+        The field or column used to compare with user-entered text.  (str or int)
+
+        When given a field name, strings in the text box will be matched with the corresponding
+        field's value. If an int is provided, columns are chosen by index (starting with 0). If not
+        set, the search will be done on the leftmost field (index 0).
+        """
         try:
             fld = self._searchField
         except AttributeError:
             fld = self._searchField = None
         return fld
 
-    def _setSearchField(self, fld):
+    @SearchField.setter
+    def SearchField(self, fld):
         if self._constructed():
             self._searchField = fld
             if isinstance(fld, int):
                 self._colSearch = fld
         else:
             self._properties["SearchField"] = fld
-
-    def _getFetchField(self):
-        try:
-            fld = self._fetchField
-        except AttributeError:
-            fld = self._fetchField = None
-        return fld
-
-    def _setFetchField(self, fld):
-        if self._constructed():
-            self._fetchField = fld
-            if isinstance(fld, int):
-                self._colFetch = fld
-        else:
-            self._properties["FetchField"] = fld
-
-    def _getChoices(self):
-        return self.GetChoices()
-
-    def _setChoices(self, choices):
-        if self._constructed():
-            if self.DataSource or self.DataSet:
-                raise ValueError("Cannot set Choices: DataSource or DataSet already defined.")
-            try:
-                choices[0]
-            except:
-                raise ValueError(
-                    "Cannot set Choices: A single or multi-columna"
-                    "list with at least one element must be provided."
-                )
-            ui.callAfter(self._setDynamicChoices, choices)
-        else:
-            self._properties["Choices"] = choices
-
-    def _getColNames(self):
-        return self._colNames
-
-    def _setColNames(self, names):
-        if self._constructed():
-            self._colNames = names
-            self._userColNames = False if names is None else True
-
-        else:
-            self._properties["ColNames"] = names
-
-    ##                        ##
-    ##  Property definitions  ##
-    ##                        ##
-    DataSource = property(
-        _getDataSource,
-        _setDataSource,
-        None,
-        """The source of the data to display in the list.  (str)
-
-            This corresponds to a bizobj with a matching DataSource on the form,
-            and setting this makes it impossible to set DataSet.""",
-    )
-
-    DataFields = property(
-        _getDataFields,
-        _setDataFields,
-        None,
-        """The fields from the data set to display in the list.  (list of strs)
-
-            Fields will be displayed in order of this list. If not set, all
-            fields in the data set will be displayed in default order.""",
-    )
-
-    DataSet = property(
-        _getDataSet,
-        _setDataSet,
-        None,
-        """The set of data displayed in the list.  (set of dicts)
-
-            When DataSource isn't defined, setting DataSet to a set of dicts,
-            such as what you get from calling dBizobj.getDataSet(), will
-            define the source of the data that the list displays.
-
-            If DataSource is defined, DataSet is read-only and returns the data set
-            from the bizobj.""",
-    )
-
-    SearchField = property(
-        _getSearchField,
-        _setSearchField,
-        None,
-        """The field or column used to compare with user-entered text.  (str or int)
-
-            When given a field name, strings in the text box will be matched
-            with the corresponding field's value. If an int is provided,
-            columns are chosen by index (starting with 0). If not set, the
-            search will be done on the leftmost field (index 0).""",
-    )
-
-    FetchField = property(
-        _getFetchField,
-        _setFetchField,
-        None,
-        """The field or column displayed in the text box when a value is
-            selected from the list. (str or int)
-
-            When given a field name, selecting an entry in the dropdown list
-            will diplay the corresponding field's value for that entry in the
-            text box. If an int is provided, columns are chosen by index
-            (starting with 0). If not set, the field specified by SearchField
-            will be used.""",
-    )
-
-    Choices = property(
-        _getChoices,
-        _setChoices,
-        None,
-        """The choices to put in the dropdown list when no DataSource or
-            DataSet is provided.  (list)
-
-            This list can consist of strings (one-dimensional) or sublists of
-            strings (two-dimensional) and the number of columns in the list
-            will be set accordingly. All sublists must be of the same length.
-
-            If DataSource or DataSet are defined, this field becomes read-only
-            and returns the choices currently in the list.""",
-    )
-
-    ColNames = property(
-        _getColNames,
-        _setColNames,
-        None,
-        """The names used to label columns.  (list of strs)
-
-            If this list is of a different length than the number of columns,
-            blank column names will be added or extra column names ignored as
-            appropriate.""",
-    )
 
 
 ui.dAutoComplete = dAutoComplete

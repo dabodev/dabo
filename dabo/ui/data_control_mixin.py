@@ -413,25 +413,30 @@ class dDataControlMixin(ui.dControlMixin):
             val = oldval
         return val
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-    def _getDataField(self):
+    # Property definitions
+    @property
+    def DataField(self):
+        """Specifies the data field of the dataset to use as the source of data. (str)"""
         try:
             return self._DataField
         except AttributeError:
             return ""
 
-    def _setDataField(self, value):
+    @DataField.setter
+    def DataField(self, value):
         self._oldVal = None
         self._DataField = ustr(value)
 
-    def _getDataSource(self):
+    @property
+    def DataSource(self):
+        """Specifies the dataset to use as the source of data.  (str)"""
         try:
             return self._dataSource
         except AttributeError:
             return ""
 
-    def _setDataSource(self, val):
+    @DataSource.setter
+    def DataSource(self, val):
         # There can be race conditions where an object's DataSource is being set
         # at the same time as other properties, such as when these are all set at
         # instantiation. There can be cases, such as list controls, where the Choices
@@ -447,7 +452,12 @@ class dDataControlMixin(ui.dControlMixin):
 
         ui.callAfter(_delayedSetDataSource)
 
-    def _getDesignerMode(self):
+    @property
+    def _DesignerMode(self):
+        """
+        When True, the control is not running live, but being used in design mode. Default=False.
+        (bool)
+        """
         if self._designerMode is None:
             try:
                 self._designerMode = self.Form._designerMode
@@ -455,38 +465,66 @@ class dDataControlMixin(ui.dControlMixin):
                 self._designerMode = False
         return self._designerMode
 
-    def _getDisableOnEmptyDataSource(self):
+    @property
+    def DisableOnEmptyDataSource(self):
+        """
+        When True and the DataSource is an empty dataset (it must be a dBizobj instance),
+        control is disabled for interactive editing. Default=False.  (bool)
+        """
         return getattr(self, "_disableOnEmptyDataSource", False)
 
-    def _setDisableOnEmptyDataSource(self, val):
+    @DisableOnEmptyDataSource.setter
+    def DisableOnEmptyDataSource(self, val):
         self._disableOnEmptyDataSource = val
 
-    def _getPersistSecretData(self):
-        return getattr(self, "_persistSecretData", False)
-
-    def _setPersistSecretData(self, val):
-        self._persistSecretData = bool(val)
-
-    def _getSaveRestoreValue(self):
-        try:
-            return self._SaveRestoreValue
-        except AttributeError:
-            return False
-
-    def _setSaveRestoreValue(self, value):
-        self._SaveRestoreValue = bool(value)
-
-    def _getSecret(self):
+    @property
+    def IsSecret(self):
+        """
+        Flag for indicating sensitive data, such as Password field, that is not
+        to be persisted. Default=False.  (bool)
+        """
         try:
             return self._isSecret
         except AttributeError:
             self._isSecret = False
             return self._isSecret
 
-    def _setSecret(self, val):
+    @IsSecret.setter
+    def IsSecret(self, val):
         self._isSecret = val
 
-    def _getSource(self):
+    @property
+    def PersistSecretData(self):
+        """
+        If True, allow persisting the secret data in encrypted form.
+
+        Warning! Security of your data strongly depends on used encryption algorithms!
+        Default=False.  (bool)
+        """
+        return getattr(self, "_persistSecretData", False)
+
+    @PersistSecretData.setter
+    def PersistSecretData(self, val):
+        self._persistSecretData = bool(val)
+
+    @property
+    def SaveRestoreValue(self):
+        """
+        Specifies whether the Value of the control gets saved when destroyed and restored when
+        created. Use when the control isn't bound to a dataSource and you want to persist the value,
+        as in an options dialog. Default=False.  (bool)
+        """
+        try:
+            return self._SaveRestoreValue
+        except AttributeError:
+            return False
+
+    @SaveRestoreValue.setter
+    def SaveRestoreValue(self, value):
+        self._SaveRestoreValue = bool(value)
+
+    @property
+    def Source(self):
         if self.__src is None:
             ds = self.DataSource
             self._srcIsBizobj = False
@@ -570,10 +608,13 @@ class dDataControlMixin(ui.dControlMixin):
                         break
         return self.__src
 
-    def _getValue(self):
+    @property
+    def Value(self):
+        """Specifies the current state of the control (the value of the field).  (varies)"""
         return self.GetValue()
 
-    def _setValue(self, val):
+    @Value.setter
+    def Value(self, val):
         if self._constructed():
             currVal = self.Value
             if type(currVal) != type(val):
@@ -593,91 +634,6 @@ class dDataControlMixin(ui.dControlMixin):
             self._afterValueChanged()
         else:
             self._properties["Value"] = val
-
-    # Property definitions:
-    DataField = property(
-        _getDataField,
-        _setDataField,
-        None,
-        _(
-            """Specifies the data field of the dataset to use as the source
-            of data. (str)"""
-        ),
-    )
-
-    DataSource = property(
-        _getDataSource,
-        _setDataSource,
-        None,
-        _("Specifies the dataset to use as the source of data.  (str)"),
-    )
-
-    _DesignerMode = property(
-        _getDesignerMode,
-        None,
-        None,
-        _(
-            """When True, the control is not running live, but being used
-            in design mode. Default=False.  (bool)"""
-        ),
-    )
-
-    DisableOnEmptyDataSource = property(
-        _getDisableOnEmptyDataSource,
-        _setDisableOnEmptyDataSource,
-        None,
-        _(
-            """When True and the DataSource is an empty dataset (it must be a dBizobj instance),
-            control is disabled for interactive editing. Default=False.  (bool)"""
-        ),
-    )
-
-    IsSecret = property(
-        _getSecret,
-        _setSecret,
-        None,
-        _(
-            """Flag for indicating sensitive data, such as Password field, that is not
-            to be persisted. Default=False.  (bool)"""
-        ),
-    )
-
-    PersistSecretData = property(
-        _getPersistSecretData,
-        _setPersistSecretData,
-        None,
-        _(
-            """If True, allow persisting the secret data in encrypted form.
-            Warning! Security of your data strongly depends on used encryption algorithms!
-            Default=False.  (bool)"""
-        ),
-    )
-
-    SaveRestoreValue = property(
-        _getSaveRestoreValue,
-        _setSaveRestoreValue,
-        None,
-        _(
-            """Specifies whether the Value of the control gets saved when
-            destroyed and restored when created. Use when the control isn't
-            bound to a dataSource and you want to persist the value, as in
-            an options dialog. Default=False.  (bool)"""
-        ),
-    )
-
-    Source = property(
-        _getSource,
-        None,
-        None,
-        _("Reference to the object to which this control's Value is bound  (object)"),
-    )
-
-    Value = property(
-        _getValue,
-        _setValue,
-        None,
-        _("""Specifies the current state of the control (the value of the field).  (varies)"""),
-    )
 
     DynamicValue = ui.makeDynamicProperty(Value)
 

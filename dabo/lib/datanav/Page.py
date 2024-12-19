@@ -67,19 +67,20 @@ class SelectionOpDropdown(dui.dDropdownList):
             # A comparison op was selected; let 'em enter a value
             self.Target.setFocus()
 
-    def _getTarget(self):
+    @property
+    def Target(self):
+        """Holds a reference to the edit control."""
         try:
             _target = self._target
         except AttributeError:
             _target = self._target = None
         return _target
 
-    def _setTarget(self, tgt):
+    @Target.setter
+    def Target(self, tgt):
         self._target = tgt
         if self.Target:
             self.Target.FontItalic = self.FontItalic
-
-    Target = property(_getTarget, _setTarget, None, "Holds a reference to the edit control.")
 
 
 class Page(dui.dPage):
@@ -126,18 +127,14 @@ class Page(dui.dPage):
         else:
             self.Parent.editByDataSource(ds)
 
-    def _getUpdateOnPageEnter(self):
+    @property
+    def UpdateOnPageEnter(self):
+        """Specifies whether an implicit self.update() happens upon page entry."""
         return getattr(self, "_updateOnPageEnter", True)
 
-    def _setUpdateOnPageEnter(self, val):
+    @UpdateOnPageEnter.setter
+    def UpdateOnPageEnter(self, val):
         self._updateOnPageEnter = bool(val)
-
-    UpdateOnPageEnter = property(
-        _getUpdateOnPageEnter,
-        _setUpdateOnPageEnter,
-        None,
-        _("""Specifies whether an implicit self.update() happens upon page entry."""),
-    )
 
 
 class SelectOptionsPanel(dPanel):
@@ -627,17 +624,13 @@ class EditPage(Page):
         self.Sizer.layout()
         self.itemsCreated = True
 
-    def _getDS(self):
+    @property
+    def DataSource(self):
+        """Table that is the primary source for the fields displayed on the page  (str)"""
         return self._dataSource
 
-    def _setDS(self, val):
+    @DataSource.setter
+    def DataSource(self, val):
         self._dataSource = val
         if not self.itemsCreated:
             self.buildPage()
-
-    DataSource = property(
-        _getDS,
-        _setDS,
-        None,
-        _("Table that is the primary source for the fields displayed on the page  (str)"),
-    )

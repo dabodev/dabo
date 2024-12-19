@@ -162,21 +162,37 @@ class dComboBox(ui.dControlItemMixin, wx.ComboBox):
         """
         pass
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-    def _getAppendOnEnter(self):
+    # Property definitions
+    @property
+    def AppendOnEnter(self):
+        """Flag to determine if user-entered text is appended when they press 'Enter'  (bool)"""
         return self._appendOnEnter
 
-    def _setAppendOnEnter(self, val):
+    @AppendOnEnter.setter
+    def AppendOnEnter(self, val):
         if self._constructed():
             self._appendOnEnter = val
         else:
             self._properties["AppendOnEnter"] = val
 
-    def _getForceCase(self):
+    @property
+    def ForceCase(self):
+        """
+        Determines if we change the case of entered text. Possible values are:
+
+            ============ =====================
+            None or ""   No changes made (default)
+            "Upper"      FORCE TO UPPER CASE
+            "Lower"      force to lower case
+            "Title"      Force To Title Case
+            ============ =====================
+
+        These can be abbreviated to "u", "l" or "t"  (str)
+        """
         return self._forceCase
 
-    def _setForceCase(self, val):
+    @ForceCase.setter
+    def ForceCase(self, val):
         if self._constructed():
             if val is None:
                 valKey = None
@@ -196,10 +212,13 @@ class dComboBox(ui.dControlItemMixin, wx.ComboBox):
         else:
             self._properties["ForceCase"] = val
 
-    def _getTextLength(self):
+    @property
+    def TextLength(self):
+        """The maximum length the entered text can be. (int)"""
         return self._textLength
 
-    def _setTextLength(self, val):
+    @TextLength.setter
+    def TextLength(self, val):
         if self._constructed():
             if val == None:
                 self._textLength = None
@@ -216,13 +235,23 @@ class dComboBox(ui.dControlItemMixin, wx.ComboBox):
         else:
             self._properties["TextLength"] = val
 
-    def _getUserValue(self):
+    @property
+    def UserValue(self):
+        """
+        Specifies the text displayed in the textbox portion of the ComboBox.  (str) Read-write at
+        runtime.
+
+        UserValue can differ from StringValue, which would mean that the user has typed in arbitrary
+        text. Unlike StringValue, PositionValue, and KeyValue, setting UserValue does not change the
+        currently selected item in the list portion of the ComboBox.
+        """
         if self._userVal:
             return self.GetValue()
         else:
             return self.GetStringSelection()
 
-    def _setUserValue(self, value):
+    @UserValue.setter
+    def UserValue(self, value):
         if self._constructed():
             self.SetValue(value)
             # don't call _afterValueChanged(), because value tracks the item in the list,
@@ -230,57 +259,6 @@ class dComboBox(ui.dControlItemMixin, wx.ComboBox):
             # add it to the list, if appropriate.
         else:
             self._properties["UserValue"] = value
-
-    AppendOnEnter = property(
-        _getAppendOnEnter,
-        _setAppendOnEnter,
-        None,
-        _(
-            """Flag to determine if user-entered text is appended when they
-            press 'Enter'  (bool)"""
-        ),
-    )
-
-    ForceCase = property(
-        _getForceCase,
-        _setForceCase,
-        None,
-        _(
-            """Determines if we change the case of entered text. Possible values are:
-
-                ============ =====================
-                None or ""   No changes made (default)
-                "Upper"      FORCE TO UPPER CASE
-                "Lower"      Force to lower case
-                "Title"      Force To Title Case
-                ============ =====================
-
-            These can be abbreviated to "u", "l" or "t"  (str)"""
-        ),
-    )
-
-    TextLength = property(
-        _getTextLength,
-        _setTextLength,
-        None,
-        _("""The maximum length the entered text can be. (int)"""),
-    )
-
-    UserValue = property(
-        _getUserValue,
-        _setUserValue,
-        None,
-        _(
-            """Specifies the text displayed in the textbox portion of the ComboBox.
-
-            String. Read-write at runtime.
-
-            UserValue can differ from StringValue, which would mean that the user
-            has typed in arbitrary text. Unlike StringValue, PositionValue, and
-            KeyValue, setting UserValue does not change the currently selected item
-            in the list portion of the ComboBox."""
-        ),
-    )
 
     DynamicUserValue = ui.makeDynamicProperty(UserValue)
 

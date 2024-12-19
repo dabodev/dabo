@@ -70,35 +70,48 @@ class dNode(dObject):
         # For compatibility with mixin props.
         return True
 
-    # Property definition code begins here
-    def _getBackColor(self):
+    # Property definitions
+    @property
+    def BackColor(self):
+        """Background color of this node  (str, 3-tuple, or wx.Colour)"""
         return self.tree.GetItemBackgroundColour(self.itemID).Get()
 
-    def _setBackColor(self, val):
+    @BackColor.setter
+    def BackColor(self, val):
         if isinstance(val, str):
             val = dColors.colorTupleFromName(val)
         self.tree.SetItemBackgroundColour(self.itemID, val)
 
-    def _getCap(self):
+    @property
+    def Caption(self):
+        """Returns/sets the text of this node.  (str)"""
         try:
             ret = self.tree.GetItemText(self.itemID)
         except ui.assertionException:
             ret = ""
         return ret
 
-    def _setCap(self, val):
+    @Caption.setter
+    def Caption(self, val):
         self.tree.SetItemText(self.itemID, val)
 
-    def _getChildren(self):
+    @property
+    def Children(self):
+        """List of all nodes for which this is their parent node.  (list of dNodes)"""
         return self.tree.getChildren(self)
 
-    def _getDescendents(self):
+    @property
+    def Descendents(self):
+        """List of all nodes for which this node is a direct ancestor.  (list of dNodes)"""
         return self.tree.getDescendents(self)
 
-    def _getExpanded(self):
+    @property
+    def Expanded(self):
+        """Represents whether the node is Expanded (True) or collapsed.  (bool)"""
         return self.tree.IsExpanded(self.itemID)
 
-    def _setExpanded(self, val):
+    @Expanded.setter
+    def Expanded(self, val):
         try:
             if val:
                 self.tree.expand(self)
@@ -109,14 +122,17 @@ class dNode(dObject):
             # especially from dTreeView.refreshDisplay()
             pass
 
-    def _getFont(self):
+    @property
+    def Font(self):
+        """The font properties of the node. (obj)"""
         if hasattr(self, "_font"):
             v = self._font
         else:
             v = self.Font = ui.dFont(_nativeFont=self.tree.GetItemFont(self.itemID))
         return v
 
-    def _setFont(self, val):
+    @Font.setter
+    def Font(self, val):
         assert isinstance(val, ui.dFont)
         self._font = val
         if not self.IsRootNode or self.tree.ShowRootNode:
@@ -126,106 +142,146 @@ class dNode(dObject):
             val.bindEvent(events.FontPropertiesChanged, self._onFontPropsChanged)
             ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-    def _getFontBold(self):
+    @property
+    def FontBold(self):
+        """Specifies if the node font is bold-faced. (bool)"""
         try:
             return self.Font.Bold
         except AttributeError:
             return False
 
-    def _setFontBold(self, val):
+    @FontBold.setter
+    def FontBold(self, val):
         self.Font.Bold = val
         ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-    def _getFontDescription(self):
+    @property
+    def FontDescription(self):
+        """Human-readable description of the node's font settings. (str)"""
         try:
             return self.Font.Description
         except AttributeError:
             return ""
 
-    def _getFontInfo(self):
-        try:
-            return self.Font._nativeFont.GetNativeFontInfoDesc()
-        except AttributeError:
-            return ""
-
-    def _getFontItalic(self):
-        try:
-            return self.Font.Italic
-        except AttributeError:
-            return False
-
-    def _setFontItalic(self, val):
-        self.Font.Italic = val
-        ui.callAfterInterval(100, self.tree.refreshDisplay)
-
-    def _getFontFace(self):
+    @property
+    def FontFace(self):
+        """Specifies the font face for the node. (str)"""
         try:
             return self.Font.Face
         except AttributeError:
             return ""
 
-    def _setFontFace(self, val):
+    @FontFace.setter
+    def FontFace(self, val):
         self.Font.Face = val
         ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-    def _getFontSize(self):
+    @property
+    def FontInfo(self):
+        """Specifies the platform-native font info string for the node. Read-only. (str)"""
+        try:
+            return self.Font._nativeFont.GetNativeFontInfoDesc()
+        except AttributeError:
+            return ""
+
+    @property
+    def FontItalic(self):
+        """Specifies whether the node's font is italicized. (bool)"""
+        try:
+            return self.Font.Italic
+        except AttributeError:
+            return False
+
+    @FontItalic.setter
+    def FontItalic(self, val):
+        self.Font.Italic = val
+        ui.callAfterInterval(100, self.tree.refreshDisplay)
+
+    @property
+    def FontSize(self):
+        """Specifies the point size of the node's font. (int)"""
         try:
             return self.Font.Size
         except AttributeError:
             return 10
 
-    def _setFontSize(self, val):
+    @FontSize.setter
+    def FontSize(self, val):
         self.Font.Size = val
         ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-    def _getFontUnderline(self):
+    @property
+    def FontUnderline(self):
+        """Specifies whether node text is underlined. (bool)"""
         try:
             return self.Font.Underline
         except AttributeError:
             return False
 
-    def _setFontUnderline(self, val):
+    @FontUnderline.setter
+    def FontUnderline(self, val):
         self.Font.Underline = val
         ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-    def _getForeColor(self):
+    @property
+    def ForeColor(self):
+        """Foreground (text) color of this node  (str, 3-tuple, or wx.Colour)"""
         return self.tree.GetItemTextColour(self.itemID).Get()
 
-    def _setForeColor(self, val):
+    @ForeColor.setter
+    def ForeColor(self, val):
         if isinstance(val, str):
             val = dColors.colorTupleFromName(val)
         self.tree.SetItemTextColour(self.itemID, val)
 
-    def _getFullCaption(self):
+    @property
+    def FullCaption(self):
+        """
+        Full dot-separated string of the captions of this node and its ancestors (read-only)  (str)
+        """
         ret = self.Caption
         if self.parent:
             ret = "%s.%s" % (self.parent._getFullCaption(), ret)
         return ret
 
-    def _getImg(self):
+    @property
+    def Image(self):
+        """
+        Sets the image that is displayed on the node. This is determined by the key value passed,
+        which must refer to an image already added to the parent tree. When used to retrieve an
+        image, it returns the index of the node's image in the parent tree's image list.  (int)
+        """
         return self.tree.getNodeImg(self)
 
-    def _setImg(self, key):
+    @Image.setter
+    def Image(self, key):
         return self.tree.setNodeImg(self, key)
         ui.callAfterInterval(100, self.tree.refreshDisplay)
 
-    def _getIsRootNode(self):
+    @property
+    def IsRootNode(self):
+        """Returns True if this is the root node (read-only) (bool)"""
         try:
             ret = self._isRootNode
         except AttributeError:
             ret = self._isRootNode = self.tree.GetRootItem() == self.itemID
         return ret
 
-    def _getObject(self):
+    @property
+    def Object(self):
+        """Optional object associated with this node. Default=None  (object)"""
         return self._object
 
-    def _setObject(self, val):
+    @Object.setter
+    def Object(self, val):
         if self._constructed():
             self._object = val
         else:
             self._properties["Object"] = val
 
-    def _getSel(self):
+    @property
+    def Selected(self):
+        """Is this node selected?  (bool)"""
         sel = self.tree.Selection
         if isinstance(sel, list):
             ret = self in sel
@@ -233,164 +289,29 @@ class dNode(dObject):
             ret = self == sel
         return ret
 
-    def _setSel(self, val):
+    @Selected.setter
+    def Selected(self, val):
         self.tree.SelectItem(self.itemID, val)
 
-    def _getSiblings(self):
+    @property
+    def Siblings(self):
+        """List of all nodes with the same parent node.  (list of dNodes)"""
         return self.tree.getSiblings(self)
 
-    def _getToolTipText(self):
+    @property
+    def ToolTipText(self):
+        """
+        Text to display when the mouse hovers over this node. The tree's UseNodeToolTips property
+        must be True for this to have any effect.  (str)
+        """
         return self._toolTipText
 
-    def _setToolTipText(self, val):
+    @ToolTipText.setter
+    def ToolTipText(self, val):
         if self._constructed():
             self._toolTipText = val
         else:
             self._properties["ToolTipText"] = val
-
-    BackColor = property(
-        _getBackColor,
-        _setBackColor,
-        None,
-        _("Background color of this node  (str, 3-tuple, or wx.Colour)"),
-    )
-
-    Caption = property(_getCap, _setCap, None, _("Returns/sets the text of this node.  (str)"))
-
-    Children = property(
-        _getChildren,
-        None,
-        None,
-        _("List of all nodes for which this is their parent node.  (list of dNodes)"),
-    )
-
-    Descendents = property(
-        _getDescendents,
-        None,
-        None,
-        _("List of all nodes for which this node is a direct ancestor.  (list of dNodes)"),
-    )
-
-    Expanded = property(
-        _getExpanded,
-        _setExpanded,
-        None,
-        _("Represents whether the node is Expanded (True) or collapsed.  (bool)"),
-    )
-
-    Font = property(_getFont, _setFont, None, _("The font properties of the node. (obj)"))
-
-    FontBold = property(
-        _getFontBold,
-        _setFontBold,
-        None,
-        _("Specifies if the node font is bold-faced. (bool)"),
-    )
-
-    FontDescription = property(
-        _getFontDescription,
-        None,
-        None,
-        _("Human-readable description of the node's font settings. (str)"),
-    )
-
-    FontFace = property(
-        _getFontFace,
-        _setFontFace,
-        None,
-        _("Specifies the font face for the node. (str)"),
-    )
-
-    FontInfo = property(
-        _getFontInfo,
-        None,
-        None,
-        _("Specifies the platform-native font info string for the node. Read-only. (str)"),
-    )
-
-    FontItalic = property(
-        _getFontItalic,
-        _setFontItalic,
-        None,
-        _("Specifies whether the node's font is italicized. (bool)"),
-    )
-
-    FontSize = property(
-        _getFontSize,
-        _setFontSize,
-        None,
-        _("Specifies the point size of the node's font. (int)"),
-    )
-
-    FontUnderline = property(
-        _getFontUnderline,
-        _setFontUnderline,
-        None,
-        _("Specifies whether node text is underlined. (bool)"),
-    )
-
-    ForeColor = property(
-        _getForeColor,
-        _setForeColor,
-        None,
-        _("Foreground (text) color of this node  (str, 3-tuple, or wx.Colour)"),
-    )
-
-    FullCaption = property(
-        _getFullCaption,
-        None,
-        None,
-        _(
-            "Full dot-separated string of the captions of this node and its ancestors (read-only) "
-            "(str)"
-        ),
-    )
-
-    Image = property(
-        _getImg,
-        _setImg,
-        None,
-        _(
-            """Sets the image that is displayed on the node. This is
-            determined by the key value passed, which must refer to an
-            image already added to the parent tree.     When used to retrieve
-            an image, it returns the index of the node's image in the parent
-            tree's image list.   (int)"""
-        ),
-    )
-
-    IsRootNode = property(
-        _getIsRootNode,
-        None,
-        None,
-        _("Returns True if this is the root node (read-only) (bool)"),
-    )
-
-    Object = property(
-        _getObject,
-        _setObject,
-        None,
-        _("Optional object associated with this node. Default=None  (object)"),
-    )
-
-    Selected = property(_getSel, _setSel, None, _("Is this node selected?.  (bool)"))
-
-    Siblings = property(
-        _getSiblings,
-        None,
-        None,
-        _("List of all nodes with the same parent node.  (list of dNodes)"),
-    )
-
-    ToolTipText = property(
-        _getToolTipText,
-        _setToolTipText,
-        None,
-        _(
-            """Text to display when the mouse hovers over this node. The tree's
-            UseNodeToolTips property must be True for this to have any effect.  (str)"""
-        ),
-    )
 
     DynamicBackColor = makeDynamicProperty(BackColor)
     DynamicCaption = makeDynamicProperty(Caption)

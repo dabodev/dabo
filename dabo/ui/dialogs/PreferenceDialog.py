@@ -360,43 +360,36 @@ class PreferenceDialog(dOkCancelDialog):
         if ret:
             dabo.ui.info(_("No updates are available now."), title=_("Web Updates"))
 
-    def _getIncludeDefaultPages(self):
+    # Property definitions
+    @property
+    def IncludeDefaultPages(self):
+        """
+        When True, the _addDefaultPages() method is called to add the common Dabo settings.
+        Default=True  (bool)
+        """
         return self._includeDefaultPages
 
-    def _setIncludeDefaultPages(self, val):
+    @IncludeDefaultPages.setter
+    def IncludeDefaultPages(self, val):
         if self._constructed():
             self._includeDefaultPages = val
         else:
             self._properties["IncludeDefaultPages"] = val
 
-    def _getIncludeFrameworkPages(self):
+    @property
+    def IncludeFrameworkPages(self):
+        """
+        When True, the _addFrameworkPages() method is called to add the common Dabo settings.
+        Default=False  (bool)
+        """
         return self._includeFrameworkPages
 
-    def _setIncludeFrameworkPages(self, val):
+    @IncludeFrameworkPages.setter
+    def IncludeFrameworkPages(self, val):
         if self._constructed():
             self._includeFrameworkPages = val
         else:
             self._properties["IncludeFrameworkPages"] = val
-
-    IncludeDefaultPages = property(
-        _getIncludeDefaultPages,
-        _setIncludeDefaultPages,
-        None,
-        _(
-            """When True, the _addDefaultPages() method is called to add the common
-            Dabo settings. Default=True  (bool)"""
-        ),
-    )
-
-    IncludeFrameworkPages = property(
-        _getIncludeFrameworkPages,
-        _setIncludeFrameworkPages,
-        None,
-        _(
-            """When True, the _addFrameworkPages() method is called to add the common
-            Dabo settings. Default=False  (bool)"""
-        ),
-    )
 
 
 if __name__ == "__main__":

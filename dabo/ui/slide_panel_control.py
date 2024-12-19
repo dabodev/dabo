@@ -165,40 +165,58 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
             return
         self.raiseEvent(events.SlidePanelCaptionClick, evt)
 
-    def _getBarColor1(self):
+    @property
+    def BarColor1(self):
+        """Main color for the caption bar  (dColor)"""
         try:
             ret = self._barColor1
         except AttributeError:
             ret = self._barColor1 = self._captionBar.GetCaptionStyle().GetFirstColour().Get()
         return ret
 
-    def _setBarColor1(self, val):
+    @BarColor1.setter
+    def BarColor1(self, val):
         color = self.getWxColour(val)
         self._barColor1 = val
         style = self._captionBar.GetCaptionStyle()
         style.SetFirstColour(color)
         self._captionBar.SetCaptionStyle(style)
 
-    def _getBarColor2(self):
+    @property
+    def BarColor2(self):
+        """Secondary color for the caption bar. Only used in gradients  (dColor)"""
         try:
             ret = self._barColor2
         except AttributeError:
             ret = self._barColor2 = self._captionBar.GetCaptionStyle().GetSecondColour().Get()
         return ret
 
-    def _setBarColor2(self, val):
+    @BarColor2.setter
+    def BarColor2(self, val):
         color = self.getWxColour(val)
         self._barColor2 = val
         style = self._captionBar.GetCaptionStyle()
         style.SetSecondColour(color)
         self._captionBar.SetCaptionStyle(style)
 
-    def _getBarStyle(self):
+    @property
+    def BarStyle(self):
+        """
+        Determines how the bar containing the caption for this panel is drawn. (str)
+
+        Can be one of the following:
+            Borderless     (no border, just a plain fill color; default)
+            BorderOnly     (simple border, no fill color)
+            FilledBorder   (combination of the two above)
+            VerticalFill   (vertical gradient fill, using the two caption colors)
+            HorizontalFill (horizontal gradient fill, using the two caption colors)
+        """
         wxbs = self._captionBar.GetCaptionStyle()._captionStyle
         lowerStyle = [k for k, v in list(self._barStyleConstants.items()) if v == wxbs][0]
         return self._barStyles[list(self._barStylesLow).index(lowerStyle)]
 
-    def _setBarStyle(self, val):
+    @BarStyle.setter
+    def BarStyle(self, val):
         if self._constructed():
             if val.lower().strip() not in self._barStylesLow:
                 bs = ", ".join(self._barStyles)
@@ -215,10 +233,13 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         else:
             self._properties["BarStyle"] = val
 
-    def _getBorder(self):
+    @property
+    def Border(self):
+        """Border between the contents and edges of the panel. Default=5  (int)"""
         return self._border
 
-    def _setBorder(self, val):
+    @Border.setter
+    def Border(self, val):
         if self._constructed():
             if val == self._border:
                 return
@@ -236,57 +257,76 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         else:
             self._properties["Border"] = val
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """Caption displayed on the panel bar  (str)"""
         return self._captionBar._caption
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         if self._constructed():
             self._captionBar._caption = val
             self.refresh()
         else:
             self._properties["Caption"] = val
 
-    def _getCaptionForeColor(self):
+    @property
+    def CaptionForeColor(self):
+        """Text color of the caption bar  (str or tuple)"""
         return self._captionForeColor
 
-    def _setCaptionForeColor(self, val):
+    @CaptionForeColor.setter
+    def CaptionForeColor(self, val):
         self._captionForeColor = val
         style = self._captionBar.GetCaptionStyle()
         style.SetCaptionColour(self.getWxColour(val))
         self._captionBar.SetCaptionStyle(style)
 
-    def _getCaptionHeight(self):
+    @property
+    def CaptionHeight(self):
+        """Height of the caption bar. Read-only  (int)"""
         return self._captionBar.GetSize()[1]
 
-    def _getCollapsed(self):
+    @property
+    def Collapsed(self):
+        """Is the panel main area hidden?  (bool)"""
         return not self.IsExpanded()
 
-    def _setCollapsed(self, val):
+    @Collapsed.setter
+    def Collapsed(self, val):
         if val:
             self._cont.collapse(self)
         else:
             self._cont.expand(self)
 
-    def _getExpanded(self):
+    @property
+    def Expanded(self):
+        """Is the panel main area visible?  (bool)"""
         return self.IsExpanded()
 
-    def _setExpanded(self, val):
+    @Expanded.setter
+    def Expanded(self, val):
         if val:
             self._cont.expand(self)
         else:
             self._cont.collapse(self)
 
-    def _getParent(self):
+    @property
+    def Parent(self):
+        """Reference to the containing dSlidePanelControl."""
         return self._cont
 
-    def _getPanelPosition(self):
+    @property
+    def PanelPosition(self):
+        """Position of this panel within the parent container  (int)"""
         try:
             ret = self._cont.Children.index(self)
         except (ValueError, IndexError):
             ret = None
         return ret
 
-    def _setPanelPosition(self, val):
+    @PanelPosition.setter
+    def PanelPosition(self, val):
         if self._constructed():
             if val == self.PanelPosition:
                 return
@@ -300,7 +340,9 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         else:
             self._properties["PanelPosition"] = val
 
-    def _getSizer(self):
+    @property
+    def Sizer(self):
+        """The sizer for the object."""
         sz = self._baseSizer
         try:
             ret = sz.Children[1].GetSizer()
@@ -308,7 +350,8 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
             ret = None
         return ret
 
-    def _setSizer(self, val):
+    @Sizer.setter
+    def Sizer(self, val):
         if self._constructed():
             sz = self._baseSizer
             try:
@@ -325,79 +368,6 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
                 pass
         else:
             self._properties["Sizer"] = val
-
-    BarColor1 = property(
-        _getBarColor1,
-        _setBarColor1,
-        None,
-        _("Main color for the caption bar  (dColor)"),
-    )
-
-    BarColor2 = property(
-        _getBarColor2,
-        _setBarColor2,
-        None,
-        _("Secondary color for the caption bar. Only used in gradients  (dColor)"),
-    )
-
-    BarStyle = property(
-        _getBarStyle,
-        _setBarStyle,
-        None,
-        _(
-            """"Determines how the bar containing the caption
-            for this panel is drawn. (str)
-
-            Can be one of the following:
-                Borderless        (no border, just a plain fill color; default)
-                BorderOnly    (simple border, no fill color)
-                FilledBorder    (combination of the two above)
-                VerticalFill        (vertical gradient fill, using the two caption colors)
-                HorizontalFill    (horizontal gradient fill, using the two caption colors)
-            """
-        ),
-    )
-
-    Border = property(
-        _getBorder,
-        _setBorder,
-        None,
-        _("Border between the contents and edges of the panel. Default=5  (int)"),
-    )
-
-    Caption = property(
-        _getCaption, _setCaption, None, _("Caption displayed on the panel bar  (str)")
-    )
-
-    CaptionForeColor = property(
-        _getCaptionForeColor,
-        _setCaptionForeColor,
-        None,
-        _("Text color of the caption bar  (str or tuple)"),
-    )
-
-    CaptionHeight = property(
-        _getCaptionHeight, None, None, _("Height of the caption bar. Read-only  (int)")
-    )
-
-    Collapsed = property(
-        _getCollapsed, _setCollapsed, None, _("Is the panel main area hidden?  (bool)")
-    )
-
-    Expanded = property(
-        _getExpanded, _setExpanded, None, _("Is the panel main area visible?  (bool)")
-    )
-
-    Parent = property(_getParent, None, None, _("Reference to the containing dSlidePanelControl."))
-
-    PanelPosition = property(
-        _getPanelPosition,
-        _setPanelPosition,
-        None,
-        _("Position of this panel within the parent container  (int)"),
-    )
-
-    Sizer = property(_getSizer, _setSizer, None, _("The sizer for the object."))
 
     DynamicBarColor1 = makeDynamicProperty(BarColor1)
     DynamicBarColor2 = makeDynamicProperty(BarColor2)

@@ -316,7 +316,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self._registerFunc = None
         self._unRegisterFunc = None
         # Used for parsing class and method names
-        self._pat = re.compile("^[ \t]*((?:(?:class)|(?:def)) [^\(]+)\(", re.M)
+        self._pat = re.compile(r"^[ \t]*((?:(?:class)|(?:def)) [^\(]+)\(", re.M)
 
         self.modifiedEventMask = (
             stc.STC_MOD_INSERTTEXT
@@ -1034,6 +1034,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
     def __onKeyChar(self, evt):
         keyChar = evt.EventData["keyChar"]
         self._insertChar = ""
+        print("CHAR", keyChar, "AUTOCOM", self.AutoCompActive(), "CODE", self.CodeCompletion)
 
         if keyChar == "(" and self.AutoCompActive():
             self._insertChar = "("
@@ -1188,7 +1189,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             ln = self.LineFromPosition(evt.GetPosition())
             self.hiliteLine(ln, evt.GetShift())
         if mg == 0:
-            # Bookmark margin.  Call stubs so dev can decide how to handle it.
+            # Bookmark margin. Call stubs so dev can decide how to handle it.
             self.processBookmarkClick(lineClicked, self.getBookmarkFromLine(lineClicked))
 
     def processBookmarkClick(self, lineNumber, bookmarkName):
@@ -1977,7 +1978,9 @@ Do you want to overwrite it?"""
             pass
 
     ### Property definitions start here
-    def _getAutoAutoComplete(self):
+    @property
+    def AutoAutoComplete(self):
+        """Determines if auto-completion pops up without a special trigger key  (bool)"""
         try:
             return self._autoAutoComplete
         except AttributeError:
@@ -1986,11 +1989,17 @@ Do you want to overwrite it?"""
             )
             return ret
 
-    def _setAutoAutoComplete(self, val):
+    @AutoAutoComplete.setter
+    def AutoAutoComplete(self, val):
         self._autoAutoComplete = val
         self.Application.setUserSetting("AutoAutoComplete", val)
 
-    def _getAutoAutoCompleteMinLen(self):
+    @property
+    def AutoAutoCompleteMinLen(self):
+        """
+        When AutoAutoComplete is True, sets the minimum # of chars required before the autocomplete popup appears.
+        Default=3  (int)
+        """
         try:
             return self._autoAutoCompleteMinLen
         except AttributeError:
@@ -1999,32 +2008,59 @@ Do you want to overwrite it?"""
             )
             return ret
 
-    def _setAutoAutoCompleteMinLen(self, val):
+    @AutoAutoCompleteMinLen.setter
+    def AutoAutoCompleteMinLen(self, val):
         self._autoAutoCompleteMinLen = val
         self.Application.setUserSetting("AutoAutoCompleteMinLen", val)
 
-    def _getAutoCompleteList(self):
+    @property
+    def AutoCompleteList(self):
+        """Controls if the user has to press 'Enter/Tab' to accept the AutoComplete entry  (bool)"""
         return self._autoCompleteList
 
-    def _setAutoCompleteList(self, val):
+    @AutoCompleteList.setter
+    def AutoCompleteList(self, val):
         if self._constructed():
             self._autoCompleteList = val
         else:
             self._properties["AutoCompleteList"] = val
 
-    def _getAutoIndent(self):
+    @property
+    def AutoIndent(self):
+        """Controls if a newline adds the previous line's indentation  (bool)"""
         return self._autoIndent
 
-    def _setAutoIndent(self, val):
+    @AutoIndent.setter
+    def AutoIndent(self, val):
         if self._constructed():
             self._autoIndent = val
         else:
             self._properties["AutoIndent"] = val
 
-    def _getBookmarkBackColor(self):
+    @property
+    def BackSpaceUnindents(self):
+        """
+        If set True then backspace, when in indentation, will go back TabWidth positions; if set
+        False then backspace will go back only one position. If UseTabs is True this should be set
+        to False. (default=True)  (bool)
+        """
+        return self._backSpaceUnindents
+
+    @BackSpaceUnindents.setter
+    def BackSpaceUnindents(self, val):
+        if self._constructed():
+            self._backSpaceUnindents = val
+            self.SetBackSpaceUnIndents(val)
+        else:
+            self._properties["BackSpaceUnindents"] = val
+
+    @property
+    def BookmarkBackColor(self):
+        """The color of the icon background Default=(0,255,255) (Tuple or String)"""
         return self._bookmarkBackColor
 
-    def _setBookmarkBackColor(self, val):
+    @BookmarkBackColor.setter
+    def BookmarkBackColor(self, val):
         if isinstance(val, str):
             val = dColors.colorTupleFromName(val)
         if isinstance(val, tuple):
@@ -2033,10 +2069,13 @@ Do you want to overwrite it?"""
         else:
             raise ValueError("BookmarkBackColor must be a valid color string or tuple")
 
-    def _getBookmarkForeColor(self):
+    @property
+    def BookmarkForeColor(self):
+        """The color of the icon foreground Default=(128,128,128) (Tuple or String)"""
         return self._bookmarkForeColor
 
-    def _setBookmarkForeColor(self, val):
+    @BookmarkForeColor.setter
+    def BookmarkForeColor(self, val):
         if isinstance(val, str):
             val = dColors.colorTupleFromName(val)
         if isinstance(val, tuple):
@@ -2045,39 +2084,60 @@ Do you want to overwrite it?"""
         else:
             raise ValueError("BookmarkForeColor must be a valid color string or tuple")
 
-    def _getBookmarkIcon(self):
+    @property
+    def BookmarkIcon(self):
+        """
+        The icon of bookmark that is show in the margin (default="circle") (string)
+
+        Available Values:
+            - "circle"
+            - "down arrow"
+            - "arrow"
+            - "arrows"
+            - "rectangle\"
+        """
         return self._bookmarkIcon
 
-    def _setBookmarkIcon(self, val):
+    @BookmarkIcon.setter
+    def BookmarkIcon(self, val):
         if val in list(bmkIconDic.keys()):
             self._bookmarkIcon = val
             self._setBookmarkMarker()
         else:
             raise ValueError("Value of BookmarkIcon must be in %s" % (list(bmkIconDic.keys()),))
 
-    def _getBufferedDrawing(self):
+    @property
+    def BufferedDrawing(self):
+        """Setting to True (default) reduces display flicker  (bool)"""
         return self._bufferedDrawing
 
-    def _setBufferedDrawing(self, val):
+    @BufferedDrawing.setter
+    def BufferedDrawing(self, val):
         if self._constructed():
             self._bufferedDrawing = val
             self.SetBufferedDraw(val)
         else:
             self._properties["BufferedDrawing"] = val
 
-    def _getCodeCompletion(self):
+    @property
+    def CodeCompletion(self):
+        """Determines if code completion is active (default=True)  (bool)"""
         return self._codeCompletion
 
-    def _setCodeCompletion(self, val):
+    @CodeCompletion.setter
+    def CodeCompletion(self, val):
         if self._constructed():
             self._codeCompletion = val
         else:
             self._properties["CodeCompletion"] = val
 
-    def _getColumn(self):
+    @property
+    def Column(self):
+        """Returns the current column position of the cursor in the file  (int)"""
         return self.GetColumn(self.GetCurrentPos())
 
-    def _setColumn(self, val):
+    @Column.setter
+    def Column(self, val):
         val = max(0, val)
         currPos = self.GetCurrentPos()
         currCol = self.GetColumn(currPos)
@@ -2087,19 +2147,25 @@ Do you want to overwrite it?"""
         newPos = min(endOfLinePos, newPos)
         self.GotoPos(newPos)
 
-    def _getCommentString(self):
+    @property
+    def CommentString(self):
+        """String used to prefix lines that are commented out  (str)"""
         return self._commentString
 
-    def _setCommentString(self, val):
+    @CommentString.setter
+    def CommentString(self, val):
         if self._constructed():
             self._commentString = val
         else:
             self._properties["CommentString"] = val
 
-    def _getEdgeGuideColumn(self):
+    @property
+    def EdgeGuideColumn(self):
+        """If self.EdgeGuide is set to True, specifies the column position the guide is in (int)"""
         return self._edgeGuideColumn
 
-    def _setEdgeGuideColumn(self, val):
+    @EdgeGuideColumn.setter
+    def EdgeGuideColumn(self, val):
         if self._constructed():
             self._edgeGuideColumn = val
             if self.ShowEdgeGuide:
@@ -2107,19 +2173,28 @@ Do you want to overwrite it?"""
         else:
             self._properties["EdgeGuideColumn"] = val
 
-    def _getEncoding(self):
+    @property
+    def Encoding(self):
+        """Type of encoding to use. Defaults to Dabo's encoding.  (str)"""
         return self._encoding
 
-    def _setEncoding(self, val):
+    @Encoding.setter
+    def Encoding(self, val):
         if self._constructed():
             self._encoding = val
         else:
             self._properties["Encoding"] = val
 
-    def _getEOLMode(self):
+    @property
+    def EOLMode(self):
+        """
+        End of line characters. Allowed values are 'CRLF', 'LF' and 'CR'.
+        (default=os dependent) (str)
+        """
         return self._eolMode
 
-    def _setEOLMode(self, val):
+    @EOLMode.setter
+    def EOLMode(self, val):
         if self._constructed():
             if val.lower() == "crlf":
                 self.SetEOLMode(stc.STC_EOL_CRLF)
@@ -2138,28 +2213,22 @@ Do you want to overwrite it?"""
         else:
             self._properties["EOLMode"] = val
 
-    def _getFileName(self):
+    @property
+    def FileName(self):
+        """Name of the file being edited (without path info)  (str)"""
         return os.path.split(self._fileName)[1]
 
-    def _getFilePath(self):
+    @property
+    def FilePath(self):
         return self._fileName
 
-    def _getFontSize(self):
-        return self._fontSize
-
-    def _setFontSize(self, val):
-        if self._constructed():
-            self._fontSize = val
-            self.setDefaultFont(self._fontFace, self._fontSize)
-            self.setPyFont(self._fontFace, self._fontSize)
-            self.Application.setUserSetting("editor.fontsize", self._fontSize)
-        else:
-            self._properties["FontSize"] = val
-
-    def _getFontFace(self):
+    @property
+    def FontFace(self):
+        """Name of the font face used in the editor  (str)"""
         return self._fontFace
 
-    def _setFontFace(self, val):
+    @FontFace.setter
+    def FontFace(self, val):
         if self._constructed():
             self._fontFace = val
             self.setDefaultFont(self._fontFace, self._fontSize)
@@ -2168,10 +2237,31 @@ Do you want to overwrite it?"""
         else:
             self._properties["FontFace"] = val
 
-    def _getHiliteCharsBeyondLimit(self):
+    @property
+    def FontSize(self):
+        """Size of the font used in the editor  (int)"""
+        return self._fontSize
+
+    @FontSize.setter
+    def FontSize(self, val):
+        if self._constructed():
+            self._fontSize = val
+            self.setDefaultFont(self._fontFace, self._fontSize)
+            self.setPyFont(self._fontFace, self._fontSize)
+            self.Application.setUserSetting("editor.fontsize", self._fontSize)
+        else:
+            self._properties["FontSize"] = val
+
+    @property
+    def HiliteCharsBeyondLimit(self):
+        """
+        When True, characters beyond the column set it self.HiliteLimitColumn are visibly hilited Note: When set to
+        True, self.ShowEdgeGuide will be set to False. (bool)
+        """
         return self._hiliteCharsBeyondLimit
 
-    def _setHiliteCharsBeyondLimit(self, val):
+    @HiliteCharsBeyondLimit.setter
+    def HiliteCharsBeyondLimit(self, val):
         if self._constructed():
             self._hiliteCharsBeyondLimit = val
             if val:
@@ -2183,10 +2273,13 @@ Do you want to overwrite it?"""
         else:
             self._properties["HiliteCharsBeyondLimit"] = val
 
-    def _getHiliteLimitColumn(self):
+    @property
+    def HiliteLimitColumn(self):
+        """If self.HiliteCharsBeyondLimit is True, specifies the limiting column (int)"""
         return self._hiliteLimitColumn
 
-    def _setHiliteLimitColumn(self, val):
+    @HiliteLimitColumn.setter
+    def HiliteLimitColumn(self, val):
         if self._constructed():
             self._hiliteLimitColumn = val
             if self.HiliteCharsBeyondLimit:
@@ -2194,10 +2287,13 @@ Do you want to overwrite it?"""
         else:
             self._properties["HiliteLimitColumn"] = val
 
-    def _getLanguage(self):
+    @property
+    def Language(self):
+        """Determines which language is used for the syntax coloring  (str)"""
         return self._language
 
-    def _setLanguage(self, val):
+    @Language.setter
+    def Language(self, val):
         if self._constructed():
             if val != self._language:
                 if val.lower() in list(LexerDic.keys()):
@@ -2214,19 +2310,27 @@ Do you want to overwrite it?"""
         else:
             self._properties["Language"] = val
 
-    def _getLineNumber(self):
+    @property
+    def LineNumber(self):
+        """Returns the current line number being edited  (int)"""
         return self._ZeroBasedLineNumber + 1
 
-    def _setLineNumber(self, val):
+    @LineNumber.setter
+    def LineNumber(self, val):
         self._ZeroBasedLineNumber = val - 1
 
-    def _getLineCount(self):
+    @property
+    def LineCount(self):
+        """Total number of lines in the document  (int)"""
         return self.GetLineCount()
 
-    def _getModified(self):
+    @property
+    def Modified(self):
+        """Has the content of this editor been modified?  (bool)"""
         return self.GetModify()
 
-    def _setModified(self, val):
+    @Modified.setter
+    def Modified(self, val):
         if val:
             selpos = self.SelectionPosition
             self.SetText(self.GetText())
@@ -2234,19 +2338,30 @@ Do you want to overwrite it?"""
         else:
             self.SetSavePoint()
 
-    def _getReadOnly(self):
+    @property
+    def ReadOnly(self):
+        """Specifies whether or not the text can be edited. (bool)"""
         return self.GetReadOnly()
 
-    def _setReadOnly(self, val):
+    @ReadOnly.setter
+    def ReadOnly(self, val):
         if self._constructed():
             self.SetReadOnly(val)
         else:
             self._properties["ReadOnly"] = val
 
-    def _getSelectionBackColor(self):
+    @property
+    def Selection(self):
+        """Selected text. (read-only) (str)"""
+        return self.GetSelectedText()
+
+    @property
+    def SelectionBackColor(self):
+        """Background color of selected text. Default=yellow  (str or tuple)"""
         return self._selectionBackColor
 
-    def _setSelectionBackColor(self, val):
+    @SelectionBackColor.setter
+    def SelectionBackColor(self, val):
         if self._constructed():
             self._selectionBackColor = val
             if isinstance(val, str):
@@ -2255,19 +2370,25 @@ Do you want to overwrite it?"""
         else:
             self._properties["SelectionBackColor"] = val
 
-    def _getSelectionEnd(self):
+    @property
+    def SelectionEnd(self):
+        """Position of the end of the selected text  (int)"""
         return self.GetSelectionEnd()
 
-    def _setSelectionEnd(self, val):
+    @SelectionEnd.setter
+    def SelectionEnd(self, val):
         if self._constructed():
             self.SetSelectionEnd(val)
         else:
             self._properties["SelectionEnd"] = val
 
-    def _getSelectionForeColor(self):
+    @property
+    def SelectionForeColor(self):
+        """Forecolor of the selected text. Default=black  (str or tuple)"""
         return self._selectionForeColor
 
-    def _setSelectionForeColor(self, val):
+    @SelectionForeColor.setter
+    def SelectionForeColor(self, val):
         if self._constructed():
             self._selectionForeColor = val
             if isinstance(val, str):
@@ -2276,50 +2397,68 @@ Do you want to overwrite it?"""
         else:
             self._properties["SelectionForeColor"] = val
 
-    def _getSelectionPosition(self):
+    @property
+    def SelectionPosition(self):
+        """Tuple containing the start/end positions of the selected text.  (2-tuple of int)"""
         return self.GetSelection()
 
-    def _setSelectionPosition(self, val):
+    @SelectionPosition.setter
+    def SelectionPosition(self, val):
         if self._constructed():
             self.SetSelection(*val)
         else:
             self._properties["SelectionPosition"] = val
 
-    def _getSelection(self):
-        return self.GetSelectedText()
-
-    def _getSelectionStart(self):
+    @property
+    def SelectionStart(self):
+        """Position of the start of the selected text  (int)"""
         return self.GetSelectionStart()
 
-    def _setSelectionStart(self, val):
+    @SelectionStart.setter
+    def SelectionStart(self, val):
         if self._constructed():
             self.SetSelectionStart(val)
         else:
             self._properties["SelectionStart"] = val
 
-    def _getShowCallTips(self):
+    @property
+    def ShowCallTips(self):
+        """Determines if call tips are shown (default=True)  (bool)"""
         return self._showCallTips
 
-    def _setShowCallTips(self, val):
+    @ShowCallTips.setter
+    def ShowCallTips(self, val):
         if self._constructed():
             self._showCallTips = val
         else:
             self._properties["ShowCallTips"] = val
 
-    def _getShowCodeFolding(self):
+    @property
+    def ShowCodeFolding(self):
+        """
+        Determines if the co-de folding symbols are displayed in the left margin (default=True)
+        (bool)
+        """
         return self._codeFolding
 
-    def _setShowCodeFolding(self, val):
+    @ShowCodeFolding.setter
+    def ShowCodeFolding(self, val):
         if self._constructed():
             self._codeFolding = val
             self._setCodeFoldingMarginVisibility()
         else:
             self._properties["ShowCodeFolding"] = val
 
-    def _getShowEdgeGuide(self):
+    @property
+    def ShowEdgeGuide(self):
+        """
+        When True, will display a line at the column set by self.EdgeGuideColumn. Note: "When set
+        to True, self.HiliteCharsBeyondLimit will be set to False. (bool)
+        """
         return self._showEdgeGuide
 
-    def _setShowEdgeGuide(self, val):
+    @ShowEdgeGuide.setter
+    def ShowEdgeGuide(self, val):
         if self._constructed():
             self._showEdgeGuide = val
             if val:
@@ -2331,60 +2470,78 @@ Do you want to overwrite it?"""
         else:
             self._properties["ShowEdgeGuide"] = val
 
-    def _getShowEOL(self):
+    @property
+    def ShowEOL(self):
+        """Determines if end-of-line markers are visible (default=False)  (bool)"""
         return self._showEOL
 
-    def _setShowEOL(self, val):
+    @ShowEOL.setter
+    def ShowEOL(self, val):
         if self._constructed():
             self._showEOL = val
             self.SetViewEOL(val)
         else:
             self._properties["ShowEOL"] = val
 
-    def _getShowIndentationGuides(self):
+    @property
+    def ShowIndentationGuides(self):
+        """Deterimnes if indentation guides are displayed (default=False)  (bool)"""
         return self._showIndentationGuides
 
-    def _setShowIndentationGuides(self, val):
+    @ShowIndentationGuides.setter
+    def ShowIndentationGuides(self, val):
         if self._constructed():
             self._showLineNumbers = val
             self.SetIndentationGuides(val)
         else:
             self._properties["ShowIndentationGuides"] = val
 
-    def _getShowLineNumbers(self):
+    @property
+    def ShowLineNumbers(self):
+        """Determines if line numbers are shown in the left margin (default=True)  (bool)"""
         return self._showLineNumbers
 
-    def _setShowLineNumbers(self, val):
+    @ShowLineNumbers.setter
+    def ShowLineNumbers(self, val):
         if self._constructed():
             self._showLineNumbers = val
             self._setLineNumberMarginVisibility()
         else:
             self._properties["ShowLineNumbers"] = val
 
-    def _getShowWhiteSpace(self):
+    @property
+    def ShowWhiteSpace(self):
+        """Determines if white space characters are displayed (default=True)  (bool)"""
         return self._showWhiteSpace
 
-    def _setShowWhiteSpace(self, val):
+    @ShowWhiteSpace.setter
+    def ShowWhiteSpace(self, val):
         if self._constructed():
             self._showWhiteSpace = val
             self.SetViewWhiteSpace(val)
         else:
             self._properties["ShowWhiteSpace"] = val
 
-    def _getSyntaxColoring(self):
+    @property
+    def SyntaxColoring(self):
+        """Determines if syntax coloring is used (default=True)  (bool)"""
         return self._syntaxColoring
 
-    def _setSyntaxColoring(self, val):
+    @SyntaxColoring.setter
+    def SyntaxColoring(self, val):
         if self._constructed():
             self._syntaxColoring = val
             self.setSyntaxColoring(val)
         else:
             self._properties["SyntaxColoring"] = val
 
-    def _getTabWidth(self):
+    @property
+    def TabWidth(self):
+        """Approximate number of spaces taken by each tab character (default=4)  (int)"""
         return self._tabWidth
 
-    def _setTabWidth(self, val):
+    @TabWidth.setter
+    def TabWidth(self, val):
         if self._constructed():
             self._tabWidth = val
             self.SetTabWidth(val)
@@ -2392,55 +2549,64 @@ Do you want to overwrite it?"""
         else:
             self._properties["TabWidth"] = val
 
-    def _getText(self):
+    @property
+    def Text(self):
+        """Current contents of the editor  (str)"""
         return self.GetText()
 
-    def _setText(self, val):
+    @Text.setter
+    def Text(self, val):
         self.SetText(val)
 
-    def _getUseBookmarks(self):
+    @property
+    def UseBookmarks(self):
+        """Are we tracking bookmarks in the editor? Default=False  (bool)"""
         return self._useBookmarks
 
-    def _setUseBookmarks(self, val):
+    @UseBookmarks.setter
+    def UseBookmarks(self, val):
         if self._constructed():
             self._useBookmarks = val
             self._setBookmarkMarginVisibility()
         else:
             self._properties["UseBookmarks"] = val
 
-    def _getUseStyleTimer(self):
+    @property
+    def UseStyleTimer(self):
+        """
+        Syntax coloring can slow down sometimes. Set to True to improve performance.  (bool)"""
         return self._useStyleTimer
 
-    def _setUseStyleTimer(self, val):
+    @UseStyleTimer.setter
+    def UseStyleTimer(self, val):
         if self._constructed():
             self._useStyleTimer = val
         else:
             self._properties["UseStyleTimer"] = val
 
-    def _getUseTabs(self):
+    @property
+    def UseTabs(self):
+        """
+        Indentation will only use space characters if useTabs is False; if True, it will use a
+        combination of tabs and spaces (default=False)  (bool)
+        """
         return self._useTabs
 
-    def _setUseTabs(self, val):
+    @UseTabs.setter
+    def UseTabs(self, val):
         if self._constructed():
             self._useTabs = val
             self.SetUseTabs(val)
         else:
             self._properties["UseTabs"] = val
 
-    def _getBackSpaceUnindents(self):
-        return self._backSpaceUnindents
-
-    def _setBackSpaceUnindents(self, val):
-        if self._constructed():
-            self._backSpaceUnindents = val
-            self.SetBackSpaceUnIndents(val)
-        else:
-            self._properties["BackSpaceUnindents"] = val
-
-    def _getValue(self):
+    @property
+    def Value(self):
+        """Specifies the current contents of the editor.  (basestring)"""
         return self.Text
 
-    def _setValue(self, val):
+    @Value.setter
+    def Value(self, val):
         if self._constructed():
             if isinstance(val, str):
                 val = val.encode(self.Encoding)
@@ -2458,16 +2624,28 @@ Do you want to overwrite it?"""
         else:
             self._properties["Value"] = val
 
-    def _getWordWrap(self):
+    @property
+    def WordWrap(self):
+        """
+        Controls whether text lines that are wider than the window are
+        soft-wrapped or clipped.  (bool)
+        """
         return self.GetWrapMode()
 
-    def _setWordWrap(self, val):
+    @WordWrap.setter
+    def WordWrap(self, val):
         self.SetWrapMode(val)
 
-    def _getZeroBasedLineNumber(self):
+    @property
+    def _ZeroBasedLineNumber(self):
+        """
+        This is the underlying property that handles the wxPython zero-based line numbering. It's
+        equal to LineNumber-1  (int)"
+        """
         return self.GetCurrentLine()
 
-    def _setZeroBasedLineNumber(self, val):
+    @_ZeroBasedLineNumber.setter
+    def _ZeroBasedLineNumber(self, val):
         if self._constructed():
             try:
                 # Try coercing to int
@@ -2479,380 +2657,14 @@ Do you want to overwrite it?"""
         else:
             self._properties["_ZeroBasedLineNumber"] = val
 
-    def _getZoomLevel(self):
+    @property
+    def ZoomLevel(self):
+        """Point increase/decrease from normal viewing size  (int)"""
         return self.GetZoom()
 
-    def _setZoomLevel(self, val):
+    @ZoomLevel.setter
+    def ZoomLevel(self, val):
         self.SetZoom(val)
-
-    AutoAutoComplete = property(
-        _getAutoAutoComplete,
-        _setAutoAutoComplete,
-        None,
-        _("Determines if auto-completion pops up without a special trigger key  (bool)"),
-    )
-
-    AutoAutoCompleteMinLen = property(
-        _getAutoAutoCompleteMinLen,
-        _setAutoAutoCompleteMinLen,
-        None,
-        _(
-            """When AutoAutoComplete is True, sets the minimum # of chars required
-            before the autocomplete popup appears. Default=3  (int)"""
-        ),
-    )
-
-    AutoCompleteList = property(
-        _getAutoCompleteList,
-        _setAutoCompleteList,
-        None,
-        _(
-            """Controls if the user has to press 'Enter/Tab' to accept
-            the AutoComplete entry  (bool)"""
-        ),
-    )
-
-    AutoIndent = property(
-        _getAutoIndent,
-        _setAutoIndent,
-        None,
-        _("Controls if a newline adds the previous line's indentation  (bool)"),
-    )
-
-    BookmarkBackColor = property(
-        _getBookmarkBackColor,
-        _setBookmarkBackColor,
-        None,
-        _("The color of the icon background Default=(0,255,255) (Tuple or String)"),
-    )
-
-    BookmarkForeColor = property(
-        _getBookmarkForeColor,
-        _setBookmarkForeColor,
-        None,
-        _("The color of the icon foreground Default=(128,128,128) (Tuple or String)"),
-    )
-
-    BookmarkIcon = property(
-        _getBookmarkIcon,
-        _setBookmarkIcon,
-        None,
-        _(
-            """The icon of bookmark that is show in the margin (default="circle") (string)
-            Available Values:
-                - "circle"
-                - "down arrow"
-                - "arrow"
-                - "arrows"
-                - "rectangle\"
-            """
-        ),
-    )
-
-    BufferedDrawing = property(
-        _getBufferedDrawing,
-        _setBufferedDrawing,
-        None,
-        _("Setting to True (default) reduces display flicker  (bool)"),
-    )
-
-    CodeCompletion = property(
-        _getCodeCompletion,
-        _setCodeCompletion,
-        None,
-        _("Determines if code completion is active (default=True)  (bool)"),
-    )
-
-    Column = property(
-        _getColumn,
-        _setColumn,
-        None,
-        _("Returns the current column position of the cursor in the file  (int)"),
-    )
-
-    CommentString = property(
-        _getCommentString,
-        _setCommentString,
-        None,
-        _("String used to prefix lines that are commented out  (str)"),
-    )
-
-    EdgeGuideColumn = property(
-        _getEdgeGuideColumn,
-        _setEdgeGuideColumn,
-        None,
-        _("If self.EdgeGuide is set to True, specifies the column position the guide is in(int)"),
-    )
-
-    Encoding = property(
-        _getEncoding,
-        _setEncoding,
-        None,
-        _("Type of encoding to use. Defaults to Dabo's encoding.  (str)"),
-    )
-
-    EOLMode = property(
-        _getEOLMode,
-        _setEOLMode,
-        None,
-        _(
-            "End of line characters. Allowed values are 'CRLF', 'LF' and 'CR'. "
-            "(default=os dependent) (str)"
-        ),
-    )
-
-    FileName = property(
-        _getFileName,
-        None,
-        None,
-        _("Name of the file being edited (without path info)  (str)"),
-    )
-
-    FilePath = property(_getFilePath, None, None, _("Full path of the file being edited  (str)"))
-
-    FontFace = property(
-        _getFontFace,
-        _setFontFace,
-        None,
-        _("Name of the font face used in the editor  (str)"),
-    )
-
-    FontSize = property(
-        _getFontSize,
-        _setFontSize,
-        None,
-        _("Size of the font used in the editor  (int)"),
-    )
-
-    HiliteCharsBeyondLimit = property(
-        _getHiliteCharsBeyondLimit,
-        _setHiliteCharsBeyondLimit,
-        None,
-        _(
-            "When True, characters beyond the column set it self.HiliteLimitColumn are visibly "
-            "hilited Note: When set to True, self.ShowEdgeGuide will be set to False. (bool)"
-        ),
-    )
-
-    HiliteLimitColumn = property(
-        _getHiliteLimitColumn,
-        _setHiliteLimitColumn,
-        None,
-        _("If self.HiliteCharsBeyondLimit is True, specifies the limiting column (int)"),
-    )
-
-    Language = property(
-        _getLanguage,
-        _setLanguage,
-        None,
-        _("Determines which language is used for the syntax coloring  (str)"),
-    )
-
-    LineNumber = property(
-        _getLineNumber,
-        _setLineNumber,
-        None,
-        _("Returns the current line number being edited  (int)"),
-    )
-
-    LineCount = property(
-        _getLineCount, None, None, _("Total number of lines in the document  (int)")
-    )
-
-    Modified = property(
-        _getModified,
-        _setModified,
-        None,
-        _("Has the content of this editor been modified?  (bool)"),
-    )
-
-    ReadOnly = property(
-        _getReadOnly,
-        _setReadOnly,
-        None,
-        _("Specifies whether or not the text can be edited. (bool)"),
-    )
-
-    SelectionBackColor = property(
-        _getSelectionBackColor,
-        _setSelectionBackColor,
-        None,
-        _("Background color of selected text. Default=yellow  (str or tuple)"),
-    )
-
-    SelectionEnd = property(
-        _getSelectionEnd,
-        _setSelectionEnd,
-        None,
-        _("Position of the end of the selected text  (int)"),
-    )
-
-    SelectionForeColor = property(
-        _getSelectionForeColor,
-        _setSelectionForeColor,
-        None,
-        _("Forecolor of the selected text. Default=black  (str or tuple)"),
-    )
-
-    Selection = property(_getSelection, None, None, _("Selected text. (read-only) (str)"))
-
-    SelectionPosition = property(
-        _getSelectionPosition,
-        _setSelectionPosition,
-        None,
-        _("Tuple containing the start/end positions of the selected text.  (2-tuple of int)"),
-    )
-
-    SelectionStart = property(
-        _getSelectionStart,
-        _setSelectionStart,
-        None,
-        _("Position of the start of the selected text  (int)"),
-    )
-
-    ShowCallTips = property(
-        _getShowCallTips,
-        _setShowCallTips,
-        None,
-        _("Determines if call tips are shown (default=True)  (bool)"),
-    )
-
-    ShowCodeFolding = property(
-        _getShowCodeFolding,
-        _setShowCodeFolding,
-        None,
-        _(
-            "Determines if the co-de folding symbols are displayed in the left margin "
-            "(default=True)  (bool)"
-        ),
-    )
-
-    ShowEdgeGuide = property(
-        _getShowEdgeGuide,
-        _setShowEdgeGuide,
-        None,
-        _(
-            "When True, will display a line at the column set by self.EdgeGuideColumn.  Note: "
-            "When set to True, self.HiliteCharsBeyondLimit will be set to False. (bool)"
-        ),
-    )
-
-    ShowEOL = property(
-        _getShowEOL,
-        _setShowEOL,
-        None,
-        _("Determines if end-of-line markers are visible (default=False)  (bool)"),
-    )
-
-    ShowIndentationGuides = property(
-        _getShowIndentationGuides,
-        _setShowIndentationGuides,
-        None,
-        _("Deterimnes if indentation guides are displayed (default=False)  (bool)"),
-    )
-
-    ShowLineNumbers = property(
-        _getShowLineNumbers,
-        _setShowLineNumbers,
-        None,
-        _("Determines if line numbers are shown in the left margin (default=True)  (bool)"),
-    )
-
-    ShowWhiteSpace = property(
-        _getShowWhiteSpace,
-        _setShowWhiteSpace,
-        None,
-        _("Determines if white space characters are displayed (default=True)  (bool)"),
-    )
-
-    SyntaxColoring = property(
-        _getSyntaxColoring,
-        _setSyntaxColoring,
-        None,
-        _("Determines if syntax coloring is used (default=True)  (bool)"),
-    )
-
-    TabWidth = property(
-        _getTabWidth,
-        _setTabWidth,
-        None,
-        _("Approximate number of spaces taken by each tab character (default=4)  (int)"),
-    )
-
-    Text = property(_getText, _setText, None, _("Current contents of the editor  (str)"))
-
-    UseBookmarks = property(
-        _getUseBookmarks,
-        _setUseBookmarks,
-        None,
-        _("Are we tracking bookmarks in the editor? Default=False  (bool)"),
-    )
-
-    UseStyleTimer = property(
-        _getUseStyleTimer,
-        _setUseStyleTimer,
-        None,
-        _(
-            "Syntax coloring can slow down sometimes. Set this to True to improve performance. "
-            " (bool)"
-            ""
-        ),
-    )
-
-    UseTabs = property(
-        _getUseTabs,
-        _setUseTabs,
-        None,
-        _(
-            "Indentation will only use space characters if useTabs is False; if True, it will "
-            "use a combination of tabs and spaces (default=False)  (bool)"
-        ),
-    )
-
-    BackSpaceUnindents = property(
-        _getBackSpaceUnindents,
-        _setBackSpaceUnindents,
-        None,
-        _(
-            "If set True then backspace, when in indentation, will go back TabWidth positions; "
-            "if set False then backspace will go back only one position. If UseTabs is True this "
-            "should be set to False. (default=True)  (bool)"
-        ),
-    )
-
-    Value = property(
-        _getValue,
-        _setValue,
-        None,
-        _("""Specifies the current contents of the editor.  (basestring)"""),
-    )
-
-    WordWrap = property(
-        _getWordWrap,
-        _setWordWrap,
-        None,
-        _(
-            "Controls whether text lines that are wider than the window are soft-wrapped or "
-            "clipped. (bool)"
-        ),
-    )
-
-    _ZeroBasedLineNumber = property(
-        _getZeroBasedLineNumber,
-        _setZeroBasedLineNumber,
-        None,
-        _(
-            "This is the underlying property that handles the wxPython zero-based line "
-            "numbering. It's equal to LineNumber-1  (int)"
-        ),
-    )
-
-    ZoomLevel = property(
-        _getZoomLevel,
-        _setZoomLevel,
-        None,
-        _("Point increase/decrease from normal viewing size  (int)"),
-    )
 
 
 ui.dEditor = dEditor

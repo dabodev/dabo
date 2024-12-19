@@ -177,10 +177,13 @@ class dPageList(dPageFrameMixin, wx.Listbook):
         # Force the list to re-align the spacing
         self.layout()
 
-    def _getListSpacing(self):
+    @property
+    def ListSpacing(self):
+        """Controls the spacing of the items in the controlling list  (int)"""
         return self.GetChildren()[0].GetItemSpacing()[0]
 
-    def _setListSpacing(self, val):
+    @ListSpacing.setter
+    def ListSpacing(self, val):
         if self._constructed():
             try:
                 self.GetChildren()[0].SetItemSpacing(val)
@@ -190,13 +193,6 @@ class dPageList(dPageFrameMixin, wx.Listbook):
                 dabo_module.info(_("ListSpacing is not supported in wxPython %s") % wx.__version__)
         else:
             self._properties["ListSpacing"] = val
-
-    ListSpacing = property(
-        _getListSpacing,
-        _setListSpacing,
-        None,
-        _("Controls the spacing of the items in the controlling list  (int)"),
-    )
 
 
 class dPageSelect(dPageFrameMixin, wx.Choicebook):
@@ -317,19 +313,13 @@ class dDockTabs(dPageFrameMixin, aui.AuiNotebook):
     def _insertPageOverride(self, pos, pgCls, caption, imgKey):
         pass
 
-    def _getMovableTabs(self):
+    @property
+    def MovableTabs(self):
+        """
+        When True (default), tabs can be re-arranged by dragging, and docked at different sides of
+        the control. This can only be set when the control is created. Default = True.  (bool)
+        """
         return self._movableTabs
-
-    MovableTabs = property(
-        _getMovableTabs,
-        None,
-        None,
-        _(
-            """When True (default), tabs can be re-arranged by dragging, and docked at
-            different sides of the control. This can only be set when the control is created.
-            Default = True.  (bool)"""
-        ),
-    )
 
 
 class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
@@ -405,15 +395,21 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
     def __onPageContextMenu(self, evt):
         self.GetPage(self.GetSelection()).raiseEvent(events.PageContextMenu)
 
-    # Property getters and setters
-    def _getActiveTabColor(self):
+    # Property definitions
+    @property
+    def ActiveTabColor(self):
+        """
+        Specifies the color of the active tab (str or 3-tuple) (Default=None)
+        Note: is not visible with the 'VC8' TabStyle
+        """
         try:
             ret = self._activeTabColor
         except AttributeError:
             ret = self._activeTabColor = None
         return ret
 
-    def _setActiveTabColor(self, val):
+    @ActiveTabColor.setter
+    def ActiveTabColor(self, val):
         if self._constructed():
             self._activeTabColor = val
             if isinstance(val, str):
@@ -426,14 +422,20 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         else:
             self._properties["ActiveTabColor"] = val
 
-    def _getActiveTabTextColor(self):
+    @property
+    def ActiveTabTextColor(self):
+        """
+        Specifies the color of the text of the active tab (str or 3-tuple) (Default=None)
+        Note: is not visible with the 'VC8' TabStyle
+        """
         try:
             ret = self._activeTabTextColor
         except AttributeError:
             ret = self._activeTabTextColor = None
         return ret
 
-    def _setActiveTabTextColor(self, val):
+    @ActiveTabTextColor.setter
+    def ActiveTabTextColor(self, val):
         if self._constructed():
             self._activeTabTextColor = val
             if isinstance(val, str):
@@ -446,14 +448,20 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         else:
             self._properties["ActiveTabTextColor"] = val
 
-    def _getInactiveTabTextColor(self):
+    @property
+    def InactiveTabTextColor(self):
+        """
+        Specifies the color of the text of non active tabs (str or 3-tuple) (Default=None)
+        Note: is not visible with the 'VC8' TabStyle
+        """
         try:
             ret = self._inactiveTabTextColor
         except AttributeError:
             ret = self._inactiveTabTextColor = None
         return ret
 
-    def _setInactiveTabTextColor(self, val):
+    @InactiveTabTextColor.setter
+    def InactiveTabTextColor(self, val):
         if self._constructed():
             self._inactiveTabTextColor = val
             if isinstance(val, str):
@@ -466,14 +474,127 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         else:
             self._properties["InactiveTabTextColor"] = val
 
-    def _getTabAreaColor(self):
+    @property
+    def ShowDropdownTabList(self):
+        """
+        Specifies whether the dropdown tab list button is visible in the menu (bool) (Default=False)
+        Setting this property to True will set ShowNavButtons to False
+        """
+        try:
+            ret = self._showDropdownTabList
+        except AttributeError:
+            ret = self._showDropdownTabList = False
+        return ret
+
+    @ShowDropdownTabList.setter
+    def ShowDropdownTabList(self, val):
+        val = bool(val)
+        if val:
+            self._addWindowStyleFlag(fnb.FNB_DROPDOWN_TABS_LIST)
+            if not _USE_EDITRA:
+                self._addWindowStyleFlag(fnb.FNB_NO_NAV_BUTTONS)
+                self._showNavButtons = False
+        else:
+            self._delWindowStyleFlag(fnb.FNB_DROPDOWN_TABS_LIST)
+
+        self._showDropdownTabList = val
+
+    @property
+    def ShowMenuCloseButton(self):
+        """Specifies whether the close button is visible in the menu (bool) (Default=True)"""
+        try:
+            ret = self._showMenuCloseButton
+        except AttributeError:
+            ret = self._showMenuCloseButton = True
+        return ret
+
+    @ShowMenuCloseButton.setter
+    def ShowMenuCloseButton(self, val):
+        val = bool(val)
+        if val:
+            self._delWindowStyleFlag(fnb.FNB_NO_X_BUTTON)
+        else:
+            self._addWindowStyleFlag(fnb.FNB_NO_X_BUTTON)
+        self._showMenuCloseButton = val
+
+    @property
+    def ShowMenuOnSingleTab(self):
+        """
+        Specifies whether the tab thumbs and nav buttons are shown when there is a single tab.
+        (bool) (Default=True)"
+        """
+        try:
+            ret = self._showMenuOnSingleTab
+        except AttributeError:
+            ret = self._showMenuOnSingleTab = True
+        return ret
+
+    @ShowMenuOnSingleTab.setter
+    def ShowMenuOnSingleTab(self, val):
+        val = bool(val)
+        if val:
+            self._delWindowStyleFlag(fnb.FNB_HIDE_ON_SINGLE_TAB)
+        else:
+            self._addWindowStyleFlag(fnb.FNB_HIDE_ON_SINGLE_TAB)
+        self._showMenuOnSingleTab = val
+
+    @property
+    def ShowNavButtons(self):
+        """
+        Specifies whether the left and right nav buttons are visible in the menu (bool)
+        (Default=True) Setting this property to True will set ShowDropdownTabList to False
+        """
+        try:
+            ret = self._showNavButtons
+        except AttributeError:
+            ret = self._showNavButtons = True
+        return ret
+
+    @ShowNavButtons.setter
+    def ShowNavButtons(self, val):
+        val = bool(val)
+        if val:
+            self._delWindowStyleFlag(fnb.FNB_NO_NAV_BUTTONS)
+            if not _USE_EDITRA:
+                self._delWindowStyleFlag(fnb.FNB_DROPDOWN_TABS_LIST)
+                self._showDropdownTabList = False
+        else:
+            self._addWindowStyleFlag(fnb.FNB_NO_NAV_BUTTONS)
+        self._showNavButtons = val
+
+    @property
+    def ShowPageCloseButtons(self):
+        """Specifies whether the close button is visible on the page tab (bool) (Default=False)"""
+        try:
+            ret = self._showPageCloseButtons
+        except AttributeError:
+            ret = self._showPageCloseButtons = False
+        return ret
+
+    @ShowPageCloseButtons.setter
+    def ShowPageCloseButtons(self, val):
+        val = bool(val)
+        if val:
+            self._addWindowStyleFlag(fnb.FNB_X_ON_TAB)
+        else:
+            self._delWindowStyleFlag(fnb.FNB_X_ON_TAB)
+        self._showPageCloseButtons = val
+
+    @property
+    def TabAreaColor(self):
+        """
+        Specifies the background color of the tab area. This is exactly the same as the
+        'MenuBackColor' property, but with a more intuitive name.  (str or 3-tuple) (Default=None)
+        Note: is not visible with 'VC71' TabStyle.
+        """
         try:
             ret = self._tabAreaColor
         except AttributeError:
             ret = self._tabAreaColor = None
         return ret
 
-    def _setTabAreaColor(self, val):
+    @TabAreaColor.setter
+    def TabAreaColor(self, val):
         if self._constructed():
             self._tabAreaColor = val
             if isinstance(val, str):
@@ -486,95 +607,20 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         else:
             self._properties["MenuBackColor"] = val
 
-    def _getShowDropdownTabList(self):
-        try:
-            ret = self._showDropdownTabList
-        except AttributeError:
-            ret = self._showDropdownTabList = False
-        return ret
-
-    def _setShowDropdownTabList(self, val):
-        val = bool(val)
-        if val:
-            self._addWindowStyleFlag(fnb.FNB_DROPDOWN_TABS_LIST)
-            if not _USE_EDITRA:
-                self._addWindowStyleFlag(fnb.FNB_NO_NAV_BUTTONS)
-                self._showNavButtons = False
-        else:
-            self._delWindowStyleFlag(fnb.FNB_DROPDOWN_TABS_LIST)
-
-        self._showDropdownTabList = val
-
-    def _getShowMenuCloseButton(self):
-        try:
-            ret = self._showMenuCloseButton
-        except AttributeError:
-            ret = self._showMenuCloseButton = True
-        return ret
-
-    def _setShowMenuCloseButton(self, val):
-        val = bool(val)
-        if val:
-            self._delWindowStyleFlag(fnb.FNB_NO_X_BUTTON)
-        else:
-            self._addWindowStyleFlag(fnb.FNB_NO_X_BUTTON)
-        self._showMenuCloseButton = val
-
-    def _getShowMenuOnSingleTab(self):
-        try:
-            ret = self._showMenuOnSingleTab
-        except AttributeError:
-            ret = self._showMenuOnSingleTab = True
-        return ret
-
-    def _setShowMenuOnSingleTab(self, val):
-        val = bool(val)
-        if val:
-            self._delWindowStyleFlag(fnb.FNB_HIDE_ON_SINGLE_TAB)
-        else:
-            self._addWindowStyleFlag(fnb.FNB_HIDE_ON_SINGLE_TAB)
-        self._showMenuOnSingleTab = val
-
-    def _getShowNavButtons(self):
-        try:
-            ret = self._showNavButtons
-        except AttributeError:
-            ret = self._showNavButtons = True
-        return ret
-
-    def _setShowNavButtons(self, val):
-        val = bool(val)
-        if val:
-            self._delWindowStyleFlag(fnb.FNB_NO_NAV_BUTTONS)
-            if not _USE_EDITRA:
-                self._delWindowStyleFlag(fnb.FNB_DROPDOWN_TABS_LIST)
-                self._showDropdownTabList = False
-        else:
-            self._addWindowStyleFlag(fnb.FNB_NO_NAV_BUTTONS)
-        self._showNavButtons = val
-
-    def _getShowPageCloseButtons(self):
-        try:
-            ret = self._showPageCloseButtons
-        except AttributeError:
-            ret = self._showPageCloseButtons = False
-        return ret
-
-    def _setShowPageCloseButtons(self, val):
-        val = bool(val)
-        if val:
-            self._addWindowStyleFlag(fnb.FNB_X_ON_TAB)
-        else:
-            self._delWindowStyleFlag(fnb.FNB_X_ON_TAB)
-        self._showPageCloseButtons = val
-
-    def _getTabPosition(self):
+    @property
+    def TabPosition(self):
+        """
+        Specifies where the page tabs are located. (string)
+            Top (default)
+            Bottom
+        """
         if self._hasWindowStyleFlag(self._tabposBottom):
             return "Bottom"
         else:
             return "Top"
 
-    def _setTabPosition(self, val):
+    @TabPosition.setter
+    def TabPosition(self, val):
         lowval = ustr(val).lower()[0]
         self._delWindowStyleFlag(self._tabposBottom)
 
@@ -585,28 +631,45 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         else:
             raise ValueError(_("The only possible values are 'Top' and 'Bottom'"))
 
-    def _getTabSideIncline(self):
+    @property
+    def TabSideIncline(self):
+        """
+        Specifies the incline of the sides of the tab in degrees (int) (Default=0)
+        Acceptable values are 0  - 15.
+        Note: this property will have no effect on TabStyles other than Default.
+        """
         try:
             ret = self._tabSideIncline
         except AttributeError:
             ret = self._tabSideIncline = 0
         return ret
 
-    def _setTabSideIncline(self, val):
+    @TabSideIncline.setter
+    def TabSideIncline(self, val):
         val = int(val)
         if not (0 <= val <= 15):
             raise ValueError(_("Value must be 0 through 15"))
         self._tabSideIncline = val
         self.SetAllPagesShapeAngle(val)
 
-    def _getTabStyle(self):
+    @property
+    def TabStyle(self):
+        """
+        Specifies the style of the display tabs. (string)
+            "Default" (default)
+            "VC8"
+            "VC71"
+            "Fancy"
+            "Firefox"
+        """
         try:
             ret = self._tabStyle
         except AttributeError:
             ret = self._tabStyle = "Default"
         return ret
 
-    def _setTabStyle(self, val):
+    @TabStyle.setter
+    def TabStyle(self, val):
         self._delWindowStyleFlag(fnb.FNB_VC8)
         self._delWindowStyleFlag(fnb.FNB_VC71)
         self._delWindowStyleFlag(fnb.FNB_FANCY_TABS)
@@ -636,143 +699,9 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         if flagToSet:
             self._addWindowStyleFlag(flagToSet)
 
-    # Property definitions
-    ActiveTabColor = property(
-        _getActiveTabColor,
-        _setActiveTabColor,
-        None,
-        _(
-            """Specifies the color of the active tab (str or 3-tuple) (Default=None)
-            Note: is not visible with the 'VC8' TabStyle"""
-        ),
-    )
-
-    ActiveTabTextColor = property(
-        _getActiveTabTextColor,
-        _setActiveTabTextColor,
-        None,
-        _(
-            """Specifies the color of the text of the active tab (str or 3-tuple) (Default=None)
-            Note: is not visible with the 'VC8' TabStyle"""
-        ),
-    )
-
-    InactiveTabTextColor = property(
-        _getInactiveTabTextColor,
-        _setInactiveTabTextColor,
-        None,
-        _(
-            """Specifies the color of the text of non active tabs (str or 3-tuple) (Default=None)
-            Note: is not visible with the 'VC8' TabStyle"""
-        ),
-    )
-
-    MenuBackColor = property(
-        _getTabAreaColor,
-        _setTabAreaColor,
-        None,
-        _(
-            """Specifies the background color of the tab area. This is exactly the same as
-            the 'TabAreaColor' property, but is maintained for backwards compatibility.
-            Default = None.  (str or 3-tuple) Note: is not visible with 'VC71' TabStyle."""
-        ),
-    )
-
-    ShowDropdownTabList = property(
-        _getShowDropdownTabList,
-        _setShowDropdownTabList,
-        None,
-        _(
-            """Specifies whether the dropdown tab list button is visible in the menu (bool)
-            (Default=False)
-            Setting this property to True will set ShowNavButtons to False"""
-        ),
-    )
-
-    ShowMenuCloseButton = property(
-        _getShowMenuCloseButton,
-        _setShowMenuCloseButton,
-        None,
-        _("Specifies whether the close button is visible in the menu (bool) (Default=True)"),
-    )
-
-    ShowMenuOnSingleTab = property(
-        _getShowMenuOnSingleTab,
-        _setShowMenuOnSingleTab,
-        None,
-        _(
-            "Specifies whether the tab thumbs and nav buttons are shown when there is a single "
-            "tab. (bool) (Default=True)"
-        ),
-    )
-
-    ShowNavButtons = property(
-        _getShowNavButtons,
-        _setShowNavButtons,
-        None,
-        _(
-            """Specifies whether the left and right nav buttons are visible in the menu (bool)
-            (Default=True)
-            Setting this property to True will set ShowDropdownTabList to False"""
-        ),
-    )
-
-    ShowPageCloseButtons = property(
-        _getShowPageCloseButtons,
-        _setShowPageCloseButtons,
-        None,
-        _("Specifies whether the close button is visible on the page tab (bool) (Default=False)"),
-    )
-
-    TabAreaColor = property(
-        _getTabAreaColor,
-        _setTabAreaColor,
-        None,
-        _(
-            """Specifies the background color of the tab area. This is exactly the same as
-            the 'MenuBackColor' property, but with a more intuitive name.  (str or 3-tuple)
-            (Default=None) Note: is not visible with 'VC71' TabStyle."""
-        ),
-    )
-
-    TabPosition = property(
-        _getTabPosition,
-        _setTabPosition,
-        None,
-        _(
-            """Specifies where the page tabs are located. (string)
-                Top (default)
-                Bottom
-                """
-        ),
-    )
-
-    TabSideIncline = property(
-        _getTabSideIncline,
-        _setTabSideIncline,
-        None,
-        _(
-            """Specifies the incline of the sides of the tab in degrees (int) (Default=0)
-                Acceptable values are 0  - 15.
-                Note: this property will have no effect on TabStyles other than Default.
-                """
-        ),
-    )
-
-    TabStyle = property(
-        _getTabStyle,
-        _setTabStyle,
-        None,
-        _(
-            """Specifies the style of the display tabs. (string)
-                "Default" (default)
-                "VC8"
-                "VC71"
-                "Fancy"
-                "Firefox"
-                """
-        ),
-    )
+    # This is exactly the same as the 'TabAreaColor' property, but is maintained for backwards
+    # compatibility.
+    MenuBackColor = TabAreaColor
 
 
 ui.dPageFrame = dPageFrame

@@ -56,44 +56,36 @@ class dTimer(PM):
             self.raiseEvent(events.Hit)
             ui.callAfterInterval(self.Interval, self._onTimerHit)
 
-    # property get/set functions
-    def _getEnabled(self):
+    # property definitions
+    @property
+    def Enabled(self):
+        """
+        Alternative means of starting/stopping the timer, or determining its status. If Enabled is
+        set to True and the timer has a positive value for its Interval, the timer will be started.
+        (bool)
+        """
         return getattr(self, "_enabled", False)
 
-    def _setEnabled(self, val):
+    @Enabled.setter
+    def Enabled(self, val):
         self._enabled = val
         if val:
             ui.callAfterInterval(self.Interval, self._onTimerHit)
         else:
             self._properties["Enabled"] = val
 
-    def _getInterval(self):
+    @property
+    def Interval(self):
+        """Specifies the timer interval (milliseconds)."""
         try:
             v = self._interval
         except AttributeError:
             v = self._interval = 0
         return v
 
-    def _setInterval(self, val):
+    @Interval.setter
+    def Interval(self, val):
         self._interval = val
-
-    Enabled = property(
-        _getEnabled,
-        _setEnabled,
-        None,
-        _(
-            """Alternative means of starting/stopping the timer, or determining
-            its status. If Enabled is set to True and the timer has a positive value
-            for its Interval, the timer will be started.  (bool)"""
-        ),
-    )
-
-    Interval = property(
-        _getInterval,
-        _setInterval,
-        None,
-        _("Specifies the timer interval (milliseconds)."),
-    )
 
     DynamicEnabled = makeDynamicProperty(Enabled)
     DynamicInterval = makeDynamicProperty(Interval)

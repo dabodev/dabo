@@ -1106,94 +1106,135 @@ class Form(dui.dForm):
         )
         return rfxml
 
-    ## Property get/set code below
-    def _getAddChildEditPages(self):
+    ## Property definitions:
+    @property
+    def AddChildEditPages(self):
+        """
+        Should the form automatically add edit pages for child bizobjs?
+
+        The default is False, and this property may be removed soon.
+        """
         val = getattr(self, "_addChildEditPages", None)
         if val is None:
             val = self._addChildEditPages = False
         return val
 
-    def _setAddChildEditPages(self, val):
+    @AddChildEditPages.setter
+    def AddChildEditPages(self, val):
         if self._constructed():
             self._addChildEditPages = val
         else:
             self._properties["AddChildEditPages"] = val
 
-    def _getBrowseGridClass(self):
+    @property
+    def BrowseGridClass(self):
+        """Specifies the class to use for the browse grid."""
         try:
             val = self._browseGridClass
         except AttributeError:
             val = Grid.Grid
         return val
 
-    def _setBrowseGridClass(self, val):
+    @BrowseGridClass.setter
+    def BrowseGridClass(self, val):
         assert issubclass(val, Grid.Grid)
         self._browseGridClass = val
 
-    def _getCustomSQL(self):
-        return getattr(self, "_customSQL", None)
-
-    def _setCustomSQL(self, val):
-        assert val is None or isinstance(val, str)
-        self._customSQL = val
-
-    def _getSelectPageClass(self):
-        try:
-            val = self._selectPageClass
-        except AttributeError:
-            val = Page.SelectPage
-        return val
-
-    def _setSelectPageClass(self, val):
-        self._selectPageClass = val
-
-    def _getBrowsePageClass(self):
+    @property
+    def BrowsePageClass(self):
+        """Specifies the class to use for the browse page."""
         try:
             val = self._browsePageClass
         except AttributeError:
             val = Page.BrowsePage
         return val
 
-    def _setBrowsePageClass(self, val):
+    @BrowsePageClass.setter
+    def BrowsePageClass(self, val):
         self._browsePageClass = val
 
-    def _getEditPageClass(self):
+    @property
+    def CustomSQL(self):
+        """Specifies custom (overridden) SQL to use."""
+        return getattr(self, "_customSQL", None)
+
+    @CustomSQL.setter
+    def CustomSQL(self, val):
+        assert val is None or isinstance(val, str)
+        self._customSQL = val
+
+    @property
+    def EditPageClass(self):
+        """Specifies the class to use for the edit page."""
         try:
             val = self._editPageClass
         except AttributeError:
             val = Page.EditPage
         return val
 
-    def _setEditPageClass(self, val):
+    @EditPageClass.setter
+    def EditPageClass(self, val):
         self._editPageClass = val
 
-    def _getEnableChildRequeriesWhenBrowsing(self):
+    @property
+    def EnableChildRequeriesWhenBrowsing(self):
+        """
+        Specifies whether child bizobjs are requeried automatically when the parent RowNumber
+        changes, while in the browse page. Default: True
+
+        Turning this to False will result in better performance of the browse grid when there are
+        lots of child bizobjs, but it may result in unintended consequences which is why it is True
+        by default.
+        """
         try:
             val = self._enableChildRequeriesWhenBrowsing
         except AttributeError:
             val = self._enableChildRequeriesWhenBrowsing = True
         return val
 
-    def _setEnableChildRequeriesWhenBrowsing(self, val):
+    @EnableChildRequeriesWhenBrowsing.setter
+    def EnableChildRequeriesWhenBrowsing(self, val):
         self._enableChildRequeriesWhenBrowsing = bool(val)
 
-    def _getEnableChildRequeriesWhenEditing(self):
+    @property
+    def EnableChildRequeriesWhenEditing(self):
+        """
+        Specifies whether child bizobjs are requeried automatically when the parent RowNumber
+        changes, while not in the browse page. Default: True
+        """
         try:
             val = self._enableChildRequeriesWhenEditing
         except AttributeError:
             val = self._enableChildRequeriesWhenEditing = True
         return val
 
-    def _setEnableChildRequeriesWhenEditing(self, val):
+    @EnableChildRequeriesWhenEditing.setter
+    def EnableChildRequeriesWhenEditing(self, val):
         self._enableChildRequeriesWhenEditing = bool(val)
 
-    def _getFormType(self):
+    @property
+    def FormType(self):
+        """Specifies the type of form this is.
+
+        The type of form determines the runtime behavior. FormType can be one of:
+            Normal:
+                A normal dataNav form. The default.
+
+            PickList:
+                Only select/browse pages shown, and the form is modal, returning the
+                Primary Key of the picked record.
+
+            Edit:
+                Modal version of normal, with no Select/Browse pages. User code sends
+                the Primary Key of the record to edit.
+        """
         try:
             return self._formType
         except AttributeError:
             return "Normal"
 
-    def _setFormType(self, value):
+    @FormType.setter
+    def FormType(self, value):
         value = value.lower()
         if value == "normal":
             self._formType = "Normal"
@@ -1204,217 +1245,105 @@ class Form(dui.dForm):
         else:
             raise ValueError("Form type must be 'Normal', 'PickList', or 'Edit'.")
 
-    def _getPageFrameStyle(self):
+    @property
+    def PageFrameStyle(self):
+        """Specifies the style of pageframe to set up. Valid values are:
+
+        Tabs (default)
+        List (down the side)
+        Select
+        """
         if hasattr(self, "_pageFrameStyle"):
             v = self._pageFrameStyle
         else:
             v = self._pageFrameStyle = "Tabs"
         return v
 
-    def _setPageFrameStyle(self, val):
+    @PageFrameStyle.setter
+    def PageFrameStyle(self, val):
         assert val.lower() in ("tabs", "list", "select")
         self._pageFrameStyle = val
 
-    def _getPageTabPosition(self):
+    @property
+    def PageTabPosition(self):
+        """Specifies the location of the pageframe tabs. Valid values are:
+
+        Top (default)
+        Left
+        Right
+        Bottom
+
+        This only applies when PageFrameStyle is set to "Tabs".
+        """
         if hasattr(self, "_pageTabPosition"):
             v = self._pageTabPosition
         else:
             v = self._pageTabPosition = "Top"
         return v
 
-    def _setPageTabPosition(self, val):
+    @PageTabPosition.setter
+    def PageTabPosition(self, val):
         assert val.lower() in ("top", "left", "right", "bottom")
         self._pageTabPosition = val
 
-    def _getSetFocusToBrowseGrid(self):
+    @property
+    def SelectPageClass(self):
+        """Specifies the class to use for the select page."""
+        try:
+            val = self._selectPageClass
+        except AttributeError:
+            val = Page.SelectPage
+        return val
+
+    @SelectPageClass.setter
+    def SelectPageClass(self, val):
+        self._selectPageClass = val
+
+    @property
+    def SetFocusToBrowseGrid(self):
+        """Does the focus go to the browse grid when the browse page is entered?"""
         if hasattr(self, "_setFocusToBrowseGrid"):
             v = self._setFocusToBrowseGrid
         else:
             v = self._setFocusToBrowseGrid = True
         return v
 
-    def _setSetFocusToBrowseGrid(self, val):
+    @SetFocusToBrowseGrid.setter
+    def SetFocusToBrowseGrid(self, val):
         self._setFocusToBrowseGrid = bool(val)
 
-    def _getShowAdvancedQuickReport(self):
+    @property
+    def ShowAdvancedQuickReport(self):
+        """Does the 'Advanced' button appear in the Quick Report dialog?"""
         return getattr(self, "_showAdvancedQuickReport", True)
 
-    def _setShowAdvancedQuickReport(self, val):
+    @ShowAdvancedQuickReport.setter
+    def ShowAdvancedQuickReport(self, val):
         self._showAdvancedQuickReport = bool(val)
 
-    def _getShowExpandedQuickReport(self):
+    @property
+    def ShowExpandedQuickReport(self):
+        """Can the user choose the 'expanded' quick report?"""
         return getattr(self, "_showExpandedQuickReport", True)
 
-    def _setShowExpandedQuickReport(self, val):
+    @ShowExpandedQuickReport.setter
+    def ShowExpandedQuickReport(self, val):
         self._showExpandedQuickReport = bool(val)
 
-    def _getShowSortFields(self):
+    @property
+    def ShowSortFields(self):
+        """Can the user sort fields in the select page?"""
         return getattr(self, "_showSortFields", True)
 
-    def _setShowSortFields(self, val):
+    @ShowSortFields.setter
+    def ShowSortFields(self, val):
         self._showSortFields = bool(val)
 
-    def _getTesting(self):
+    @property
+    def Testing(self):
+        """Flag for use when testing elements of the form."""
         return getattr(self, "_testing", False)
 
-    def _setTesting(self, val):
+    @Testing.setter
+    def Testing(self, val):
         self._testing = bool(val)
-
-    # Property definitions:
-    AddChildEditPages = property(
-        _getAddChildEditPages,
-        _setAddChildEditPages,
-        None,
-        _(
-            """Should the form automatically add edit pages for child bizobjs?
-
-            The default is False, and this property may be removed soon."""
-        ),
-    )
-
-    BrowseGridClass = property(
-        _getBrowseGridClass,
-        _setBrowseGridClass,
-        None,
-        _("""Specifies the class to use for the browse grid."""),
-    )
-
-    BrowsePageClass = property(
-        _getBrowsePageClass,
-        _setBrowsePageClass,
-        None,
-        _("""Specifies the class to use for the browse page."""),
-    )
-
-    CustomSQL = property(
-        _getCustomSQL,
-        _setCustomSQL,
-        None,
-        _("""Specifies custom (overridden) SQL to use."""),
-    )
-
-    EditPageClass = property(
-        _getEditPageClass,
-        _setEditPageClass,
-        None,
-        _("""Specifies the class to use for the edit page."""),
-    )
-
-    EnableChildRequeriesWhenBrowsing = property(
-        _getEnableChildRequeriesWhenBrowsing,
-        _setEnableChildRequeriesWhenBrowsing,
-        None,
-        _(
-            """Specifies whether child bizobjs are requeried automatically when the parent
-            RowNumber changes, while in the browse page. Default: True
-
-            Turning this to False will result in better performance of the browse grid when
-            there are lots of child bizobjs, but it may result in unintended consequences
-            which is why it is True by default."""
-        ),
-    )
-
-    EnableChildRequeriesWhenEditing = property(
-        _getEnableChildRequeriesWhenEditing,
-        _setEnableChildRequeriesWhenEditing,
-        None,
-        _(
-            """Specifies whether child bizobjs are requeried automatically when the parent
-            RowNumber changes, while not in the browse page. Default: True"""
-        ),
-    )
-
-    FormType = property(
-        _getFormType,
-        _setFormType,
-        None,
-        _(
-            """Specifies the type of form this is.
-
-            The type of form determines the runtime behavior. FormType can be one of:
-                Normal:
-                    A normal dataNav form. The default.
-
-                PickList:
-                    Only select/browse pages shown, and the form is modal, returning the
-                    Primary Key of the picked record.
-
-                Edit:
-                    Modal version of normal, with no Select/Browse pages. User code sends
-                    the Primary Key of the record to edit.
-            """
-        ),
-    )
-
-    PageFrameStyle = property(
-        _getPageFrameStyle,
-        _setPageFrameStyle,
-        None,
-        _(
-            """Specifies the style of pageframe to set up. Valid values are:
-
-                Tabs (default)
-                List (down the side)
-                Select
-            """
-        ),
-    )
-
-    PageTabPosition = property(
-        _getPageTabPosition,
-        _setPageTabPosition,
-        None,
-        _(
-            """Specifies the location of the pageframe tabs. Valid values are:
-
-                Top (default)
-                Left
-                Right
-                Bottom
-
-                This only applies when PageFrameStyle is set to "Tabs".
-            """
-        ),
-    )
-
-    SelectPageClass = property(
-        _getSelectPageClass,
-        _setSelectPageClass,
-        None,
-        _("""Specifies the class to use for the select page."""),
-    )
-
-    SetFocusToBrowseGrid = property(
-        _getSetFocusToBrowseGrid,
-        _setSetFocusToBrowseGrid,
-        None,
-        _("""Does the focus go to the browse grid when the browse page is entered?"""),
-    )
-
-    ShowAdvancedQuickReport = property(
-        _getShowAdvancedQuickReport,
-        _setShowAdvancedQuickReport,
-        None,
-        _("""Does the 'Advanced' button appear in the Quick Report dialog?"""),
-    )
-
-    ShowExpandedQuickReport = property(
-        _getShowExpandedQuickReport,
-        _setShowExpandedQuickReport,
-        None,
-        _("""Can the user choose the 'expanded' quick report?"""),
-    )
-
-    ShowSortFields = property(
-        _getShowSortFields,
-        _setShowSortFields,
-        None,
-        _("""Can the user sort fields in the select page?"""),
-    )
-
-    Testing = property(
-        _getTesting,
-        _setTesting,
-        None,
-        "Flag for use when testing elements of the form.",
-    )

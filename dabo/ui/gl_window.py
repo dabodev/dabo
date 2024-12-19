@@ -107,15 +107,15 @@ class dGlWindow(dControlMixin, glcanvas.GLCanvas):
             ]  # store the new x,y so we know how much to rotate
             self.Refresh(False)  # Mark window as "dirty" so it will be repainted
 
-    # Getters and Setters
-    def _getRotate(self):
+    # Property Definition
+    @property
+    def Rotate(self):
+        """Rotate on Right Mouse Click and Drag"""
         return self._rotate
 
-    def _setRotate(self, val):
+    @Rotate.setter
+    def Rotate(self, val):
         self._rotate = val
-
-    # Property Definitions
-    Rotate = property(_getRotate, _setRotate, None, _("Rotate on Right Mouse Click and Drag"))
 
 
 ui.dGlWindow = dGlWindow

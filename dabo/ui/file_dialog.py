@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import application
-from .. import dConstants
-from .. import settings
-from .. import ui
+from .. import application, dConstants, settings, ui
 from ..dLocalize import _
 
 
@@ -34,67 +31,53 @@ class OsDialogMixin(object):
     def release(self):
         self.Destroy()
 
-    def _getDir(self):
+    @property
+    def Directory(self):
+        """The directory of the selected file or files (str)"""
         return self._dir
 
-    def _setDir(self, dir):
+    @Directory.setter
+    def Directory(self, dir):
         if self._exposeFiles:
             self.SetDirectory(dir)
 
-    def _getFileName(self):
+    @property
+    def FileName(self):
+        """The name of the selected file (str) or files (tuple of strs)"""
         return self._fname
 
-    def _setFileName(self, fn):
+    @FileName.setter
+    def FileName(self, fn):
         if self._exposeFiles:
             self.SetFilename(fn)
 
-    def _getMessage(self):
+    @property
+    def Message(self):
+        """The prompt displayed to the user.  (str)"""
         return self._msg
 
-    def _setMessage(self, msg):
+    @Message.setter
+    def Message(self, msg):
         self.SetMessage(msg)
 
-    def _getPath(self):
+    @property
+    def Path(self):
+        """The full path of the selected file (str)  or files (tuple of strs)"""
         return self._path
 
-    def _setPath(self, pth):
+    @Path.setter
+    def Path(self, pth):
         self.SetPath(pth)
 
-    def _getWildcard(self):
+    @property
+    def Wildcard(self):
+        """The wildcard that will limit the files displayed in the dialog.  (str)"""
         return self._wildcard
 
-    def _setWildcard(self, txt):
+    @Wildcard.setter
+    def Wildcard(self, txt):
         if self._exposeFiles:
             self.SetWildcard(txt)
-
-    Directory = property(
-        _getDir, _setDir, None, _("The directory of the selected file or files (str)")
-    )
-
-    FileName = property(
-        _getFileName,
-        _setFileName,
-        None,
-        _("The name of the selected file (str) or files (tuple of strs)"),
-    )
-
-    Message = property(
-        _getMessage, _setMessage, None, _("The prompt displayed to the user.  (str)")
-    )
-
-    Path = property(
-        _getPath,
-        _setPath,
-        None,
-        _("The full path of the selected file (str)  or files (tuple of strs)"),
-    )
-
-    Wildcard = property(
-        _getWildcard,
-        _setWildcard,
-        None,
-        _("The wildcard that will limit the files displayed in the dialog.  (str)"),
-    )
 
 
 class dFileDialog(OsDialogMixin, wx.FileDialog):

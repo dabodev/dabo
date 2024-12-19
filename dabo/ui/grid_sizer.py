@@ -574,15 +574,20 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
                 if hasattr(w, "Sizer") and w.Sizer:
                     w.Sizer.drawOutline(w, True)
 
-    def _getHGap(self):
+    @property
+    def HGap(self):
+        """Horizontal gap between cells in the sizer  (int)"""
         return self.GetHGap()
 
-    def _setHGap(self, val):
+    @HGap.setter
+    def HGap(self, val):
         if isinstance(val, str):
             val = int(val)
         self.SetHGap(val)
 
-    def _getHighCol(self):
+    @property
+    def HighCol(self):
+        """Highest col position that contains any item. Read-only.  (int)"""
         itms = self.ChildWindows + self.ChildSizers
         cols = [self.GetItemPosition(itm)[1] + (self.GetItemSpan(itm)[1] - 1) for itm in itms]
         if cols:
@@ -591,7 +596,9 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             ret = -1
         return ret
 
-    def _getHighRow(self):
+    @property
+    def HighRow(self):
+        """Highest row position that contains any item. Read-only.  (int)"""
         itms = self.ChildWindows + self.ChildSizers
         rows = [self.GetItemPosition(itm)[0] + (self.GetItemSpan(itm)[0] - 1) for itm in itms]
         if rows:
@@ -600,21 +607,16 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             ret = -1
         return ret
 
-    def _getMaxRows(self):
-        return self._maxRows
-
-    def _setMaxRows(self, rows):
-        if isinstance(rows, str):
-            rows = int(rows)
-        self._maxRows = rows
-        if rows:
-            self.MaxDimension = "r"
-            self.MaxCols = 0
-
-    def _getMaxCols(self):
+    @property
+    def MaxCols(self):
+        """
+        When adding elements to the sizer, controls the max number of columns to add before
+        a new column is started. (int)
+        """
         return self._maxCols
 
-    def _setMaxCols(self, cols):
+    @MaxCols.setter
+    def MaxCols(self, cols):
         if isinstance(cols, str):
             cols = int(cols)
         self._maxCols = cols
@@ -622,74 +624,48 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             self.MaxDimension = "c"
             self.MaxRows = 0
 
-    def _getMaxDimension(self):
+    @property
+    def MaxDimension(self):
+        """
+        When adding elements to the sizer, this property determines if we use rows or columns
+        as the limiting value. (char: 'r' or 'c'(default) )
+        """
         return self._maxDimension
 
-    def _setMaxDimension(self, val):
+    @MaxDimension.setter
+    def MaxDimension(self, val):
         self._maxDimension = val
 
-    def _getVGap(self):
+    @property
+    def MaxRows(self):
+        """
+        When adding elements to the sizer, controls the max number of rows to add before
+        a new column is started. (int)
+        """
+        return self._maxRows
+
+    @MaxRows.setter
+    def MaxRows(self, rows):
+        if isinstance(rows, str):
+            rows = int(rows)
+        self._maxRows = rows
+        if rows:
+            self.MaxDimension = "r"
+            self.MaxCols = 0
+
+    @property
+    def VGap(self):
+        """Vertical gap between cells in the sizer  (int)"""
         return self.GetVGap()
 
-    def _setVGap(self, val):
+    @VGap.setter
+    def VGap(self, val):
         if isinstance(val, str):
             val = int(val)
         self.SetVGap(val)
 
-    HGap = property(_getHGap, _setHGap, None, _("Horizontal gap between cells in the sizer  (int)"))
-
-    HighCol = property(
-        _getHighCol,
-        None,
-        None,
-        _("Highest col position that contains any item. Read-only.  (int)"),
-    )
-
-    HighRow = property(
-        _getHighRow,
-        None,
-        None,
-        _("Highest row position that contains any item. Read-only.  (int)"),
-    )
-
-    MaxRows = property(
-        _getMaxRows,
-        _setMaxRows,
-        None,
-        _(
-            "When adding elements to the sizer, controls the max number "
-            "of rows to add before a new column is started. (int)"
-        ),
-    )
-
-    MaxCols = property(
-        _getMaxCols,
-        _setMaxCols,
-        None,
-        _(
-            "When adding elements to the sizer, controls the max number "
-            "of columns to add before a new row is started. (int)"
-        ),
-    )
-
-    MaxDimension = property(
-        _getMaxDimension,
-        _setMaxDimension,
-        None,
-        _(
-            "When adding elements to the sizer, this property determines "
-            " if we use rows or columns as the limiting value. (char: 'r' or 'c'(default) )"
-        ),
-    )
-
-    Orientation = property(
-        _getMaxDimension,
-        _setMaxDimension,
-        None,
-        _("Alias for the MaxDimensions property. (char: 'r' or 'c'(default) )"),
-    )
-
-    VGap = property(_getVGap, _setVGap, None, _("Vertical gap between cells in the sizer  (int)"))
+    # Alias for the MaxDimensions property. (char: 'r' or 'c'(default) )
+    Orientation = MaxDimension
 
     DynamicHGap = makeDynamicProperty(HGap)
     DynamicMaxRows = makeDynamicProperty(MaxRows)

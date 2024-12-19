@@ -6,12 +6,7 @@ import types
 
 import wx
 
-from .. import dColors
-from .. import dException
-from .. import events
-from .. import lib
-from .. import settings
-from .. import ui
+from .. import dColors, dException, events, lib, settings, ui
 from ..dLocalize import _
 from ..dObject import dObject
 from ..lib.utils import dictStringify, ustr
@@ -280,7 +275,10 @@ class dPemMixin(dObject):
         if name is None:
             name = self.Name
         try:
-            self._setName(name, _userExplicit=_explicitName)
+            if _explicitName:
+                self.Name = name
+            else:
+                self.NameBase = name
         except AttributeError:
             # Some toolkits (Tkinter) don't let objects change their
             # names after instantiation.
@@ -647,12 +645,12 @@ class dPemMixin(dObject):
 
     def _popStatusText(self):
         if self.StatusText and self.Form is not None:
-            self.Form.setStatusText("")
+            self.Form.updateStatusText("")
 
     def _pushStatusText(self):
         st = self.StatusText
         if st and self.Form is not None:
-            self.Form.setStatusText(st)
+            self.Form.updateStatusText(st)
 
     def __onMouseEnter(self, evt):
         if self._hover:
@@ -1490,7 +1488,7 @@ class dPemMixin(dObject):
             # pending callAfter() refresh.
             return
         if isinstance(self, ui.dForm) and self.AutoUpdateStatusText and self.Visible:
-            self.setStatusText(self.getCurrentRecordText(), immediate=True)
+            self.updateStatusText(self.getCurrentRecordText(), immediate=True)
         if self.Children:
             self.raiseEvent(events.Update)
         ui.callAfter(self.__updateDynamicProps)
@@ -2313,12 +2311,15 @@ class dPemMixin(dObject):
         else:
             self._preInitProperties[mechanics[0]] = self._preInitProperties[mechanics[0]] & (~flag)
 
-    # Property get/set/delete methods follow.
-    def _getBackColor(self):
+    # Property definitions follow
+    @property
+    def BackColor(self):
+        """Specifies the background color of the object. (str, 3-tuple, or wx.Colour)"""
         return self.GetBackgroundColour().Get()
 
+    @BackColor.setter
     @ui.deadCheck
-    def _setBackColor(self, val):
+    def BackColor(self, val):
         if self._constructed():
             if isinstance(val, str):
                 val = dColors.colorTupleFromName(val)
@@ -2331,10 +2332,17 @@ class dPemMixin(dObject):
         else:
             self._properties["BackColor"] = val
 
-    def _getBorderColor(self):
+    @property
+    def BorderColor(self):
+        """
+        Specifies the color of the border drawn around the control, if any.
+
+        Default='black'  (str, 3-tuple, or wx.Colour)
+        """
         return self._borderColor
 
-    def _setBorderColor(self, val):
+    @BorderColor.setter
+    def BorderColor(self, val):
         if self._constructed():
             if isinstance(val, str):
                 val = dColors.colorTupleFromName(val)
@@ -2345,10 +2353,22 @@ class dPemMixin(dObject):
         else:
             self._properties["BorderColor"] = val
 
-    def _getBorderLineStyle(self):
+    @property
+    def BorderLineStyle(self):
+        """
+        Style of line for the border drawn around the control.
+
+        Possible choices are:
+            "Solid"  (default)
+            "Dash"
+            "Dot"
+            "DotDash"
+            "DashDot"
+        """
         return self._borderLineStyle
 
-    def _setBorderLineStyle(self, val):
+    @BorderLineStyle.setter
+    def BorderLineStyle(self, val):
         val = self._expandPropStringValue(
             val, ("Solid", "Dash", "Dashed", "Dot", "Dotted", "DotDash", "DashDot")
         )
@@ -2357,36 +2377,17 @@ class dPemMixin(dObject):
             self._border.LineStyle = val
         self._needRedraw = True
 
-    def _getBorderWidth(self):
-        return self._borderWidth
+    @property
+    def BorderStyle(self):
+        """
+        Specifies the type of border for this window. (str).
 
-    def _setBorderWidth(self, val):
-        if self._constructed():
-            self._borderWidth = val
-            if self._border and (self._border in self._drawnObjects):
-                if val == 0:
-                    self._drawnObjects.remove(self._border)
-                else:
-                    self._border.PenWidth = val
-            else:
-                if val > 0:
-                    self._border = self.drawRectangle(
-                        0,
-                        0,
-                        self.Width,
-                        self.Height,
-                        penColor=self.BorderColor,
-                        penWidth=val,
-                    )
-            if self._border:
-                # Tie it to resizing
-                self.bindEvent(events.Resize, self._onResizeBorder)
-            else:
-                self.unbindEvent(events.Resize, self._onResizeBorder)
-        else:
-            self._properties["BorderWidth"] = val
-
-    def _getBorderStyle(self):
+            Possible choices are:
+                "None"
+                "Simple"
+                "Sunken"
+                "Raised"
+        """
         if self._hasWindowStyleFlag(wx.RAISED_BORDER):
             return "Raised"
         elif self._hasWindowStyleFlag(wx.SUNKEN_BORDER):
@@ -2402,7 +2403,8 @@ class dPemMixin(dObject):
         else:
             return "Default"
 
-    def _setBorderStyle(self, val):
+    @BorderStyle.setter
+    def BorderStyle(self, val):
         if val is None:
             # XML stores the string and null 'None' identically
             val = "None"
@@ -2431,19 +2433,61 @@ class dPemMixin(dObject):
         elif style == "Default":
             pass
 
-    def _getBottom(self):
+    @property
+    def BorderWidth(self):
+        """Width of the border drawn around the control, if any. (int) Default=0 (no border)"""
+        return self._borderWidth
+
+    @BorderWidth.setter
+    def BorderWidth(self, val):
+        if self._constructed():
+            self._borderWidth = val
+            if self._border and (self._border in self._drawnObjects):
+                if val == 0:
+                    self._drawnObjects.remove(self._border)
+                else:
+                    self._border.PenWidth = val
+            else:
+                if val > 0:
+                    self._border = self.drawRectangle(
+                        0,
+                        0,
+                        self.Width,
+                        self.Height,
+                        penColor=self.BorderColor,
+                        penWidth=val,
+                    )
+            if self._border:
+                # Tie it to resizing
+                self.bindEvent(events.Resize, self._onResizeBorder)
+            else:
+                self.unbindEvent(events.Resize, self._onResizeBorder)
+        else:
+            self._properties["BorderWidth"] = val
+
+    @property
+    def Bottom(self):
+        """
+        The position of the bottom side of the object. This is a convenience property, and is
+        equivalent to setting the Top property to this value minus the Height of the control.
+        (int)
+        """
         return self.Top + self.Height
 
-    def _setBottom(self, bottom):
+    @Bottom.setter
+    def Bottom(self, bottom):
         if self._constructed():
             self.Top = int(bottom) - self.Height
         else:
             self._properties["Bottom"] = bottom
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """The caption of the object. (str)"""
         return getattr(self, "_caption", self.GetLabel())
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         # Force the value to string
         val = "%s" % val
 
@@ -2490,30 +2534,51 @@ class dPemMixin(dObject):
         else:
             self._properties["Caption"] = val
 
-    def _getChildren(self):
+    @property
+    def Children(self):
+        """
+        Returns a list of object references to the children of this object. Only applies to
+        containers. Children will be None for non-containers.  (list or None)
+        """
         if hasattr(self, "GetChildren"):
             return list(self.GetChildren())
         else:
             return []
 
-    def _getCntrlSizer(self):
+    @property
+    def ControllingSizer(self):
+        """Reference to the sizer that controls this control's layout.  (dSizer)"""
         try:
             ret = self._controllingSizer
         except AttributeError:
             ret = self._controllingSizer = None
         return ret
 
-    def _getCntrlSzItem(self):
+    @property
+    def ControllingSizerItem(self):
+        """
+        Reference to the sizer item that control's this control's layout.
+
+        This is useful for getting information about how the item is being sized, and for changing
+        those settings.  (SizerItem)
+        """
         try:
             ret = self._controllingSizerItem
         except AttributeError:
             ret = self._controllingSizerItem = None
         return ret
 
-    def _getDroppedFileHandler(self):
+    @property
+    def DroppedFileHandler(self):
+        """
+        Reference to the object that will handle files dropped on this control. When files are
+        dropped, a list of them will be passed to this object's 'processDroppedFiles()' method.
+        Default=None  (object or None)
+        """
         return self._droppedFileHandler
 
-    def _setDroppedFileHandler(self, val):
+    @DroppedFileHandler.setter
+    def DroppedFileHandler(self, val):
         if self._constructed():
             self._droppedFileHandler = val
             if self._dropTarget == None:
@@ -2527,10 +2592,17 @@ class dPemMixin(dObject):
         else:
             self._properties["DroppedFileHandler"] = val
 
-    def _getDroppedTextHandler(self):
+    @property
+    def DroppedTextHandler(self):
+        """
+        Reference to the object that will handle text dropped on this control. When text is
+        dropped, that text will be passed to this object's 'processDroppedText()' method.
+        Default=None  (object or None)
+        """
         return self._droppedTextHandler
 
-    def _setDroppedTextHandler(self, val):
+    @DroppedTextHandler.setter
+    def DroppedTextHandler(self, val):
         if self._constructed():
             self._droppedTextHandler = val
             if self._dropTarget == None:
@@ -2544,10 +2616,13 @@ class dPemMixin(dObject):
         else:
             self._properties["DroppedTextHandler"] = val
 
-    def _getEnabled(self):
+    @property
+    def Enabled(self):
+        """Specifies whether the object and children can get user input. (bool)"""
         return self.IsEnabled()
 
-    def _setEnabled(self, val):
+    @Enabled.setter
+    def Enabled(self, val):
         if self._constructed():
             # Handle DataControl disabling on empty data source.
             try:
@@ -2569,17 +2644,29 @@ class dPemMixin(dObject):
         else:
             self._properties["Enabled"] = False
 
-    def _getEventTarget(self):
+    @property
+    def _EventTarget(self):
+        """
+        The object that receives events. In all but a few particular cases, it will be the object
+        itself. This must be passed to the constructor so that it can be set before event binding
+        occurs; it cannot be changed after the object is created.
+
+        DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING and can handle the resulting behavior changes.
+        Usually used to pass events to the container in a composite control. Default=self  (object)
+        """
         return self._eventTarget
 
-    def _getDaboFont(self):
+    @property
+    def Font(self):
+        """Specifies font object for this control. (dFont)"""
         if hasattr(self, "_font") and isinstance(self._font, ui.dFont):
             v = self._font
         else:
             v = self.Font = ui.dFont(_nativeFont=self.GetFont())
         return v
 
-    def _setDaboFont(self, val):
+    @Font.setter
+    def Font(self, val):
         # PVG: also accept wxFont parameter
         if isinstance(val, (wx.Font,)):
             val = ui.dFont(_nativeFont=val)
@@ -2593,62 +2680,83 @@ class dPemMixin(dObject):
         else:
             self._properties["Font"] = val
 
-    def _getFontBold(self):
+    @property
+    def FontBold(self):
+        """Specifies if the font is bold-faced. (bool)"""
         return self.Font.Bold
 
-    def _setFontBold(self, val):
+    @FontBold.setter
+    def FontBold(self, val):
         if self._constructed():
             self.Font.Bold = bool(val)
         else:
             self._properties["FontBold"] = val
 
-    def _getFontDescription(self):
+    @property
+    def FontDescription(self):
+        """Human-readable description of the current font settings. (str)"""
         return self.Font.Description
 
-    def _getFontInfo(self):
-        return self.Font._nativeFont.GetNativeFontInfoDesc()
-
-    def _getFontItalic(self):
-        return self.Font.Italic
-
-    def _setFontItalic(self, val):
-        if self._constructed():
-            self.Font.Italic = bool(val)
-        else:
-            self._properties["FontItalic"] = val
-
-    def _getFontFace(self):
+    @property
+    def FontFace(self):
+        """Specifies the font face. (str)"""
         return self.Font.Face
 
-    def _setFontFace(self, val):
+    @FontFace.setter
+    def FontFace(self, val):
         if self._constructed():
             self.Font.Face = val
         else:
             self._properties["FontFace"] = val
 
-    def _getFontSize(self):
+    @property
+    def FontInfo(self):
+        """Specifies the platform-native font info string. Read-only. (str)"""
+        return self.Font._nativeFont.GetNativeFontInfoDesc()
+
+    @property
+    def FontItalic(self):
+        """Specifies whether font is italicized. (bool)"""
+        return self.Font.Italic
+
+    @FontItalic.setter
+    def FontItalic(self, val):
+        if self._constructed():
+            self.Font.Italic = bool(val)
+        else:
+            self._properties["FontItalic"] = val
+
+    @property
+    def FontSize(self):
         return self.Font.Size
 
-    def _setFontSize(self, val):
+    @FontSize.setter
+    def FontSize(self, val):
         if self._constructed():
             self.Font.Size = val
         else:
             self._properties["FontSize"] = val
 
-    def _getFontUnderline(self):
+    @property
+    def FontUnderline(self):
+        """Specifies whether text is underlined. (bool)"""
         return self.Font.Underline
 
-    def _setFontUnderline(self, val):
+    @FontUnderline.setter
+    def FontUnderline(self, val):
         if self._constructed():
             # underlining doesn't seem to be working...
             self.Font.Underline = bool(val)
         else:
             self._properties["FontUnderline"] = val
 
-    def _getForeColor(self):
+    @property
+    def ForeColor(self):
+        """Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)"""
         return self.GetForegroundColour().Get()
 
-    def _setForeColor(self, val):
+    @ForeColor.setter
+    def ForeColor(self, val):
         if self._constructed():
             if isinstance(val, str):
                 val = dColors.colorTupleFromName(val)
@@ -2660,7 +2768,9 @@ class dPemMixin(dObject):
         else:
             self._properties["ForeColor"] = val
 
-    def _getForm(self):
+    @property
+    def Form(self):
+        """Object reference to the dForm containing the object. Read-only. (dForm)."""
         try:
             return self._cachedForm
         except AttributeError:
@@ -2679,41 +2789,56 @@ class dPemMixin(dObject):
                 self._cachedForm = frm  # Cache for next time
             return frm
 
-    def _getHeight(self):
+    @property
+    def Height(self):
+        """Specifies the height of the object. (int)"""
         return self.GetSize()[1]
 
-    def _setHeight(self, val):
+    @Height.setter
+    def Height(self, val):
         if self._constructed():
             if getattr(self, "_widthAlreadySet", False):
                 width = self.Width
             else:
                 width = -1
             newSize = (width, int(val))
-            self._setSize(newSize)
+            self.Size = newSize
             if isinstance(self, ui.dFormMixin):
                 self._defaultHeight = val
         else:
             self._properties["Height"] = val
 
-    def _getHelpContextText(self):
+    @property
+    def HelpContextText(self):
+        """Specifies the context-sensitive help text associated with this window. (str)"""
         return self.GetHelpText()
 
-    def _setHelpContextText(self, val):
+    @HelpContextText.setter
+    def HelpContextText(self, val):
         if self._constructed():
             self.SetHelpText(val)
         else:
             self._properties["HelpContextText"] = val
 
-    def _getHover(self):
+    @property
+    def Hover(self):
+        """
+        When True, Mouse Enter events fire the onHover method, and MouseLeave events fire the
+        endHover method  (bool)
+        """
         return self._hover
 
-    def _setHover(self, val):
+    @Hover.setter
+    def Hover(self, val):
         self._hover = val
 
-    def _getLeft(self):
+    @property
+    def Left(self):
+        """Specifies the left position of the object. (int)"""
         return self.GetPosition()[0]
 
-    def _setLeft(self, val):
+    @Left.setter
+    def Left(self, val):
         if self._constructed():
             self.SetPosition((int(val), self.Top))
 
@@ -2722,10 +2847,13 @@ class dPemMixin(dObject):
         else:
             self._properties["Left"] = val
 
-    def _getMaximumHeight(self):
+    @property
+    def MaximumHeight(self):
+        """Maximum allowable height for the control in pixels.  (int)"""
         return self._maximumHeight
 
-    def _setMaximumHeight(self, val):
+    @MaximumHeight.setter
+    def MaximumHeight(self, val):
         if self._constructed():
             if val is None:
                 val = -1
@@ -2734,10 +2862,13 @@ class dPemMixin(dObject):
         else:
             self._properties["MaximumHeight"] = val
 
-    def _getMaximumSize(self):
+    @property
+    def MaximumSize(self):
+        """Maximum allowable size for the control in pixels.  (2-tuple of int)"""
         return (self._maximumWidth, self._maximumHeight)
 
-    def _setMaximumSize(self, val):
+    @MaximumSize.setter
+    def MaximumSize(self, val):
         if self._constructed():
             if val is None:
                 self._maximumWidth = self._maximumHeight = -1
@@ -2750,10 +2881,13 @@ class dPemMixin(dObject):
         else:
             self._properties["MaximumSize"] = val
 
-    def _getMaximumWidth(self):
+    @property
+    def MaximumWidth(self):
+        """Maximum allowable width for the control in pixels.  (int)"""
         return self._maximumWidth
 
-    def _setMaximumWidth(self, val):
+    @MaximumWidth.setter
+    def MaximumWidth(self, val):
         if self._constructed():
             if val is None:
                 val = -1
@@ -2762,40 +2896,52 @@ class dPemMixin(dObject):
         else:
             self._properties["MaximumWidth"] = val
 
-    def _getMinimumHeight(self):
+    @property
+    def MinimumHeight(self):
+        """Minimum allowable height for the control in pixels.  (int)"""
         return self._minimumHeight
 
-    def _setMinimumHeight(self, val):
+    @MinimumHeight.setter
+    def MinimumHeight(self, val):
         if self._constructed():
             self._minimumHeight = val
             self.SetMinSize((self._minimumWidth, val))
         else:
             self._properties["MinimumHeight"] = val
 
-    def _getMinimumSize(self):
+    @property
+    def MinimumSize(self):
+        """Minimum allowable size for the control in pixels.  (2-tuple of int)"""
         return (self._minimumWidth, self._minimumHeight)
 
-    def _setMinimumSize(self, val):
+    @MinimumSize.setter
+    def MinimumSize(self, val):
         if self._constructed():
             self._minimumWidth, self._minimumHeight = val
             self.SetMinSize(val)
         else:
             self._properties["MinimumSize"] = val
 
-    def _getMinimumWidth(self):
+    @property
+    def MinimumWidth(self):
+        """Minimum allowable width for the control in pixels.  (int)"""
         return self._minimumWidth
 
-    def _setMinimumWidth(self, val):
+    @MinimumWidth.setter
+    def MinimumWidth(self, val):
         if self._constructed():
             self._minimumWidth = val
             self.SetMinSize((val, self._minimumHeight))
         else:
             self._properties["MinimumWidth"] = val
 
-    def _getMousePointer(self):
+    @property
+    def MousePointer(self):
+        """Specifies the shape of the mouse pointer when it enters this window. (obj)"""
         return self.GetCursor()
 
-    def _setMousePointer(self, val):
+    @MousePointer.setter
+    def MousePointer(self, val):
         if self._constructed():
             if isinstance(val, str):
                 # Name of a cursor. This can be either the full names, such
@@ -2827,7 +2973,14 @@ class dPemMixin(dObject):
         else:
             self._properties["MousePointer"] = val
 
-    def _getName(self):
+    @property
+    def Name(self):
+        """
+        Specifies the name of the object, which must be unique among siblings.
+
+        If the specified name isn't unique, an exception will be raised. See also NameBase, which
+        lets you set a base name and Dabo will automatically append integers to make it unique.
+        """
         if self._name:
             return self._name
         try:
@@ -2841,14 +2994,12 @@ class dPemMixin(dObject):
         self._name = name
         return name
 
-    def _setName(self, name, _userExplicit=True):
+    @Name.setter
+    def Name(self, name):
         if not self._constructed():
-            if _userExplicit:
-                self._properties["Name"] = name
-            else:
-                self._properties["NameBase"] = name
+            self._properties["Name"] = name
         else:
-            currentName = self._getName()
+            currentName = self.Name
             if settings.fastNameSet:
                 # The user is responsible for setting and unsetting the global fastNameSet
                 # flag. It means that they are initializing a bunch of objects and want good
@@ -2881,31 +3032,26 @@ class dPemMixin(dObject):
 
             parent = self.Parent
             if parent is not None:
-                if not _userExplicit:
-                    # Dabo is setting the name implicitly, in which case we want to mangle
-                    # the name if necessary to make it unique (we don't want a NameError).
-                    name = self._uniqueNameForParent(name)
+                # the user is explicitly setting the Name. If another object already
+                # has the name, we must raise an exception immediately.
+                if hasattr(parent, name):
+                    parent_att = getattr(parent, name)
+                    if parent_att and parent_att is not self:
+                        raise NameError("Name '%s' is already in use." % name)
                 else:
-                    # the user is explicitly setting the Name. If another object already
-                    # has the name, we must raise an exception immediately.
-                    if hasattr(parent, name):
-                        parent_att = getattr(parent, name)
-                        if parent_att and parent_att is not self:
-                            raise NameError("Name '%s' is already in use." % name)
-                    else:
-                        for window in parent.GetChildren():
-                            if window is self:
-                                continue
+                    for window in parent.GetChildren():
+                        if window is self:
+                            continue
+                        try:
+                            winname = window.GetName()
+                        except AttributeError:
                             try:
-                                winname = window.GetName()
+                                winname = window._name
                             except AttributeError:
-                                try:
-                                    winname = window._name
-                                except AttributeError:
-                                    # Not an object with a Name, so ignore
-                                    continue
-                            if ustr(winname) == ustr(name):
-                                raise NameError("Name '%s' is already in use." % name)
+                                # Not an object with a Name, so ignore
+                                continue
+                        if ustr(winname) == ustr(name):
+                            raise NameError("Name '%s' is already in use." % name)
 
             else:
                 # Can't do the name check for siblings, so allow it for now.
@@ -2936,19 +3082,43 @@ class dPemMixin(dObject):
             ## When the name changes, we need to autobind again:
             self.autoBindEvents(force=False)
 
-    def _setNameBase(self, val):
+    @property
+    def NameBase(self):
+        """
+        Specifies the base name of the object.
+
+        The base name specified will become the object's Name, unless another sibling already has
+        that name, in which case Dabo will find the next unique name by adding integers to the end
+        of the base name. For example, if your code says:
+
+            self.NameBase = "txtAddress"
+
+        and there is already a sibling object with that name, your object will end up with Name =
+        "txtAddress1".
+
+        This property is write-only at runtime.
+        """
+        raise AttributeError("NameBase is write-only")
+
+    @NameBase.setter
+    def NameBase(self, val):
         if self._constructed():
-            self._setName(val, False)
+            # Dabo is setting the name implicitly, in which case we want to mangle
+            # the name if necessary to make it unique (we don't want a NameError).
+            self.Name = self._uniqueNameForParent(val)
         else:
             self._properties["NameBase"] = val
 
-    def _getParent(self):
+    @property
+    def Parent(self):
+        """The containing object. (obj)"""
         try:
             return self.GetParent()
         except TypeError:
             return None
 
-    def _setParent(self, val):
+    @Parent.setter
+    def Parent(self, val):
         if self._constructed():
             self._changeParent(val)
             ## When the object's parent changes, we need to autobind again:
@@ -2956,10 +3126,13 @@ class dPemMixin(dObject):
         else:
             self._properties["Parent"] = val
 
-    def _getPosition(self):
+    @property
+    def Position(self):
+        """The (x,y) position of the object. (tuple)"""
         return self.GetPosition().Get()
 
-    def _setPosition(self, val):
+    @Position.setter
+    def Position(self, val):
         if self._constructed():
             left, top = val
 
@@ -2969,10 +3142,19 @@ class dPemMixin(dObject):
         else:
             self._properties["Position"] = val
 
-    def _getRegID(self):
+    @property
+    def RegID(self):
+        """
+        A unique identifier used for referencing by other objects. (str)
+
+        RegIDs must be unique to the Form that contains the object. They allow an object to be
+        referenced in a simple manner; typically: `self.Form.<RegID of the object>`. The
+        containership hierarchy doesn't matter, as RegIDs are all referenced from the Form level.
+        """
         return self._registryID
 
-    def _setRegID(self, val):
+    @RegID.setter
+    def RegID(self, val):
         if not self._constructed():
             self._properties["RegID"] = val
             return
@@ -2990,19 +3172,28 @@ class dPemMixin(dObject):
         # When the object's RegID is set, we need to autobind again:
         self.autoBindEvents(force=False)
 
-    def _getRight(self):
+    @property
+    def Right(self):
+        """
+        The position of the right side of the object. This is a convenience property, and is
+        equivalent to setting the Left property to this value minus the Width of the control.
+        (int)"""
         return self.Left + self.Width
 
-    def _setRight(self, right):
+    @Right.setter
+    def Right(self, right):
         if self._constructed():
             self.Left = int(right) - self.Width
         else:
             self._properties["Right"] = right
 
-    def _getSize(self):
+    @property
+    def Size(self):
+        """The size (Width, Height) of the object. (tuple)"""
         return self.GetSize().Get()
 
-    def _setSize(self, val):
+    @Size.setter
+    def Size(self, val):
         if self._constructed():
             self._widthAlreadySet = val[0] >= 0
             self._heightAlreadySet = val[1] >= 0
@@ -3023,10 +3214,13 @@ class dPemMixin(dObject):
         else:
             self._properties["Size"] = val
 
-    def _getSizer(self):
+    @property
+    def Sizer(self):
+        """The sizer for the object."""
         return self.GetSizer()
 
-    def _setSizer(self, val):
+    @Sizer.setter
+    def Sizer(self, val):
         if self._constructed():
             if val is None:
                 # Unset the sizer, but don't destroy it
@@ -3040,30 +3234,47 @@ class dPemMixin(dObject):
         else:
             self._properties["Sizer"] = val
 
-    def _getStatusText(self):
+    @property
+    def StatusText(self):
+        """
+        Specifies the text that displays in the form's status bar, if any.
+
+        The text will appear when the control gets the focus, or when the mouse hovers over the
+        control, and will clear when the control loses the focus, or when the mouse is no longer
+        hovering.
+
+        For forms, set StatusText whenever you want to display a message.
+        """
         try:
             v = self._statusText
         except AttributeError:
             v = self._statusText = None
         return v
 
-    def _setStatusText(self, val):
+    @StatusText.setter
+    def StatusText(self, val):
         self._statusText = val
 
-    def _getTag(self):
+    @property
+    def Tag(self):
+        """A property that user code can safely use for specific purposes."""
         try:
             v = self._tag
         except AttributeError:
             v = self._tag = None
         return v
 
-    def _setTag(self, val):
+    @Tag.setter
+    def Tag(self, val):
         self._tag = val
 
-    def _getToolTipText(self):
+    @property
+    def ToolTipText(self):
+        """Specifies the tooltip text associated with this window. (str)"""
         return getattr(self, "_toolTipText", None)
 
-    def _setToolTipText(self, val):
+    @ToolTipText.setter
+    def ToolTipText(self, val):
         if not self._constructed():
             self._properties["ToolTipText"] = val
             return
@@ -3089,10 +3300,13 @@ class dPemMixin(dObject):
                     self.SetToolTip(newtip)
         self._toolTipText = val
 
-    def _getTop(self):
+    @property
+    def Top(self):
+        """The top position of the object. (int)"""
         return self.GetPosition()[1]
 
-    def _setTop(self, val):
+    @Top.setter
+    def Top(self, val):
         if self._constructed():
             if isinstance(self, ui.dFormMixin):
                 self._defaultTop = val
@@ -3100,10 +3314,16 @@ class dPemMixin(dObject):
         else:
             self._properties["Top"] = val
 
-    def _getTransparency(self):
+    @property
+    def Transparency(self):
+        """
+        Transparency level of the control; ranges from 0 (transparent) to 255 (opaque).
+        Default=0. Does not work on Gtk/Linux the last time we checked.  (int)
+        """
         return self._transparency
 
-    def _setTransparency(self, val):
+    @Transparency.setter
+    def Transparency(self, val):
         if self._constructed():
             val = min(max(val, 0), 255)
             delay = self.TransparencyDelay
@@ -3126,23 +3346,32 @@ class dPemMixin(dObject):
         else:
             self._properties["Transparency"] = val
 
-    def _getTransparencyDelay(self):
+    @property
+    def TransparencyDelay(self):
+        """
+        Time in seconds to change transparency. Set it to zero to see instant changes. Default=0.25
+        (float)
+        """
         return self._transparencyDelay
 
-    def _setTransparencyDelay(self, val):
+    @TransparencyDelay.setter
+    def TransparencyDelay(self, val):
         if self._constructed():
             self._transparencyDelay = val
         else:
             self._properties["TransparencyDelay"] = val
 
-    def _getVisible(self):
+    @property
+    def Visible(self):
+        """Specifies whether the object is visible at runtime.  (bool)"""
         try:
             return self.IsShown()
         except AttributeError:
             dabo_module.error(_("The object %s does not support the Visible property.") % self)
             return None
 
-    def _setVisible(self, val):
+    @Visible.setter
+    def Visible(self, val):
         if self._constructed():
             try:
                 self.Show(bool(val))
@@ -3155,471 +3384,42 @@ class dPemMixin(dObject):
         else:
             self._properties["Visible"] = val
 
-    def _getVisibleOnScreen(self):
+    @property
+    def VisibleOnScreen(self):
+        """
+        Specifies whether the object is physically visible at runtime.  (bool)
+
+        The Visible property could return True even if the object isn't actually shown on screen,
+        due to a parent object or sizer being invisible.
+
+        The VisibleOnScreen property will return True only if the object and all parents are
+        visible.
+        """
         return self.IsShownOnScreen()
 
-    def _getWidth(self):
+    @property
+    def Width(self):
+        """The width of the object. (int)"""
         return self.GetSize()[0]
 
-    def _setWidth(self, val):
+    @Width.setter
+    def Width(self, val):
         if self._constructed():
             if getattr(self, "_heightAlreadySet", False):
                 height = self.Height
             else:
                 height = -1
             newSize = (int(val), height)
-            self._setSize(newSize)
+            self.Size = newSize
             if isinstance(self, ui.dFormMixin):
                 self._defaultWidth = val
         else:
             self._properties["Width"] = val
 
-    def _getWindowHandle(self):
+    @property
+    def WindowHandle(self):
+        """The platform-specific handle for the window. Read-only. (long)"""
         return self.GetHandle()
-
-    # Property definitions follow
-    BackColor = property(
-        _getBackColor,
-        _setBackColor,
-        None,
-        _("Specifies the background color of the object. (str, 3-tuple, or wx.Colour)"),
-    )
-
-    BorderColor = property(
-        _getBorderColor,
-        _setBorderColor,
-        None,
-        _(
-            """Specifies the color of the border drawn around the control, if any.
-
-            Default='black'  (str, 3-tuple, or wx.Colour)"""
-        ),
-    )
-
-    BorderLineStyle = property(
-        _getBorderLineStyle,
-        _setBorderLineStyle,
-        None,
-        _(
-            """Style of line for the border drawn around the control.
-
-            Possible choices are:
-                "Solid"  (default)
-                "Dash"
-                "Dot"
-                "DotDash"
-                "DashDot"
-            """
-        ),
-    )
-
-    BorderStyle = property(
-        _getBorderStyle,
-        _setBorderStyle,
-        None,
-        _(
-            """Specifies the type of border for this window. (str).
-
-                Possible choices are:
-                    "None"
-                    "Simple"
-                    "Sunken"
-                    "Raised"
-            """
-        ),
-    )
-
-    BorderWidth = property(
-        _getBorderWidth,
-        _setBorderWidth,
-        None,
-        _(
-            """Width of the border drawn around the control, if any. (int)
-
-                Default=0 (no border)
-            """
-        ),
-    )
-
-    Bottom = property(
-        _getBottom,
-        _setBottom,
-        None,
-        _(
-            """The position of the bottom side of the object. This is a
-            convenience property, and is equivalent to setting the Top property
-            to this value minus the Height of the control.  (int)"""
-        ),
-    )
-
-    Caption = property(_getCaption, _setCaption, None, _("The caption of the object. (str)"))
-
-    Children = property(
-        _getChildren,
-        None,
-        None,
-        _(
-            """Returns a list of object references to the children of
-            this object. Only applies to containers. Children will be None for
-            non-containers.  (list or None)
-            """
-        ),
-    )
-
-    ControllingSizer = property(
-        _getCntrlSizer,
-        None,
-        None,
-        _("""Reference to the sizer that controls this control's layout.  (dSizer)"""),
-    )
-
-    ControllingSizerItem = property(
-        _getCntrlSzItem,
-        None,
-        None,
-        _(
-            """Reference to the sizer item that control's this control's layout.
-
-                This is useful for getting information about how the item is being
-                sized, and for changing those settings.  (SizerItem)
-            """
-        ),
-    )
-
-    DroppedFileHandler = property(
-        _getDroppedFileHandler,
-        _setDroppedFileHandler,
-        None,
-        _(
-            """Reference to the object that will handle files dropped on this control.
-            When files are dropped, a list of them will be passed to this object's
-            'processDroppedFiles()' method. Default=None  (object or None)
-            """
-        ),
-    )
-
-    DroppedTextHandler = property(
-        _getDroppedTextHandler,
-        _setDroppedTextHandler,
-        None,
-        _(
-            """Reference to the object that will handle text dropped on this control.
-            When text is dropped, that text will be passed to this object's
-            'processDroppedText()' method. Default=None  (object or None)
-            """
-        ),
-    )
-
-    Enabled = property(
-        _getEnabled,
-        _setEnabled,
-        None,
-        _("""Specifies whether the object and children can get user input. (bool)"""),
-    )
-
-    _EventTarget = property(
-        _getEventTarget,
-        None,
-        None,
-        _(
-            """The object that receives events. In all but a few particular cases, it will be
-            the object itself. This must be passed to the constructor so that it can be set
-            before event binding occurs; it cannot be changed after the object is created.
-            DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING and can handle the
-            resulting behavior changes. Usually used to pass events to the container in a
-            composite control. Default=self  (object)
-            """
-        ),
-    )
-
-    Font = property(
-        _getDaboFont,
-        _setDaboFont,
-        None,
-        _("Specifies font object for this control. (dFont)"),
-    )
-
-    FontBold = property(
-        _getFontBold,
-        _setFontBold,
-        None,
-        _("Specifies if the font is bold-faced. (bool)"),
-    )
-
-    FontDescription = property(
-        _getFontDescription,
-        None,
-        None,
-        _("Human-readable description of the current font settings. (str)"),
-    )
-
-    FontFace = property(_getFontFace, _setFontFace, None, _("Specifies the font face. (str)"))
-
-    FontInfo = property(
-        _getFontInfo,
-        None,
-        None,
-        _("Specifies the platform-native font info string. Read-only. (str)"),
-    )
-
-    FontItalic = property(
-        _getFontItalic,
-        _setFontItalic,
-        None,
-        _("Specifies whether font is italicized. (bool)"),
-    )
-
-    FontSize = property(
-        _getFontSize,
-        _setFontSize,
-        None,
-        _("Specifies the point size of the font. (int)"),
-    )
-
-    FontUnderline = property(
-        _getFontUnderline,
-        _setFontUnderline,
-        None,
-        _("Specifies whether text is underlined. (bool)"),
-    )
-
-    ForeColor = property(
-        _getForeColor,
-        _setForeColor,
-        None,
-        _("Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)"),
-    )
-
-    Form = property(
-        _getForm,
-        None,
-        None,
-        _("Object reference to the dForm containing the object. Read-only. (dForm)."),
-    )
-
-    Height = property(_getHeight, _setHeight, None, _("Specifies the height of the object. (int)"))
-
-    HelpContextText = property(
-        _getHelpContextText,
-        _setHelpContextText,
-        None,
-        _(
-            """Specifies the context-sensitive help text associated with this
-                window. (str)
-            """
-        ),
-    )
-
-    Hover = property(
-        _getHover,
-        _setHover,
-        None,
-        _(
-            """When True, Mouse Enter events fire the onHover method, and
-            MouseLeave events fire the endHover method  (bool)
-            """
-        ),
-    )
-
-    Left = property(_getLeft, _setLeft, None, _("Specifies the left position of the object. (int)"))
-
-    MaximumHeight = property(
-        _getMaximumHeight,
-        _setMaximumHeight,
-        None,
-        _("Maximum allowable height for the control in pixels.  (int)"),
-    )
-
-    MaximumSize = property(
-        _getMaximumSize,
-        _setMaximumSize,
-        None,
-        _("Maximum allowable size for the control in pixels.  (2-tuple of int)"),
-    )
-
-    MaximumWidth = property(
-        _getMaximumWidth,
-        _setMaximumWidth,
-        None,
-        _("Maximum allowable width for the control in pixels.  (int)"),
-    )
-
-    MinimumHeight = property(
-        _getMinimumHeight,
-        _setMinimumHeight,
-        None,
-        _("Minimum allowable height for the control in pixels.  (int)"),
-    )
-
-    MinimumSize = property(
-        _getMinimumSize,
-        _setMinimumSize,
-        None,
-        _("Minimum allowable size for the control in pixels.  (2-tuple of int)"),
-    )
-
-    MinimumWidth = property(
-        _getMinimumWidth,
-        _setMinimumWidth,
-        None,
-        _("Minimum allowable width for the control in pixels.  (int)"),
-    )
-
-    MousePointer = property(
-        _getMousePointer,
-        _setMousePointer,
-        None,
-        _("Specifies the shape of the mouse pointer when it enters this window. (obj)"),
-    )
-
-    Name = property(
-        _getName,
-        _setName,
-        None,
-        _(
-            """Specifies the name of the object, which must be unique among siblings.
-
-            If the specified name isn't unique, an exception will be raised. See also
-            NameBase, which let's you set a base name and Dabo will automatically append
-            integers to make it unique.
-            """
-        ),
-    )
-
-    NameBase = property(
-        None,
-        _setNameBase,
-        None,
-        _(
-            """Specifies the base name of the object.
-
-            The base name specified will become the object's Name, unless another sibling
-            already has that name, in which case Dabo will find the next unique name by
-            adding integers to the end of the base name. For example, if your code says:
-
-                self.NameBase = "txtAddress"
-
-            and there is already a sibling object with that name, your object will end up
-            with Name = "txtAddress1".
-
-            This property is write-only at runtime.
-            """
-        ),
-    )
-
-    Parent = property(_getParent, _setParent, None, _("The containing object. (obj)"))
-
-    Position = property(
-        _getPosition, _setPosition, None, _("The (x,y) position of the object. (tuple)")
-    )
-
-    RegID = property(
-        _getRegID,
-        _setRegID,
-        None,
-        _("A unique identifier used for referencing by other objects. (str)"),
-    )
-
-    Right = property(
-        _getRight,
-        _setRight,
-        None,
-        _(
-            """The position of the right side of the object. This is a
-            convenience property, and is equivalent to setting the Left property
-            to this value minus the Width of the control.  (int)"""
-        ),
-    )
-
-    Size = property(_getSize, _setSize, None, _("The size of the object. (tuple)"))
-
-    Sizer = property(_getSizer, _setSizer, None, _("The sizer for the object."))
-
-    StatusText = property(
-        _getStatusText,
-        _setStatusText,
-        None,
-        _(
-            """Specifies the text that displays in the form's status bar, if any.
-
-            The text will appear when the control gets the focus, or when the
-            mouse hovers over the control, and will clear when the control loses
-            the focus, or when the mouse is no longer hovering.
-
-            For forms, set StatusText whenever you want to display a message.
-            """
-        ),
-    )
-
-    Tag = property(
-        _getTag,
-        _setTag,
-        None,
-        _("A property that user code can safely use for specific purposes."),
-    )
-
-    ToolTipText = property(
-        _getToolTipText,
-        _setToolTipText,
-        None,
-        _("Specifies the tooltip text associated with this window. (str)"),
-    )
-
-    Top = property(_getTop, _setTop, None, _("The top position of the object. (int)"))
-
-    Transparency = property(
-        _getTransparency,
-        _setTransparency,
-        None,
-        _(
-            """Transparency level of the control; ranges from 0 (transparent) to 255 (opaque).
-            Default=0. Does not currently work on Gtk/Linux.  (int)
-            """
-        ),
-    )
-
-    TransparencyDelay = property(
-        _getTransparencyDelay,
-        _setTransparencyDelay,
-        None,
-        _(
-            """Time in seconds to change transparency. Set it to zero to see instant changes.
-            Default=0.25 (float)
-            """
-        ),
-    )
-
-    Visible = property(
-        _getVisible,
-        _setVisible,
-        None,
-        _("Specifies whether the object is visible at runtime.  (bool)"),
-    )
-
-    VisibleOnScreen = property(
-        _getVisibleOnScreen,
-        None,
-        None,
-        _(
-            """Specifies whether the object is physically visible at runtime.  (bool)
-
-            The Visible property could return True even if the object isn't actually
-            shown on screen, due to a parent object or sizer being invisible.
-
-            The VisibleOnScreen property will return True only if the object and all
-            parents are visible.
-            """
-        ),
-    )
-
-    Width = property(_getWidth, _setWidth, None, _("The width of the object. (int)"))
-
-    WindowHandle = property(
-        _getWindowHandle,
-        None,
-        None,
-        _("The platform-specific handle for the window. Read-only. (long)"),
-    )
 
     # Dynamic property declarations
     DynamicBackColor = makeDynamicProperty(BackColor)
@@ -4001,35 +3801,67 @@ class DrawObject(dObject):
         dc.SetFont(fnt)
         self.update()
 
-    # Property get/set methods
-    def _getAngle(self):
+    # Property definitions
+    @property
+    def Angle(self):
+        """Angle (in degrees) to draw text  (int)"""
         return self._angle
 
-    def _setAngle(self, val):
+    @Angle.setter
+    def Angle(self, val):
         if self._angle != val:
             self._angle = val
             self.update()
 
-    def _getBackColor(self):
+    @property
+    def BackColor(self):
+        """Background color of text when using text objects  (str or tuple)"""
         return self._backColor
 
-    def _setBackColor(self, val):
+    @BackColor.setter
+    def BackColor(self, val):
         if self._backColor != val:
             self._backColor = val
             self.update()
 
-    def _getBitmap(self):
+    @property
+    def Bitmap(self):
+        """Bitmap to be drawn on the object  (dBitmap)"""
         return self._bitmap
 
-    def _setBitmap(self, val):
+    @Bitmap.setter
+    def Bitmap(self, val):
         if self._bitmap != val:
             self._bitmap = val
             self.update()
 
-    def _getDrawMode(self):
+    @property
+    def DrawMode(self):
+        """
+        Logical operation for how the drawing is done. Can be one of:  (str)
+
+            copy (or None) - default
+            invert
+            and
+            and_invert
+            and_reverse
+            clear
+            equiv
+            nand
+            nor
+            no_op
+            or
+            or_invert
+            or_reverse
+            set
+            src_invert
+            xor
+
+        """
         return self._drawMode
 
-    def _setDrawMode(self, val):
+    @DrawMode.setter
+    def DrawMode(self, val):
         if val is None:
             self._drawMode = None
         else:
@@ -4038,174 +3870,251 @@ class DrawObject(dObject):
                 self._drawMode = val
                 self.update()
 
-    def _getEndAngle(self):
+    @property
+    def EndAngle(self):
+        """Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"""
         return self._endAngle
 
-    def _setEndAngle(self, val):
+    @EndAngle.setter
+    def EndAngle(self, val):
         if self._endAngle != val:
             self._endAngle = val
             self.update()
 
-    def _getFillColor(self):
+    @property
+    def FillColor(self):
+        """Background color for the shape  (color)"""
         return self._fillColor
 
-    def _setFillColor(self, val):
+    @FillColor.setter
+    def FillColor(self, val):
         if self._fillColor != val:
             self._fillColor = val
             self.update()
 
-    def _getFontBold(self):
+    @property
+    def FontBold(self):
+        """Bold setting for text objects  (bool)"""
         return self._fontBold
 
-    def _setFontBold(self, val):
+    @FontBold.setter
+    def FontBold(self, val):
         if self._fontBold != val:
             self._fontBold = val
             self.update()
 
-    def _getFontFace(self):
+    @property
+    def FontFace(self):
+        """Face of the font used for text objects  (str)"""
         return self._fontFace
 
-    def _setFontFace(self, val):
+    @FontFace.setter
+    def FontFace(self, val):
         if self._fontFace != val:
             self._fontFace = val
             self.update()
 
-    def _getFontItalic(self):
+    @property
+    def FontItalic(self):
+        """Italic setting for text objects  (bool)"""
         return self._fontItalic
 
-    def _setFontItalic(self, val):
+    @FontItalic.setter
+    def FontItalic(self, val):
         if self._fontItalic != val:
             self._fontItalic = val
             self.update()
 
-    def _getFontSize(self):
+    @property
+    def FontSize(self):
+        """Size of the font used for text objects  (int)"""
         return self._fontSize
 
-    def _setFontSize(self, val):
+    @FontSize.setter
+    def FontSize(self, val):
         if self._fontSize != val:
             self._fontSize = val
             self.update()
 
-    def _getFontUnderline(self):
+    @property
+    def FontUnderline(self):
+        """Underline setting for text objects  (bool)"""
         return self._fontUnderline
 
-    def _setFontUnderline(self, val):
+    @FontUnderline.setter
+    def FontUnderline(self, val):
         if self._fontUnderline != val:
             self._fontUnderline = val
             self.update()
 
-    def _getForeColor(self):
+    @property
+    def ForeColor(self):
+        """Color of text when using text objects  (str or tuple)"""
         return self._foreColor
 
-    def _setForeColor(self, val):
+    @ForeColor.setter
+    def ForeColor(self, val):
         if self._foreColor != val:
             self._foreColor = val
             self.update()
 
-    def _getGradientColor1(self):
+    @property
+    def GradientColor1(self):
+        """Top/Left color for the gradient  (color: str or tuple)"""
         return self._gradientColor1
 
-    def _setGradientColor1(self, val):
+    @GradientColor1.setter
+    def GradientColor1(self, val):
         if isinstance(val, str):
             val = dColors.colorTupleFromName(val)
         if self._gradientColor1 != val:
             self._gradientColor1 = val
             self.update()
 
-    def _getGradientColor2(self):
+    @property
+    def GradientColor2(self):
+        """Bottom/Right color for the gradient  (color: str or tuple)"""
         return self._gradientColor2
 
-    def _setGradientColor2(self, val):
+    @GradientColor2.setter
+    def GradientColor2(self, val):
         if isinstance(val, str):
             val = dColors.colorTupleFromName(val)
         if self._gradientColor2 != val:
             self._gradientColor2 = val
             self.update()
 
-    def _getHatchStyle(self):
+    @property
+    def HatchStyle(self):
+        """
+        Hatching style for the fill.  (str)
+        Options are:
+
+            Solid (default)
+            Transparent
+            Cross
+            Horizontal
+            Vertical
+            Diagonal
+            ReverseDiagonal
+            CrossDiagonal
+        """
         return self._hatchStyle
 
-    def _setHatchStyle(self, val):
+    @HatchStyle.setter
+    def HatchStyle(self, val):
         if isinstance(val, str):
             val = val.lower()
         if self._hatchStyle != val:
             self._hatchStyle = val
             self.update()
 
-    def _getHeight(self):
+    @property
+    def Height(self):
+        """For rectangles, the height of the shape  (int)"""
         return self._height
 
-    def _setHeight(self, val):
+    @Height.setter
+    def Height(self, val):
         if self._height != val:
             self._height = val
             self.update()
 
-    def _getLineStyle(self):
+    @property
+    def LineStyle(self):
+        """Line style (solid, dash, dot) drawn  (str)"""
         return self._lineStyle
 
-    def _setLineStyle(self, val):
+    @LineStyle.setter
+    def LineStyle(self, val):
         if isinstance(val, str):
             val = val.lower()
         if self._lineStyle != val:
             self._lineStyle = val
             self.update()
 
-    def _getOrientation(self):
+    @property
+    def Orientation(self):
+        """Direction of the drawn gradient ('v' or 'h')  (str)"""
         return self._orientation
 
-    def _setOrientation(self, val):
+    @Orientation.setter
+    def Orientation(self, val):
         val = val[0].lower()
         if self._orientation != val:
             self._orientation = val
             self.update()
 
-    def _getParent(self):
+    @property
+    def Parent(self):
+        """Reference to the object being drawn upon.  (object)"""
         return self._parent
 
-    def _setParent(self, val):
+    @Parent.setter
+    def Parent(self, val):
         self._parent = val
 
-    def _getPenColor(self):
+    @property
+    def PenColor(self):
+        """ForeColor of the shape's lines  (color)"""
         return self._penColor
 
-    def _setPenColor(self, val):
+    @PenColor.setter
+    def PenColor(self, val):
         if self._penColor != val:
             self._penColor = val
             self.update()
 
-    def _getPenWidth(self):
+    @property
+    def PenWidth(self):
+        """Width of the shape's lines  (int)"""
         return self._penWidth
 
-    def _setPenWidth(self, val):
+    @PenWidth.setter
+    def PenWidth(self, val):
         if self._penWidth != val:
             self._penWidth = val
             self.update()
 
-    def _getPoints(self):
+    @property
+    def Points(self):
+        """Tuple of (x,y) pairs defining a polygon.  (tuple)"""
         return self._points
 
-    def _setPoints(self, val):
+    @Points.setter
+    def Points(self, val):
         if self._points != val:
             self._points = val
             self.update()
 
-    def _getPosition(self):
+    @property
+    def Position(self):
+        """Shorthand for (Xpos, Ypos).  (2-tuple)"""
         return (self._xPos, self._yPos)
 
-    def _setPosition(self, val):
+    @Position.setter
+    def Position(self, val):
         if (self._xPos, self._yPos) != val:
             self._xPos, self._yPos = val
             self.update()
 
-    def _getRadius(self):
+    @property
+    def Radius(self):
+        """
+        For circles, the radius of the shape. For Rounded Rectangles, the radius of the rounded
+        corner. (int)
+        """
         return self._radius
 
-    def _setRadius(self, val):
+    @Radius.setter
+    def Radius(self, val):
         if self._radius != val:
             self._radius = val
             self.update()
 
-    def _getRect(self):
+    @property
+    def Rect(self):
+        """Reference to a wx.Rect that encompasses the drawn object (read-only) (wx.Rect)"""
         x, y, w, h = self._xPos, self._yPos, self._width, self._height
         if self._shape == "circle":
             # x and y are the center, so correct for that.
@@ -4234,312 +4143,104 @@ class DrawObject(dObject):
                 x -= cos * th
         return wx.Rect(x, y, w, h)
 
-    def _getSize(self):
+    @property
+    def Size(self):
+        """Convenience property, equivalent to (Width, Height)  (2-tuple)"""
         return (self._width, self._height)
 
-    def _setSize(self, val):
+    @Size.setter
+    def Size(self, val):
         if (self._width, self._height) != val:
             self._width, self._height = val
             self.update()
 
-    def _getShape(self):
+    @property
+    def Shape(self):
+        """Type of shape to draw  (str)"""
         return self._shape
 
-    def _setShape(self, val):
+    @Shape.setter
+    def Shape(self, val):
         self._shape = val
 
-    def _getStartAngle(self):
+    @property
+    def StartAngle(self):
+        """Angle (in degrees) used to start drawing a circular or elliptic arc  (int)"""
         return self._startAngle
 
-    def _setStartAngle(self, val):
+    @StartAngle.setter
+    def StartAngle(self, val):
         if self._startAngle != val:
             self._startAngle = val
             self.update()
 
-    def _getText(self):
+    @property
+    def Text(self):
+        """Text to be drawn  (str)"""
         return self._text
 
-    def _setText(self, val):
+    @Text.setter
+    def Text(self, val):
         self._text = val
 
-    def _getTransparent(self):
+    @property
+    def Transparent(self):
+        """Should the bitmap be drawn transparently?  (bool)"""
         return self._transparent
 
-    def _setTransparent(self, val):
+    @Transparent.setter
+    def Transparent(self, val):
         self._transparent = val
 
-    def _getVisible(self):
+    @property
+    def Visible(self):
+        """Controls whether the shape is drawn.  (bool)"""
         return self._visible
 
-    def _setVisible(self, val):
+    @Visible.setter
+    def Visible(self, val):
         if self._visible != val:
             self._visible = val
             self.update()
 
-    def _getWidth(self):
+    @property
+    def Width(self):
+        """For rectangles, the width of the shape  (int)"""
         return self._width
 
-    def _setWidth(self, val):
+    @Width.setter
+    def Width(self, val):
         if self._width != val:
             self._width = val
             self.update()
 
-    def _getXpos(self):
+    @property
+    def Xpos(self):
+        """
+        For circles, the x position of the center. For rectangles, the x position of the top left
+        corner. (int)
+        """
         return self._xPos
 
-    def _setXpos(self, val):
+    @Xpos.setter
+    def Xpos(self, val):
         if self._xPos != val:
             self._xPos = val
             self.update()
 
-    def _getYpos(self):
+    @property
+    def Ypos(self):
+        """
+        For circles, the y position of the center. For rectangles, the y position of the top left
+        corner. (int)
+        """
         return self._yPos
 
-    def _setYpos(self, val):
+    @Ypos.setter
+    def Ypos(self, val):
         if self._yPos != val:
             self._yPos = val
             self.update()
-
-    Angle = property(_getAngle, _setAngle, None, _("Angle (in degrees) to draw text  (int)"))
-
-    BackColor = property(
-        _getBackColor,
-        _setBackColor,
-        None,
-        _("Background color of text when using text objects  (str or tuple)"),
-    )
-
-    Bitmap = property(
-        _getBitmap, _setBitmap, None, _("Bitmap to be drawn on the object  (dBitmap)")
-    )
-
-    DrawMode = property(
-        _getDrawMode,
-        _setDrawMode,
-        None,
-        _(
-            """Logical operation for how the drawing is done. Can be one of:  (str)
-
-                copy (or None) - default
-                invert
-                and
-                and_invert
-                and_reverse
-                clear
-                equiv
-                nand
-                nor
-                no_op
-                or
-                or_invert
-                or_reverse
-                set
-                src_invert
-                xor
-
-            """
-        ),
-    )
-
-    EndAngle = property(
-        _getEndAngle,
-        _setEndAngle,
-        None,
-        _("Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"),
-    )
-
-    FillColor = property(
-        _getFillColor, _setFillColor, None, _("Background color for the shape  (color)")
-    )
-
-    FontBold = property(
-        _getFontBold, _setFontBold, None, _("Bold setting for text objects  (bool)")
-    )
-
-    FontFace = property(
-        _getFontFace,
-        _setFontFace,
-        None,
-        _("Face of the font used for text objects  (str)"),
-    )
-
-    FontItalic = property(
-        _getFontItalic,
-        _setFontItalic,
-        None,
-        _("Italic setting for text objects  (bool)"),
-    )
-
-    FontSize = property(
-        _getFontSize,
-        _setFontSize,
-        None,
-        _("Size of the font used for text objects  (int)"),
-    )
-
-    FontUnderline = property(
-        _getFontUnderline,
-        _setFontUnderline,
-        None,
-        _("Underline setting for text objects  (bool)"),
-    )
-
-    ForeColor = property(
-        _getForeColor,
-        _setForeColor,
-        None,
-        _("Color of text when using text objects  (str or tuple)"),
-    )
-
-    GradientColor1 = property(
-        _getGradientColor1,
-        _setGradientColor1,
-        None,
-        _("Top/Left color for the gradient  (color: str or tuple)"),
-    )
-
-    GradientColor2 = property(
-        _getGradientColor2,
-        _setGradientColor2,
-        None,
-        _("Bottom/Right color for the gradient  (color: str or tuple)"),
-    )
-
-    HatchStyle = property(
-        _getHatchStyle,
-        _setHatchStyle,
-        None,
-        _(
-            """Hatching style for the fill.  (str)
-                    Options are:
-
-                        Solid (default)
-                        Transparent
-                        Cross
-                        Horizontal
-                        Vertical
-                        Diagonal
-                        ReverseDiagonal
-                        CrossDiagonal
-            """
-        ),
-    )
-
-    Height = property(
-        _getHeight,
-        _setHeight,
-        None,
-        _("For rectangles, the height of the shape  (int)"),
-    )
-
-    LineStyle = property(
-        _getLineStyle,
-        _setLineStyle,
-        None,
-        _("Line style (solid, dash, dot) drawn  (str)"),
-    )
-
-    Orientation = property(
-        _getOrientation,
-        _setOrientation,
-        None,
-        _("Direction of the drawn gradient ('v' or 'h')  (str)"),
-    )
-
-    Parent = property(
-        _getParent,
-        _setParent,
-        None,
-        _("Reference to the object being drawn upon.  (object)"),
-    )
-
-    PenColor = property(
-        _getPenColor, _setPenColor, None, _("ForeColor of the shape's lines  (color)")
-    )
-
-    PenWidth = property(_getPenWidth, _setPenWidth, None, _("Width of the shape's lines  (int)"))
-
-    Points = property(
-        _getPoints,
-        _setPoints,
-        None,
-        _("Tuple of (x,y) pairs defining a polygon.  (tuple)"),
-    )
-
-    Position = property(
-        _getPosition, _setPosition, None, _("Shorthand for (Xpos, Ypos).  (2-tuple)")
-    )
-
-    Radius = property(
-        _getRadius,
-        _setRadius,
-        None,
-        _(
-            """For circles, the radius of the shape. For Rounded Rectangles,
-            the radius of the rounded corner. (int)"""
-        ),
-    )
-
-    Rect = property(
-        _getRect,
-        None,
-        None,
-        _("Reference to a wx.Rect that encompasses the drawn object (read-only) (wx.Rect)"),
-    )
-
-    Size = property(
-        _getSize,
-        _setSize,
-        None,
-        _("Convenience property, equivalent to (Width, Height)  (2-tuple)"),
-    )
-
-    Shape = property(_getShape, _setShape, None, _("Type of shape to draw  (str)"))
-
-    StartAngle = property(
-        _getStartAngle,
-        _setStartAngle,
-        None,
-        _("Angle (in degrees) used to start drawing a circular or elliptic arc  (int)"),
-    )
-
-    Text = property(_getText, _setText, None, _("Text to be drawn  (str)"))
-
-    Transparent = property(
-        _getTransparent,
-        _setTransparent,
-        None,
-        _("Should the bitmap be drawn transparently?  (bool)"),
-    )
-
-    Visible = property(
-        _getVisible,
-        _setVisible,
-        None,
-        _("Controls whether the shape is drawn.  (bool)"),
-    )
-
-    Width = property(_getWidth, _setWidth, None, _("For rectangles, the width of the shape  (int)"))
-
-    Xpos = property(
-        _getXpos,
-        _setXpos,
-        None,
-        _(
-            """For circles, the x position of the center. For rectangles,
-            the x position of the top left corner. (int)"""
-        ),
-    )
-
-    Ypos = property(
-        _getYpos,
-        _setYpos,
-        None,
-        _(
-            """For circles, the y position of the center. For rectangles,
-            the y position of the top left corner. (int)"""
-        ),
-    )
 
     DynamicAngle = makeDynamicProperty(Angle)
     DynamicBackColor = makeDynamicProperty(BackColor)
@@ -4611,41 +4312,32 @@ class _DropTarget(wx.DropTarget):
     def OnDragOver(self, xpos, ypos, result):
         return wx.DragLink
 
-    # Property getters and setters
-    def _getFileHandler(self):
+    # Property definitions
+    @property
+    def FileHandler(self):
+        """
+        Reference to the object that will handle files dropped on this control.  When files are
+        dropped, a list of them will be passed to this object's 'processDroppedFiles()' method.
+        Default=None  (object or None)
+        """
         return self._fileHandle
 
-    def _setFileHandler(self, val):
+    @FileHandler.setter
+    def FileHandler(self, val):
         self._fileHandle = val
 
-    def _getTextHandler(self):
+    @property
+    def TextHandler(self):
+        """
+        Reference to the object that will handle text dropped on this control.  When text is
+        dropped, that text will be passed to this object's 'processDroppedText()' method.
+        Default=None  (object or None)
+        """
         return self._textHandle
 
-    def _setTextHandler(self, val):
+    @TextHandler.setter
+    def TextHandler(self, val):
         self._textHandle = val
-
-    # PropertyDefinitions
-    FileHandler = property(
-        _getFileHandler,
-        _setFileHandler,
-        None,
-        _(
-            """Reference to the object that will handle files dropped on this control.
-            When files are dropped, a list of them will be passed to this object's
-            'processDroppedFiles()' method. Default=None  (object or None)"""
-        ),
-    )
-
-    TextHandler = property(
-        _getTextHandler,
-        _setTextHandler,
-        None,
-        _(
-            """Reference to the object that will handle text dropped on this control.
-            When text is dropped, that text will be passed to this object's
-            'processDroppedText()' method. Default=None  (object or None)"""
-        ),
-    )
 
 
 if __name__ == "__main__":

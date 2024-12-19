@@ -158,85 +158,65 @@ class dDialog(dFormMixin, wx.Dialog):
         # Placeholder until we unify dForm and dDialog
         pass
 
-    def _getAutoSize(self):
+    # Property definitions
+    @property
+    def AutoSize(self):
+        """When True, the dialog resizes to fit the added controls.  (bool)"""
         return self._fit
 
-    def _setAutoSize(self, val):
+    @AutoSize.setter
+    def AutoSize(self, val):
         self._fit = val
 
-    def _getBorderless(self):
+    @property
+    def Borderless(self):
+        """
+        Must be passed at construction time. When set to True, the dialog displays without a title
+        bar or borders  (bool)
+        """
         return self._borderless
 
-    def _setBorderless(self, val):
+    @Borderless.setter
+    def Borderless(self, val):
         if self._constructed():
             raise ValueError(_("Cannot set the Borderless property once the dialog is created."))
         else:
             self._properties["Borderless"] = val
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """The text that appears in the dialog's title bar  (str)"""
         return self.GetTitle()
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         if self._constructed():
             self.SetTitle(val)
         else:
             self._properties["Caption"] = val
 
-    def _getCentered(self):
+    @property
+    def Centered(self):
+        """Determines if the dialog is displayed centered on the screen.  (bool)"""
         return self._centered
 
-    def _setCentered(self, val):
+    @Centered.setter
+    def Centered(self, val):
         self._centered = val
 
-    def _getModal(self):
+    @property
+    def Modal(self):
+        """Determines if the dialog is shown modal (default) or modeless.  (bool)"""
         return self._modal
 
-    def _setModal(self, val):
+    @Modal.setter
+    def Modal(self, val):
         self._modal = val
 
-    def _getShowStat(self):
-        # Dialogs cannot have status bars.
+    @property
+    def ShowStatusBar(self):
+        """Dialogs cannot have status bars, so return False"""
         return False
-
-    _showStatusBar = property(_getShowStat)
-
-    AutoSize = property(
-        _getAutoSize,
-        _setAutoSize,
-        None,
-        _("When True, the dialog resizes to fit the added controls.  (bool)"),
-    )
-
-    Borderless = property(
-        _getBorderless,
-        _setBorderless,
-        None,
-        _(
-            """Must be passed at construction time. When set to True, the dialog displays
-            without a title bar or borders  (bool)"""
-        ),
-    )
-
-    Caption = property(
-        _getCaption,
-        _setCaption,
-        None,
-        _("The text that appears in the dialog's title bar  (str)"),
-    )
-
-    Centered = property(
-        _getCentered,
-        _setCentered,
-        None,
-        _("Determines if the dialog is displayed centered on the screen.  (bool)"),
-    )
-
-    Modal = property(
-        _getModal,
-        _setModal,
-        None,
-        _("Determines if the dialog is shown modal (default) or modeless.  (bool)"),
-    )
 
     DynamicAutoSize = makeDynamicProperty(AutoSize)
     DynamicCaption = makeDynamicProperty(Caption)
@@ -513,25 +493,43 @@ class dStandardButtonDialog(dDialog):
         self.Sizer.insert(self.LastPositionInSizer, gs, "x")
         self.layout()
 
-    def _getAccepted(self):
+    @property
+    def Accepted(self):
+        """Specifies whether the user accepted the dialog, or canceled.  (bool)"""
         return self._accepted
 
-    def _setAccepted(self, val):
+    @Accepted.setter
+    def Accepted(self, val):
         self._accepted = val
 
-    def _getButtonSizer(self):
+    @property
+    def ButtonSizer(self):
         return getattr(self, "stdButtonSizer", None)
 
-    def _getButtonSizerPosition(self):
+    """Returns a reference to the sizer controlling the Ok/Cancel buttons.  (dSizer)"""
+
+    @property
+    def ButtonSizerPosition(self):
+        """Returns the position of the Ok/Cancel buttons in the sizer.  (int)"""
         return self.ButtonSizer.getPositionInSizer()
 
-    def _getCancelButton(self):
+    @property
+    def CancelButton(self):
+        """Reference to the Cancel button on the form, if present  (dButton or None)."""
         return self.btnCancel
 
-    def _getCancelOnEscape(self):
+    @property
+    def CancelOnEscape(self):
+        """
+        When True (default), pressing the Escape key will perform the same action as clicking the
+        Cancel button. If no Cancel button is present but there is a No button, the No behavior will
+        be executed. If neither button is present, the default button's action will be executed
+        (bool)
+        """
         return self._cancelOnEscape
 
-    def _setCancelOnEscape(self, val):
+    @CancelOnEscape.setter
+    def CancelOnEscape(self, val):
         if self._constructed():
             self._cancelOnEscape = val
             self.setEscapeButton(None)
@@ -543,85 +541,25 @@ class dStandardButtonDialog(dDialog):
         else:
             self._properties["CancelOnEscape"] = val
 
-    def _getHelpButton(self):
+    @property
+    def HelpButton(self):
+        """Reference to the Help button on the form, if present  (dButton or None)."""
         return self.btnHelp
 
-    def _getOKButton(self):
-        return self.btnOK
-
-    def _getNoButton(self):
+    @property
+    def NoButton(self):
+        """Reference to the No button on the form, if present  (dButton or None)."""
         return self.btnNo
 
-    def _getYesButton(self):
+    @property
+    def OKButton(self):
+        """Reference to the OK button on the form, if present  (dButton or None)."""
+        return self.btnOK
+
+    @property
+    def YesButton(self):
+        """Reference to the Yes button on the form, if present  (dButton or None)."""
         return self.btnYes
-
-    Accepted = property(
-        _getAccepted,
-        _setAccepted,
-        None,
-        _("Specifies whether the user accepted the dialog, or canceled.  (bool)"),
-    )
-
-    ButtonSizer = property(
-        _getButtonSizer,
-        None,
-        None,
-        _("Returns a reference to the sizer controlling the Ok/Cancel buttons.  (dSizer)"),
-    )
-
-    ButtonSizerPosition = property(
-        _getButtonSizerPosition,
-        None,
-        None,
-        _("""Returns the position of the Ok/Cancel buttons in the sizer.  (int)"""),
-    )
-
-    CancelButton = property(
-        _getCancelButton,
-        None,
-        None,
-        _("Reference to the Cancel button on the form, if present  (dButton or None)."),
-    )
-
-    CancelOnEscape = property(
-        _getCancelOnEscape,
-        _setCancelOnEscape,
-        None,
-        _(
-            """When True (default), pressing the Escape key will perform the same action
-            as clicking the Cancel button. If no Cancel button is present but there is a No button,
-            the No behavior will be executed. If neither button is present, the default button's
-            action will be executed  (bool)"""
-        ),
-    )
-
-    HelpButton = property(
-        _getHelpButton,
-        None,
-        None,
-        _("Reference to the Help button on the form, if present  (dButton or None)."),
-    )
-
-    NoButton = property(
-        _getNoButton,
-        None,
-        None,
-        _("Reference to the No button on the form, if present  (dButton or None)."),
-    )
-
-    OKButton = property(
-        _getOKButton,
-        None,
-        None,
-        _("Reference to the OK button on the form, if present  (dButton or None)."),
-    )
-
-    YesButton = property(
-        _getYesButton,
-        None,
-        None,
-        _("Reference to the Yes button on the form, if present  (dButton or None)."),
-    )
 
 
 class dOkCancelDialog(dStandardButtonDialog):
@@ -680,37 +618,29 @@ class FloatDialog(dDialog):
         """
         self.Position = pos
 
-    def _getAbove(self):
+    @property
+    def Above(self):
         return self._above
 
-    def _setAbove(self, val):
+    @Above.setter
+    def Above(self, val):
+        """Is this dialog positioned above its owner? Default=False  (bool)"""
         if self._constructed():
             self._above = val
         else:
             self._properties["Above"] = val
 
-    def _getOwner(self):
+    @property
+    def Owner(self):
+        """Control which is currently managing this window.  (varies)"""
         return self._owner
 
-    def _setOwner(self, val):
+    @Owner.setter
+    def Owner(self, val):
         if self._constructed():
             self._owner = val
         else:
             self._properties["Owner"] = val
-
-    Above = property(
-        _getAbove,
-        _setAbove,
-        None,
-        _("Is this dialog positioned above its owner? Default=False  (bool)"),
-    )
-
-    Owner = property(
-        _getOwner,
-        _setOwner,
-        None,
-        _("Control which is currently managing this window.  (varies)"),
-    )
 
 
 ui.dDialog = dDialog

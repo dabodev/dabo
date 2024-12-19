@@ -26,29 +26,30 @@ class SortingForm(dOkCancelDialog):
         self.Sizer.append(self.listBox, 1, "expand", border=30, borderSides="all")
         self.layout()
 
-    def _getChoices(self):
+    @property
+    def Choices(self):
         try:
             return self.listBox.Choices
         except AttributeError:
             return self._itms
 
-    def _setChoices(self, chc):
+    # Property definitions
+    @Choices.setter
+    def Choices(self, chc):
+        """Items in the list to sort.   (list)"""
         self._itms = self.listBox.Choices = list(chc)
 
-    def _getListCaption(self):
+    @property
+    def ListCaption(self):
+        """Caption for the sorting list  (str)"""
         return self.listBox.Caption
 
-    def _setListCaption(self, val):
+    @ListCaption.setter
+    def ListCaption(self, val):
         try:
             self.listBox.Caption = val
         except AttributeError:
             self._listCaption = val
-
-    ListCaption = property(
-        _getListCaption, _setListCaption, None, _("Caption for the sorting list  (str)")
-    )
-
-    Choices = property(_getChoices, _setChoices, None, _("Items in the list to sort.   (list)"))
 
 
 if __name__ == "__main__":

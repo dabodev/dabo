@@ -153,10 +153,9 @@ def autoCreateTables(noAccessDialog=None):
                     self.Accepted = False
                     self.EndModal(dabo.dConstants.DLG_CANCEL)
 
-                def _getAnswer(self):
+                @property
+                def Answer(self):
                     return self._data
-
-                Answer = property(_getAnswer)
 
             for k in g._toExc:
                 if noAccessDialog is None:
@@ -342,7 +341,7 @@ class dAutoBizobj(dBizobj):
                         else:
                             g._toExc[self._conn] = [e.sql]
 
-    def _getTable(self):
+    @property
+    def Table(self):
+        """The table definition for this bizobj.  (object)"""
         return self._table
-
-    Table = property(_getTable, None, None, _("The table definition for this bizobj.  (object)"))

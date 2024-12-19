@@ -172,11 +172,13 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
         self._evtCalYearType = wxcal.EVT_CALENDAR_YEAR.evtType[0]
 
     ### Begin property defs  ###
-    def _getDate(self):
-        # return self.PyGetDate()
+    @property
+    def Date(self):
+        """The current Date of the calendar  (datetime.date)"""
         return self.GetDate()
 
-    def _setDate(self, val):
+    @Date.setter
+    def Date(self, val):
         # curr = self.PyGetDate()
         curr = self.GetDate()
         if isinstance(val, tuple):
@@ -207,176 +209,122 @@ class BaseCalendar(dControlMixin, wxcal.CalendarCtrl):
             self.raiseEvent(events.CalendarDateChanged)
         self.Refresh()
 
-    def _getFirstDayOfWeek(self):
+    @property
+    def FirstDayOfWeek(self):
+        """
+        Can be one of either 'Sunday' or 'Monday'. Determines which day of the week appears in the
+        first column. Defaults to the value set in settings.firstDayOfWeek. Read-only at runtime.
+        (str)
+        """
         return self._firstDayOfWeek
 
-    def _getFixedMonth(self):
+    @property
+    def FixedMonth(self):
         return self._fixedMonth
 
-    def _setFixedMonth(self, val):
+    @FixedMonth.setter
+    def FixedMonth(self, val):
+        """When True, the user cannot change the displayed month. Default=False  (bool)"""
         self._fixedMonth = val
         if val:
             # Fixing the month fixes the year, too
             self._fixedYear = True
         self.EnableMonthChange(not val)
 
-    def _getFixedYear(self):
+    @property
+    def FixedYear(self):
         return self._fixedYear
 
-    def _setFixedYear(self, val):
+    @FixedYear.setter
+    def FixedYear(self, val):
+        """When True, the user cannot change the displayed year. Default=False  (bool)"""
         self._fixedYear = val
         if not val:
             # Enabling the year will also enable the month
             self._fixedMonth = False
         self.EnableYearChange(not val)
 
-    def _getHeaderBackColor(self):
+    @property
+    def HeaderBackColor(self):
+        """Background color of the calendar header  (str or tuple)"""
         return self.GetHeaderColourBg().Get()
 
-    def _setHeaderBackColor(self, val):
+    @HeaderBackColor.setter
+    def HeaderBackColor(self, val):
         # Need to set both
         color = self.getWxColour(val)
         self.SetHeaderColours(self.GetHeaderColourFg(), color)
         self.refresh()
 
-    def _getHeaderForeColor(self):
+    @property
+    def HeaderForeColor(self):
+        """Forecolor of the calendar header  (str or tuple)"""
         return self.GetHeaderColourFg().Get()
 
-    def _setHeaderForeColor(self, val):
+    @HeaderForeColor.setter
+    def HeaderForeColor(self, val):
         # Need to set both
         color = self.getWxColour(val)
         self.SetHeaderColours(color, self.GetHeaderColourBg())
         self.refresh()
 
-    def _getHighlightBackColor(self):
+    @property
+    def HighlightBackColor(self):
+        """Background color of the calendar highlight  (str or tuple)"""
         return self.GetHighlightColourBg().Get()
 
-    def _setHighlightBackColor(self, val):
+    @HighlightBackColor.setter
+    def HighlightBackColor(self, val):
         # Need to set both
         color = self.getWxColour(val)
         self.SetHighlightColours(self.GetHighlightColourFg(), color)
         self.refresh()
 
-    def _getHighlightForeColor(self):
+    @property
+    def HighlightForeColor(self):
+        """Forecolor of the calendar highlight  (str or tuple)"""
         return self.GetHighlightColourFg().Get()
 
-    def _setHighlightForeColor(self, val):
+    @HighlightForeColor.setter
+    def HighlightForeColor(self, val):
         # Need to set both
         color = self.getWxColour(val)
         self.SetHighlightColours(color, self.GetHighlightColourBg())
         self.refresh()
 
-    def _getHolidayBackColor(self):
+    @property
+    def HolidayBackColor(self):
+        """Background color of the calendar holiday  (str or tuple)"""
         return self.GetHolidayColourBg().Get()
 
-    def _setHolidayBackColor(self, val):
+    @HolidayBackColor.setter
+    def HolidayBackColor(self, val):
         # Need to set both
         color = self.getWxColour(val)
         self.SetHolidayColours(self.GetHolidayColourFg(), color)
         self.refresh()
 
-    def _getHolidayForeColor(self):
+    @property
+    def HolidayForeColor(self):
+        """Forecolor of the calendar holiday  (str or tuple)"""
         return self.GetHolidayColourFg().Get()
 
-    def _setHolidayForeColor(self, val):
+    @HolidayForeColor.setter
+    def HolidayForeColor(self, val):
         # Need to set both
         color = self.getWxColour(val)
         self.SetHolidayColours(color, self.GetHolidayColourBg())
         self.refresh()
 
-    def _getHighlightHolidays(self):
+    @property
+    def HighlightHolidays(self):
+        """Determines whether holidays are displayed as highlighted. Default=False.  (bool)"""
         return self._highlightHolidays
 
-    def _setHighlightHolidays(self, val):
+    @HighlightHolidays.setter
+    def HighlightHolidays(self, val):
         self._highlightHolidays = val
         self.EnableHolidayDisplay(val)
-
-    Date = property(
-        _getDate, _setDate, None, _("The current Date of the calendar  (datetime.date)")
-    )
-
-    FirstDayOfWeek = property(
-        _getFirstDayOfWeek,
-        None,
-        None,
-        _(
-            """Can be one of either 'Sunday' or 'Monday'. Determines which day
-            of the week appears in the first column. Defaults to the value set
-            in settings.firstDayOfWeek. Read-only at runtime.  (str)"""
-        ),
-    )
-
-    FixedMonth = property(
-        _getFixedMonth,
-        _setFixedMonth,
-        None,
-        _(
-            """When True, the user cannot change the displayed month.
-            Default=False  (bool)"""
-        ),
-    )
-
-    FixedYear = property(
-        _getFixedYear,
-        _setFixedYear,
-        None,
-        _(
-            """When True, the user cannot change the displayed month.
-            Default=False  (bool)"""
-        ),
-    )
-
-    HeaderBackColor = property(
-        _getHeaderBackColor,
-        _setHeaderBackColor,
-        None,
-        _("Background color of the calendar header  (str or tuple)"),
-    )
-
-    HeaderForeColor = property(
-        _getHeaderForeColor,
-        _setHeaderForeColor,
-        None,
-        _("Forecolor of the calendar header  (str or tuple)"),
-    )
-
-    HighlightBackColor = property(
-        _getHighlightBackColor,
-        _setHighlightBackColor,
-        None,
-        _("Background color of the calendar highlight  (str or tuple)"),
-    )
-
-    HighlightForeColor = property(
-        _getHighlightForeColor,
-        _setHighlightForeColor,
-        None,
-        _("Forecolor of the calendar highlight  (str or tuple)"),
-    )
-
-    HolidayBackColor = property(
-        _getHolidayBackColor,
-        _setHolidayBackColor,
-        None,
-        _("Background color of the calendar holiday  (str or tuple)"),
-    )
-
-    HolidayForeColor = property(
-        _getHolidayForeColor,
-        _setHolidayForeColor,
-        None,
-        _("Forecolor of the calendar holiday  (str or tuple)"),
-    )
-
-    HighlightHolidays = property(
-        _getHighlightHolidays,
-        _setHighlightHolidays,
-        None,
-        _(
-            """Determines whether holidays are displayed as highlighted.
-            Default=False.  (bool)"""
-        ),
-    )
 
     Value = Date
 

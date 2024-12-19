@@ -517,14 +517,18 @@ class dMenu(dPemMixin, wx.Menu):
         daboChildren = [self._daboChildren.get(c.GetId(), c) for c in children]
         return daboChildren
 
-    def _getCaption(self):
+    # Property definitions
+    @property
+    def Caption(self):
+        """Specifies the text of the menu.  (str)"""
         try:
             v = self._caption
         except AttributeError:
             v = self._caption = ""
         return v
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         if self._constructed():
             prnt = self.Parent
             if isinstance(prnt, wx.MenuBar):
@@ -545,43 +549,60 @@ class dMenu(dPemMixin, wx.Menu):
         else:
             self._properties["Caption"] = val
 
-    def _getEnabled(self):
+    @property
+    def Enabled(self):
+        """Specifies whether the menu can be interacted with. Default=True  (bool)"""
         return self.Parent.IsEnabled(self._wxMenuItemId)
 
-    def _setEnabled(self, val):
+    @Enabled.setter
+    def Enabled(self, val):
         if self._constructed():
             self.Parent.Enable(self._wxMenuItemId, bool(val))
         else:
             self._properties["Enabled"] = val
 
-    def _getForm(self):
+    @property
+    def Form(self):
+        """Specifies the form that contains the menu.  (dForm)"""
         if self.Parent:
             return self.Parent.Form
         return None
 
-    def _getHelpText(self):
+    @property
+    def HelpText(self):
+        """Specifies the help text associated with this menu.  (str)"""
         try:
             v = self._helpText
         except AttributeError:
             v = self._helpText = ""
         return v
 
-    def _setHelpText(self, val):
+    @HelpText.setter
+    def HelpText(self, val):
         self._helpText = val
 
-    def _getMenuID(self):
+    @property
+    def MenuID(self):
+        """
+        Identifying value for this menu. NOTE: there is no checking for duplicate values; it is the
+        responsibility to ensure that MenuID values are unique.  (varies)
+        """
         return self._menuID
 
-    def _setMenuID(self, val):
+    @MenuID.setter
+    def MenuID(self, val):
         if self._constructed():
             self._menuID = val
         else:
             self._properties["MenuID"] = val
 
-    def _getMRU(self):
+    @property
+    def MRU(self):
+        """Determines if this menu uses Most Recently Used behavior. Default=False  (bool)"""
         return self._useMRU
 
-    def _setMRU(self, val):
+    @MRU.setter
+    def MRU(self, val):
         if self._constructed():
             self._useMRU = val
             if val:
@@ -591,58 +612,18 @@ class dMenu(dPemMixin, wx.Menu):
         else:
             self._properties["MRU"] = val
 
-    def _getParent(self):
+    @property
+    def Parent(self):
+        """Specifies the parent menu or menubar.  (varies)"""
         try:
             v = self._parent
         except AttributeError:
             v = self._parent = None
         return v
 
-    def _setParent(self, val):
+    @Parent.setter
+    def Parent(self, val):
         self._parent = val
-
-    Caption = property(_getCaption, _setCaption, None, _("Specifies the text of the menu.  (str)"))
-
-    Enabled = property(
-        _getEnabled,
-        _setEnabled,
-        None,
-        _("Specifies whether the menu can be interacted with. Default=True  (bool)"),
-    )
-
-    Form = property(_getForm, None, None, _("Specifies the form that contains the menu.  (dForm)"))
-
-    HelpText = property(
-        _getHelpText,
-        _setHelpText,
-        None,
-        _("Specifies the help text associated with this menu.  (str)"),
-    )
-
-    MenuID = property(
-        _getMenuID,
-        _setMenuID,
-        None,
-        _(
-            """Identifying value for this menu. NOTE: there is no checking for
-            duplicate values; it is the responsibility to ensure that MenuID values
-            are unique.  (varies)"""
-        ),
-    )
-
-    MRU = property(
-        _getMRU,
-        _setMRU,
-        None,
-        _("Determines if this menu uses Most Recently Used behavior. Default=False  (bool)"),
-    )
-
-    Parent = property(
-        _getParent,
-        _setParent,
-        None,
-        _("Specifies the parent menu or menubar.  (varies)"),
-    )
 
     DynamicCaption = makeDynamicProperty(Caption)
     DynamicEnabled = makeDynamicProperty(Enabled)

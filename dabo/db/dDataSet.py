@@ -383,8 +383,6 @@ class dDataSet(tuple):
             # No data in the dataset
             return None
 
-        #         pt = time.clock()
-        #         print "POPULATED", pt-st
         # Now create any of the tables for the join dDataSets
         if cursorDict is not None:
             for alias, ds in list(cursorDict.items()):
@@ -395,8 +393,6 @@ class dDataSet(tuple):
             params = (params,)
         self._cursor.execute(sqlExpr, params)
 
-        #         et = time.clock()
-        #         print "EXECUTED", et - pt
         # We need to know what sort of statement was run. Only a 'select'
         # will return results. The rest ('update', 'delete', 'insert') return
         # nothing. In those cases, we need to run a 'select *' to get the
@@ -404,349 +400,59 @@ class dDataSet(tuple):
         if not sqlExpr.lower().strip().startswith("select "):
             self._cursor.execute("select * from dataset")
         tmpres = self._cursor.fetchall()
-
-        #         ft = time.clock()
-        #         print "FETCH", ft-et
         return dDataSet(tmpres)
 
-    #         res = []
-    #         if tmpres:
-    #             # There will be no description if there are no records.
-    #             dscrp = [fld[0] for fld in self._cursor.description]
-    #             for tmprec in tmpres:
-    #                 rec = {}
-    #                 for pos, val in enumerate(tmprec):
-    #                     fld = dscrp[pos]
-    #                     if fld in self.fieldAliases:
-    #                         fld = self.fieldAliases[fld]
-    #                     rec[fld] = val
-    #                 res.append(rec)
-    #
-    #         dt = time.clock()
-    #         print "CONVERTED", dt-ft
-
-    def _getBizobj(self):
+    ## Property definitions
+    @property
+    def Bizobj(self):
+        """Reference to the bizobj that 'owns' this data set. Default=None  (bizobj)"""
         return self._bizobj
 
-    def _setBizobj(self, val):
+    @Bizobj.setter
+    def Bizobj(self, val):
         self._bizobj = val
 
-    def _getCursor(self):
+    @property
+    def Cursor(self):
+        """Reference to the bizobj that 'owns' this data set. Default=None  (dCursorMixin)"""
         return self._cursor
 
-    def _setCursor(self, val):
+    @Cursor.setter
+    def Cursor(self, val):
         self._cursor = val
 
-    def _getEncoding(self):
+    @property
+    def Encoding(self):
+        """The encoding used for data in the dataset.  (str)"""
         try:
             return self._encoding
         except AttributeError:
             self._encoding = dabo.getEncoding()
             return self._encoding
 
-    def _setEncoding(self, encoding):
+    @Encoding.setter
+    def Encoding(self, encoding):
         self._encoding = encoding
 
-    def _getUnfilteredDataSet(self):
+    @property
+    def UnfilteredDataSet(self):
+        """
+        If filters have been applied, returns the unfiltered dataset that would be returned if
+        removeFilters() had been called. If no filters have been applied, returns self  (dDataSet)
+        """
         ret = self
         while ret._sourceDataSet:
             ret = ret._sourceDataSet
         return ret
 
-    def _getTypeStructure(self):
+    @property
+    def TypeStructure(self):
+        """An optional helper dictionary matching field names to dabo data types."""
         return self._typeStructure
 
-    def _setTypeStructure(self, val):
+    @TypeStructure.setter
+    def TypeStructure(self, val):
         self._typeStructure = val
-
-    Bizobj = property(
-        _getBizobj,
-        _setBizobj,
-        None,
-        _("Reference to the bizobj that 'owns' this data set. Default=None  (bizobj)"),
-    )
-
-    Cursor = property(
-        _getCursor,
-        _setCursor,
-        None,
-        _("Reference to the bizobj that 'owns' this data set. Default=None  (dCursorMixin)"),
-    )
-
-    Encoding = property(
-        _getEncoding,
-        _setEncoding,
-        None,
-        _("The encoding used for data in the dataset.  (str)"),
-    )
-
-    UnfilteredDataSet = property(
-        _getUnfilteredDataSet,
-        None,
-        None,
-        _(
-            "If filters have been applied, returns the unfiltered dataset that would be returned "
-            "if removeFilters() had been called. If no filters have been applied, returns "
-            "self  (dDataSet)"
-        ),
-    )
-
-    TypeStructure = property(
-        _getTypeStructure,
-        _setTypeStructure,
-        None,
-        _("""An optional helper dictionary matching field names to dabo data types."""),
-    )
-
-
-# class DataSetOld(tuple):
-#     """ This class assumes that its contents are not ordinary tuples, but
-#     rather tuples consisting of dicts, where the dict keys are field names.
-#     This is the data structure returned by the dCursorMixin class.
-#     """
-#     # List comprehensions used in this class require a non-conflicting
-#     # name. This is unlikely to be used anywhere else.
-#     _dictSubName = "_dataSet_rec"
-#
-#
-#     def _fldReplace(self, expr, dictName=None):
-#         """The list comprehensions require the field names be the keys
-#         in a dictionary expression. Users, though, should not have to know
-#         about this. This takes a user-defined, SQL-like expressions, and
-#         substitutes any field name with the corresponding dict
-#         expression.
-#         """
-#         keys = self[0].keys()
-#         patTemplate = "(.*\\b)%s(\\b.*)"
-#         ret = expr
-#         if dictName is None:
-#             dictName = self._dictSubName
-#         for kk in keys:
-#             pat = patTemplate % kk
-#             mtch = re.match(pat, ret)
-#             if mtch:
-#                 ret = mtch.groups()[0] + "%s['%s']" % (dictName, kk) + mtch.groups()[1]
-#         return ret
-#
-#
-#     def processFields(self, fields, aliasDict):
-#         if isinstance(fields, basestring):
-#             fields = fields.split(",")
-#         for num, fld in enumerate(fields):
-#             fld = fld.replace(" AS ", " as ").replace(" As ", " as ").strip()
-#             fa = fld.split(" as ")
-#             if len(fa) > 1:
-#                 # An alias is specified
-#                 fld = fa[0].strip()
-#                 aliasDict[fld] = fa[1].strip()
-#             fields[num] = fld
-#         return fields, aliasDict
-#
-#
-#     def select(self, fields=None, where=None, orderBy=None):
-#         fldList = []
-#         fldAliases = {}
-#         whereList = []
-#         orderByList = []
-#         keys = self[0].keys()
-#         if fields is None or fields == "*":
-#             # All fields
-#             fields = keys
-#         fields, fldAliases = self.processFields(fields, fldAliases)
-#         for fld in fields:
-#             fldList.append("'%s' : %s" % (fld, self._fldReplace(fld)))
-#         fieldsToReturn = ", ".join(fldList)
-#         fieldsToReturn = "{%s}" % fieldsToReturn
-#
-#         # Where list elements
-#         if where is None:
-#             whereClause = ""
-#         else:
-#             if isinstance(where, basestring):
-#                 where = [where]
-#             for wh in where:
-#                 whereList.append(self._fldReplace(wh))
-#             whereClause = " and ".join(whereList)
-#         if whereClause:
-#             whereClause = " if %s" % whereClause
-#         stmnt = "[%s for %s in self %s]" % (fieldsToReturn, self._dictSubName, whereClause)
-#         resultSet = eval(stmnt)
-#
-#         if fldAliases:
-#             # We need to replace the keys for the field names with the
-#             # appropriate alias names
-#             for rec in resultSet:
-#                 for key, val in fldAliases.items():
-#                     orig = rec.get(key)
-#                     if orig:
-#                         rec[val] = orig
-#                         del rec[key]
-#
-#         if orderBy:
-#             # This should be a comma separated string in the format:
-#             #        fld1, fld2 desc, fld3 asc
-#             # After the field name is an optional direction, either 'asc'
-#             # (ascending, default) or 'desc' (descending).
-#             # IMPORTANT! Fields referenced in 'orderBy' MUST be in
-#             # the result data set!
-#             orderByList = orderBy.split(",")
-#             sortList = []
-#
-#             def orderBySort(val1, val2):
-#                 ret = 0
-#                 compList = orderByList[:]
-#                 while not ret:
-#                     comp = compList[0]
-#                     compList = compList[1:]
-#                     if comp[-4:].lower() == "desc":
-#                         compVals = (-1, 1)
-#                     else:
-#                         compVals = (1, -1)
-#                     # Remove the direction, if any, from the comparison.
-#                     compWords = comp.split(" ")
-#                     if compWords[-1].lower() in ("asc", "desc"):
-#                         compWords = compWords[:-1]
-#                     comp = " ".join(compWords)
-#                     cmp1 = self._fldReplace(comp, "val1")
-#                     cmp2 = self._fldReplace(comp, "val2")
-#                     eval1 = eval(cmp1)
-#                     eval2 = eval(cmp2)
-#                     if eval1 > eval2:
-#                         ret = compVals[0]
-#                     elif eval1 < eval2:
-#                         ret = compVals[1]
-#                     else:
-#                         # They are equal. Continue comparing using the
-#                         # remaining terms in compList, if any.
-#                         if not compList:
-#                             break
-#                 return ret
-#
-#             resultSet.sort(orderBySort)
-#
-#         return DataSet(resultSet)
-#
-#
-#     def join(self, target, sourceAlias, targetAlias, condition,
-#             sourceFields=None, targetFields=None, where=None,
-#             orderBy=None, joinType=None):
-#         """This method joins the current DataSet and the target
-#         DataSet, based on the specified condition. The 'joinType'
-#         parameter will determine the type of join (inner, left, right, full).
-#         Where and orderBy will affect the result of the join, and so they
-#         should reference fields in the result set without alias qualifiers.
-#         """
-#         if joinType is None:
-#             joinType = "inner"
-#         joinType = joinType.lower().strip()
-#         if joinType == "outer":
-#             # This is the same as 'left outer'
-#             joinType = "left"
-#         if "outer" in joinType.split():
-#             tmp = joinType.split()
-#             tmp.remove("outer")
-#             joinType = tmp[0]
-#
-#         leftDS = self
-#         rightDS = target
-#         leftAlias = sourceAlias
-#         rightAlias = targetAlias
-#         leftFields = sourceFields
-#         rightFields = targetFields
-#         leftFldAliases = {}
-#         rightFldAliases = {}
-#         if joinType == "right":
-#             # Same as left; we just need to reverse things
-#             (leftDS, rightDS, leftAlias, rightAlias, leftFields,
-#                     rightFields) = (rightDS, leftDS, rightAlias, leftAlias,
-#                     rightFields, leftFields)
-#
-#
-#         leftFields, leftFldAliases = self.processFields(leftFields, leftFldAliases)
-#         rightFields, rightFldAliases = self.processFields(rightFields, rightFldAliases)
-#
-#         # Parse the condition. It should have an '==' in it. If not,
-#         # raise an error.
-#         condList = condition.split("==")
-#         if len(condList) == 1:
-#             # No equality specified
-#             errMsg = _("Bad join: no '==' in join condition: %s") % condition
-#             raise dException.QueryException(errMsg)
-#
-#         leftCond = None
-#         rightCond = None
-#         leftPat = "(.*)(\\b%s\\b)(.*)" % leftAlias
-#         rightPat = "(.*)(\\b%s\\b)(.*)" % rightAlias
-#
-#         mtch = re.match(leftPat, condList[0])
-#         if mtch:
-#             leftCond = condList[0].strip()
-#         else:
-#             mtch = re.match(leftPat, condList[1])
-#             if mtch:
-#                 leftCond = condList[1].strip()
-#         mtch = re.match(rightPat, condList[0])
-#         if mtch:
-#             rightCond = condList[0].strip()
-#         else:
-#             mtch = re.match(rightPat, condList[1])
-#             if mtch:
-#                 rightCond = condList[1].strip()
-#         condError = ""
-#         if leftCond is None:
-#             condError += _("No join condition specified for alias '%s'") % leftAlias
-#         if rightCond is None:
-#             if condError:
-#                 condError += "; "
-#             condError += _("No join condition specified for alias '%s'") % rightAlias
-#         if condError:
-#             raise dException.QueryException(condError)
-#
-#         # OK, we now know how to do the join. The plan is this:
-#         #     create an empty result list
-#         #     scan through all the left records
-#         #         if leftFields, run a select to get only those fields.
-#         #         find all the matching right records using select
-#         #         if matches, update each with the left select and add
-#         #                 to the result.
-#         #         if no matches:
-#         #             if inner join:
-#         #                 skip to next
-#         #             else:
-#         #                 get dict.fromkeys() for right select
-#         #                 update left with fromkeys and add to result
-#         #
-#         #     We'll worry about full joins later.
-#
-#         resultSet = []
-#         for leftRec in leftDS:
-#             if leftFields:
-#                 leftSelect = DataSet([leftRec]).select(fields=leftFields)[0]
-#             else:
-#                 leftSelect = leftRec
-#             tmpLeftCond = leftCond.replace(leftAlias, "leftRec")
-#             tmpLeftCond = "%s['%s']" % tuple(tmpLeftCond.split("."))
-#             leftVal = eval(tmpLeftCond)
-#
-#             if isinstance(leftVal, basestring):
-#                 leftVal = "'%s'" % leftVal
-#             rightWhere = rightCond.replace(rightAlias + ".", "") + "== %s" % leftVal
-#             rightRecs = rightDS.select(fields=rightFields, where=rightWhere)
-#
-#             if rightRecs:
-#                 for rightRec in rightRecs:
-#                     rightRec.update(leftSelect)
-#                     resultSet.append(rightRec)
-#             else:
-#                 if not joinType == "inner":
-#                     rightKeys = rightDS.select(fields=rightFields)[0].keys()
-#                     leftSelect.update(dict.fromkeys(rightKeys))
-#                     resultSet.append(leftSelect)
-#
-#         resultSet = DataSet(resultSet)
-#         if where or orderBy:
-#             resultSet = resultSet.select(where=where, orderBy=orderBy)
-#         return resultSet
 
 
 if __name__ == "__main__":

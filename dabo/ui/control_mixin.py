@@ -50,19 +50,15 @@ class dControlMixin(ui.dPemMixin):
         if not self.TabStop:
             ui.callAfter(self.Navigate, evt.GetDirection())
 
-    def _getTabStop(self):
+    @property
+    def TabStop(self):
+        """Specifies whether this control can receive focus from keyboard navigation."""
         return getattr(self, "_tabStop", True)
 
-    def _setTabStop(self, val):
+    @TabStop.setter
+    def TabStop(self, val):
         assert isinstance(val, bool)
         self._tabStop = val
-
-    TabStop = property(
-        _getTabStop,
-        _setTabStop,
-        None,
-        _("Specifies whether this control can receive focus from keyboard navigation."),
-    )
 
 
 ui.dControlMixin = dControlMixin

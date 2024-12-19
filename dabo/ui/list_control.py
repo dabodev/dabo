@@ -19,21 +19,25 @@ class _ListColumnAccessor(object):
 
     def __init__(self, listcontrol, *args, **kwargs):
         self.listcontrol = listcontrol
-        super(_ListColumnAccessor, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __dabo_getitem__(self, val):
         ret = self.listcontrol.GetColumn(val)
         ret._dabo_listcontrol = self.listcontrol
         ret._dabo_column_number = val
 
+        # NOTE: We need to define the property this way (not using decorators),
+        # as the property is not part of this class, but of the wx.ListItem
         def _getCaption(self):
+            """Caption for the column.  (str)"""
             return self._dabo_listcontrol.getCaptionForColumn(self._dabo_column_number)
 
         def _setCaption(self, val):
             self._dabo_listcontrol.setCaptionForColumn(self._dabo_column_number, val)
 
-        Caption = property(_getCaption, _setCaption, None, _("Caption for the column.  (str)"))
+        Caption = property(_getCaption, _setCaption)
         setattr(ret.__class__, "Caption", Caption)
+
         return ret
 
     def __getitem__(self, val):
@@ -546,25 +550,38 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         if self.Count > index:
             self.Select(index)
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-    def _getAutoConvertToString(self):
+    # Property definitions
+    @property
+    def AutoConvertToString(self):
+        """
+        When True (default), all non-string values are forced to strings. When False, attempting to
+        use a non-string value will throw an error.  (bool)
+        """
         return self._autoConvertToString
 
-    def _setAutoConvertToString(self, val):
+    @AutoConvertToString.setter
+    def AutoConvertToString(self, val):
         if self._constructed():
             self._autoConvertToString = val
         else:
             self._properties["AutoConvertToString"] = val
 
-    def _getChoices(self):
+    @property
+    def Choices(self):
+        """
+        Since dListControl doesn't have the equivalent to 'Choices' as the other item controls do,
+        this will return an empty list and print a warning message. (read-only) (list)
+        """
         dabo_module.warn(_("'Choices' is not a valid property for a dListControl."))
         return []
 
-    def _getColumnCount(self):
+    @property
+    def ColumnCount(self):
+        """Number of columns in the control  (int)"""
         return self.GetColumnCount()
 
-    def _setColumnCount(self, val):
+    @ColumnCount.setter
+    def ColumnCount(self, val):
         if self._constructed():
             cc = self.GetColumnCount()
             if val < cc:
@@ -577,19 +594,34 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         else:
             self._properties["ColumnCount"] = val
 
-    def _getColumns(self):
+    @property
+    def Columns(self):
+        """Reference to the columns in the control. (read-only) (list)"""
         return self._columnAccessor
 
-    def _getColumnsAlignment(self):
+    @property
+    def ColumnsAlignment(self):
+        """
+        Columns data alignment, the 'Left', 'Center' or 'Right' literals can be used or their
+        abbreviations, e.g. ('l', 'c', 'r').  (tuple of str)
+        """
         return getattr(self, "_columnsAlignment", ())
 
-    def _setColumnsAlignment(self, align):
+    @ColumnsAlignment.setter
+    def ColumnsAlignment(self, align):
         self._columnsAlignment = align
 
-    def _getExpandColumn(self):
+    @property
+    def ExpandColumn(self):
+        """
+        Designates the column to expand to fill the control when ExpandToFit is True.  Can either be
+        an integer specifying the column number, or the string 'LAST' (default), which will expand
+        the rightmost column.  (int or str)
+        """
         return self._expandColumn
 
-    def _setExpandColumn(self, val):
+    @ExpandColumn.setter
+    def ExpandColumn(self, val):
         if self._constructed():
             columnCount = self.ColumnCount
             if isinstance(val, str):
@@ -614,52 +646,79 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         else:
             self._properties["ExpandColumn"] = val
 
-    def _getExpandToFit(self):
+    @property
+    def ExpandToFit(self):
+        """
+        When True (default), the column designated by ExpandColumn expands to fill the width of the
+        control.  (bool)
+        """
         return self._expandToFit
 
-    def _setExpandToFit(self, val):
+    @ExpandToFit.setter
+    def ExpandToFit(self, val):
         if self._constructed():
             self._expandToFit = val
         else:
             self._properties["ExpandToFit"] = val
 
-    def _getHeaderVisible(self):
+    @property
+    def HeaderVisible(self):
+        """Specifies whether the header is shown or not."""
         return not self._hasWindowStyleFlag(wx.LC_NO_HEADER)
 
-    def _setHeaderVisible(self, val):
+    @HeaderVisible.setter
+    def HeaderVisible(self, val):
         if bool(val):
             self._delWindowStyleFlag(wx.LC_NO_HEADER)
         else:
             self._addWindowStyleFlag(wx.LC_NO_HEADER)
+        self.refresh()
 
-    def _getHitIndex(self):
+    @property
+    def HitIndex(self):
+        """Returns the index of the last hit item."""
         return self._hitIndex
 
-    def _getHorizontalRules(self):
+    @property
+    def HorizontalRules(self):
+        """Specifies whether light rules are drawn between rows."""
         return self._hasWindowStyleFlag(wx.LC_HRULES)
 
-    def _setHorizontalRules(self, val):
+    @HorizontalRules.setter
+    def HorizontalRules(self, val):
         if bool(val):
             self._addWindowStyleFlag(wx.LC_HRULES)
         else:
             self._delWindowStyleFlag(wx.LC_HRULES)
+        self.refresh()
 
-    def _getLastSelectedIndex(self):
+    @property
+    def LastSelectedIndex(self):
+        """Returns the index of the last selected item."""
         return self._lastSelectedIndex
 
-    def _getMultipleSelect(self):
+    @property
+    def MultipleSelect(self):
+        """Specifies whether multiple rows can be selected in the list."""
         return not self._hasWindowStyleFlag(wx.LC_SINGLE_SEL)
 
-    def _setMultipleSelect(self, val):
+    @MultipleSelect.setter
+    def MultipleSelect(self, val):
         if bool(val):
             self._delWindowStyleFlag(wx.LC_SINGLE_SEL)
         else:
+            self.unselectAll()
             self._addWindowStyleFlag(wx.LC_SINGLE_SEL)
+        self.refresh()
 
-    def _getRowCount(self):
+    @property
+    def RowCount(self):
+        """Number of rows in the control (read-only).  (int)"""
         return self.GetItemCount()
 
-    def _getSelectedIndices(self):
+    @property
+    def SelectedIndices(self):
+        """Returns a list of selected row indices.  (list of int)"""
         ret = []
         pos = -1
         while True:
@@ -670,7 +729,8 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
             ret.append(indx)
         return ret
 
-    def _setSelectedIndices(self, selList):
+    @SelectedIndices.setter
+    def SelectedIndices(self, selList):
         if self._constructed():
             self.unselectAll()
             for id in selList:
@@ -678,26 +738,36 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         else:
             self._properties["SelectedIndices"] = selList
 
-    def _getSortColumn(self):
+    @property
+    def SortColumn(self):
+        """Column to be sorted when sort() is called. Default=0  (int)"""
         return self._sortColumn
 
+    @SortColumn.setter
     @ui.deadCheck
-    def _setSortColumn(self, val):
+    def SortColumn(self, val):
         if self._constructed():
             self._sortColumn = val
         else:
             self._properties["SortColumn"] = val
 
-    def _getSortOnHeaderClick(self):
+    @property
+    def SortOnHeaderClick(self):
+        """
+        When True (default), clicking a column header cycles the sorting on that column.  (bool)
+        """
         return self._sortOnHeaderClick
 
-    def _setSortOnHeaderClick(self, val):
+    @SortOnHeaderClick.setter
+    def SortOnHeaderClick(self, val):
         if self._constructed():
             self._sortOnHeaderClick = val
         else:
             self._properties["SortOnHeaderClick"] = val
 
-    def _getValue(self):
+    @property
+    def Value(self):
+        """Returns current value (str)"""
         if self.GetItemCount() == 0:
             return None
         item = None
@@ -712,7 +782,8 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         else:
             return item.GetText()
 
-    def _setValue(self, val):
+    @Value.setter
+    def Value(self, val):
         if self._constructed():
             if isinstance(val, int):
                 self.Select(val)
@@ -721,7 +792,9 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         else:
             self._properties["Value"] = val
 
-    def _getValues(self):
+    @property
+    def Values(self):
+        """Returns a list containing the Value of all selected rows  (list of str)"""
         ret = []
         indxs = self.SelectedIndices
         for idx in indxs:
@@ -733,174 +806,30 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
                 ret.append(item.GetText())
         return ret
 
-    def _getValCol(self):
+    @property
+    def ValueColumn(self):
+        """The column whose text is reflected in Value (default=0).  (int)"""
         return self._valCol
 
-    def _setValCol(self, val):
+    @ValueColumn.setter
+    def ValueColumn(self, val):
         self._valCol = val
 
-    def _getVerticalRules(self):
+    @property
+    def VerticalRules(self):
+        """Specifies whether light rules are drawn between rows."""
         return self._hasWindowStyleFlag(wx.LC_VRULES)
 
-    def _setVerticalRules(self, val):
+    @VerticalRules.setter
+    def VerticalRules(self, val):
         if bool(val):
             self._addWindowStyleFlag(wx.LC_VRULES)
         else:
             self._delWindowStyleFlag(wx.LC_VRULES)
+        self.refresh()
 
-    AutoConvertToString = property(
-        _getAutoConvertToString,
-        _setAutoConvertToString,
-        None,
-        _(
-            """When True (default), all non-string values are forced to strings. When False,
-            attempting to use a non-string value will throw an error.  (bool)"""
-        ),
-    )
-
-    Choices = property(
-        _getChoices,
-        None,
-        None,
-        _(
-            """Since dListControl doesn't have the equivalent to 'Choices' as the
-            other item controls do, this will return an empty list and print a warning
-            message. (read-only) (list)"""
-        ),
-    )
-
-    ColumnCount = property(
-        _getColumnCount,
-        _setColumnCount,
-        None,
-        _("Number of columns in the control  (int)"),
-    )
-
-    Columns = property(
-        _getColumns,
-        None,
-        None,
-        _("""Reference to the columns in the control. (read-only) (list)"""),
-    )
-
-    ColumnsAlignment = property(
-        _getColumnsAlignment,
-        _setColumnsAlignment,
-        None,
-        _(
-            """Columns data alignment, the 'Left', 'Center' or 'Right' literals can be used
-            or their abbreviations, e.g. ('c', 'l', 'r').  (tuple of str)"""
-        ),
-    )
-
-    Count = property(
-        _getRowCount,
-        None,
-        None,
-        _("Number of rows in the control (read-only). Alias for RowCount  (int)"),
-    )
-
-    ExpandColumn = property(
-        _getExpandColumn,
-        _setExpandColumn,
-        None,
-        _(
-            """Designates the column to expand to fill the control when ExpandToFit is True.
-            Can either be an integer specifying the column number, or the string 'LAST' (default),
-            which will expand the rightmost column.  (int or str)"""
-        ),
-    )
-
-    ExpandToFit = property(
-        _getExpandToFit,
-        _setExpandToFit,
-        None,
-        _(
-            "When True (default), the column designated by ExpandColumn expands to fill the width "
-            "of the control.  (bool)"
-        ),
-    )
-
-    HeaderVisible = property(
-        _getHeaderVisible,
-        _setHeaderVisible,
-        None,
-        _("Specifies whether the header is shown or not."),
-    )
-
-    HitIndex = property(_getHitIndex, None, None, _("Returns the index of the last hit item."))
-
-    HorizontalRules = property(
-        _getHorizontalRules,
-        _setHorizontalRules,
-        None,
-        _("Specifies whether light rules are drawn between rows."),
-    )
-
-    LastSelectedIndex = property(
-        _getLastSelectedIndex,
-        None,
-        None,
-        _("Returns the index of the last selected item."),
-    )
-
-    MultipleSelect = property(
-        _getMultipleSelect,
-        _setMultipleSelect,
-        None,
-        _("Specifies whether multiple rows can be selected in the list."),
-    )
-
-    RowCount = property(
-        _getRowCount, None, None, _("Number of rows in the control (read-only).  (int)")
-    )
-
-    SelectedIndices = property(
-        _getSelectedIndices,
-        _setSelectedIndices,
-        None,
-        _("Returns a list of selected row indices.  (list of int)"),
-    )
-
-    SortColumn = property(
-        _getSortColumn,
-        _setSortColumn,
-        None,
-        _("Column to be sorted when sort() is called. Default=0  (int)"),
-    )
-
-    SortOnHeaderClick = property(
-        _getSortOnHeaderClick,
-        _setSortOnHeaderClick,
-        None,
-        _(
-            "When True (default), clicking a column header cycles the sorting on that column.  "
-            "(bool)"
-        ),
-    )
-
-    Value = property(_getValue, _setValue, None, _("Returns current value (str)"))
-
-    Values = property(
-        _getValues,
-        None,
-        None,
-        _("Returns a list containing the Value of all selected rows  (list of str)"),
-    )
-
-    ValueColumn = property(
-        _getValCol,
-        _setValCol,
-        None,
-        _("The column whose text is reflected in Value (default=0).  (int)"),
-    )
-
-    VerticalRules = property(
-        _getVerticalRules,
-        _setVerticalRules,
-        None,
-        _("Specifies whether light rules are drawn between rows."),
-    )
+    # Alias for RowCount
+    Count = RowCount
 
     DynamicHeaderVisible = makeDynamicProperty(HeaderVisible)
     DynamicHorizontalRules = makeDynamicProperty(HorizontalRules)

@@ -857,18 +857,14 @@ class DesignerClassConverter(dObject):
         utils.resolveAttributePathing(ret, self._srcFile)
         return ret
 
-    def _getCreateDesignerControls(self):
+    @property
+    def CreateDesignerControls(self):
+        """When True, classes are mixed-in with the DesignerControlMixin  (bool)"""
         return self._createDesignerControls
 
-    def _setCreateDesignerControls(self, val):
+    @CreateDesignerControls.setter
+    def CreateDesignerControls(self, val):
         self._createDesignerControls = val
-
-    CreateDesignerControls = property(
-        _getCreateDesignerControls,
-        _setCreateDesignerControls,
-        None,
-        _("When True, classes are mixed-in with the DesignerControlMixin  (bool)"),
-    )
 
     ### Text block definitions follow. They're going after the prop defs ###
     ### so as not to clutter the rest of the code visually.  ###

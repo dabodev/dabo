@@ -25,24 +25,17 @@ class dGauge(dControlMixin, wx.Gauge):
     def _initEvents(self):
         super(dGauge, self)._initEvents()
 
-    # Property get/set/del methods follow. Scroll to bottom to see the property
-    # definitions themselves.
-    def _getPercentage(self):
-        return round(100 * (float(self.Value) / self.Range), 2)
-
-    def _setPercentage(self, val):
-        if self._constructed():
-            self.Value = round(self.Range * (val / 100.0))
-        else:
-            self._properties["Percentage"] = val
-
-    def _getOrientation(self):
+    # Property definitions:
+    @property
+    def Orientation(self):
+        """Specifies whether the gauge is displayed as Horizontal or Vertical.  (str)"""
         if self.IsVertical():
             return "Vertical"
         else:
             return "Horizontal"
 
-    def _setOrientation(self, value):
+    @Orientation.setter
+    def Orientation(self, value):
         self._delWindowStyleFlag(wx.GA_HORIZONTAL)
         self._delWindowStyleFlag(wx.GA_VERTICAL)
         if value.lower()[:1] == "h":
@@ -50,55 +43,41 @@ class dGauge(dControlMixin, wx.Gauge):
         else:
             self._addWindowStyleFlag(wx.GA_VERTICAL)
 
-    def _getRange(self):
+    @property
+    def Percentage(self):
+        """Alternate way of setting/getting the Value, using percentage of the Range.  (float)"""
+        return round(100 * (float(self.Value) / self.Range), 2)
+
+    @Percentage.setter
+    def Percentage(self, val):
+        if self._constructed():
+            self.Value = round(self.Range * (val / 100.0))
+        else:
+            self._properties["Percentage"] = val
+
+    @property
+    def Range(self):
+        """Specifies the maximum value for the gauge.  (int)"""
         return self.GetRange()
 
-    def _setRange(self, value):
+    @Range.setter
+    def Range(self, value):
         if self._constructed():
             self.SetRange(value)
         else:
             self._properties["Range"] = value
 
-    def _getValue(self):
+    @property
+    def Value(self):
+        """Specifies the state of the gauge, relative to max value."""
         return self.GetValue()
 
-    def _setValue(self, value):
+    @Value.setter
+    def Value(self, value):
         if self._constructed():
             self.SetValue(value)
         else:
             self._properties["Value"] = value
-
-    # Property definitions:
-    Percentage = property(
-        _getPercentage,
-        _setPercentage,
-        None,
-        _(
-            """Alternate way of setting/getting the Value, using percentage
-            of the Range.  (float)"""
-        ),
-    )
-
-    Orientation = property(
-        _getOrientation,
-        _setOrientation,
-        None,
-        _("Specifies whether the gauge is displayed as Horizontal or Vertical.  (str)"),
-    )
-
-    Range = property(
-        _getRange,
-        _setRange,
-        None,
-        _("Specifies the maximum value for the gauge.  (int)"),
-    )
-
-    Value = property(
-        _getValue,
-        _setValue,
-        None,
-        _("Specifies the state of the gauge, relative to max value."),
-    )
 
     DynamicOrientation = makeDynamicProperty(Orientation)
     DynamicRange = makeDynamicProperty(Range)

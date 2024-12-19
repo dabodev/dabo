@@ -24,24 +24,38 @@ class dImageMixin(object):
             bmp = self.Bitmap
             self.Size = bmp.GetWidth(), bmp.GetHeight()
 
-    def _getBmp(self):
+    # Property definitions
+    @property
+    def Bitmap(self):
+        """The bitmap representation of the displayed image.  (wx.Bitmap)"""
         if self._bmp is None:
             self._bmp = wx.EmptyBitmap(1, 1, 1)
         return self._bmp
 
-    def _setBmp(self, val):
+    @Bitmap.setter
+    def Bitmap(self, val):
         self._bmp = val
 
-    def _getBitmapHeight(self):
+    @property
+    def BitmapHeight(self):
+        """Height of the actual displayed bitmap  (int)"""
         return self._bitmapHeight
 
-    def _getBitmapWidth(self):
+    @property
+    def BitmapWidth(self):
+        """Width of the actual displayed bitmap  (int)"""
         return self._bitmapWidth
 
-    def _getImgHt(self):
+    @property
+    def ImageHeight(self):
+        """
+        When set, sets the height of all images shown on this control. Default=None, which performs
+        no resizing.  (int)
+        """
         return self._imgHt
 
-    def _setImgHt(self, val):
+    @ImageHeight.setter
+    def ImageHeight(self, val):
         self._imgHt = val
         pic = self.Picture
         if pic:
@@ -50,10 +64,16 @@ class dImageMixin(object):
             self._sizeToBitmap()
         self.refresh()
 
-    def _getImgScale(self):
+    @property
+    def ImageScale(self):
+        """
+        When set, scales all images shown on this control. The value is a decimal, not a percent, so
+        1.0 is normal size, 0.5 is half size, etc. Default=None, which performs no scaling  (float)
+        """
         return self._imgScale
 
-    def _setImgScale(self, val):
+    @ImageScale.setter
+    def ImageScale(self, val):
         self._imgScale = val
         pic = self.Picture
         if pic:
@@ -62,10 +82,16 @@ class dImageMixin(object):
             self._sizeToBitmap()
         self.refresh()
 
-    def _getImgWd(self):
+    @property
+    def ImageWidth(self):
+        """
+        When set, sets the width of all images shown on this control.  Default=None, which performs
+        no resizing.  (int)
+        """
         return self._imgWd
 
-    def _setImgWd(self, val):
+    @ImageWidth.setter
+    def ImageWidth(self, val):
         self._imgWd = val
         pic = self.Picture
         if pic:
@@ -74,10 +100,13 @@ class dImageMixin(object):
             self._sizeToBitmap()
         self.refresh()
 
-    def _getPicture(self):
+    @property
+    def Picture(self):
+        """The file used as the source for the displayed image.  (str)"""
         return self.GetBitmap()
 
-    def _setPicture(self, val):
+    @Picture.setter
+    def Picture(self, val):
         if self._constructed():
             self._picture = val
             if isinstance(val, wx.Bitmap):
@@ -89,59 +118,6 @@ class dImageMixin(object):
             self.Thaw()
         else:
             self._properties["Picture"] = val
-
-    Bitmap = property(
-        _getBmp,
-        _setBmp,
-        None,
-        _("The bitmap representation of the displayed image.  (wx.Bitmap)"),
-    )
-
-    BitmapHeight = property(
-        _getBitmapHeight, None, None, _("Height of the actual displayed bitmap  (int)")
-    )
-
-    BitmapWidth = property(
-        _getBitmapWidth, None, None, _("Width of the actual displayed bitmap  (int)")
-    )
-
-    ImageHeight = property(
-        _getImgHt,
-        _setImgHt,
-        None,
-        _(
-            """When set, sets the height of all images shown on this control.
-        Default=None, which performs no resizing.  (int)"""
-        ),
-    )
-
-    ImageScale = property(
-        _getImgScale,
-        _setImgScale,
-        None,
-        _(
-            """When set, scales all images shown on this control. The value is
-        a decimal, not a percent, so 1.0 is normal size, 0.5 is half size, etc.
-        Default=None, which performs no scaling  (float)"""
-        ),
-    )
-
-    ImageWidth = property(
-        _getImgWd,
-        _setImgWd,
-        None,
-        _(
-            """When set, sets the width of all images shown on this control.
-        Default=None, which performs no resizing.  (int)"""
-        ),
-    )
-
-    Picture = property(
-        _getPicture,
-        _setPicture,
-        None,
-        _("The file used as the source for the displayed image.  (str)"),
-    )
 
     DynamicBitmap = makeDynamicProperty(Bitmap)
     DynamicImageHeight = makeDynamicProperty(ImageHeight)

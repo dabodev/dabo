@@ -78,12 +78,10 @@ class MSSQL(dBackend):
                     super(ConCursor, self).__init__(*args, **kwargs)
 
                 if not hasattr(self.dbapi.pymssqlCursor, "connection"):
-
-                    def _getconn(self):
-                        return self._source
-
                     # pymssql doesn't supply this optional dbapi attribute, so create it here.
-                    connection = property(_getconn, None, None)
+                    @property
+                    def conn(self):
+                        return self._source
 
         return ConCursor
 

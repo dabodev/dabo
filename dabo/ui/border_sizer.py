@@ -60,91 +60,74 @@ class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):
         """Return the class that is the non-border sizer version of this class."""
         return dSizer
 
-    def _getBackColor(self):
+    # Property definitions
+    @property
+    def BackColor(self):
+        """Color of the box background  (str or tuple)"""
         return self.Box.BackColor
 
-    def _setBackColor(self, val):
+    @BackColor.setter
+    def BackColor(self, val):
         self.Box.BackColor = val
 
-    def _getBox(self):
+    @property
+    def Box(self):
+        """Reference to the box used in the sizer  (dBox)"""
         return self.GetStaticBox()
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """Caption for the box  (str)"""
         return self.Box.Caption
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         self.Box.Caption = val
 
-    def _getFontBold(self):
+    @property
+    def FontBold(self):
+        """Controls the bold setting of the box caption  (bool)"""
         return self.Box.FontBold
 
-    def _setFontBold(self, val):
+    @FontBold.setter
+    def FontBold(self, val):
         self.Box.FontBold = val
 
-    def _getFontFace(self):
+    @property
+    def FontFace(self):
+        """Controls the type face of the box caption  (str)"""
         return self.Box.FontFace
 
-    def _setFontFace(self, val):
+    @FontFace.setter
+    def FontFace(self, val):
         self.Box.FontFace = val
 
-    def _getFontItalic(self):
+    @property
+    def FontItalic(self):
+        """Controls the italic setting of the box caption  (bool)"""
         return self.Box.FontItalic
 
-    def _setFontItalic(self, val):
+    @FontItalic.setter
+    def FontItalic(self, val):
         self.Box.FontItalic = val
 
-    def _getFontSize(self):
+    @property
+    def FontSize(self):
+        """Size of the box caption font  (int)"""
         return self.Box.FontSize
 
-    def _setFontSize(self, val):
+    @FontSize.setter
+    def FontSize(self, val):
         self.Box.FontSize = val
 
-    def _getFontUnderline(self):
+    @property
+    def FontUnderline(self):
+        """Controls the underline setting of the box caption  (bool)"""
         return self.Box.FontUnderline
 
-    def _setFontUnderline(self, val):
+    @FontUnderline.setter
+    def FontUnderline(self, val):
         self.Box.FontUnderline = val
-
-    BackColor = property(
-        _getBackColor,
-        _setBackColor,
-        None,
-        _("Color of the box background  (str or tuple)"),
-    )
-
-    Box = property(_getBox, None, None, _("Reference to the box used in the sizer  (dBox)"))
-
-    Caption = property(_getCaption, _setCaption, None, _("Caption for the box  (str)"))
-
-    FontBold = property(
-        _getFontBold,
-        _setFontBold,
-        None,
-        _("Controls the bold setting of the box caption  (bool)"),
-    )
-
-    FontFace = property(
-        _getFontFace,
-        _setFontFace,
-        None,
-        _("Controls the type face of the box caption  (str)"),
-    )
-
-    FontItalic = property(
-        _getFontItalic,
-        _setFontItalic,
-        None,
-        _("Controls the italic setting of the box caption  (bool)"),
-    )
-
-    FontSize = property(_getFontSize, _setFontSize, None, _("Size of the box caption font  (int)"))
-
-    FontUnderline = property(
-        _getFontUnderline,
-        _setFontUnderline,
-        None,
-        _("Controls the underline setting of the box caption  (bool)"),
-    )
 
     # Dynamic property declarations
     DynamicBackColor = makeDynamicProperty(BackColor)

@@ -8,7 +8,14 @@ from ..ui import makeDynamicProperty
 
 
 class AlignmentMixin(object):
-    def _getAlignment(self):
+    @property
+    def Alignment(self):
+        """
+        Specifies the alignment of the text. (str)
+            Left (default)
+            Center
+            Right
+        """
         if self._hasWindowStyleFlag(wx.ALIGN_RIGHT):
             return "Right"
         elif self._hasWindowStyleFlag(wx.ALIGN_CENTRE):
@@ -16,7 +23,8 @@ class AlignmentMixin(object):
         else:
             return "Left"
 
-    def _setAlignment(self, value):
+    @Alignment.setter
+    def Alignment(self, value):
         # Note: Alignment must be set before object created.
         self._delWindowStyleFlag(wx.ALIGN_LEFT)
         self._delWindowStyleFlag(wx.ALIGN_CENTRE)
@@ -31,18 +39,6 @@ class AlignmentMixin(object):
             self._addWindowStyleFlag(wx.ALIGN_RIGHT)
         else:
             raise ValueError("The only possible values are " "'Left', 'Center', and 'Right'.")
-
-    Alignment = property(
-        _getAlignment,
-        _setAlignment,
-        None,
-        _(
-            """Specifies the alignment of the text. (str)
-            Left (default)
-            Center
-            Right"""
-        ),
-    )
 
     DynamicAlignment = makeDynamicProperty(Alignment)
 

@@ -9,7 +9,7 @@ try:
 except ImportError:
     raise ImportError("Your version of wxPython is too old for dBorderlessButton")
 
-from .. import application, dColors, events, ui
+from .. import application, dColors, events, settings, ui
 from ..dLocalize import _
 
 dabo_module = settings.get_dabo_package()
@@ -66,11 +66,18 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
     def _getInitPropertiesList(self):
         return super(dBorderlessButton, self)._getInitPropertiesList() + ("ButtonShape",)
 
-    # Property getters and setters
-    def _getBackColorHover(self):
+    # Property definitions
+    @property
+    def BackColorHover(self):
+        """
+        Color of the button background when mouse is hovered over control (str or tuple)
+        Default=(128, 128, 128) Changing this color with change the color of the control when
+        pressed as well.
+        """
         return self._backColorHover
 
-    def _setBackColorHover(self, val):
+    @BackColorHover.setter
+    def BackColorHover(self, val):
         if self._constructed():
             if isinstance(val, str):
                 val = dColors.colorTupleFromName(val)
@@ -82,13 +89,25 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
         else:
             self._properties["BackColorHover"] = val
 
-    def _getButtonShape(self):
+    @property
+    def NormalBitmap(self):
+        """The bitmap normally displayed on the button.  (wx.Bitmap)"""
+        return self.GetBitmapLabel()
+
+    @property
+    def ButtonShape(self):
+        """Shape of the button. (str)
+
+        Normal/Rounded : button with rounded corners. (default)
+        Square         : button with square corners.
+        """
         if self._hasWindowStyleFlag(platebtn.PB_STYLE_SQUARE):
             return "Square"
         else:
             return "Normal"
 
-    def _setButtonShape(self, val):
+    @ButtonShape.setter
+    def ButtonShape(self, val):
         sst = val[:1].lower()
         if sst == "s":
             self._addWindowStyleFlag(platebtn.PB_STYLE_SQUARE)
@@ -96,24 +115,27 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
             self._delWindowStyleFlag(platebtn.PB_STYLE_SQUARE)
         else:
             nm = self.Name
-            raise ValueError(
-                _("Invalid value of %(nm)s.ButtonShape " "property: %(val)s") % locals()
-            )
+            raise ValueError(f"Invalid value of {nm}.ButtonShape property: {val}")
 
-    def _getCancelButton(self):
+    @property
+    def CancelButton(self):
         # need to implement
         return False
 
-    def _setCancelButton(self, val):
+    @CancelButton.setter
+    def CancelButton(self, val):
         warnings.warn(_("CancelButton isn't implemented yet."), Warning)
 
-    def _getDefaultButton(self):
+    @property
+    def DefaultButton(self):
+        """Specifies whether this command button gets clicked on -Enter-."""
         if self.Parent is not None:
             return self.Parent.GetDefaultItem() == self
         else:
             return False
 
-    def _setDefaultButton(self, val):
+    @DefaultButton.setter
+    def DefaultButton(self, val):
         if self._constructed():
             if val:
                 if self.Parent is not None:
@@ -127,7 +149,9 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
         else:
             self._properties["DefaultButton"] = val
 
-    def _getFont(self):
+    @property
+    def Font(self):
+        """The font properties of the button. (obj)"""
         from ..ui import dFont
 
         if hasattr(self, "_font") and isinstance(self._font, dFont):
@@ -143,7 +167,8 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
             return v._nativeFont
         return v
 
-    def _setFont(self, val):
+    @Font.setter
+    def Font(self, val):
         # PVG: also accept wxFont parameter
         if isinstance(val, (wx.Font,)):
             val = ui.dFont(_nativeFont=val)
@@ -157,13 +182,13 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
         else:
             self._properties["Font"] = val
 
-    def _getNormalBitmap(self):
-        return self.GetBitmapLabel()
-
-    def _getNormalPicture(self):
+    @property
+    def Picture(self):
+        """Specifies the image normally displayed on the button. (str)"""
         return self._picture
 
-    def _setNormalPicture(self, val):
+    @Picture.setter
+    def Picture(self, val):
         self._picture = val
         if self._constructed():
             if isinstance(val, wx.Bitmap):
@@ -174,47 +199,8 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
         else:
             self._properties["Picture"] = val
 
-    # Property definitions:
-    BackColorHover = property(
-        _getBackColorHover,
-        _setBackColorHover,
-        None,
-        _(
-            """Color of the button background when mouse is hovered over control (str or tuple)
-        Default=(128, 128, 128)
-        Changing this color with change the color of the control when pressed as well."""
-        ),
-    )
 
-    Bitmap = property(
-        _getNormalBitmap,
-        None,
-        None,
-        _("""The bitmap normally displayed on the button.  (wx.Bitmap)"""),
-    )
-
-    ButtonShape = property(
-        _getButtonShape,
-        _setButtonShape,
-        _(
-            """Shape of the button. (str)
-
-        Normal/Rounded    :    button with rounded corners. (default)
-        Square            :    button with square corners."""
-        ),
-    )
-
-    Font = property(_getFont, _setFont, None, _("The font properties of the button. (obj)"))
-
-    Picture = property(
-        _getNormalPicture,
-        _setNormalPicture,
-        None,
-        _("""Specifies the image normally displayed on the button. (str)"""),
-    )
-
-
-dabo.ui.dBorderlessButton = dBorderlessButton
+ui.dBorderlessButton = dBorderlessButton
 
 
 class _dBorderlessButton_test(dBorderlessButton):
@@ -240,6 +226,6 @@ class _dBorderlessButton_test(dBorderlessButton):
 
 
 if __name__ == "__main__":
-    from dabo.ui import test
+    from ui import test
 
     test.Test().runTest(_dBorderlessButton_test)

@@ -267,29 +267,38 @@ class dObject(PropertyHelperMixin, EventMixin):
             setattr(self, nm, newMethod)
 
     # Property definitions begin here
-    def _getApplication(self):
+    @property
+    def Application(self):
+        """Read-only object reference to the Dabo Application object.  (dApp)."""
         return settings.get_application()
 
-    def _getBaseClass(self):
-        # Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
-        #     class dBackend(object)
-        #        def __init__(self):
-        #            self._baseClass = dBackend
-        # IOW, BaseClass isn't the actual Python base class of the object, but the Dabo-
-        # relative base class.
+    @property
+    def BaseClass(self):
+        """The base Dabo class of the object. Read-only  (type)
+
+        Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
+            class dBackend(object)
+               def __init__(self):
+                   self._baseClass = dBackend
+        In other words, BaseClass isn't the actual Python base class of the object, but the
+        Dabo-relative base class.
+        """
         try:
             return self._baseClass
         except AttributeError:
             return None
 
-    def _getBasePrefKey(self):
+    @property
+    def BasePrefKey(self):
+        """Base key used when saving/restoring preferences  (str)"""
         try:
             ret = self._basePrefKey
         except AttributeError:
             ret = self._basePrefKey = ""
         return ret
 
-    def _setBasePrefKey(self, val):
+    @BasePrefKey.setter
+    def BasePrefKey(self, val):
         if not isinstance(val, (str,)):
             raise TypeError("BasePrefKey must be a string.")
         self._basePrefKey = val
@@ -298,13 +307,26 @@ class dObject(PropertyHelperMixin, EventMixin):
             if not pm._key:
                 pm._key = val
 
-    def _getClass(self):
+    @property
+    def Class(self):
+        """The class the object is based on. Read-only.  (class)"""
         return self.__class__
 
-    def _getLogEvents(self):
-        # This is expensive, as it is semi-recursive upwards in the containership
-        # until some parent object finally reports a LogEvents property. In normal
-        # use, this will be the Application object.
+    @property
+    def LogEvents(self):
+        """
+        Specifies which events to log.  (list of strings)
+
+        If the first element is 'All', all events except the following listed events will be logged.
+        Event logging is resource-intensive, so in addition to setting this LogEvents property, you
+        also need to make the following call:
+
+            >>> settings.eventLogging = True
+
+        This is expensive, as it is semi-recursive upwards in the containership until some parent
+        object finally reports a LogEvents property. In normal use, this will be the Application
+        object.
+        """
         try:
             le = self._logEvents
         except AttributeError:
@@ -323,36 +345,46 @@ class dObject(PropertyHelperMixin, EventMixin):
                 le = []
         return le
 
-    def _setLogEvents(self, val):
+    @LogEvents.setter
+    def LogEvents(self, val):
         self._logEvents = list(val)
 
-    def _getName(self):
+    @property
+    def Name(self):
+        """The name of the object.  (str)"""
         try:
             return self._name
         except AttributeError:
             return "?"
 
-    def _setName(self, val):
+    @Name.setter
+    def Name(self, val):
         if not isinstance(val, (str,)):
             raise TypeError("Name must be a string.")
         if not len(val.split()) == 1:
             raise KeyError("Name must not contain any spaces")
         self._name = val
 
-    def _getParent(self):
-        # Subclasses must override as necessary. Parent/child relationships
-        # don't exist for all nonvisual objects, and implementation of parent/child
-        # relationships will vary. This implementation is the simplest.
+    @property
+    def Parent(self):
+        """The containing object.  (obj)
+
+        Subclasses must override as necessary. Parent/child relationships don't exist for all
+        nonvisual objects, and implementation of parent/child relationships will vary. This
+        implementation is the simplest.
+        """
         try:
             return self._parent
         except AttributeError:
             return None
 
-    def _setParent(self, obj):
+    @Parent.setter
+    def Parent(self, obj):
         # Subclasses must override as necessary.
         self._parent = obj
 
-    def _getPreferenceManager(self):
+    @property
+    def PreferenceManager(self):
         try:
             ret = self._preferenceManager
         except AttributeError:
@@ -368,70 +400,14 @@ class dObject(PropertyHelperMixin, EventMixin):
                 ret = self._preferenceManager = dPref(key=self.BasePrefKey)
         return ret
 
-    def _setPreferenceManager(self, val):
+    @PreferenceManager.setter
+    def PreferenceManager(self, val):
+        """Reference to the Preference Management object  (dPref)"""
         from .dPref import dPref  ## here to avoid circular import
 
         if not isinstance(val, dPref):
             raise TypeError("PreferenceManager must be a dPref object")
         self._preferenceManager = val
-
-    Application = property(
-        _getApplication,
-        None,
-        None,
-        _("Read-only object reference to the Dabo Application object.  (dApp)."),
-    )
-
-    BaseClass = property(
-        _getBaseClass,
-        None,
-        None,
-        _("The base Dabo class of the object. Read-only.  (class)"),
-    )
-
-    BasePrefKey = property(
-        _getBasePrefKey,
-        _setBasePrefKey,
-        None,
-        _("Base key used when saving/restoring preferences  (str)"),
-    )
-
-    Class = property(
-        _getClass,
-        None,
-        None,
-        _("The class the object is based on. Read-only.  (class)"),
-    )
-
-    LogEvents = property(
-        _getLogEvents,
-        _setLogEvents,
-        None,
-        _(
-            """
-            Specifies which events to log.  (list of strings)
-
-            If the first element is 'All', all events except the following listed events
-            will be logged.
-            Event logging is resource-intensive, so in addition to setting this LogEvents
-            property, you also need to make the following call:
-
-                >>> settings.eventLogging = True
-
-            """
-        ),
-    )
-
-    Name = property(_getName, _setName, None, _("The name of the object.  (str)"))
-
-    Parent = property(_getParent, _setParent, None, _("The containing object.  (obj)"))
-
-    PreferenceManager = property(
-        _getPreferenceManager,
-        _setPreferenceManager,
-        None,
-        _("Reference to the Preference Management object  (dPref)"),
-    )
 
 
 if __name__ == "__main__":

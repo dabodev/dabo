@@ -490,9 +490,6 @@ class ObjectInspectorForm(ui.dForm):
         self.PreferenceManager = dPref(key=self.BasePrefKey)
         self._highlights = {}
 
-    def _setShowSizers(self, val):
-        self._showSizers = val
-
     def formatName(self, obj):
         if not obj:
             return "< -dead object- >"
@@ -572,12 +569,6 @@ class ObjectInspectorForm(ui.dForm):
             ret = "dSizer (%s)" % sz.Orientation
         return ret
 
-    def _getShowSizers(self):
-        try:
-            return self._showSizers
-        except AttributeError:
-            return None
-
     def exclude(self, obj):
         isFloat = isinstance(obj, ui.dDialog) and hasattr(obj, "Above") and hasattr(obj, "Owner")
         return isFloat or (obj is self)
@@ -613,11 +604,10 @@ class ObjectInspectorForm(ui.dForm):
     def afterInitAll(self):
         objnote = "NOTE: The 'obj' variable refers to the object selected in the tree."
         intro = "%s\n%s" % (ui.getSystemInfo(), objnote)
-        self.shell = ui.dShell(self.shellPanel, showInterpIntro=False, introText=intro)
+        shell_panel = self.Form.shellPanel
+        self.shell = ui.dShell(shell_panel, showInterpIntro=False, introText=intro)
         self.shell.interp.locals["self"] = self
-        sz = self.shellPanel.Sizer = ui.dBorderSizer(
-            self.shellPanel, Caption="Interactive Interpreter"
-        )
+        sz = shell_panel.Sizer = ui.dBorderSizer(shell_panel, Caption="Interactive Interpreter")
         sz.append1x(self.shell)
         ui.callEvery(250, self.clearHighlight)
 
@@ -754,12 +744,17 @@ class ObjectInspectorForm(ui.dForm):
                 nd = tree.nodeForObject(currForm)
             nd.Selected = True
 
-    ShowSizers = property(
-        _getShowSizers,
-        _setShowSizers,
-        None,
-        """Determines if sizers are displayed in the object hierarchy""",
-    )
+    @property
+    def ShowSizers(self):
+        """Determines if sizers are displayed in the object hierarchy"""
+        try:
+            return self._showSizers
+        except AttributeError:
+            return None
+
+    @ShowSizers.setter
+    def ShowSizers(self, val):
+        self._showSizers = val
 
     def getCustControlClass(self, clsName):
         # Define the classes, and return the matching class

@@ -8,10 +8,6 @@ from ..dLocalize import _
 
 dabo_module = settings.get_dabo_package()
 
-# import locale
-# lc = locale.getlocale()
-# locale.setlocale(locale.LC_CTYPE , 'UTF8')
-
 
 class CalPanel(ui.dPanel):
     def __init__(self, parent, pos=(0, 0), dt=None, ctrl=None, extended=False):
@@ -458,7 +454,9 @@ C: Popup Calendar to Select
             self.Value = dt
         self.flushValue()
 
-    def _getCalendarPanel(self):
+    @property
+    def CalendarPanel(self):
+        """Reference to the displayed calendar  (read-only) (CalPanel)"""
         fp = self.Form.FloatingPanel
         if not isinstance(self._calendarPanel, CalPanel) or not (self._calendarPanel.Parent is fp):
             fp.clear()
@@ -469,31 +467,20 @@ C: Popup Calendar to Select
             fp.fitToSizer()
         return self._calendarPanel
 
-    def _getExtendedCalendar(self):
+    @property
+    def ExtendedCalendar(self):
+        """
+        When True, the calendar is displayed in a larger format with more controls
+        for quickly moving to any date. Default=False  (bool)
+        """
         return self._extendedCalendar
 
-    def _setExtendedCalendar(self, val):
+    @ExtendedCalendar.setter
+    def ExtendedCalendar(self, val):
         if self._constructed():
             self._extendedCalendar = val
         else:
             self._properties["ExtendedCalendar"] = val
-
-    _CalendarPanel = property(
-        _getCalendarPanel,
-        None,
-        None,
-        _("Reference to the displayed calendar  (read-only) (CalPanel)"),
-    )
-
-    ExtendedCalendar = property(
-        _getExtendedCalendar,
-        _setExtendedCalendar,
-        None,
-        _(
-            """When True, the calendar is displayed in a larger format with more controls
-            for quickly moving to any date. Default=False  (bool)"""
-        ),
-    )
 
 
 ui.dDateTextBox = dDateTextBox

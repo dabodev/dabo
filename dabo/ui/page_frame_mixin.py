@@ -332,20 +332,36 @@ class dPageFrameMixin(dControlMixin):
                 return
         # raise ValueError("Caption for hotkey not found.") ## unsure if wise
 
-    # property get/set functions:
-    def _getPageClass(self):
+    # Property definitions:
+    @property
+    def PageClass(self):
+        """
+        Specifies the class of control to use for pages by default. (classRef) This really only
+        applies when using the PageCount property to set the number of pages. If you instead use
+        AddPage() you still need to send an instance as usual. Class must descend from a dabo base
+        class.
+        """
         try:
             return self._pageClass
         except AttributeError:
             return dPage
 
-    def _setPageClass(self, val):
+    @PageClass.setter
+    def PageClass(self, val):
         self._pageClass = val
 
-    def _getPageCount(self):
+    @property
+    def PageCount(self):
+        """
+        Specifies the number of pages in the pageframe. (int)
+
+        When using this to increase the number of pages, PageClass will be queried as the
+        object to use as the page object.
+        """
         return int(self.GetPageCount())
 
-    def _setPageCount(self, val):
+    @PageCount.setter
+    def PageCount(self, val):
         if self._constructed():
             val = int(val)
             pageCount = self.GetPageCount()
@@ -364,23 +380,33 @@ class dPageFrameMixin(dControlMixin):
         else:
             self._properties["PageCount"] = val
 
-    def _getPages(self):
+    @property
+    def Pages(self):
+        """Returns a list of the contained pages.  (list)"""
         ## pkm: It is possible for pages to not be instances of dPage
         ##      (such as in the AppWizard), resulting in self.PageCount > len(self.Pages)
         ##      if using the commented code below.
         # return [pg for pg in self.Children    if isinstance(pg, ui.dPage) ]
         return [self.GetPage(pg) for pg in range(self.PageCount)]
 
-    def _getPageSizerClass(self):
+    @property
+    def PageSizerClass(self):
+        """
+        Default sizer class for pages added automatically to this control. Set this to None to
+        prevent sizers from being automatically added to child pages. (dSizer or None)
+        """
         return self._pageSizerClass
 
-    def _setPageSizerClass(self, val):
+    @PageSizerClass.setter
+    def PageSizerClass(self, val):
         if self._constructed():
             self._pageSizerClass = val
         else:
             self._properties["PageSizerClass"] = val
 
-    def _getSelectedPage(self):
+    @property
+    def SelectedPage(self):
+        """References the current frontmost page.  (dPage)"""
         try:
             sel = self.GetSelection()
             if sel < 0:
@@ -391,8 +417,9 @@ class dPageFrameMixin(dControlMixin):
             ret = None
         return ret
 
+    @SelectedPage.setter
     @ui.deadCheck
-    def _setSelectedPage(self, pg):
+    def SelectedPage(self, pg):
         if self._constructed():
             idx = self._getPageIndex(pg)
             try:
@@ -403,17 +430,27 @@ class dPageFrameMixin(dControlMixin):
         else:
             self._properties["SelectedPage"] = pg
 
-    def _getSelectedPageNumber(self):
+    @property
+    def SelectedPageNumber(self):
+        """Returns the index of the current frontmost page.  (int)"""
         return self.GetSelection()
 
+    @SelectedPageNumber.setter
     @ui.deadCheck
-    def _setSelectedPageNumber(self, val):
+    def SelectedPageNumber(self, val):
         if self._constructed():
             self.SetSelection(val)
         else:
             self._properties["SelectedPageNumber"] = val
 
-    def _getTabPosition(self):
+    @property
+    def TabPosition(self):
+        """Specifies where the page tabs are located. (int)
+        Top (default)
+        Left
+        Right
+        Bottom
+        """
         if self._hasWindowStyleFlag(self._tabposBottom):
             return "Bottom"
         elif self._hasWindowStyleFlag(self._tabposRight):
@@ -423,7 +460,8 @@ class dPageFrameMixin(dControlMixin):
         else:
             return "Top"
 
-    def _setTabPosition(self, val):
+    @TabPosition.setter
+    def TabPosition(self, val):
         val = ustr(val)
 
         self._delWindowStyleFlag(self._tabposTop)
@@ -442,103 +480,29 @@ class dPageFrameMixin(dControlMixin):
         else:
             raise ValueError(_("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'"))
 
-    def _getUpdateInactivePages(self):
+    @property
+    def UpdateInactivePages(self):
+        """
+        Determines if the inactive pages are updated too. (bool) Setting it to False can
+        significantly improve update performance of multipage forms. Default=True
+        """
         return getattr(self, "_updateInactivePages", True)
 
-    def _setUpdateInactivePages(self, val):
+    @UpdateInactivePages.setter
+    def UpdateInactivePages(self, val):
         self._updateInactivePages = val
 
-    def _getUseSmartFocus(self):
+    @property
+    def UseSmartFocus(self):
+        """
+        Determines if focus has to be restored to the last active control on page when it become
+        selected. (bool) Default=False.
+        """
         return getattr(self, "_useSmartFocus", False)
 
-    def _setUseSmartFocus(self, val):
+    @UseSmartFocus.setter
+    def UseSmartFocus(self, val):
         self._useSmartFocus = val
-
-    # Property definitions:
-    PageClass = property(
-        _getPageClass,
-        _setPageClass,
-        None,
-        _(
-            """Specifies the class of control to use for pages by default. (classRef)
-            This really only applies when using the PageCount property to set the
-            number of pages. If you instead use AddPage() you still need to send
-            an instance as usual. Class must descend from a dabo base class."""
-        ),
-    )
-
-    PageCount = property(
-        _getPageCount,
-        _setPageCount,
-        None,
-        _(
-            """Specifies the number of pages in the pageframe. (int)
-            When using this to increase the number of pages, PageClass
-            will be queried as the object to use as the page object."""
-        ),
-    )
-
-    Pages = property(_getPages, None, None, _("Returns a list of the contained pages.  (list)"))
-
-    PageSizerClass = property(
-        _getPageSizerClass,
-        _setPageSizerClass,
-        None,
-        _(
-            """Default sizer class for pages added automatically to this control. Set
-            this to None to prevent sizers from being automatically added to child
-            pages. (dSizer or None)"""
-        ),
-    )
-
-    SelectedPage = property(
-        _getSelectedPage,
-        _setSelectedPage,
-        None,
-        _("References the current frontmost page.  (dPage)"),
-    )
-
-    SelectedPageNumber = property(
-        _getSelectedPageNumber,
-        _setSelectedPageNumber,
-        None,
-        _("Returns the index of the current frontmost page.  (int)"),
-    )
-
-    TabPosition = property(
-        _getTabPosition,
-        _setTabPosition,
-        None,
-        _(
-            """Specifies where the page tabs are located. (int)
-                Top (default)
-                Left
-                Right
-                Bottom"""
-        ),
-    )
-
-    UpdateInactivePages = property(
-        _getUpdateInactivePages,
-        _setUpdateInactivePages,
-        None,
-        _(
-            """Determines if the inactive pages are updated too. (bool)
-            Setting it to False can significantly improve update performance
-            of multipage forms. Default=True."""
-        ),
-    )
-
-    UseSmartFocus = property(
-        _getUseSmartFocus,
-        _setUseSmartFocus,
-        None,
-        _(
-            """Determines if focus has to be restored to the last active
-            control on page when it become selected. (bool) Default=False.
-            """
-        ),
-    )
 
     DynamicPageClass = makeDynamicProperty(PageClass)
     DynamicPageCount = makeDynamicProperty(PageCount)

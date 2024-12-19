@@ -860,59 +860,95 @@ class dSizerMixin(dObject):
 
         return _wxFlags
 
-    def _getChildren(self):
+    @property
+    def ChildObjects(self):
+        """
+        List of all the objects (controls, sizers, spacers) that are directly managed
+        by this sizer  (list of objects)
+        """
+        itms = self.GetChildren()
+        ret = [self.getItem(itm) for itm in itms]
+        return ret
+
+    @property
+    def Children(self):
+        """List of all the sizer items managed by this sizer  (list of sizerItems"""
         ret = self.GetChildren()
         for itm in ret:
             itm.ControllingSizer = self
         return ret
 
-    def _getChildSpacers(self):
-        itms = self.GetChildren()
-        ret = [itm for itm in itms if itm.IsSpacer()]
-        return ret
-
-    def _getChildObjects(self):
-        itms = self.GetChildren()
-        ret = [self.getItem(itm) for itm in itms]
-        return ret
-
-    def _getChildSizers(self):
+    @property
+    def ChildSizers(self):
+        """List of all the sizers that are directly managed by this sizer  (list of sizers"""
         itms = self.GetChildren()
         ret = [itm.GetSizer() for itm in itms if itm.IsSizer()]
         return ret
 
-    def _getChildWindows(self):
+    @property
+    def ChildSpacers(self):
+        """List of all the spacer items directly managed by this sizer  (list of spacer items)"""
+        itms = self.GetChildren()
+        ret = [itm for itm in itms if itm.IsSpacer()]
+        return ret
+
+    @property
+    def ChildWindows(self):
+        """List of all the windows that are directly managed by this sizer  (list of controls)"""
         itms = self.GetChildren()
         ret = [itm.GetWindow() for itm in itms if itm.IsWindow()]
         return ret
 
-    def _getCntrlSizer(self):
+    @property
+    def ControllingSizer(self):
+        """Reference to the sizer that controls this control's layout.  (dSizer)"""
         try:
             ret = self._controllingSizer
         except AttributeError:
             ret = self._controllingSizer = None
         return ret
 
-    def _getCntrlSzItem(self):
+    @property
+    def ControllingSizerItem(self):
+        """
+        Reference to the sizer item that control's this control's layout. This is useful for
+        getting information about how the item is being sized, and for changing those settings.
+        """
         try:
             ret = self._controllingSizerItem
         except AttributeError:
             ret = self._controllingSizerItem = None
         return ret
 
-    def _getDefaultBorder(self):
+    @property
+    def DefaultBorder(self):
+        """
+        Sets a default value for the border that will be applied to any controls added to the sizer
+        afterwards for whom an explicit value for the border is not set. Note that it does not
+        affect the border of items already added to the control. This property is useful when you
+        want to add a series of items to a sizer with the same border: just set this property once,
+        and then add your items. Default=0  (int)
+        """
         try:
             return self._defaultBorder
         except AttributeError:
             ret = self._defaultBorder = 0
             return ret
 
-    def _setDefaultBorder(self, val):
+    @DefaultBorder.setter
+    def DefaultBorder(self, val):
         if isinstance(val, str):
             val = int(val)
         self._defaultBorder = val
 
-    def _getDefaultBorderAll(self):
+    @property
+    def DefaultBorderAll(self):
+        """
+        When True, the DefaultBorder property is applied to all of the sides of any controls added
+        to the sizer. If any of the individual side properties, such as DefaultBorderTop, are set to
+        False, this property will return False.  Setting DefaultBorderAll will effectively set all
+        of the individual side properties to that value. Default=True  (bool)
+        """
         try:
             return (
                 self._defaultBorderBottom
@@ -923,74 +959,104 @@ class dSizerMixin(dObject):
         except AttributeError:
             return False
 
-    def _setDefaultBorderAll(self, val):
+    @DefaultBorderAll.setter
+    def DefaultBorderAll(self, val):
         if isinstance(val, str):
             val = val.lower()[0] in ("t", "y")
         self._defaultBorderBottom = self._defaultBorderTop = self._defaultBorderLeft = (
             self._defaultBorderRight
         ) = val
 
-    def _getDefaultBorderBottom(self):
+    @property
+    def DefaultBorderBottom(self):
+        """
+        Affects whether the DefaultBorder property is applied to the Bottom side of
+        controls added to the sizer. Default=True  (bool)
+        """
         try:
             return self._defaultBorderBottom
         except AttributeError:
             ret = self._defaultBorderBottom = False
             return ret
 
-    def _setDefaultBorderBottom(self, val):
+    @DefaultBorderBottom.setter
+    def DefaultBorderBottom(self, val):
         if isinstance(val, str):
             val = val.lower()[0] in ("t", "y")
         self._defaultBorderBottom = val
 
-    def _getDefaultBorderLeft(self):
+    @property
+    def DefaultBorderLeft(self):
+        """
+        Affects whether the DefaultBorder property is applied to the Left side of
+        controls added to the sizer. Default=True  (bool)
+        """
         try:
             return self._defaultBorderLeft
         except AttributeError:
             ret = self._defaultBorderLeft = False
             return ret
 
-    def _setDefaultBorderLeft(self, val):
+    @DefaultBorderLeft.setter
+    def DefaultBorderLeft(self, val):
         if isinstance(val, str):
             val = val.lower()[0] in ("t", "y")
         self._defaultBorderLeft = val
 
-    def _getDefaultBorderRight(self):
+    @property
+    def DefaultBorderRight(self):
+        """
+        Affects whether the DefaultBorder property is applied to the Right side of
+        controls added to the sizer. Default=True  (bool)
+        """
         try:
             return self._defaultBorderRight
         except AttributeError:
             ret = self._defaultBorderRight = False
             return ret
 
-    def _setDefaultBorderRight(self, val):
+    @DefaultBorderRight.setter
+    def DefaultBorderRight(self, val):
         if isinstance(val, str):
             val = val.lower()[0] in ("t", "y")
         self._defaultBorderRight = val
 
-    def _getDefaultBorderTop(self):
+    @property
+    def DefaultBorderTop(self):
+        """
+        Affects whether the DefaultBorder property is applied to the Top side of
+        controls added to the sizer. Default=True  (bool)
+        """
         try:
             return self._defaultBorderTop
         except AttributeError:
             ret = self._defaultBorderTop = False
             return ret
 
-    def _setDefaultBorderTop(self, val):
+    @DefaultBorderTop.setter
+    def DefaultBorderTop(self, val):
         if isinstance(val, str):
             val = val.lower()[0] in ("t", "y")
         self._defaultBorderTop = val
 
-    def _getDefaultSpacing(self):
+    @property
+    def DefaultSpacing(self):
+        """Amount of space automatically inserted between elements.  (int)"""
         try:
             return self._defaultSpacing
         except AttributeError:
             ret = self._defaultSpacing = 0
             return ret
 
-    def _setDefaultSpacing(self, val):
+    @DefaultSpacing.setter
+    def DefaultSpacing(self, val):
         if isinstance(val, str):
             val = int(val)
         self._defaultSpacing = val
 
-    def _getForm(self):
+    @property
+    def Form(self):
+        """Form with which the sizer is associated.  (dForm or None)"""
         parent = self.Parent
         if isinstance(parent, ui.dFormMixin):
             return parent
@@ -998,10 +1064,14 @@ class dSizerMixin(dObject):
             return parent.Form
         return None
 
-    def _getHeight(self):
+    @property
+    def Height(self):
+        """Height of the sizer  (int)"""
         return self.GetSize()[1]
 
-    def _getOrientation(self):
+    @property
+    def Orientation(self):
+        """Sets the orientation of the sizer, either 'Vertical' or 'Horizontal'."""
         o = self.GetOrientation()
         if o == self.verticalFlag:
             return "Vertical"
@@ -1010,13 +1080,19 @@ class dSizerMixin(dObject):
         else:
             return "?"
 
-    def _setOrientation(self, val):
+    @Orientation.setter
+    def Orientation(self, val):
         if val[0].lower() == "v":
             self.SetOrientation(self.verticalFlag)
         else:
             self.SetOrientation(self.horizontalFlag)
 
-    def _getParent(self):
+    @property
+    def Parent(self):
+        """
+        The object that contains this sizer. In the case of nested sizers, it is the object that the
+        outermost sizer belongs to. (obj)
+        """
         ret = self._parent
         ob = self
         while ret is None:
@@ -1031,10 +1107,13 @@ class dSizerMixin(dObject):
                 ret = ob._parent
         return ret
 
-    def _setParent(self, obj):
+    @Parent.setter
+    def Parent(self, obj):
         self._parent = obj
 
-    def _getVisible(self):
+    @property
+    def Visible(self):
+        """Specifies whether the sizer and contained items are shown  (bool)"""
         try:
             return self._visible
         except AttributeError:
@@ -1042,181 +1121,17 @@ class dSizerMixin(dObject):
             self._setVisible(default)
             return default
 
-    def _setVisible(self, val):
+    @Visible.setter
+    def Visible(self, val):
         if isinstance(val, str):
             val = val.lower()[0] in ("t", "y")
         self._visible = val
         self.ShowItems(val)
 
-    def _getWidth(self):
+    @property
+    def Width(self):
+        """Width of this sizer  (int)"""
         return self.GetSize()[0]
-
-    Children = property(
-        _getChildren,
-        None,
-        None,
-        _("List of all the sizer items managed by this sizer  (list of sizerItems"),
-    )
-
-    ChildObjects = property(
-        _getChildObjects,
-        None,
-        None,
-        _(
-            """List of all the objects (controls, sizers, spacers) that are directly managed
-            by this sizer  (list of objects"""
-        ),
-    )
-
-    ChildSizers = property(
-        _getChildSizers,
-        None,
-        None,
-        _("List of all the sizers that are directly managed by this sizer  (list of sizers"),
-    )
-
-    ChildSpacers = property(
-        _getChildSpacers,
-        None,
-        None,
-        _(
-            "List of all the spacer items directly managed by this sizer  (list of spacer items)"
-        ),
-    )
-
-    ChildWindows = property(
-        _getChildWindows,
-        None,
-        None,
-        _("List of all the windows that are directly managed by this sizer  (list of controls"),
-    )
-
-    ControllingSizer = property(
-        _getCntrlSizer,
-        None,
-        None,
-        _("""Reference to the sizer that controls this control's layout.  (dSizer)"""),
-    )
-
-    ControllingSizerItem = property(
-        _getCntrlSzItem,
-        None,
-        None,
-        _(
-            """Reference to the sizer item that control's this control's layout.
-                This is useful for getting information about how the item is being
-                sized, and for changing those settings."""
-        ),
-    )
-
-    DefaultBorder = property(
-        _getDefaultBorder,
-        _setDefaultBorder,
-        None,
-        _(
-            """Sets a default value for the border that will be applied to any controls added
-            to the sizer afterwards for whom an explicit value for the border is not set.
-            Note that it does not affect the border of items already added to the control.
-            This property is useful when you want to add a series of items to a sizer with
-            the same border: just set this property once, and then add your items.
-            Default=0  (int)"""
-        ),
-    )
-
-    DefaultBorderAll = property(
-        _getDefaultBorderAll,
-        _setDefaultBorderAll,
-        None,
-        _(
-            """When True, the DefaultBorder property is applied to all of the sides of
-            any controls added to the sizer. If any of the individual side properties,
-            such as DefaultBorderTop, are set to False, this property will return False.
-            Setting DefaultBorderAll will effectively set all of the individual side properties
-            to that value. Default=True  (bool)"""
-        ),
-    )
-
-    DefaultBorderBottom = property(
-        _getDefaultBorderBottom,
-        _setDefaultBorderBottom,
-        None,
-        _(
-            """Affects whether the DefaultBorder property is applied to the Bottom
-            side of controls added to the sizer. Default=True  (bool)"""
-        ),
-    )
-
-    DefaultBorderLeft = property(
-        _getDefaultBorderLeft,
-        _setDefaultBorderLeft,
-        None,
-        _(
-            """Affects whether the DefaultBorder property is applied to the Left
-            side of controls added to the sizer. Default=True  (bool)"""
-        ),
-    )
-
-    DefaultBorderRight = property(
-        _getDefaultBorderRight,
-        _setDefaultBorderRight,
-        None,
-        _(
-            """Affects whether the DefaultBorder property is applied to the Right
-            side of controls added to the sizer. Default=True  (bool)"""
-        ),
-    )
-
-    DefaultBorderTop = property(
-        _getDefaultBorderTop,
-        _setDefaultBorderTop,
-        None,
-        _(
-            """Affects whether the DefaultBorder property is applied to the Top
-            side of controls added to the sizer. Default=True  (bool)"""
-        ),
-    )
-
-    DefaultSpacing = property(
-        _getDefaultSpacing,
-        _setDefaultSpacing,
-        None,
-        _("Amount of space automatically inserted between elements.  (int)"),
-    )
-
-    Form = property(
-        _getForm,
-        None,
-        None,
-        _("Form with which the sizer is associated.  (dForm or None)"),
-    )
-
-    Height = property(_getHeight, None, None, _("Height of the sizer  (int)"))
-
-    Orientation = property(
-        _getOrientation,
-        _setOrientation,
-        None,
-        _("Sets the orientation of the sizer, either 'Vertical' or 'Horizontal'."),
-    )
-
-    Parent = property(
-        _getParent,
-        _setParent,
-        None,
-        _(
-            """The object that contains this sizer. In the case of nested
-            sizers, it is the object that the outermost sizer belongs to. (obj)"""
-        ),
-    )
-
-    Visible = property(
-        _getVisible,
-        _setVisible,
-        None,
-        _("Specifies whether the sizer and contained items are shown  (bool)"),
-    )
-
-    Width = property(_getWidth, None, None, _("Width of this sizer  (int)"))
 
     DynamicDefaultBorder = makeDynamicProperty(DefaultBorder)
     DynamicVisible = makeDynamicProperty(Visible)

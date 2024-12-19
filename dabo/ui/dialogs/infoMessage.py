@@ -42,26 +42,24 @@ class DlgInfoMessage(dStandardButtonDialog):
             )
         )
 
-    def _getDefaultShowInFuture(self):
+    # Property definitions
+    @property
+    def DefaultShowInFuture(self):
+        """Specifies whether the 'show in future' checkbox is checked by default."""
         return getattr(self, "_defaultShowInFuture", True)
 
-    def _setDefaultShowInFuture(self, val):
+    @DefaultShowInFuture.setter
+    def DefaultShowInFuture(self, val):
         self._defaultShowInFuture = bool(val)
 
-    def _getMessage(self):
+    @property
+    def Message(self):
+        """Specifies the message to display."""
         return getattr(self, "_message", "")
 
-    def _setMessage(self, val):
+    @Message.setter
+    def Message(self, val):
         self._message = val
-
-    DefaultShowInFuture = property(
-        _getDefaultShowInFuture,
-        _setDefaultShowInFuture,
-        None,
-        _("Specifies whether the 'show in future' checkbox is checked by default."),
-    )
-
-    Message = property(_getMessage, _setMessage, None, _("Specifies the message to display."))
 
 
 if __name__ == "__main__":

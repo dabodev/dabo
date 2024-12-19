@@ -584,9 +584,9 @@ class dFormMixin(dPemMixin):
                     app.setUserSetting("%s.width" % name, width)
                     app.setUserSetting("%s.height" % name, height)
 
-    def setStatusText(self, val, immediate=False):
+    def updateStatusText(self, val, immediate=False):
         """Set the status text to val."""
-        self._setStatusText(val, not immediate)
+        self._updateStatusText(val, not immediate)
 
     def layout(self):
         """Wrap the wx sizer layout call."""
@@ -688,38 +688,60 @@ class dFormMixin(dPemMixin):
         else:
             self.StatusText = ""
 
+    def _updateStatusText(self, val, _callAfter=True):
+        """
+        Set the text of the status bar. Dabo will decide whether to
+        send the text to the main frame or this frame. This matters with MDI
+        versus non-MDI forms.
+        """
+        if _callAfter:
+            ui.setAfterInterval(250, self, "StatusText", val)
+            return
+
     ################################
-    # property get/set/del functions follow:
-    def _getActiveControl(self):
+    # property definitions follow:
+    @property
+    def ActiveControl(self):
+        """Contains a reference to the active control on the form, or None."""
         # Can't use FindFocus: it returns whatever control has the keyboard focus,
         # whether or not it is a member of this form.
         return getattr(self, "_activeControl", None)
 
-    def _setActiveControl(self, val):
+    @ActiveControl.setter
+    def ActiveControl(self, val):
         val.setFocus()
 
-    def _getAutoUpdateStatusText(self):
+    @property
+    def AutoUpdateStatusText(self):
+        """Does this form update the status text with the current record position?  (bool)"""
         return self._autoUpdateStatusText
 
-    def _setAutoUpdateStatusText(self, val):
+    @AutoUpdateStatusText.setter
+    def AutoUpdateStatusText(self, val):
         self._autoUpdateStatusText = val
 
-    def _getBorderResizable(self):
+    @property
+    def BorderResizable(self):
+        """Does this form update the status text with the current record position?  (bool)"""
         return self.MDI or self._hasWindowStyleFlag(wx.RESIZE_BORDER)
 
-    def _setBorderResizable(self, value):
+    @BorderResizable.setter
+    def BorderResizable(self, value):
         self._delWindowStyleFlag(wx.RESIZE_BORDER)
         if value:
             self._addWindowStyleFlag(wx.RESIZE_BORDER)
 
-    def _getCentered(self):
+    @property
+    def Centered(self):
+        """Centers the form on the screen when set to True.  (bool)"""
         if hasattr(self, "_centered"):
             v = self._centered
         else:
             v = self._centered = False
         return v
 
-    def _setCentered(self, val):
+    @Centered.setter
+    def Centered(self, val):
         if self._constructed():
             oldCentered = self.Centered
             self._centered = val
@@ -737,19 +759,30 @@ class dFormMixin(dPemMixin):
         else:
             self._properties["Centered"] = val
 
-    def _getConnection(self):
+    @property
+    def Connection(self):
+        """The connection to the database used by this form  (dConnection)"""
         return self._connection
 
-    def _setConnection(self, val):
+    @Connection.setter
+    def Connection(self, val):
         self._connection = val
 
-    def _getCxnName(self):
+    @property
+    def CxnName(self):
+        """Name of the connection used for data access  (str)"""
         return self._cxnName
 
-    def _setCxnName(self, val):
+    @CxnName.setter
+    def CxnName(self, val):
         self._cxnName = val
 
-    def _getFloatingPanel(self):
+    @property
+    def FloatingPanel(self):
+        """
+        Small modal dialog that is designed to be used for temporary displays, similar to context
+        menus, but which can contain any controls.  (read-only) (dDialog)
+        """
         if not self._floatingPanel:
             # Have to import it here, as it requires that dFormMixin be defined.
             from .dialog import FloatDialog
@@ -757,21 +790,34 @@ class dFormMixin(dPemMixin):
             self._floatingPanel = FloatDialog(owner=None, parent=self)
         return self._floatingPanel
 
-    def _getFloatOnParent(self):
+    @property
+    def FloatOnParent(self):
+        """Specifies whether the form stays on top of the parent or not."""
         return self._hasWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
 
-    def _setFloatOnParent(self, value):
+    @FloatOnParent.setter
+    def FloatOnParent(self, value):
         self._delWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
         if value:
             self._addWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
 
-    def _getIcon(self):
+    @property
+    def Icon(self):
+        """
+        Specifies the icon for the form.
+
+        The value passed can be a binary icon bitmap, a filename, or a sequence of filenames.
+        Providing a sequence of filenames pointing to icons at expected dimensions like 16, 22, and
+        32 px means that the system will not have to scale the icon, resulting in a much better
+        appearance.
+        """
         try:
             return self._icon
         except AttributeError:
             return None
 
-    def _setIcon(self, val):
+    @Icon.setter
+    def Icon(self, val):
         if self._constructed():
             setIconFunc = self.SetIcon
             if val is None:
@@ -807,13 +853,32 @@ class dFormMixin(dPemMixin):
         else:
             self._properties["Icon"] = val
 
-    def _getIdleRefreshInterval(self):
+    @property
+    def IdleRefreshInterval(self):
+        """
+        Controls how often the form is refreshed when idle.
+
+        If you notice a lot of flicker when a form is 'doing nothing', increase this value.
+        Likewise, if you notice that changes are not reflected as readily as you wish, decrease it.
+        The value is in milliseconds; the default is 1000.  (int)
+        """
         return self._idleRefreshInterval
 
-    def _setIdleRefreshInterval(self, val):
+    @IdleRefreshInterval.setter
+    def IdleRefreshInterval(self, val):
         self._setIdleRefreshInterval = val
 
-    def _getMDI(self):
+    @property
+    def MDI(self):
+        """
+        Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
+
+        Otherwise, returns False if this is a SDI (Single Document Interface) form.  Users on
+        Microsoft Windows seem to expect MDI, while on other platforms SDI is preferred.
+        self._mdi is defined in dForm.py/dFormMain.py
+
+        See also: the global MDI global setting.  (bool)
+        """
         ## self._mdi defined in dForm.py/dFormMain.py:
         try:
             return self._mdi
@@ -821,14 +886,17 @@ class dFormMixin(dPemMixin):
             # dDialog, for instance
             return False
 
-    def _getMenuBar(self):
+    @property
+    def MenuBar(self):
+        """Specifies the menu bar instance for the form."""
         try:
             return self.GetMenuBar()
         except (TypeError, AttributeError):
             # dDialogs don't have menu bars
             return None
 
-    def _setMenuBar(self, val):
+    @MenuBar.setter
+    def MenuBar(self, val):
         if self._constructed():
             try:
                 self.SetMenuBar(val)
@@ -838,104 +906,142 @@ class dFormMixin(dPemMixin):
         else:
             self._properties["MenuBar"] = val
 
-    def _getMenuBarClass(self):
+    @property
+    def MenuBarClass(self):
+        """Specifies the menu bar class to use for the form, or None."""
         try:
             mb = self._menuBarClass
         except AttributeError:
             mb = self._menuBarClass = self.Application.DefaultMenuBarClass
         return mb
 
-    def _setMenuBarClass(self, val):
+    @MenuBarClass.setter
+    def MenuBarClass(self, val):
         self._menuBarClass = val
 
-    def _getMenuBarFile(self):
+    @property
+    def MenuBarFile(self):
+        """Path to the .mnxml file that defines this form's menu bar  (str)"""
         return self._menuBarFile
 
-    def _setMenuBarFile(self, val):
+    @MenuBarFile.setter
+    def MenuBarFile(self, val):
         if self._constructed():
             self._menuBarFile = self._menuBarClass = val
         else:
             self._properties["MenuBarFile"] = val
 
-    def _getSaveRestorePosition(self):
+    @property
+    def SaveRestorePosition(self):
+        """
+        Specifies whether the form's position and size as set by the user will get saved and
+        restored in the next session. Default is True for forms and False for dialogs.
+        """
         try:
             val = self._saveRestorePosition
         except AttributeError:
             val = self._saveRestorePosition = not isinstance(self, ui.dDialog)
         return val
 
-    def _setSaveRestorePosition(self, val):
+    @SaveRestorePosition.setter
+    def SaveRestorePosition(self, val):
         self._saveRestorePosition = val
 
-    def _getShowCaption(self):
+    @property
+    def ShowCaption(self):
+        """Specifies whether the caption is displayed in the title bar. (bool)."""
         return self._hasWindowStyleFlag(wx.CAPTION)
 
-    def _setShowCaption(self, value):
+    @ShowCaption.setter
+    def ShowCaption(self, value):
         self._delWindowStyleFlag(wx.CAPTION)
         if value:
             self._addWindowStyleFlag(wx.CAPTION)
 
-    def _getShowCloseButton(self):
+    @property
+    def ShowCloseButton(self):
+        """Specifies whether a close button is displayed in the title bar. (bool)."""
         return self._hasWindowStyleFlag(wx.CLOSE_BOX)
 
-    def _setShowCloseButton(self, value):
+    @ShowCloseButton.setter
+    def ShowCloseButton(self, value):
         self._delWindowStyleFlag(wx.CLOSE_BOX)
         if value:
             self._addWindowStyleFlag(wx.CLOSE_BOX)
 
-    def _getShowInTaskBar(self):
+    @property
+    def ShowInTaskBar(self):
+        """Specifies whether the form is shown in the taskbar.  (bool)."""
         return not self._hasWindowStyleFlag(wx.FRAME_NO_TASKBAR)
 
-    def _setShowInTaskBar(self, value):
+    @ShowInTaskBar.setter
+    def ShowInTaskBar(self, value):
         self._delWindowStyleFlag(wx.FRAME_NO_TASKBAR)
         if not value:
             self._addWindowStyleFlag(wx.FRAME_NO_TASKBAR)
 
-    def _getShowMaxButton(self):
+    @property
+    def ShowMaxButton(self):
+        """Specifies whether a maximize button is displayed in the title bar. (bool)."""
         return self._hasWindowStyleFlag(wx.MAXIMIZE_BOX)
 
-    def _setShowMaxButton(self, value):
+    @ShowMaxButton.setter
+    def ShowMaxButton(self, value):
         self._delWindowStyleFlag(wx.MAXIMIZE_BOX)
         if value:
             self._addWindowStyleFlag(wx.MAXIMIZE_BOX)
 
-    def _getShowMenuBar(self):
+    @property
+    def ShowMenuBar(self):
+        """Specifies whether a menubar is created and shown automatically."""
         if hasattr(self, "_showMenuBar"):
             val = self._showMenuBar
         else:
             val = self._showMenuBar = True
         return val
 
-    def _setShowMenuBar(self, val):
+    @ShowMenuBar.setter
+    def ShowMenuBar(self, val):
         self._showMenuBar = bool(val)
 
-    def _getShowMinButton(self):
+    @property
+    def ShowMinButton(self):
+        """Specifies whether a minimize button is displayed in the title bar. (bool)."""
         return self._hasWindowStyleFlag(wx.MINIMIZE_BOX)
 
-    def _setShowMinButton(self, value):
+    @ShowMinButton.setter
+    def ShowMinButton(self, value):
         self._delWindowStyleFlag(wx.MINIMIZE_BOX)
         if value:
             self._addWindowStyleFlag(wx.MINIMIZE_BOX)
 
-    def _getShowStatusBar(self):
+    @property
+    def ShowStatusBar(self):
+        """Specifies whether the status bar gets automatically created."""
         try:
             ret = self._showStatusBar
         except AttributeError:
             ret = self._showStatusBar = True
         return ret
 
-    def _setShowStatusBar(self, val):
+    @ShowStatusBar.setter
+    def ShowStatusBar(self, val):
         self._showStatusBar = bool(val)
 
-    def _getShowSystemMenu(self):
+    @property
+    def ShowSystemMenu(self):
+        """Specifies whether a system menu is displayed in the title bar. (bool)."""
         return self._hasWindowStyleFlag(wx.SYSTEM_MENU)
 
-    def _setShowSystemMenu(self, value):
+    @ShowSystemMenu.setter
+    def ShowSystemMenu(self, value):
         self._delWindowStyleFlag(wx.SYSTEM_MENU)
         if value:
             self._addWindowStyleFlag(wx.SYSTEM_MENU)
 
-    def _getShowToolBar(self):
+    @property
+    def ShowToolBar(self):
+        """Specifies whether the Tool bar gets automatically created."""
         try:
             ret = self._showToolBar
         except AttributeError:
@@ -943,10 +1049,13 @@ class dFormMixin(dPemMixin):
             ret = self._showToolBar = False
         return ret
 
-    def _setShowToolBar(self, val):
+    @ShowToolBar.setter
+    def ShowToolBar(self, val):
         self._showToolBar = bool(val)
 
-    def _getSizersToOutline(self):
+    @property
+    def SizersToOutline(self):
+        """When drawing the outline of sizers, the sizer(s) to draw. Default=self.Sizer (dSizer)"""
         if self._alwaysDrawSizerOutlines:
             return self._sizersToOutline
         else:
@@ -958,33 +1067,42 @@ class dFormMixin(dPemMixin):
                     ret = []
             return ret
 
-    def _setSizersToOutline(self, val):
+    @SizersToOutline.setter
+    def SizersToOutline(self, val):
         self._sizersToOutline = val
 
-    def _getStatusBar(self):
+    @property
+    def StatusBar(self):
+        """Status bar for this form. (dStatusBar)"""
         try:
             return self.GetStatusBar()
         except (TypeError, AttributeError):
             # dialogs don't have status bars
             return None
 
-    def _setStatusBar(self, val):
+    @StatusBar.setter
+    def StatusBar(self, val):
         try:
             self.SetStatusBar(val)
         except (TypeError, AttributeError):
             # dialogs don't have status bars
             pass
 
-    def _getStatusBarClass(self):
+    @property
+    def StatusBarClass(self):
+        """Class to be used for this form's status bar. Default=dStatusBar (dStatusBar)"""
         return self._statusBarClass
 
-    def _setStatusBarClass(self, val):
+    @StatusBarClass.setter
+    def StatusBarClass(self, val):
         if self._constructed():
             self._statusBarClass = val
         else:
             self._properties["StatusBarClass"] = val
 
-    def _getStatusText(self):
+    @property
+    def StatusText(self):
+        """Text displayed in the form's status bar. (string)"""
         ret = ""
         if sys.platform.startswith("win") and isinstance(self, wx.MDIChildFrame):
             controllingFrame = self.Application.MainForm
@@ -999,16 +1117,10 @@ class dFormMixin(dPemMixin):
             ret = sb.GetStatusText()
         return ret
 
+    @StatusText.setter
     @ui.deadCheck
-    def _setStatusText(self, val, _callAfter=True):
-        """
-        Set the text of the status bar. Dabo will decide whether to
-        send the text to the main frame or this frame. This matters with MDI
-        versus non-MDI forms.
-        """
-        if _callAfter:
-            ui.callAfterInterval(250, self._setStatusText, val, _callAfter=False)
-            return
+    def StatusText(self, val):
+        """Set the text of the status bar"""
         if sys.platform.startswith("win") and isinstance(self, wx.MDIChildFrame):
             controllingFrame = self.Application.MainForm
         else:
@@ -1024,42 +1136,66 @@ class dFormMixin(dPemMixin):
             sb.SetStatusText(val)
             statusBar.Update()
 
-    def _getStayOnTop(self):
+    @property
+    def StayOnTop(self):
+        """Keeps the form on top of all other forms. (bool)"""
         return self._hasWindowStyleFlag(wx.STAY_ON_TOP)
 
-    def _setStayOnTop(self, value):
+    @StayOnTop.setter
+    def StayOnTop(self, value):
         self._delWindowStyleFlag(wx.STAY_ON_TOP)
         if value:
             self._addWindowStyleFlag(wx.STAY_ON_TOP)
 
-    def _getTempForm(self):
+    @property
+    def TempForm(self):
+        """
+        Used to indicate that this is a temporary form, and that its settings
+        should not be persisted. Default=False  (bool)
+        """
         return self._tempForm
 
-    def _setTempForm(self, val):
+    @TempForm.setter
+    def TempForm(self, val):
         if self._constructed():
             self._tempForm = val
         else:
             self._properties["TempForm"] = val
 
-    def _getTinyTitleBar(self):
+    @property
+    def TinyTitleBar(self):
+        """Specifies whether the title bar is small, like a tool window. (bool)."""
         return self._hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 
-    def _setTinyTitleBar(self, value):
+    @TinyTitleBar.setter
+    def TinyTitleBar(self, value):
         self._delWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
         if value:
             self._addWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 
-    def _getToolBar(self):
+    @property
+    def ToolBar(self):
+        """Tool bar for this form. (dToolBar)"""
         try:
             return self.GetToolBar()
         except (AttributeError, TypeError):
             # We are probably a dialog or some other form that doesn't support ToolBars.
             return None
 
-    def _setToolBar(self, val):
+    @ToolBar.setter
+    def ToolBar(self, val):
         self.SetToolBar(val)
 
-    def _getWindowState(self):
+    @property
+    def WindowState(self):
+        """
+        Specifies the current state of the form. (int)
+
+            Normal
+            Minimized
+            Maximized
+            FullScreen
+        """
         try:
             if self.IsFullScreen():
                 return "FullScreen"
@@ -1073,7 +1209,8 @@ class dFormMixin(dPemMixin):
             # These only work on Windows, I fear
             return "Normal"
 
-    def _setWindowState(self, value):
+    @WindowState.setter
+    def WindowState(self, value):
         if self._constructed():
             lowvalue = ustr(value).lower().strip()
             vis = self.Visible
@@ -1101,278 +1238,6 @@ class dFormMixin(dPemMixin):
                 )
         else:
             self._properties["WindowState"] = value
-
-    # property definitions follow:
-    ActiveControl = property(
-        _getActiveControl,
-        _setActiveControl,
-        None,
-        _("Contains a reference to the active control on the form, or None."),
-    )
-
-    AutoUpdateStatusText = property(
-        _getAutoUpdateStatusText,
-        _setAutoUpdateStatusText,
-        None,
-        _("Does this form update the status text with the current record position?  (bool)"),
-    )
-
-    BorderResizable = property(
-        _getBorderResizable,
-        _setBorderResizable,
-        None,
-        _(
-            """Specifies whether the user can resize this form.  (bool).
-
-            The default is True for dForm and False for dDialog."""
-        ),
-    )
-
-    Centered = property(
-        _getCentered,
-        _setCentered,
-        None,
-        _("Centers the form on the screen when set to True.  (bool)"),
-    )
-
-    Connection = property(
-        _getConnection,
-        _setConnection,
-        None,
-        _("The connection to the database used by this form  (dConnection)"),
-    )
-
-    CxnName = property(
-        _getCxnName,
-        _setCxnName,
-        None,
-        _("Name of the connection used for data access  (str)"),
-    )
-
-    FloatingPanel = property(
-        _getFloatingPanel,
-        None,
-        None,
-        _(
-            """Small modal dialog that is designed to be used for temporary displays,
-            similar to context menus, but which can contain any controls.
-            (read-only) (dDialog)"""
-        ),
-    )
-
-    FloatOnParent = property(
-        _getFloatOnParent,
-        _setFloatOnParent,
-        None,
-        _("Specifies whether the form stays on top of the parent or not."),
-    )
-
-    Icon = property(
-        _getIcon,
-        _setIcon,
-        None,
-        _(
-            """Specifies the icon for the form.
-
-            The value passed can be a binary icon bitmap, a filename, or a
-            sequence of filenames. Providing a sequence of filenames pointing to
-            icons at expected dimensions like 16, 22, and 32 px means that the
-            system will not have to scale the icon, resulting in a much better
-            appearance."""
-        ),
-    )
-
-    IdleRefreshInterval = property(
-        _getIdleRefreshInterval,
-        _setIdleRefreshInterval,
-        None,
-        _(
-            """Controls how often the form is refreshed when idle.
-
-            If you notice a lot of flicker when a form is 'doing nothing', increase
-            this value. Likewise, if you notice that changes are not reflected as
-            readily as you wish, decrease it. The value is in milliseconds; the
-            default is 1000.  (int)"""
-        ),
-    )
-
-    MDI = property(
-        _getMDI,
-        None,
-        None,
-        _(
-            """Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
-
-            Otherwise, returns False if this is a SDI (Single Document Interface) form.
-            Users on Microsoft Windows seem to expect MDI, while on other platforms SDI is
-            preferred.
-
-            See also: the global MDI global setting.  (bool)"""
-        ),
-    )
-
-    MenuBar = property(
-        _getMenuBar,
-        _setMenuBar,
-        None,
-        _("Specifies the menu bar instance for the form."),
-    )
-
-    MenuBarClass = property(
-        _getMenuBarClass,
-        _setMenuBarClass,
-        None,
-        _("Specifies the menu bar class to use for the form, or None."),
-    )
-
-    MenuBarFile = property(
-        _getMenuBarFile,
-        _setMenuBarFile,
-        None,
-        _("Path to the .mnxml file that defines this form's menu bar  (str)"),
-    )
-
-    SaveRestorePosition = property(
-        _getSaveRestorePosition,
-        _setSaveRestorePosition,
-        None,
-        _(
-            """Specifies whether the form's position and size as set by the user
-                will get saved and restored in the next session. Default is True for
-                forms and False for dialogs."""
-        ),
-    )
-
-    ShowCaption = property(
-        _getShowCaption,
-        _setShowCaption,
-        None,
-        _("Specifies whether the caption is displayed in the title bar. (bool)."),
-    )
-
-    ShowCloseButton = property(
-        _getShowCloseButton,
-        _setShowCloseButton,
-        None,
-        _("Specifies whether a close button is displayed in the title bar. (bool)."),
-    )
-
-    ShowInTaskBar = property(
-        _getShowInTaskBar,
-        _setShowInTaskBar,
-        None,
-        _("Specifies whether the form is shown in the taskbar.  (bool)."),
-    )
-
-    ShowMaxButton = property(
-        _getShowMaxButton,
-        _setShowMaxButton,
-        None,
-        _("Specifies whether a maximize button is displayed in the title bar. (bool)."),
-    )
-
-    ShowMenuBar = property(
-        _getShowMenuBar,
-        _setShowMenuBar,
-        None,
-        _("Specifies whether a menubar is created and shown automatically."),
-    )
-
-    ShowMinButton = property(
-        _getShowMinButton,
-        _setShowMinButton,
-        None,
-        _("Specifies whether a minimize button is displayed in the title bar. (bool)."),
-    )
-
-    ShowStatusBar = property(
-        _getShowStatusBar,
-        _setShowStatusBar,
-        None,
-        _("Specifies whether the status bar gets automatically created."),
-    )
-
-    ShowSystemMenu = property(
-        _getShowSystemMenu,
-        _setShowSystemMenu,
-        None,
-        _("Specifies whether a system menu is displayed in the title bar. (bool)."),
-    )
-
-    ShowToolBar = property(
-        _getShowToolBar,
-        _setShowToolBar,
-        None,
-        _("Specifies whether the Tool bar gets automatically created."),
-    )
-
-    SizersToOutline = property(
-        _getSizersToOutline,
-        _setSizersToOutline,
-        None,
-        _(
-            """When drawing the outline of sizers, the sizer(s) to draw.
-            Default=self.Sizer  (dSizer)"""
-        ),
-    )
-
-    StatusBar = property(
-        _getStatusBar, _setStatusBar, None, _("Status bar for this form. (dStatusBar)")
-    )
-
-    StatusBarClass = property(
-        _getStatusBarClass,
-        _setStatusBarClass,
-        None,
-        _("Class to be used for this form's status bar. Default=dStatusBar (dStatusBar)"),
-    )
-
-    StatusText = property(
-        _getStatusText,
-        _setStatusText,
-        None,
-        _("Text displayed in the form's status bar. (string)"),
-    )
-
-    StayOnTop = property(
-        _getStayOnTop,
-        _setStayOnTop,
-        None,
-        _("Keeps the form on top of all other forms. (bool)"),
-    )
-
-    TempForm = property(
-        _getTempForm,
-        _setTempForm,
-        None,
-        _(
-            """Used to indicate that this is a temporary form, and that its settings
-            should not be persisted. Default=False  (bool)"""
-        ),
-    )
-
-    TinyTitleBar = property(
-        _getTinyTitleBar,
-        _setTinyTitleBar,
-        None,
-        _("Specifies whether the title bar is small, like a tool window. (bool)."),
-    )
-
-    ToolBar = property(_getToolBar, _setToolBar, None, _("Tool bar for this form. (dToolBar)"))
-
-    WindowState = property(
-        _getWindowState,
-        _setWindowState,
-        None,
-        _(
-            """Specifies the current state of the form. (int)
-
-                    Normal
-                    Minimized
-                    Maximized
-                    FullScreen"""
-        ),
-    )
 
     DynamicAutoUpdateStatusText = makeDynamicProperty(AutoUpdateStatusText)
     DynamicBorderResizable = makeDynamicProperty(BorderResizable)

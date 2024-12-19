@@ -188,30 +188,24 @@ class dMenuBar(dPemMixin, wx.MenuBar):
         return children
 
     ## property definitions begin here.
-    def _getCount(self):
+    @property
+    def Count(self):
+        """Returns the number of child menus. Read-only.  (int)"""
         return self.GetMenuCount()
 
-    def _getForm(self):
+    @property
+    def Form(self):
+        """Specifies the form that we are a member of.  (ui.dForm)"""
         return self.GetFrame()
 
-    def _setForm(self, val):
+    @Form.setter
+    def Form(self, val):
         if self._constructed():
             if val != self.GetFrame():
                 self.Detach()
                 self.Attach(val)
         else:
             self._properties["Form"] = val
-
-    Count = property(
-        _getCount, None, None, _("Returns the number of child menus. Read-only.  (int)")
-    )
-
-    Form = property(
-        _getForm,
-        _setForm,
-        None,
-        _("Specifies the form that we are a member of.  (ui.dForm)"),
-    )
 
 
 ui.dMenuBar = dMenuBar

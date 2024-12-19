@@ -233,21 +233,15 @@ class ReportObjectCollection(list):
     def getPropDoc(self, prop):
         return ""
 
-    def _getDesProps(self):
+    @property
+    def DesProps(self):
+        """
+        Returns a dict of editable properties for the control, with the prop names as the keys, and
+        the value for each another dict, containing the following keys: 'type', which controls how
+        to display and edit the property, and 'readonly', which will prevent editing when True.
+        (dict)
+        """
         return {}
-
-    DesignerProps = property(
-        _getDesProps,
-        None,
-        None,
-        _(
-            """Returns a dict of editable properties for the control, with the
-        prop names as the keys, and the value for each another dict,
-        containing the following keys: 'type', which controls how to display
-        and edit the property, and 'readonly', which will prevent editing
-        when True. (dict)"""
-        ),
-    )
 
 
 class Variables(ReportObjectCollection):
@@ -436,62 +430,55 @@ class ReportObject(CaselessDict):
     def updatePropVal(self, propName, propVal):
         self.setProp(ustr(propName), ustr(propVal))
 
-    def _getAvailableProps(self):
+    @property
+    def AvailableProps(self):
         if hasattr(self, "_AvailableProps"):
             val = self._AvailableProps
         else:
             val = self._AvailableProps = CaselessDict()
         return val
 
-    def _setAvailableProps(self, val):
+    @AvailableProps.setter
+    def AvailableProps(self, val):
         self._AvailableProps = val
 
-    def _getBands(self):
+    @property
+    def Bands(self):
         return self.Report.reportWriter.Bands
 
-    def _getDesProps(self):
+    @property
+    def DesignerProps(self):
+        """
+        Returns a dict of editable properties for the control, with the prop names as the keys, and
+        the value for each another dict, containing the following keys: 'type', which controls how
+        to display and edit the property, and 'readonly', which will prevent editing when True.
+        (dict)
+        """
         strType = {"type": str, "readonly": False, "alsoDirectEdit": True}
         desProps = {}
         for prop in self.AvailableProps:
             desProps[prop] = strType.copy()
             if "color" in prop.lower():
                 desProps[prop]["customEditor"] = "editColor"
-        ## 2006/1/30: The commented code below makes a dropdown list for the standard
-        #             fonts. However, it blows away the user being able to type in a
-        #             font that isn't in the standard list. Same with the other props.
-        #             We need to get a combobox editor working, so that the user can
-        #             free-form type as well as select a predefined value from the list.
-        #            if prop.lower() == "fontname":
-        #                desProps[prop]["type"] = list
-        #                desProps[prop]["values"] = ['"Courier"', '"Courier-Bold"',
-        #                    '"Courier-Oblique"', '"Courier-BoldOblique"', '"Helvetica"',
-        #                    '"Helvetica-Bold"', '"Helvetica-Oblique"', '"Helvetica-BoldOblique"',
-        #                    '"Times-Roman"', '"Times-Bold"', '"Times-Italic"',
-        #                    '"Times-BoldItalic"', '"Symbol"', '"ZapfDingbats"']
-        #            if prop.lower() == "hanchor":
-        #                desProps[prop]["type"] = list
-        #                desProps[prop]["values"] = ['"Left"', '"Center"', '"Right"']
-        #            if prop.lower() == "vanchor":
-        #                desProps[prop]["type"] = list
-        #                desProps[prop]["values"] = ['"Bottom"', '"Middle"', '"Top"']
-        #            if prop.lower() == "orientation" and self.__class__.__name__ == "Page":
-        #                desProps[prop]["type"] = list
-        #                desProps[prop]["values"] = ['"Portrait"', '"Landscape"']
         return desProps
 
-    def _getMajorProperty(self):
+    @property
+    def MajorProperty(self):
         return getattr(self, "_majorProperty", None)
 
-    def _setMajorProperty(self, val):
+    @MajorProperty.setter
+    def MajorProperty(self, val):
         self._majorProperty = val
 
-    def _getRecord(self):
+    @property
+    def Record(self):
         if self.Report.reportWriter is not None:
             if hasattr(self.Report, "_liveRecord"):
                 return self.Report._liveRecord
         return CaselessDict()
 
-    def _getReport(self):
+    @property
+    def Report(self):
         ret = getattr(self, "_resolvedReport", None)
         if ret:
             return ret
@@ -501,37 +488,16 @@ class ReportObject(CaselessDict):
         self._resolvedReport = parent
         return parent
 
-    def _getReportForm(self):
+    @property
+    def ReportForm(self):
         return self.Report.reportWriter.ReportForm
 
-    ReportForm = property(_getReportForm)
-
-    def _getVariables(self):
+    @property
+    def Variables(self):
         rw = self.Report.reportWriter
         if rw is None:
             return CaselessDict()
         return self.Report.reportWriter.Variables
-
-    AvailableProps = property(_getAvailableProps, _setAvailableProps)
-    Bands = property(_getBands)
-
-    DesignerProps = property(
-        _getDesProps,
-        None,
-        None,
-        _(
-            """Returns a dict of editable properties for the control, with the
-        prop names as the keys, and the value for each another dict,
-        containing the following keys: 'type', which controls how to display
-        and edit the property, and 'readonly', which will prevent editing
-        when True. (dict)"""
-        ),
-    )
-
-    MajorProperty = property(_getMajorProperty, _setMajorProperty)
-    Record = property(_getRecord)
-    Report = property(_getReport)
-    Variables = property(_getVariables)
 
 
 class Defaults(ReportObject):
@@ -3324,35 +3290,45 @@ class ReportWriter(object):
 
         return form
 
-    def _getBands(self):
+    @property
+    def Bands(self):
+        """Provides runtime access to bands of the currently running report."""
         try:
             v = self._bands
         except AttributeError:
             v = self._bands = CaselessDict()
         return v
 
-    def _getCanvas(self):
+    @property
+    def Canvas(self):
+        """Returns a reference to the reportlab canvas object."""
         try:
             v = self._canvas
         except AttributeError:
             v = self._canvas = None
         return v
 
-    def _getCurrentBandName(self):
+    @property
+    def CurrentBandName(self):
+        """During a report run, returns the name of the currently printing band."""
         try:
             v = self._currentBandName
         except AttributeError:
             v = self._currentBandName = None
         return v
 
-    def _getCurrentBandObj(self):
+    @property
+    def CurrentBandObj(self):
+        """During a report run, returns a reference to the current band object."""
         try:
             v = self._currentBandObj
         except AttributeError:
             v = self._currentBandObj = None
         return v
 
-    def _getCursor(self):
+    @property
+    def Cursor(self):
+        """Specifies the data cursor that the report runs against."""
         if self.UseTestCursor:
             try:
                 v = self.ReportForm["TestCursor"]
@@ -3372,31 +3348,51 @@ class ReportWriter(object):
                 v = self._cursor = []
         return v
 
-    def _setCursor(self, val):
+    @Cursor.setter
+    def Cursor(self, val):
         self._cursor = val
         self.UseTestCursor = False
 
-    def _getEncoding(self):
+    @property
+    def Encoding(self):
+        """Specifies the encoding for unicode strings.  (str)"""
         try:
             v = self._encoding
         except AttributeError:
             v = self._encoding = settings.getEncoding()
         return v
 
-    def _setEncoding(self, val):
+    @Encoding.setter
+    def Encoding(self, val):
         self._encoding = val
 
-    def _getHomeDirectory(self):
+    @property
+    def HomeDirectory(self):
+        """
+        Specifies the home directory for the report.
+
+        Resources on disk (image files, etc.) will be looked for relative to the HomeDirectory if
+        specified with relative pathing. The HomeDirectory should be the directory that contains the
+        report form file. If you set self.ReportFormFile, HomeDirectory will be set for you
+        automatically.
+        """
         try:
             v = self._homeDirectory
         except AttributeError:
             v = self._homeDirectory = os.getcwd()
         return v
 
-    def _setHomeDirectory(self, val):
+    @HomeDirectory.setter
+    def HomeDirectory(self, val):
         self._homeDirectory = val
 
-    def _getNoneDisplay(self):
+    @property
+    def NoneDisplay(self):
+        """Specifies the string displayed if Value is None  (str or None)
+
+        If None, self.Application.NoneDisplay will be used. If there's no instantiated dApp,
+        then "< None >" will be used.
+        """
         ret = getattr(self, "_noneDisplay", None)
         if ret is None:
             try:
@@ -3405,27 +3401,21 @@ class ReportWriter(object):
                 ret = _("< None >")
         return ret
 
-    def _setNoneDisplay(self, val):
+    @NoneDisplay.setter
+    def NoneDisplay(self, val):
         self._noneDisplay = val
 
-    def _getPrintStatus(self):
-        try:
-            v = self._printStatus
-        except AttributeError:
-            v = self._printStatus = False
-        return v
-
-    def _setPrintStatus(self, val):
-        self._printStatus = bool(val)
-
-    def _getOutputFile(self):
+    @property
+    def OutputFile(self):
+        """Specifies the output PDF file (name or file object)."""
         try:
             v = self._outputFile
         except AttributeError:
             v = self._outputFile = None
         return v
 
-    def _setOutputFile(self, val):
+    @OutputFile.setter
+    def OutputFile(self, val):
         if not isinstance(val, str):
             # We assume it is either a file or file-like object
             self._outputFile = val
@@ -3436,53 +3426,87 @@ class ReportWriter(object):
             else:
                 raise ValueError("Path '%s' doesn't exist." % s[0])
 
-    def _getPageCount(self):
+    @property
+    def PrintStatus(self):
+        """Specifies whether status info is printed to stdout."""
+        try:
+            v = self._printStatus
+        except AttributeError:
+            v = self._printStatus = False
+        return v
+
+    @PrintStatus.setter
+    def PrintStatus(self, val):
+        self._printStatus = bool(val)
+
+    @property
+    def PageCount(self):
+        """Returns the page count at runtime."""
         return self._pageCount
 
-    def _getPageNumber(self):
+    @property
+    def PageNumber(self):
+        """Returns the current page number at runtime."""
         return self._pageNumber
 
-    def _getRecord(self):
+    @property
+    def Record(self):
+        """Specifies the dictionary that represents the current record.
+
+        The report writer will automatically fill this in during the running of the report. Allows
+        expressions in the report form like:
+
+            self.Record["cFirst"]
+        """
         try:
             v = self._record
         except AttributeError:
             v = self._record = {}
         return v
 
-    def _setRecord(self, val):
+    @Record.setter
+    def Record(self, val):
         self._record = val
         if self.ReportForm:
             # allow access from the live report object:
             self.ReportForm._liveRecord = val
 
-    def _getRecordNumber(self):
+    @property
+    def RecordNumber(self):
+        """Returns the current record number of Cursor."""
         try:
             v = self._recordNumber
         except AttributeError:
             v = self._recordNumber = None
         return v
 
-    def _getReportForm(self):
+    @property
+    def ReportForm(self):
+        """Specifies the python report form data dictionary."""
         try:
             v = self._reportForm
         except AttributeError:
             v = self._reportForm = None
         return v
 
-    def _setReportForm(self, val):
+    @ReportForm.setter
+    def ReportForm(self, val):
         self._reportForm = val
         self._setMemento()
         self._reportFormXML = None
         self._reportFormFile = None
 
-    def _getReportFormFile(self):
+    @property
+    def ReportFormFile(self):
+        """Specifies the path and filename of the report form spec file."""
         try:
             v = self._reportFormFile
         except AttributeError:
             v = self._reportFormFile = None
         return v
 
-    def _setReportFormFile(self, val):
+    @ReportFormFile.setter
+    def ReportFormFile(self, val):
         if val is None:
             self._reportFormFile = None
             self._reportFormXML = None
@@ -3518,183 +3542,53 @@ class ReportWriter(object):
         else:
             raise ValueError("Specified file does not exist.")
 
-    def _getReportFormXML(self):
+    @property
+    def ReportFormXML(self):
+        """Specifies the report format xml."""
         try:
             v = self._reportFormXML
         except AttributeError:
             v = self._reportFormXML = None
         return v
 
-    def _setReportFormXML(self, val):
+    @ReportFormXML.setter
+    def ReportFormXML(self, val):
         self._reportFormXML = val
         self._reportFormFile = None
         self._reportForm = self._getFormFromXML(self._reportFormXML)
         self._setMemento()
 
-    def _getShowBandOutlines(self):
+    @property
+    def ShowBandOutlines(self):
+        """
+        Specifies whether the report bands are printed with outlines for debugging and informational
+        purposes. In addition to the band, there is also a caption with the band name at the x,y
+        origin point for the band.
+        """
         try:
             v = self._showBandOutlines
         except AttributeError:
             v = False
         return v
 
-    def _setShowBandOutlines(self, val):
+    @ShowBandOutlines.setter
+    def ShowBandOutlines(self, val):
         self._showBandOutlines = bool(val)
 
-    def _getUseTestCursor(self):
+    @property
+    def UseTestCursor(self):
+        """Specifies whether the TestCursor in the spec file is used."""
         try:
             v = self._useTestCursor
         except AttributeError:
             v = self._useTestCursor = False
         return v
 
-    def _setUseTestCursor(self, val):
+    @UseTestCursor.setter
+    def UseTestCursor(self, val):
         self._useTestCursor = bool(val)
         if val:
             self._cursor = None
-
-    Bands = property(
-        _getBands,
-        None,
-        None,
-        _("Provides runtime access to bands of the currently running report."),
-    )
-
-    Canvas = property(
-        _getCanvas, None, None, _("Returns a reference to the reportlab canvas object.")
-    )
-
-    Cursor = property(
-        _getCursor,
-        _setCursor,
-        None,
-        _("Specifies the data cursor that the report runs against."),
-    )
-
-    CurrentBandName = property(
-        _getCurrentBandName,
-        None,
-        None,
-        _("During a report run, returns the name of the currently printing band."),
-    )
-
-    CurrentBandObj = property(
-        _getCurrentBandObj,
-        None,
-        None,
-        _("During a report run, returns a reference to the current band object."),
-    )
-
-    Encoding = property(
-        _getEncoding,
-        _setEncoding,
-        None,
-        _("Specifies the encoding for unicode strings.  (str)"),
-    )
-
-    HomeDirectory = property(
-        _getHomeDirectory,
-        _setHomeDirectory,
-        None,
-        _(
-            """Specifies the home directory for the report.
-
-        Resources on disk (image files, etc.) will be looked for relative to the
-        HomeDirectory if specified with relative pathing. The HomeDirectory should
-        be the directory that contains the report form file. If you set
-        self.ReportFormFile, HomeDirectory will be set for you automatically."""
-        ),
-    )
-
-    NoneDisplay = property(
-        _getNoneDisplay,
-        _setNoneDisplay,
-        None,
-        _(
-            """Specifies the string displayed if Value is None  (str or None)
-
-        If None, self.Application.NoneDisplay will be used. If there's no
-        instantiated dApp, then "< None >" will be used."""
-        ),
-    )
-
-    PrintStatus = property(
-        _getPrintStatus,
-        _setPrintStatus,
-        None,
-        _("""Specifies whether status info is printed to stdout."""),
-    )
-
-    OutputFile = property(
-        _getOutputFile,
-        _setOutputFile,
-        None,
-        _("Specifies the output PDF file (name or file object)."),
-    )
-
-    PageCount = property(_getPageCount, None, None, _("""Returns the page count at runtime."""))
-
-    PageNumber = property(
-        _getPageNumber, None, None, _("""Returns the current page number at runtime.""")
-    )
-
-    Record = property(
-        _getRecord,
-        _setRecord,
-        None,
-        _(
-            """Specifies the dictionary that represents the current record.
-
-        The report writer will automatically fill this in during the running
-        of the report. Allows expressions in the report form like:
-
-            self.Record["cFirst"]
-        """
-        ),
-    )
-
-    RecordNumber = property(
-        _getRecordNumber, None, None, _("Returns the current record number of Cursor.")
-    )
-
-    ReportForm = property(
-        _getReportForm,
-        _setReportForm,
-        None,
-        _("Specifies the python report form data dictionary."),
-    )
-
-    ReportFormFile = property(
-        _getReportFormFile,
-        _setReportFormFile,
-        None,
-        _("Specifies the path and filename of the report form spec file."),
-    )
-
-    ReportFormXML = property(
-        _getReportFormXML,
-        _setReportFormXML,
-        None,
-        _("Specifies the report format xml."),
-    )
-
-    ShowBandOutlines = property(
-        _getShowBandOutlines,
-        _setShowBandOutlines,
-        None,
-        _(
-            """Specifies whether the report bands are printed with outlines for
-        debugging and informational purposes. In addition to the band, there is also
-        a caption with the band name at the x,y origin point for the band."""
-        ),
-    )
-
-    UseTestCursor = property(
-        _getUseTestCursor,
-        _setUseTestCursor,
-        None,
-        _("Specifies whether the TestCursor in the spec file is used."),
-    )
 
 
 if __name__ == "__main__":

@@ -61,51 +61,39 @@ class Log(dObject):
         except (AttributeError, IOError):
             pass
 
-    def _getCaption(self):
+    @property
+    def Caption(self):
+        """The log's label: will get prepended to the log entry"""
         try:
             return self._caption
         except AttributeError:
             return ""
 
-    def _setCaption(self, val):
+    @Caption.setter
+    def Caption(self, val):
         self._caption = ustr(val)
 
-    def _getLogObject(self):
+    @property
+    def LogObject(self):
+        """The object that is to receive the log messages."""
         try:
             return self._logObject
         except AttributeError:
             return sys.stdout
 
-    def _setLogObject(self, logObject):
+    @LogObject.setter
+    def LogObject(self, logObject):
         # assume that logObject is an object with a write() method...
         self._logObject = logObject
 
-    def _getLogTimeStamp(self):
+    @property
+    def LogTimeStamp(self):
+        """Specifies whether a timestamp is logged with the message. Default: True"""
         try:
             return self._logTimeStamp
         except AttributeError:
             return True
 
-    def _setLogTimeStamp(self, val):
+    @LogTimeStamp.setter
+    def LogTimeStamp(self, val):
         self._logTimeStamp = bool(val)
-
-    Caption = property(
-        _getCaption,
-        _setCaption,
-        None,
-        _("The log's label: will get prepended to the log entry"),
-    )
-
-    LogObject = property(
-        _getLogObject,
-        _setLogObject,
-        None,
-        _("The object that is to receive the log messages."),
-    )
-
-    LogTimeStamp = property(
-        _getLogTimeStamp,
-        _setLogTimeStamp,
-        None,
-        _("Specifies whether a timestamp is logged with the message. Default: True"),
-    )

@@ -205,123 +205,95 @@ class dField(dObject):
             self._default,
         )
 
-    def _setAllowNulls(self, allow):
-        self._allow_nulls = allow
-
-    def _getAllowNulls(self):
+    @property
+    def AllowNulls(self):
+        """Whether or not nulls are allowed. Default:True (bool)"""
         return self._allow_nulls
 
-    def _setDataType(self, datatype):
-        self._type.DataType = datatype
+    @AllowNulls.setter
+    def AllowNulls(self, allow):
+        self._allow_nulls = allow
 
-    def _getDataType(self):
+    @property
+    def DataType(self):
+        """The type of the column. (str)"""
         return self._type.DataType
 
-    def _setDefault(self, default):
-        self._default = default
+    @DataType.setter
+    def DataType(self, datatype):
+        self._type.DataType = datatype
 
-    def _getDefault(self):
+    @property
+    def Default(self):
+        """The default value for the field. Default: None (str)"""
         return self._default
 
-    def _setIsAutoIncrement(self, auto):
-        self._autoincrement = auto
+    @Default.setter
+    def Default(self, default):
+        self._default = default
 
-    def _getIsAutoIncrement(self):
+    @property
+    def IsAutoIncrement(self):
+        """Whether or not the field is an auto incrementing field. Default: False  (bool)"""
         return self._autoincrement
 
-    def _setIsPK(self, value):
-        self._isPK = value
+    @IsAutoIncrement.setter
+    def IsAutoIncrement(self, auto):
+        self._autoincrement = auto
 
-    def _getIsPK(self):
+    @property
+    def IsPK(self):
+        """Whether or not the field has the primary key. (bool)"""
         return self._isPK
 
-    def _setName(self, name):
-        self._name = name
+    @IsPK.setter
+    def IsPK(self, value):
+        self._isPK = value
 
-    def _getName(self):
+    @property
+    def Name(self):
+        """The name of the table. (str)"""
         return self._name
 
-    def _setTotalDP(self, places):
-        self._type.TotalDP = places
+    @Name.setter
+    def Name(self, name):
+        self._name = name
 
-    def _getTotalDP(self):
+    @property
+    def TotalDP(self):
+        """The total number of decimal places  (int)"""
         return self._type.TotalDP
 
-    def _setRightDP(self, places):
-        self._type.RightDP = places
+    @TotalDP.setter
+    def TotalDP(self, places):
+        self._type.TotalDP = places
 
-    def _getRightDP(self):
+    @property
+    def RightDP(self):
+        """The number of decimal places to the right of the period.  (int)"""
         return self._type.RightDP
 
-    def _setSize(self, size):
-        self._type.Size = size
+    @RightDP.setter
+    def RightDP(self, places):
+        self._type.RightDP = places
 
-    def _getSize(self):
+    @property
+    def Size(self):
+        """The size required for the column in bytes or character units if it's a string. (int)"""
         return self._type.Size
 
-    def _setType(self, type):
-        self._type = type
+    @Size.setter
+    def Size(self, size):
+        self._type.Size = size
 
-    def _getType(self):
+    @property
+    def Type(self):
+        """The type of the column.  (class)"""
         return self._type
 
-    AllowNulls = property(
-        _getAllowNulls,
-        _setAllowNulls,
-        None,
-        _("Whether or not nulls are allowed. Default:True (bool)"),
-    )
-
-    DataType = property(_getDataType, _setDataType, None, _("The type of the column. (str)"))
-
-    Default = property(
-        _getDefault,
-        _setDefault,
-        None,
-        _("The default value for the field. Default:None (str)"),
-    )
-
-    IsAutoIncrement = property(
-        _getIsAutoIncrement,
-        _setIsAutoIncrement,
-        None,
-        _(
-            """Whether or not the field is an auto incrementing field.
-            Default:False  (bool)"""
-        ),
-    )
-
-    IsPK = property(
-        _getIsPK,
-        _setIsPK,
-        None,
-        _("Whether or not the field has the primary key. (bool)"),
-    )
-
-    Name = property(_getName, _setName, None, _("The name of the table. (str)"))
-
-    TotalDP = property(
-        _getTotalDP, _setTotalDP, None, _("The total number of decimal places  (int)")
-    )
-
-    RightDP = property(
-        _getRightDP,
-        _setRightDP,
-        None,
-        _(
-            """The number of decimal places to the right
-            of the period.  (int)"""
-        ),
-    )
-
-    Size = property(
-        _getSize,
-        _setSize,
-        None,
-        _("The size required for the column in bytes or character units if it's a string. (int)"),
-    )
-
-    Type = property(_getType, _setType, None, _("The type of the column.  (class)"))
+    @Type.setter
+    def Type(self, type):
+        self._type = type
 
 
 class fType(dObject):
@@ -338,11 +310,16 @@ class fType(dObject):
         self._right_dp = 0
         super(fType, self).__init__(*args, **kwargs)
 
-    def _setDataType(self, datatype):
+    @property
+    def DataType(self):
         """
-        Allowed types: Numeric, Float, String, Date, Time,
-        DateTime, Stamp, Binary"""
+        Type of data for this field. Allowed types: Numeric, Float, String, Date, Time,
+        DateTime, Stamp, Binary  (str)
+        """
+        return self._data_type
 
+    @DataType.setter
+    def DataType(self, datatype):
         check = {
             "numeric": "Numeric",
             "int": "Numeric",
@@ -361,44 +338,32 @@ class fType(dObject):
         }
         self._data_type = check[datatype.lower()]
 
-    def _getDataType(self):
-        return self._data_type
-
-    def _setTotalDP(self, places):
-        self._total_dp = places
-
-    def _getTotalDP(self):
+    @property
+    def TotalDP(self):
+        """The total number of decimal places  (int)"""
         return self._total_dp
 
-    def _setRightDP(self, places):
-        self._right_dp = places
+    @TotalDP.setter
+    def TotalDP(self, places):
+        self._total_dp = places
 
-    def _getRightDP(self):
+    @property
+    def RightDP(self):
+        """The number of decimal places to the right of the period.  (int)"""
         return self._right_dp
 
-    def _setSize(self, size):
-        self._size = size
+    @RightDP.setter
+    def RightDP(self, places):
+        self._right_dp = places
 
-    def _getSize(self):
+    @property
+    def Size(self):
+        """Size of this field  (int)"""
         return self._size
 
-    DataType = property(_getDataType, _setDataType, None, _("Type of data for this field  (str)"))
-
-    TotalDP = property(
-        _getTotalDP, _setTotalDP, None, _("The total number of decimal places  (int)")
-    )
-
-    RightDP = property(
-        _getRightDP,
-        _setRightDP,
-        None,
-        _(
-            """The number of decimal places to the right
-            of the period.  (int)"""
-        ),
-    )
-
-    Size = property(_getSize, _setSize, None, _("Size of this field  (int)"))
+    @Size.setter
+    def Size(self, size):
+        self._size = size
 
 
 if __name__ == "__main__":

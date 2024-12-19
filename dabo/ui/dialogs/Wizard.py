@@ -292,11 +292,14 @@ class Wizard(dDialog):
             ret = None
         return ret
 
-    # Property methods
-    def _getCurrPage(self):
+    # Property definitions
+    @property
+    def CurrPage(self):
+        """Index of the current page in the wizard  (WizardPage)"""
         return self._currentPage
 
-    def _setCurrPage(self, val):
+    @CurrPage.setter
+    def CurrPage(self, val):
         if isinstance(val, WizardPage):
             val = self._pages.index(val)
         if self.PageCount == 0:
@@ -329,17 +332,22 @@ class Wizard(dDialog):
         self.showPage()
         ui.callAfter(self.raiseEvent, events.PageChanged, oldPageNum=oldPg, newPageNum=newPg)
 
-    def _getPageCount(self):
+    @property
+    def PageCount(self):
+        """Number of pages in this wizard  (int)"""
         return len(self._pages)
 
-    def _getPicture(self):
+    @property
+    def Picture(self):
+        """Sets the visible icon for the wizard.  (str/path)"""
         try:
             ret = self._defaultPicture
         except AttributeError:
             ret = ""
         return ret
 
-    def _setPicture(self, val):
+    @Picture.setter
+    def Picture(self, val):
         if self._constructed():
             try:
                 self.wizardIcon.Picture = val
@@ -352,10 +360,13 @@ class Wizard(dDialog):
         else:
             self._properties["Picture"] = val
 
-    def _getPictureHeight(self):
+    @property
+    def PictureHeight(self):
+        """Height of the wizard icon in pixels  (int)"""
         return self.wizardIcon.Height
 
-    def _setPictureHeight(self, val):
+    @PictureHeight.setter
+    def PictureHeight(self, val):
         if self._constructed():
             try:
                 self.wizardIcon.Height = val
@@ -366,10 +377,13 @@ class Wizard(dDialog):
         else:
             self._properties["PictureHeight"] = val
 
-    def _getPictureWidth(self):
+    @property
+    def PictureWidth(self):
+        """Width of the wizard icon in pixels  (int)"""
         return self.wizardIcon.Width
 
-    def _setPictureWidth(self, val):
+    @PictureWidth.setter
+    def PictureWidth(self, val):
         if self._constructed():
             try:
                 self.wizardIcon.Width = val
@@ -379,36 +393,6 @@ class Wizard(dDialog):
             self.layout()
         else:
             self._properties["PictureWidth"] = val
-
-    CurrentPage = property(
-        _getCurrPage,
-        _setCurrPage,
-        None,
-        _("Index of the current page in the wizard  (WizardPage)"),
-    )
-
-    PageCount = property(_getPageCount, None, None, _("Number of pages in this wizard  (int)"))
-
-    Picture = property(
-        _getPicture,
-        _setPicture,
-        None,
-        _("Sets the visible icon for the wizard.  (str/path)"),
-    )
-
-    PictureHeight = property(
-        _getPictureHeight,
-        _setPictureHeight,
-        None,
-        _("Height of the wizard icon in pixels  (int)"),
-    )
-
-    PictureWidth = property(
-        _getPictureWidth,
-        _setPictureWidth,
-        None,
-        _("Width of the wizard icon in pixels  (int)"),
-    )
 
 
 if __name__ == "__main__":

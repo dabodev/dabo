@@ -201,8 +201,15 @@ class dTextBoxMixinBase(dDataControlMixin):
                 ret = self.GetRange(end, end + after)
         return ret
 
-    # property get/set functions
-    def _getAlignment(self):
+    # Property Definitions
+    @property
+    def Alignment(self):
+        """
+        Specifies the alignment of the text. (str)
+           Left (default)
+           Center
+           Right
+        """
         if self._hasWindowStyleFlag(wx.TE_RIGHT):
             return "Right"
         elif self._hasWindowStyleFlag(wx.TE_CENTRE):
@@ -210,7 +217,8 @@ class dTextBoxMixinBase(dDataControlMixin):
         else:
             return "Left"
 
-    def _setAlignment(self, val):
+    @Alignment.setter
+    def Alignment(self, val):
         if self._constructed():
             # Note: alignment doesn't seem to work, at least on GTK2
             # Second note: setting the Alignment flag seems to change
@@ -233,10 +241,24 @@ class dTextBoxMixinBase(dDataControlMixin):
         else:
             self._properties["Alignment"] = val
 
-    def _getForceCase(self):
+    @property
+    def ForceCase(self):
+        """
+        Determines if we change the case of entered text. Possible values are:
+
+            ===========  =====================
+            None or ""   No changes made (default)
+            "Upper"      FORCE TO UPPER CASE
+            "Lower"      Force to lower case
+            "Title"      Force To Title Case
+            ===========  =====================
+
+        These can be abbreviated to "u", "l" or "t"  (str)
+        """
         return self._forceCase
 
-    def _setForceCase(self, val):
+    @ForceCase.setter
+    def ForceCase(self, val):
         if self._constructed():
             if val is None:
                 valKey = None
@@ -256,56 +278,88 @@ class dTextBoxMixinBase(dDataControlMixin):
         else:
             self._properties["ForceCase"] = val
 
-    def _getInsertionPosition(self):
+    @property
+    def InsertionPosition(self):
+        """Position of the insertion point within the control  (int)"""
         return self.GetInsertionPoint()
 
-    def _setInsertionPosition(self, val):
+    @InsertionPosition.setter
+    def InsertionPosition(self, val):
         self.SetInsertionPoint(val)
 
-    def _getNoneDisplay(self):
+    @property
+    def NoneDisplay(self):
+        """
+        Specifies the string displayed if Value is None  (str or None)
+
+        If None, `self.Application.NoneDisplay` will be used.
+        """
         ret = getattr(self, "_noneDisplay", None)
         if ret is None:
             ret = self.Application.NoneDisplay
         return ret
 
-    def _setNoneDisplay(self, val):
+    @NoneDisplay.setter
+    def NoneDisplay(self, val):
         self._noneDisplay = val
 
-    def _getReadOnly(self):
+    @property
+    def ReadOnly(self):
+        """Specifies whether or not the text can be edited. (bool)"""
         return not self.IsEditable()
 
-    def _setReadOnly(self, val):
+    @ReadOnly.setter
+    def ReadOnly(self, val):
         if self._constructed():
             self.SetEditable(not bool(val))
         else:
             self._properties["ReadOnly"] = val
 
-    def _getSelectedText(self):
+    @property
+    def SelectedText(self):
+        """Currently selected text. Returns the empty string if nothing is selected  (str)"""
         return self.GetStringSelection()
 
-    def _getSelectionEnd(self):
+    @property
+    def SelectionEnd(self):
+        """
+        Position of the end of the selected text. If no text is selected, returns the Position of
+        the insertion cursor.  (int)
+        """
         return self.GetSelection()[1]
 
-    def _setSelectionEnd(self, val):
+    @SelectionEnd.setter
+    def SelectionEnd(self, val):
         start, end = self.GetSelection()
         self.SetSelection(start, val)
 
-    def _getSelectionLength(self):
+    @property
+    def SelectionLength(self):
+        """Length of the selected text, or 0 if nothing is selected.  (int)"""
         start, end = self.GetSelection()
         return end - start
 
-    def _setSelectionLength(self, val):
+    @SelectionLength.setter
+    def SelectionLength(self, val):
         start = self.GetSelection()[0]
         self.SetSelection(start, start + val)
 
-    def _getSelectionStart(self):
+    @property
+    def SelectionStart(self):
+        """
+        Position of the beginning of the selected text. If no text is selected, returns
+        the Position of the insertion cursor.  (int)
+        """
         return self.GetSelection()[0]
 
-    def _setSelectionStart(self, val):
+    @SelectionStart.setter
+    def SelectionStart(self, val):
         start, end = self.GetSelection()
         self.SetSelection(val, end)
 
-    def _getSelectOnEntry(self):
+    @property
+    def SelectOnEntry(self):
+        """Specifies whether all text gets selected upon receiving focus. (bool)"""
         try:
             return self._SelectOnEntry
         except AttributeError:
@@ -313,13 +367,17 @@ class dTextBoxMixinBase(dDataControlMixin):
             self._SelectOnEntry = ret
             return ret
 
-    def _setSelectOnEntry(self, val):
+    @SelectOnEntry.setter
+    def SelectOnEntry(self, val):
         self._SelectOnEntry = bool(val)
 
-    def _getTextLength(self):
+    @property
+    def TextLength(self):
+        """The maximum length the entered text can be. (int)"""
         return self._textLength
 
-    def _setTextLength(self, val):
+    @TextLength.setter
+    def TextLength(self, val):
         if self._constructed():
             if val == None:
                 self._textLength = None
@@ -336,7 +394,9 @@ class dTextBoxMixinBase(dDataControlMixin):
         else:
             self._properties["TextLength"] = val
 
-    def _getValue(self):
+    @property
+    def Value(self):
+        """Specifies the current state of the control (the value of the field). (string)"""
         try:
             _value = self._value
         except AttributeError:
@@ -352,7 +412,8 @@ class dTextBoxMixinBase(dDataControlMixin):
                 return None
         return strVal
 
-    def _setValue(self, val):
+    @Value.setter
+    def Value(self, val):
         if self._constructed():
             setter = self.SetValue
             if hasattr(self, "ChangeValue"):
@@ -389,117 +450,6 @@ class dTextBoxMixinBase(dDataControlMixin):
                 self._afterValueChanged()
         else:
             self._properties["Value"] = val
-
-    # Property Definitions
-    Alignment = property(
-        _getAlignment,
-        _setAlignment,
-        None,
-        _(
-            """Specifies the alignment of the text. (str)
-               Left (default)
-               Center
-               Right"""
-        ),
-    )
-
-    ForceCase = property(
-        _getForceCase,
-        _setForceCase,
-        None,
-        _(
-            """Determines if we change the case of entered text. Possible values are:
-
-                ===========  =====================
-                None or ""   No changes made (default)
-                "Upper"      FORCE TO UPPER CASE
-                "Lower"      Force to lower case
-                "Title"      Force To Title Case
-                ===========  =====================
-
-            These can be abbreviated to "u", "l" or "t"  (str)"""
-        ),
-    )
-
-    InsertionPosition = property(
-        _getInsertionPosition,
-        _setInsertionPosition,
-        None,
-        _("Position of the insertion point within the control  (int)"),
-    )
-
-    ReadOnly = property(
-        _getReadOnly,
-        _setReadOnly,
-        None,
-        _("Specifies whether or not the text can be edited. (bool)"),
-    )
-
-    NoneDisplay = property(
-        _getNoneDisplay,
-        _setNoneDisplay,
-        None,
-        _(
-            """Specifies the string displayed if Value is None  (str or None)
-
-                If None, self.Application.NoneDisplay will be used."""
-        ),
-    )
-
-    SelectedText = property(
-        _getSelectedText,
-        None,
-        None,
-        _("Currently selected text. Returns the empty string if nothing is selected  (str)"),
-    )
-
-    SelectionEnd = property(
-        _getSelectionEnd,
-        _setSelectionEnd,
-        None,
-        _(
-            """Position of the end of the selected text. If no text is
-            selected, returns the Position of the insertion cursor.  (int)"""
-        ),
-    )
-
-    SelectionLength = property(
-        _getSelectionLength,
-        _setSelectionLength,
-        None,
-        _("Length of the selected text, or 0 if nothing is selected.  (int)"),
-    )
-
-    SelectionStart = property(
-        _getSelectionStart,
-        _setSelectionStart,
-        None,
-        _(
-            """Position of the beginning of the selected text. If no text is
-            selected, returns the Position of the insertion cursor.  (int)"""
-        ),
-    )
-
-    SelectOnEntry = property(
-        _getSelectOnEntry,
-        _setSelectOnEntry,
-        None,
-        _("Specifies whether all text gets selected upon receiving focus. (bool)"),
-    )
-
-    TextLength = property(
-        _getTextLength,
-        _setTextLength,
-        None,
-        _("""The maximum length the entered text can be. (int)"""),
-    )
-
-    Value = property(
-        _getValue,
-        _setValue,
-        None,
-        _("Specifies the current state of the control (the value of the field). (string)"),
-    )
 
     # Dynamic property declarations
     DynamicAlignment = makeDynamicProperty(Alignment)
@@ -695,47 +645,83 @@ class dTextBoxMixin(dTextBoxMixinBase):
         formats = ["ISO8601"]
         return dates.getTimeFromString(strVal, formats)
 
-    def _getNumericBlankToZero(self):
+    # Property definitions:
+    @property
+    def NumericBlankToZero(self):
+        """
+        Specifies whether a blank textbox gets interpreted as 0.
+
+        When True, if the user clears the textbox value, such as by selecting all and pressing the
+        space bar or delete, the value will become 0 when the control loses focus.
+
+        When False, the value will revert back to the last numeric value when the control loses
+        focus.
+
+        The default comes from dTextBox_NumericBlankToZero, which defaults to False.
+        """
         return getattr(self, "_numericBlankToZero", settings.dTextBox_NumericBlankToZero)
 
-    def _setNumericBlankToZero(self, val):
+    @NumericBlankToZero.setter
+    def NumericBlankToZero(self, val):
         self._numericBlankToZero = bool(val)
 
-    def _getPasswordEntry(self):
+    @property
+    def PasswordEntry(self):
+        """Specifies whether plain-text or asterisks are echoed. (bool)"""
         return self._hasWindowStyleFlag(wx.TE_PASSWORD)
 
-    def _setPasswordEntry(self, val):
+    @PasswordEntry.setter
+    def PasswordEntry(self, val):
         self._delWindowStyleFlag(wx.TE_PASSWORD)
         if val:
             self._addWindowStyleFlag(wx.TE_PASSWORD)
             self.IsSecret = True
 
-    def _getStrictDateEntry(self):
+    @property
+    def StrictDateEntry(self):
+        """
+        Specifies whether date values must be entered in strict ISO8601 format. Default=False.
+
+        If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format, which will be
+        coerced into sensible date values automatically.
+        """
         try:
             ret = self._strictDateEntry
         except AttributeError:
             ret = self._strictDateEntry = False
         return ret
 
-    def _setStrictDateEntry(self, val):
+    @StrictDateEntry.setter
+    def StrictDateEntry(self, val):
         self._strictDateEntry = bool(val)
 
-    def _getStrictNumericEntry(self):
+    @property
+    def StrictNumericEntry(self):
+        """
+        When True, the DataType will be preserved across numeric types. When False, the DataType
+        will respond to user input to convert to the 'obvious' numeric type. Default=True. (bool)
+        """
         try:
             ret = self._strictNumericEntry
         except AttributeError:
             ret = self._strictNumericEntry = True
         return ret
 
-    def _setStrictNumericEntry(self, val):
+    @StrictNumericEntry.setter
+    def StrictNumericEntry(self, val):
         if self._constructed():
             self._strictNumericEntry = val
         else:
             self._properties["StrictNumericEntry"] = val
 
-    # Overrides the dTextBoxMixinBase getter and setters because of the data conversion
-    # introduced in this class
-    def _getValue(self):
+    @property
+    def Value(self):
+        """
+        Specifies the current state of the control (the value of the field). (varies)
+
+        Overrides the dTextBoxMixinBase property because of the data conversion introduced
+        in this class
+        """
         # Return the value as reported by wx, but convert it to the data type as
         # reported by self._value.
         try:
@@ -787,7 +773,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 convertedVal = self._value
         return convertedVal
 
-    def _setValue(self, val):
+    @Value.setter
+    def Value(self, val):
         if self._constructed():
             # Must convert all to string for sending to wx, but our internal
             # _value will always retain the correct type.
@@ -846,64 +833,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 self._afterValueChanged()
         else:
             self._properties["Value"] = val
-
-    # Property definitions:
-    NumericBlankToZero = property(
-        _getNumericBlankToZero,
-        _setNumericBlankToZero,
-        None,
-        _(
-            """Specifies whether a blank textbox gets interpreted as 0.
-
-            When True, if the user clears the textbox value, such as by selecting all
-            and pressing the space bar or delete, the value will become 0 when the
-            control loses focus.
-
-            When False, the value will revert back to the last numeric value when the
-            control loses focus.
-
-            The default comes from dTextBox_NumericBlankToZero, which defaults to
-            False."""
-        ),
-    )
-
-    PasswordEntry = property(
-        _getPasswordEntry,
-        _setPasswordEntry,
-        None,
-        _("Specifies whether plain-text or asterisks are echoed. (bool)"),
-    )
-
-    StrictDateEntry = property(
-        _getStrictDateEntry,
-        _setStrictDateEntry,
-        None,
-        _(
-            """Specifies whether date values must be entered in strict ISO8601 format.
-            Default=False.
-
-            If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,
-            which will be coerced into sensible date values automatically."""
-        ),
-    )
-
-    StrictNumericEntry = property(
-        _getStrictNumericEntry,
-        _setStrictNumericEntry,
-        None,
-        _(
-            """When True, the DataType will be preserved across numeric types. When False, the
-            DataType will respond to user input to convert to the 'obvious' numeric type.
-            Default=True. (bool)"""
-        ),
-    )
-
-    Value = property(
-        _getValue,
-        _setValue,
-        None,
-        _("Specifies the current state of the control (the value of the field). (varies)"),
-    )
 
     # Dynamic property declarations
     DynamicPasswordEntry = makeDynamicProperty(PasswordEntry)

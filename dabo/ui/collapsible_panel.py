@@ -85,38 +85,28 @@ class dCollapsiblePanel(dControlMixin, pcp.PyCollapsiblePane):
             except AttributeError:
                 pnl.Layout()
 
-    # Properties methods.
-
-    def _getExpanderDimensions(self):
+    # Property definitions
+    @property
+    def ExpanderDimensions(self):
+        """Dimensions of the visible expander control."""
         return self.GetExpanderDimensions()
 
-    def _setExpanderDimensions(self, val):
+    @ExpanderDimensions.setter
+    def ExpanderDimensions(self, val):
         if self._constructed():
             self.SetExpanderDimensions(*val)
         else:
             self._properties["ExpanderDimensions"] = val
 
-    def _getPanel(self):
+    @property
+    def Panel(self):
+        """Return panel object reference."""
         return self.GetPane()
 
-    def _getPanelStyle(self):
+    @property
+    def PanelStyle(self):
+        """Specifies pane style and can be 'Label' (default) or 'Button'."""
         return getattr(self, "_paneStyle", "Label")
-
-    ExpanderDimensions = property(
-        _getExpanderDimensions,
-        _setExpanderDimensions,
-        None,
-        _("Dimensions of the visible expander control."),
-    )
-
-    Panel = property(_getPanel, None, None, _("Return panel object reference."))
-
-    PanelStyle = property(
-        _getPanelStyle,
-        None,
-        None,
-        _("Specifies pane style and can be 'Label' (default) or 'Button'."),
-    )
 
 
 ui.dCollapsiblePanel = dCollapsiblePanel
