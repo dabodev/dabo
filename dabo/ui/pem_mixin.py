@@ -3532,7 +3532,7 @@ class DrawObject(dObject):
             frm = srcObj
         else:
             frm = srcObj.Form
-        x, y = self.Xpos, self.Ypos
+        x, y = round(self.Xpos), round(self.Ypos)
 
         if dc is None:
             dc = self._dc or wx.PaintDC(srcObj)
@@ -3548,35 +3548,35 @@ class DrawObject(dObject):
             self._modeSettings(dc)
 
         if self.Shape == "circle":
-            dc.DrawCircle(x, y, self.Radius)
+            dc.DrawCircle(x, y, round(self.Radius))
             self._width = self._height = self.Radius * 2
         elif self.Shape == "arc":
             xc, yc = self.Xpos, self.Ypos
-            x1 = xc + (math.cos(math.radians(self.StartAngle)) * self.Radius)
-            y1 = yc - (math.sin(math.radians(self.StartAngle)) * self.Radius)
-            x2 = xc + (math.cos(math.radians(self.EndAngle)) * self.Radius)
-            y2 = yc - (math.sin(math.radians(self.EndAngle)) * self.Radius)
+            x1 = xc + round((math.cos(math.radians(self.StartAngle)) * self.Radius))
+            y1 = yc - round((math.sin(math.radians(self.StartAngle)) * self.Radius))
+            x2 = xc + round((math.cos(math.radians(self.EndAngle)) * self.Radius))
+            y2 = yc - round((math.sin(math.radians(self.EndAngle)) * self.Radius))
             dc.DrawArc(x1, y1, x2, y2, xc, yc)
         elif self.Shape == "ellipticarc":
             dc.DrawEllipticArc(
-                self.Xpos,
-                self.Ypos,
-                self.Width,
-                self.Height,
-                self.StartAngle,
-                self.EndAngle,
+                round(self.Xpos),
+                round(self.Ypos),
+                round(self.Width),
+                round(self.Height),
+                round(self.StartAngle),
+                round(self.EndAngle),
             )
         elif self.Shape in ("rect", "roundrect", "ellipse"):
-            w, h = self.Width, self.Height
+            w, h = round(self.Width), round(self.Height)
             # If any of these values is -1, use the parent object's size
             if w < 0:
-                w = self.Parent.Width
+                w = round(self.Parent.Width)
             if h < 0:
-                h = self.Parent.Height
+                h = round(self.Parent.Height)
             if self.Shape == "rect":
                 dc.DrawRectangle(x, y, w, h)
             elif self.Shape == "roundrect":
-                dc.DrawRoundedRectangle(x, y, w, h, self.Radius)
+                dc.DrawRoundedRectangle(x, y, w, h, round(self.Radius))
             else:
                 dc.DrawEllipse(x, y, w, h)
         elif self.Shape in ("polygon", "polylines"):
@@ -3608,9 +3608,9 @@ class DrawObject(dObject):
             if not self._useDefaults:
                 self._fontSettings(dc)
             if self._angle == 0:
-                dc.DrawText(txt, int(x), int(y))
+                dc.DrawText(txt, round(x), round(y))
             else:
-                dc.DrawRotatedText(txt, int(x), int(y), self._angle)
+                dc.DrawRotatedText(txt, round(x), round(y), self._angle)
             w, h = ui.fontMetricFromDC(dc, txt)
             angle = self._angle % 360
             if angle % 90 == 0:
@@ -3694,27 +3694,27 @@ class DrawObject(dObject):
         self.Parent._moveDrawObjectDown(self, levels)
 
     def _penSettings(self, dc):
-        pw = self.PenWidth
+        pen_width = self.PenWidth
         # force a width
-        if pw == None:
-            pw = 0
-        if not pw:
+        if pen_width == None:
+            pen_width = 0
+        if not pen_width:
             # No pen
-            pen = wx.Pen(self.Parent.getWxColour("black"), pw, wx.PENSTYLE_TRANSPARENT)
+            pen = wx.Pen(self.Parent.getWxColour("black"), 0, wx.PENSTYLE_TRANSPARENT)
         else:
             if self.PenColor is None:
-                pc = self.Parent.getWxColour("black")
+                pen_color = self.Parent.getWxColour("black")
             else:
-                pc = self.Parent.getWxColour(self.PenColor)
+                pen_color = self.Parent.getWxColour(self.PenColor)
             sty = self._lineStyle
-            lnStyle = wx.PENSTYLE_SOLID
+            line_style = wx.PENSTYLE_SOLID
             if sty in ("dash", "dashed"):
-                lnStyle = wx.PENSTYLE_SHORT_DASH
+                line_style = wx.PENSTYLE_SHORT_DASH
             elif sty in ("dot", "dotted"):
-                lnStyle = wx.PENSTYLE_DOT
+                line_style = wx.PENSTYLE_DOT
             elif sty in ("dotdash", "dashdot"):
-                lnStyle = wx.PENSTYLE_DOT_DASH
-            pen = wx.Pen(pc, pw, lnStyle)
+                line_style = wx.PENSTYLE_DOT_DASH
+            pen = wx.Pen(pen_color, round(pen_width), line_style)
         dc.SetPen(pen)
 
     def _brushSettings(self, dc):

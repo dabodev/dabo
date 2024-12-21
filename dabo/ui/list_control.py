@@ -704,12 +704,15 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
 
     @MultipleSelect.setter
     def MultipleSelect(self, val):
-        if bool(val):
-            self._delWindowStyleFlag(wx.LC_SINGLE_SEL)
+        if self._constructed():
+            if bool(val):
+                self._delWindowStyleFlag(wx.LC_SINGLE_SEL)
+            else:
+                self.unselectAll()
+                self._addWindowStyleFlag(wx.LC_SINGLE_SEL)
+            self.refresh()
         else:
-            self.unselectAll()
-            self._addWindowStyleFlag(wx.LC_SINGLE_SEL)
-        self.refresh()
+            self._properties["MultipleSelect"] = val
 
     @property
     def RowCount(self):

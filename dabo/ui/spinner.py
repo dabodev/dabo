@@ -13,6 +13,7 @@ from . import (
     dDataControlMixin,
     dDataPanel,
     dKeys,
+    dLabel,
     dSizer,
     dTextBox,
     makeDynamicProperty,
@@ -60,6 +61,7 @@ class dSpinner(dDataPanel, wx.Control):
     ):
         self.__constructed = False
         self._spinWrap = False
+        self._label_left = True
         self._min = 0
         self._max = 100
         self._increment = 1
@@ -78,13 +80,14 @@ class dSpinner(dDataPanel, wx.Control):
         if TextBoxClass is None:
             TextBoxClass = dTextBox
         self._proxy_textbox = TextBoxClass(
-            self, Value=0, Width=32, StrictNumericEntry=False, _EventTarget=self
+            self, Value=0, StrictNumericEntry=False, _EventTarget=self,
+            AutoResizeType="Grow", OnHit=self._on_textbox_hit,
         )
+        self._proxy_label = dLabel(self)
         self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
         self.__constructed = True
-        self.Sizer = dSizer("h")
-        self.Sizer.append1x(self._proxy_textbox)
-        self.Sizer.append(self._proxy_spinner, "expand")
+        self._rearrange()
+        self._autosize()
         self.layout()
 
         self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
@@ -112,6 +115,17 @@ class dSpinner(dDataPanel, wx.Control):
     def __onWxDestroy(self, evt):
         # This doesn't otherwise happen
         self.raiseEvent(events.Destroy)
+
+    def _on_textbox_hit(self, evt):
+        ui.callAfter(self._autosize)
+
+    def _autosize(self):
+        """Need to account for changes in the Caption and textbox"""
+        self._proxy_label.Width = self._proxy_label.DoGetBestSize()[0]
+        self._proxy_textbox.Width = self._proxy_textbox.DoGetBestSize()[0]
+        self._proxy_spinner.Width = self._proxy_spinner.DoGetBestSize()[0]
+        self.Width = self.DoGetBestSize()[0]
+        self.Form.layout()
 
     def _rerestoreValue(self):
         # Hack because when restoreValue() was originally called in onCreate,
@@ -272,13 +286,26 @@ class dSpinner(dDataPanel, wx.Control):
         if isinstance(val, str):
             if val.count(locale.localeconv()["decimal_point"]) > 0:
                 func = decimal
-            else:
-                func = int
+            else: func = int
             try:
                 ret = func(val)
             except ValueError:
                 ret = None
         return ret
+
+    def _rearrange(self):
+        """Re-arrange the Caption to the desired side of the control"""
+        if not self.Sizer:
+            self.Sizer = dSizer("h")
+        sz = self.Sizer
+        sz.clear()
+        sz.append(self._proxy_textbox, proportion=0, border=3)
+        sz.append(self._proxy_spinner, proportion=0, border=3)
+        if self.LabelLeft:
+            sz.insert(0, self._proxy_label, proportion=0, border=3)
+        else:
+            sz.append1x(self._proxy_label, border=3)
+        self.layout()
 
     def fontZoomIn(self, amt=1):
         """Zoom in on the font, by setting a higher point size."""
@@ -309,6 +336,19 @@ class dSpinner(dDataPanel, wx.Control):
             self._properties["ButtonWidth"] = val
 
     @property
+    def Caption(self):
+        """Caption to be displayed with the control"""
+        return self._proxy_label.Caption
+
+    @Caption.setter
+    def Caption(self, val):
+        if self._constructed():
+            self._proxy_label.Caption = val
+            self._autosize()
+        else:
+            self._properties["Caption"] = val
+
+    @property
     def Children(self):
         """
         Returns a list of object references to the children of this object. Only applies to
@@ -329,6 +369,21 @@ class dSpinner(dDataPanel, wx.Control):
             self._increment = val
         else:
             self._properties["Increment"] = val
+
+    @property
+    def LabelLeft(self):
+        """Position the label to the left of the control. Default=True  (bool)"""
+        return self._label_left
+
+    @LabelLeft.setter
+    def LabelLeft(self, val):
+        if self._constructed():
+            need_update = val != self._label_left
+            self._label_left = val
+            if need_update:
+                self._rearrange()
+        else:
+            self._properties["LabelLeft"] = val
 
     @property
     def Max(self):
@@ -389,6 +444,7 @@ class dSpinner(dDataPanel, wx.Control):
                 else:
                     self._proxy_textbox.Value = val
             self._proxy_textbox._inDataUpdate = False
+            self._autosize()
         else:
             self._properties["Value"] = val
 
@@ -401,23 +457,29 @@ class dSpinner(dDataPanel, wx.Control):
     # through this control
     _proxyDict = {}
     Alignment = makeProxyProperty(_proxyDict, "Alignment", "_proxy_textbox")
-    BackColor = makeProxyProperty(_proxyDict, "BackColor", ("_proxy_textbox", "self"))
+    BackColor = makeProxyProperty(
+        _proxyDict, "BackColor", ("_proxy_textbox", "_proxy_label", "self")
+    )
     Enabled = makeProxyProperty(_proxyDict, "Enabled", ("self", "_proxy_spinner", "_proxy_textbox"))
-    Font = makeProxyProperty(_proxyDict, "Font", "_proxy_textbox")
-    FontInfo = makeProxyProperty(_proxyDict, "FontInfo", "_proxy_textbox")
-    FontSize = makeProxyProperty(_proxyDict, "FontSize", "_proxy_textbox")
-    FontFace = makeProxyProperty(_proxyDict, "FontFace", "_proxy_textbox")
-    FontBold = makeProxyProperty(_proxyDict, "FontBold", "_proxy_textbox")
-    FontItalic = makeProxyProperty(_proxyDict, "FontItalic", "_proxy_textbox")
-    FontUnderline = makeProxyProperty(_proxyDict, "FontUnderline", "_proxy_textbox")
-    ForeColor = makeProxyProperty(_proxyDict, "ForeColor", "_proxy_textbox")
+    Font = makeProxyProperty(_proxyDict, "Font", ("_proxy_textbox", "_proxy_label"))
+    FontInfo = makeProxyProperty(_proxyDict, "FontInfo", ("_proxy_textbox", "_proxy_label"))
+    FontSize = makeProxyProperty(_proxyDict, "FontSize", ("_proxy_textbox", "_proxy_label"))
+    FontFace = makeProxyProperty(_proxyDict, "FontFace", ("_proxy_textbox", "_proxy_label"))
+    FontBold = makeProxyProperty(_proxyDict, "FontBold", ("_proxy_textbox", "_proxy_label"))
+    FontItalic = makeProxyProperty(_proxyDict, "FontItalic", ("_proxy_textbox", "_proxy_label"))
+    FontUnderline = makeProxyProperty(
+        _proxyDict, "FontUnderline", ("_proxy_textbox", "_proxy_label")
+    )
+    ForeColor = makeProxyProperty(_proxyDict, "ForeColor", ("_proxy_textbox", "_proxy_label"))
     Height = makeProxyProperty(_proxyDict, "Height", ("self", "_proxy_spinner", "_proxy_textbox"))
     ReadOnly = makeProxyProperty(_proxyDict, "ReadOnly", "_proxy_textbox")
     SelectOnEntry = makeProxyProperty(_proxyDict, "SelectOnEntry", "_proxy_textbox")
     ToolTipText = makeProxyProperty(
-        _proxyDict, "ToolTipText", ("self", "_proxy_spinner", "_proxy_textbox")
+        _proxyDict, "ToolTipText", ("self", "_proxy_spinner", "_proxy_textbox", "_proxy_label")
     )
-    Visible = makeProxyProperty(_proxyDict, "Visible", ("self", "_proxy_spinner", "_proxy_textbox"))
+    Visible = makeProxyProperty(
+        _proxyDict, "Visible", ("self", "_proxy_spinner", "_proxy_textbox", "_proxy_label")
+    )
 
 
 ui.dSpinner = dSpinner

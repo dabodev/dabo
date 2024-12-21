@@ -8,11 +8,16 @@ import time
 import wx
 import wx.lib.masked as masked
 
-from .. import application, events, settings, ui
+from .. import application
+from .. import events
+from .. import settings
+from .. import ui
 from ..dLocalize import _
 from ..lib import dates
 from ..lib.utils import ustr
-from ..ui import dDataControlMixin, dKeys, makeDynamicProperty
+from ..ui import dDataControlMixin
+from ..ui import dKeys
+from ..ui import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -37,6 +42,8 @@ class dTextBoxMixinBase(dDataControlMixin):
         self._textLength = None
         self._inTextLength = False
         self._flushOnLostFocus = True  ## see ui.dDataControlMixinBase::flushValue()
+        self._auto_resize_type = None
+        ui.callAfter(self._autosize)
 
         dDataControlMixin.__init__(
             self,
@@ -51,6 +58,11 @@ class dTextBoxMixinBase(dDataControlMixin):
     def _initEvents(self):
         super(dTextBoxMixinBase, self)._initEvents()
         self.Bind(wx.EVT_TEXT, self._onWxHit)
+
+    def _onWxHit(self, evt):
+        super()._onWxHit(evt)
+        if self.AutoResizeType:
+            self._autosize()
 
     def flushValue(self):
         # Call the wx SetValue() directly to reset the string value displayed to the user.
@@ -201,6 +213,23 @@ class dTextBoxMixinBase(dDataControlMixin):
                 ret = self.GetRange(end, end + after)
         return ret
 
+    def _autosize(self):
+        if self._auto_resize_type is None:
+            return
+        sz_typ = self._auto_resize_type
+        best_width = self.DoGetBestSize()[0]
+        need_resize = (sz_typ == "All")
+        if not need_resize:
+            # Grow
+            need_resize = self.Width <  best_width
+        print("NEED", need_resize)
+        if need_resize:
+            print("Sz", self.Size)
+            self.Width = best_width
+            print("Sz", self.Size)
+            self.Parent.layout()
+
+
     # Property Definitions
     @property
     def Alignment(self):
@@ -240,6 +269,35 @@ class dTextBoxMixinBase(dDataControlMixin):
             self.SetEditable(rw)
         else:
             self._properties["Alignment"] = val
+
+    @property
+    def AutoResizeType(self):
+        """
+        Determines if a textbox's Width changes to match its content.
+
+        Possible values:
+            None (default) - No size changes based on content
+            All            - Each change of content resizes the textbox's Width
+            Grow           - Only increase the Width if the text doesn't fit
+        """
+        return self._auto_resize_type
+
+    @AutoResizeType.setter
+    def AutoResizeType(self, val):
+        if self._constructed():
+            if val is None:
+                self._auto_resize_type = None
+                return
+            first_char = val.lower()[0]
+            if not first_char in ("a", "g"):
+                raise ValueError(
+                    f"Invalid AutoResizeType received: '{val}'. Must be one of (None, 'All', or "
+                    "'Grow'."
+                )
+            self._auto_resize_type = "All" if first_char == "a" else "Grow"
+            self._autosize()
+        else:
+            self._properties["AutoResizeType"] = val
 
     @property
     def ForceCase(self):
