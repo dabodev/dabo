@@ -21,6 +21,8 @@ class dGauge(dControlMixin, wx.Gauge):
             *args,
             **kwargs,
         )
+        self._pulsing = False
+        self._last_value = 0
 
     def _initEvents(self):
         super()._initEvents()
@@ -56,6 +58,26 @@ class dGauge(dControlMixin, wx.Gauge):
             self._properties["Percentage"] = val
 
     @property
+    def Pulsing(self):
+        """
+        Determines if the gauge uses its Value to form a full line, or if the gauge just shows a
+        pulsing display. Default=False  (bool)
+        """
+        return self._pulsing
+
+    @Pulsing.setter
+    def Pulsing(self, val):
+        if not self._pulsing:
+            # GetValue() is undefined when pulsing, so store the previous value
+            self._last_value = self.Value
+        self._pulsing = bool(val)
+        if self._pulsing:
+            self.Pulse()
+        else:
+            # Stop the pulsing be explicitly setting the value
+            self.SetValue(self._last_value)
+
+    @property
     def Range(self):
         """Specifies the maximum value for the gauge.  (int)"""
         return self.GetRange()
@@ -70,6 +92,9 @@ class dGauge(dControlMixin, wx.Gauge):
     @property
     def Value(self):
         """Specifies the state of the gauge, relative to max value."""
+        if self._pulsing:
+            # GetValue() is indeterminate when pulsing
+            return self._last_value
         return self.GetValue()
 
     @Value.setter
