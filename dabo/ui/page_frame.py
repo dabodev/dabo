@@ -69,7 +69,7 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
         if sys.platform[:3] == "win":
             ## This keeps Pages from being ugly on Windows:
             self.SetBackgroundColour(self.GetBackgroundColour())
-        super(dPageFrame, self)._afterInit()
+        super()._afterInit()
 
 
 class dPageToolBar(dPageFrameMixin, wx.Toolbook):
@@ -103,7 +103,7 @@ class dPageToolBar(dPageFrameMixin, wx.Toolbook):
             32, 32, initialCount=0
         )  # Need to set image list first or else we get and error...
         self.AssignImageList(il)
-        super(dPageToolBar, self)._afterInit()
+        super()._afterInit()
 
     def removePage(self, pgOrPos, delPage=True):
         """
@@ -173,7 +173,7 @@ class dPageList(dPageFrameMixin, wx.Listbook):
         self.Layout()
 
     def SetPageText(self, pos, val):
-        super(dPageList, self).SetPageText(pos, val)
+        super().SetPageText(pos, val)
         # Force the list to re-align the spacing
         self.layout()
 
@@ -356,7 +356,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         ui.setAfter(self, "SelectedPageNumber", selpg)
 
     def _initEvents(self):
-        super(dPageStyled, self)._initEvents()
+        super()._initEvents()
         self.Bind(fnb.EVT_FLATNOTEBOOK_PAGE_CLOSING, self.__onPageClosing)
         self.Bind(fnb.EVT_FLATNOTEBOOK_PAGE_CLOSED, self.__onPageClosed)
         self.Bind(fnb.EVT_FLATNOTEBOOK_PAGE_CONTEXT_MENU, self.__onPageContextMenu)
@@ -365,7 +365,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         if sys.platform[:3] == "win":
             ## This keeps Pages from being ugly on Windows:
             self.SetBackgroundColour(self.GetBackgroundColour())
-        super(dPageStyled, self)._afterInit()
+        super()._afterInit()
 
     def __onPageClosing(self, evt):
         """The page has not yet been closed, so we can veto it if conditions call for it."""
@@ -380,7 +380,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         return self.beforePageClose(page)
 
     def insertPage(self, *args, **kwargs):
-        page = super(dPageStyled, self).insertPage(*args, **kwargs)
+        page = super().insertPage(*args, **kwargs)
         # incline isn't autoset on new page add so set it
         self.SetAllPagesShapeAngle(self.TabSideIncline)
         return page

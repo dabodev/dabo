@@ -41,7 +41,7 @@ class dMenuBar(dPemMixin, wx.MenuBar):
     def update(self):
         for menu in self.Children:
             menu._setDynamicEnabled()
-        super(dMenuBar, self).update()
+        super().update()
 
     def appendMenu(self, menu):
         """

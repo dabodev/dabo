@@ -17,7 +17,7 @@ class MySQLAutoReconnectCursor(dCursorMixin):
         from pymysql import OperationalError
 
         try:
-            return super(MySQLAutoReconnectCursor, self).execute(
+            return super().execute(
                 sql,
                 params=params,
                 errorClass=OperationalError,
@@ -25,9 +25,7 @@ class MySQLAutoReconnectCursor(dCursorMixin):
             )
         except OperationalError:
             self.connection.ping(True)
-            return super(MySQLAutoReconnectCursor, self).execute(
-                sql, params=params, errorClass=None, convertQMarks=convertQMarks
-            )
+            return super().execute(sql, params=params, errorClass=None, convertQMarks=convertQMarks)
 
 
 class MySQL(dBackend):

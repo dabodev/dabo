@@ -38,7 +38,7 @@ if __name__ == "__main__":
     class TestBase(dTextBox):
         def initProperties(self):
             self.SelectOnEntry = True
-            super(TestBase, self).initProperties()
+            super().initProperties()
             self.LogEvents = [
                 "ValueChanged",
             ]
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     class PWText(TestBase):
         def __init__(self, *args, **kwargs):
             kwargs["PasswordEntry"] = True
-            super(PWText, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
         def afterInit(self):
             self.Value = "TopSecret!"

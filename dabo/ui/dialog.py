@@ -72,22 +72,22 @@ class dDialog(dFormMixin, wx.Dialog):
         if self.IsModal():
             try:
                 # self.Destroy()
-                super(dDialog, self).EndModal(*args, **kwargs)
+                super().EndModal(*args, **kwargs)
             except wx._core.PyAssertionError:
                 # The modal hack is causing problems in some edge cases.
-                super(dDialog, self).release()
+                super().release()
 
     def _afterInit(self):
         self.MenuBarClass = None
         self.Sizer = dSizer("V")
-        super(dDialog, self)._afterInit()
+        super()._afterInit()
 
     def ShowModal(self):
         self.restoreSizeAndPositionIfNeeded()
         # updates were potentially suppressed while the dialog
         # wasn't visible, so update now.
         self.update()
-        return super(dDialog, self).ShowModal()
+        return super().ShowModal()
 
     def showModal(self):
         """Show the dialog modally."""
@@ -152,7 +152,7 @@ class dDialog(dFormMixin, wx.Dialog):
         """
         if self.Application is not None:
             self.Application.uiForms.remove(self)
-        super(dDialog, self).release()
+        super().release()
 
     def _controlGotFocus(self, ctrl):
         # Placeholder until we unify dForm and dDialog
@@ -254,9 +254,7 @@ class dStandardButtonDialog(dDialog):
         if self._ok and self._yes:
             raise ValueError(_("Dialogs cannot have both 'OK' and 'Yes' buttons."))
         self._cancelOnEscape = True
-        super(dStandardButtonDialog, self).__init__(
-            parent=parent, properties=properties, *args, **kwargs
-        )
+        super().__init__(parent=parent, properties=properties, *args, **kwargs)
         self._baseClass = dStandardButtonDialog
         self._accepted = False
 
@@ -349,7 +347,7 @@ class dStandardButtonDialog(dDialog):
             btn.MoveAfterInTabOrder(buttons[pos - 1])
 
         # Let the user add their controls
-        super(dStandardButtonDialog, self)._addControls()
+        super()._addControls()
 
         # Just in case user changed Self.Sizer, update our reference:
         sz = self.Sizer
@@ -566,7 +564,7 @@ class dOkCancelDialog(dStandardButtonDialog):
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         kwargs["Yes"] = kwargs["No"] = False
         kwargs["OK"] = kwargs["Cancel"] = True
-        super(dOkCancelDialog, self).__init__(parent, properties, *args, **kwargs)
+        super().__init__(parent, properties, *args, **kwargs)
         self._baseClass = dOkCancelDialog
 
 
@@ -574,7 +572,7 @@ class dYesNoDialog(dStandardButtonDialog):
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         kwargs["Yes"] = kwargs["No"] = True
         kwargs["OK"] = kwargs["Cancel"] = False
-        super(dYesNoDialog, self).__init__(parent, properties, *args, **kwargs)
+        super().__init__(parent, properties, *args, **kwargs)
         self._baseClass = dYesNoDialog
 
 

@@ -343,7 +343,7 @@ class Test_dCursorMixin_sqlite(Test_dCursorMixin, unittest.TestCase):
         con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
         self.cur = con.getDaboCursor()
         self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
-        super(Test_dCursorMixin_sqlite, self).setUp()
+        super().setUp()
 
 
 class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
@@ -357,11 +357,11 @@ class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
         )
         self.cur = con.getDaboCursor()
         self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
-        super(Test_dCursorMixin_mysql, self).setUp()
+        super().setUp()
 
     def tearDown(self):
         self.cur.execute("drop table %s" % self.temp_table_name)
-        super(Test_dCursorMixin_mysql, self).tearDown()
+        super().tearDown()
 
 
 class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
@@ -375,11 +375,11 @@ class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
         )
         self.cur = con.getDaboCursor()
         self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
-        super(Test_dCursorMixin_oracle, self).setUp()
+        super().setUp()
 
     def tearDown(self):
         self.cur.execute("drop table %s" % self.temp_table_name)
-        super(Test_dCursorMixin_mysql, self).tearDown()
+        super().tearDown()
 
 
 class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
@@ -398,7 +398,7 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
         cur = self.cur = con.getDaboCursor()
         self.temp_table_name = "dabo_unittest_tbl"
         self.jobid = self.get_jobid()
-        super(Test_dCursorMixin_firebird, self).setUp(_doRequery=False)
+        super().setUp(_doRequery=False)
         cur.UserSQL = "select * from %s where jobid = %s" % (
             self.temp_table_name,
             self.jobid,
@@ -415,7 +415,7 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
         self.cur.execute("commit")
         self.cur.execute("delete from %s where jobid = %f" % (self.temp_table_name, self.jobid))
         self.cur.execute("commit")
-        super(Test_dCursorMixin_firebird, self).tearDown()
+        super().tearDown()
 
     def getAdditionalWhere(self):
         return "jobid = %f" % self.jobid

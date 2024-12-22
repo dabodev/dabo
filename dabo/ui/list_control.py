@@ -99,7 +99,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         self._columnAccessor = _ListColumnAccessor(self)
 
     def _initEvents(self):
-        super(dListControl, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.__onSelection)
         self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self.__onDeselection)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.__onActivation)
@@ -114,7 +114,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         self.bindEvent(events.ListColumnResize, self.__onColumnResize)
 
     def _getInitPropertiesList(self):
-        return super(dListControl, self)._getInitPropertiesList() + ("ColumnsAlignment",)
+        return super()._getInitPropertiesList() + ("ColumnsAlignment",)
 
     def _doResize(self):
         if self and self.ExpandToFit:

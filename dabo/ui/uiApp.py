@@ -188,7 +188,7 @@ class uiApp(dObject, wx.App):
         hnd.setFormatter(fmt)
         log.setLevel(logging.DEBUG)
         log.addHandler(hnd)
-        super(uiApp, self).__init__(*args)
+        super().__init__(*args)
 
     def OnInit(self):
         app = self.dApp

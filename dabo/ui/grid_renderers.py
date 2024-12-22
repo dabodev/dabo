@@ -10,7 +10,7 @@ class ImageRenderer(wx.grid.GridCellRenderer):
 
     def __init__(self, *args, **kwargs):
         self._lastBitmap = None
-        super(ImageRenderer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def Draw(self, grid, attr, dc, rect, row, col, isSelected):
         """
@@ -70,8 +70,8 @@ class ImageRenderer(wx.grid.GridCellRenderer):
         dc.SetBrush(wx.Brush(bkgrd, wx.PENSTYLE_SOLID))
 
         try:
-            dc.SetPen(wx.PENSTYLE_TRANSPARENT)
-            dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
+            dc.SetPen(wx.Pen(wx.PENSTYLE_TRANSPARENT))
+            dc.DrawRectangle(round(rect.x), round(rect.y), round(rect.width), round(rect.height))
         finally:
             dc.SetPen(wx.NullPen)
             dc.SetBrush(wx.NullBrush)
@@ -111,7 +111,7 @@ class BoolRenderer(wx.grid.GridCellRenderer):
     """
 
     def __init__(self, *args, **kwargs):
-        super(BoolRenderer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.checkedBitmap = icons.getIconBitmap("boolRendererChecked")
         self.uncheckedBitmap = icons.getIconBitmap("boolRendererUnchecked")
 
@@ -158,7 +158,7 @@ class BoolRenderer(wx.grid.GridCellRenderer):
 
         try:
             dc.SetPen(wx.Pen(wx.PENSTYLE_TRANSPARENT))
-            dc.DrawRectangle(rect.x, rect.y, rect.width, rect.height)
+            dc.DrawRectangle(round(rect.x), round(rect.y), round(rect.width), round(rect.height))
         finally:
             dc.SetPen(wx.NullPen)
             dc.SetBrush(wx.NullBrush)

@@ -231,10 +231,6 @@ class dObject(PropertyHelperMixin, EventMixin):
 
     getMethodList = classmethod(getMethodList)
 
-    def super(self, *args, **kwargs):
-        """This method used to call superclass code, but it's been removed."""
-        raise NotImplementedError(_("Please change your self.super() call to super(cls, self)."))
-
     def _addCodeAsMethod(self, cd):
         """
         This method takes a dictionary containing method names as

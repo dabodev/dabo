@@ -186,7 +186,7 @@ class dApp(dObject):
         self.splashMaskColor = self._extractKey(kwargs, "splashMaskColor", None)
         self.splashTimeout = self._extractKey(kwargs, "splashTimeout", 5000)
 
-        super(dApp, self).__init__(properties, *args, **kwargs)
+        super().__init__(properties, *args, **kwargs)
         # egl: added the option of keeping the main form hidden
         # initially. The default behavior is for it to be shown, as usual.
         self.showMainFormOnStart = True
@@ -845,7 +845,7 @@ try again when it is running.
         self.dbConnections = {}
 
         self._appInfo = {}
-        super(dApp, self)._initProperties()
+        super()._initProperties()
 
     def _initDB(self, pth=None):
         """

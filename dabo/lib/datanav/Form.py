@@ -67,14 +67,14 @@ class Form(dui.dForm):
     def save(self, dataSource=None):
         ## The bizobj may have made some changes to the data during the save, so
         ## make sure it is reflected on screen by calling update() afterwards.
-        ret = super(Form, self).save(dataSource)
+        ret = super().save(dataSource)
         self.update()
         if self.FormType == "Edit" and self.Modal:
             dui.callAfter(self.hide)
         return ret
 
     def cancel(self, dataSource=None):
-        ret = super(Form, self).cancel(dataSource)
+        ret = super().cancel(dataSource)
         self.update()
         if self.FormType == "Edit" and self.Modal:
             dui.callAfter(self.hide)
@@ -217,7 +217,7 @@ class Form(dui.dForm):
 
     def getMenu(self):
         iconPath = "themes/tango/16x16"
-        menu = super(Form, self).getMenu()
+        menu = super().getMenu()
         menu.Caption = _("&Actions")
         menu.MenuID = "actions"
 
@@ -433,11 +433,11 @@ class Form(dui.dForm):
         d.release()
 
     def onDelete(self, evt):
-        super(Form, self).onDelete(evt)
+        super().onDelete(evt)
         self._afterDeleteOrCancel()
 
     def onCancel(self, evt):
-        super(Form, self).onCancel(evt)
+        super().onCancel(evt)
         self._afterDeleteOrCancel()
 
     def _afterDeleteOrCancel(self):
@@ -770,7 +770,7 @@ class Form(dui.dForm):
             self.pageFrame.GetPage(0).requery()
         else:
             # After the select page does its thing, it calls frm.requery():
-            return super(Form, self).requery(dataSource)
+            return super().requery(dataSource)
 
     def onNew(self, evt):
         self.pageFrame.newByDataSource(self.getBizobj().DataSource)

@@ -88,14 +88,14 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
             )  # Need this for the datetime not to display the current date when Null.
 
     def _initEvents(self):
-        super(dDatePicker, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.adv.EVT_DATE_CHANGED, self._onWxHit)
 
     def _onWxHit(self, evt):
         self._userChanged = True
         self._lastWasNone = False
         self.flushValue()
-        super(dDatePicker, self)._onWxHit(evt)
+        super()._onWxHit(evt)
 
     def dayInterval(self, days):
         """Adjusts the date by the given number of days; negative
@@ -262,7 +262,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
 
     def GetValue(self):
         try:
-            val = dateTimeWx2Py(super(dDatePicker, self).GetValue())
+            val = dateTimeWx2Py(super().GetValue())
         except wx.PyAssertionError:
             val = None
         return self._getPyValue(val)
@@ -270,7 +270,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
     def SetValue(self, val):
         val = self._getWxValue(val)
         try:
-            super(dDatePicker, self).SetValue(val)
+            super().SetValue(val)
         except ValueError as e:
             nm = self.Name
             ue = ustr(e)

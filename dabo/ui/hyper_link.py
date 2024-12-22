@@ -40,7 +40,7 @@ class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
             self.refresh()
 
     def refresh(self):
-        super(dHyperLink, self).refresh()
+        super().refresh()
         self.UpdateLink(True)
 
     def _setColors(self):

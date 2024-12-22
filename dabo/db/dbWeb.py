@@ -18,7 +18,7 @@ class Web(SQLite):
 
     def getConnection(self, connectInfo, **kwargs):
         connectInfo.Database = ":memory:"
-        self._connection = super(Web, self).getConnection(connectInfo, **kwargs)
+        self._connection = super().getConnection(connectInfo, **kwargs)
         return self._connection
 
     def getTables(self, cursor, includeSystemTables=False):

@@ -31,7 +31,7 @@ class dDataControlMixin(ui.dControlMixin):
         self._enabled = True
 
     def _initEvents(self):
-        super(dDataControlMixin, self)._initEvents()
+        super()._initEvents()
 
         self.bindEvent(events.Create, self.__onCreate)
         self.bindEvent(events.Destroy, self.__onDestroy)
@@ -108,7 +108,7 @@ class dDataControlMixin(ui.dControlMixin):
         # Update selection after Value property update.
         if getattr(self, "SelectOnEntry", False) and self.Form.ActiveControl == self:
             self.selectAll()
-        super(dDataControlMixin, self).update()
+        super().update()
 
     def __dataUpdate(self):
         """This handles all the value updating from the data source."""
@@ -361,7 +361,7 @@ class dDataControlMixin(ui.dControlMixin):
 
     def _onWxHit(self, evt, *args, **kwargs):
         self._userChanged = True  ## set the dirty flag so that InteractiveChange can be raised.
-        super(dDataControlMixin, self)._onWxHit(evt, *args, **kwargs)
+        super()._onWxHit(evt, *args, **kwargs)
 
     def select(self, position, length):
         """Select all text from <position> for <length> or end of string."""

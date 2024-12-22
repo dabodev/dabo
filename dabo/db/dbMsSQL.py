@@ -57,12 +57,12 @@ class MSSQL(dBackend):
                     # pymssql requires an additional param to be passed
                     # to its __init__() method
                     kwargs["as_dict"] = True
-                    super(ConCursor, self).__init__(*args, **kwargs)
+                    super().__init__(*args, **kwargs)
 
                 def fetchall(self):
                     # In dictionary mode both column numbers and names are used
                     # as keys. We need to filter them and leave name based keys only.
-                    rows = super(ConCursor, self).fetchall()
+                    rows = super().fetchall()
                     for row in rows:
                         for key in range(len(row) / 2):
                             row.pop(key, None)
@@ -75,7 +75,7 @@ class MSSQL(dBackend):
                     # pymssql requires an additional param to be passed
                     # to its __init__() method
                     kwargs["as_dict"] = True
-                    super(ConCursor, self).__init__(*args, **kwargs)
+                    super().__init__(*args, **kwargs)
 
                 if not hasattr(self.dbapi.pymssqlCursor, "connection"):
                     # pymssql doesn't supply this optional dbapi attribute, so create it here.

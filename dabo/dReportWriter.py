@@ -26,23 +26,23 @@ class dReportWriter(dObject, ReportWriter):
     """
 
     def _onReportCancel(self):
-        super(dReportWriter, self)._onReportCancel()
+        super()._onReportCancel()
         self.raiseEvent(events.ReportCancel)
         self._hideProgress()
 
     def _onReportBegin(self):
-        super(dReportWriter, self)._onReportBegin()
+        super()._onReportBegin()
         self.raiseEvent(events.ReportBegin)
         self._showProgress()
 
     def _onReportEnd(self):
-        super(dReportWriter, self)._onReportEnd()
+        super()._onReportEnd()
         self.raiseEvent(events.ReportEnd)
         self._updateProgress(force=True)
         # self._hideProgress()  ## Let the form controlling the progress gauge do this (less blinky)
 
     def _onReportIteration(self):
-        super(dReportWriter, self)._onReportIteration()
+        super()._onReportIteration()
         self.raiseEvent(events.ReportIteration)
         self._updateProgress()
 

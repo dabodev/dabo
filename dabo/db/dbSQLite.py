@@ -94,7 +94,7 @@ class SQLite(dBackend):
         if isinstance(val, bool):
             return ustr(int(val))
         else:
-            return super(SQLite, self).formatForQuery(val, fieldType)
+            return super().formatForQuery(val, fieldType)
 
     def escQuote(self, val):
         sl = "\\"

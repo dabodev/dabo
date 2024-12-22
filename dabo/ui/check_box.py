@@ -24,7 +24,7 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
         )
 
     def _initEvents(self):
-        super(dCheckBox, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
 
     def _initProperties(self):
@@ -34,17 +34,17 @@ class dCheckBox(dDataControlMixin, wx.CheckBox):
             wx.CHK_UNDETERMINED: None,
         }
         self._ValueTo3State = dict([[v, k] for k, v in self._3StateToValue.items()])
-        super(dCheckBox, self)._initProperties()
+        super()._initProperties()
 
     def _getInitPropertiesList(self):
         additional = ["ThreeState", "Alignment"]
-        original = list(super(dCheckBox, self)._getInitPropertiesList())
+        original = list(super()._getInitPropertiesList())
         return tuple(original + additional)
 
     def _onWxHit(self, evt):
         self._userChanged = True
         self.flushValue()
-        super(dCheckBox, self)._onWxHit(evt)
+        super()._onWxHit(evt)
 
     def getBlankValue(self):
         return False

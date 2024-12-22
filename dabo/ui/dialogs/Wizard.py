@@ -57,7 +57,7 @@ class Wizard(dDialog):
         self._blankPage = None
         self._defaultPicture = ""
         self.wizardIcon = None
-        super(Wizard, self).__init__(parent=parent, properties=properties, *args, **kwargs)
+        super().__init__(parent=parent, properties=properties, *args, **kwargs)
 
         # Add the main panel
         mp = self.mainPanel = dPanel(self)

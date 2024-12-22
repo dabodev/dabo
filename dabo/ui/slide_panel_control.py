@@ -85,7 +85,7 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         sz.appendSpacer(self.CaptionHeight)
 
     def GetBestSize(self):
-        ret = super(dSlidePanel, self).GetBestSize()
+        ret = super().GetBestSize()
         sibCount = len(self.GetParent().GetChildren())
         prnt = self.GetParent()
         if prnt:
@@ -112,12 +112,12 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         for itm in self._items:
             if not itm._wnd:
                 self._items.remove(itm)
-        super(dSlidePanel, self).ResizePanel()
+        super().ResizePanel()
 
     def Destroy(self):
         self.Parent._panels.remove(self)
         self.Parent.raiseEvent(events.SlidePanelChange)
-        super(dSlidePanel, self).Destroy()
+        super().Destroy()
 
     def onChildBorn(self, evt):
         self._cont.lockDisplay()
@@ -457,14 +457,14 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
         if pnl.Collapsed:
             # nothing to do here
             return
-        super(dSlidePanelControl, self).Collapse(pnl)
+        super().Collapse(pnl)
         self.raiseEvent(events.SlidePanelChange, self._createCapBarEvt(pnl))
 
     def Expand(self, pnl):
         if pnl.Expanded:
             # nothing to do here
             return
-        super(dSlidePanelControl, self).Expand(pnl)
+        super().Expand(pnl)
         self.raiseEvent(events.SlidePanelChange, self._createCapBarEvt(pnl))
 
     # Throw in Dabo-style wrapper names
@@ -480,7 +480,7 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
             pnl.Expanded = True
 
     def refresh(self):
-        super(dSlidePanelControl, self).refresh()
+        super().refresh()
         if self.CollapseToBottom:
             rect = self.RepositionCollapsedToBottom()
             vertical = self.IsVertical()

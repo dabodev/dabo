@@ -34,7 +34,7 @@ class dButton(ui.dControlMixin, wx.Button):
         )
 
     def _initEvents(self):
-        super(dButton, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_BUTTON, self._onWxHit)
 
     def _onCancelButton(self, evt, recurse=True):

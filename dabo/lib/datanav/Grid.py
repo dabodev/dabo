@@ -10,10 +10,10 @@ from dabo.ui import dKeys
 class Grid(dui.dGrid):
     def _beforeInit(self, pre):
         self.customSort = True
-        super(Grid, self)._beforeInit(pre)
+        super()._beforeInit(pre)
 
     def _initEvents(self):
-        super(Grid, self)._initEvents()
+        super()._initEvents()
         self.bindEvent(dEvents.GridMouseLeftDoubleClick, self.onGridLeftDClick)
         self.bindEvent(dEvents.KeyDown, self._onGridKeyDown)
 
@@ -25,10 +25,10 @@ class Grid(dui.dGrid):
         # Turn on alternate row coloring
         self.AlternateRowColoring = True
 
-        super(Grid, self)._initProperties()
+        super()._initProperties()
 
     def _afterInit(self):
-        super(Grid, self)._afterInit()
+        super()._afterInit()
 
         self.bindKey("f2", self._onSortKey)
         self.bindKey("delete", self._onDeleteKey)

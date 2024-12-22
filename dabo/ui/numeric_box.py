@@ -117,7 +117,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
         self.MaxValue = None
         minVal = self.MinValue
         self.MinValue = None
-        super(dNumericBox, self).update()
+        super().update()
         if not "MaxValue" in self._dynamic:
             self.MaxValue = maxVal
         if not "MinValue" in self._dynamic:
@@ -126,7 +126,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
     # --- Internal class interface.
 
     def _initEvents(self):
-        super(dNumericBox, self)._initEvents()
+        super()._initEvents()
         self.bindEvent(events.GotFocus, self._onGotFocusFix)
         self.bindEvent(events.LostFocus, self._onLostFocusFix)
 
@@ -145,7 +145,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
     def _onWxHit(self, evt, *args, **kwargs):
         # This fix wx masked controls issue firing multiple EVT_TEXT events.
         if self._value != self.Value:
-            super(dNumericBox, self)._onWxHit(evt, *args, **kwargs)
+            super()._onWxHit(evt, *args, **kwargs)
 
     def _fixInsertionPoint(self):
         """Fixes insertion point position when value change or

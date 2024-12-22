@@ -101,14 +101,14 @@ def _getRecord(self_):
     class CursorRecord(object):
         def __init__(self, _cursor):
             self._cursor = _cursor
-            super(CursorRecord, self).__init__()
+            super().__init__()
 
         def __getattr__(self, att):
             return self._cursor.getFieldVal(att)
 
         def __setattr__(self, att, val):
             if att in ("_cursor"):
-                super(CursorRecord, self).__setattr__(att, val)
+                super().__setattr__(att, val)
             else:
                 self._cursor.setFieldVal(att, val)
 

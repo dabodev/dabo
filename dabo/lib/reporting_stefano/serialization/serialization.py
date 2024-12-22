@@ -17,7 +17,7 @@ class SerializableMeta(type):
                 delattr(cls, name)
             else:
                 newDict[name] = obj
-        super(SerializableMeta, cls).__init__(name, bases, newDict)
+        super().__init__(name, bases, newDict)
         cls._xmlSerializationAttributes = attributes
 
 

@@ -25,7 +25,7 @@ class dColorDialog(wx.ColourDialog):
 
         if parent is None:
             parent = settings.get_application().ActiveForm
-        super(dColorDialog, self).__init__(parent, data=dat)
+        super().__init__(parent, data=dat)
         self._selColor = None
 
     def show(self):

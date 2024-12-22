@@ -124,7 +124,7 @@ class StyleTimer(dTimer):
     def afterInit(self):
         # Default timer interval
         self.styleTimerInterval = 50
-        super(StyleTimer, self).afterInit()
+        super().afterInit()
         self.bindEvent(events.Hit, self.onHit)
         self.mode = "container"
 
@@ -383,7 +383,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
     @ui.deadCheck
     def __del__(self):
         self._unRegisterFunc(self)
-        super(dEditor, self).__del__()
+        super().__del__()
 
     def onPrintSetup(self):
         dlgData = wx.PageSetupDialogData(self._printData)

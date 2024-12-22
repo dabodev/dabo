@@ -22,16 +22,16 @@ class dControlItemMixin(dDataControlMixin):
         self._sortFunction = None
         if not kwargs.get("PositionValue"):
             kwargs["PositionValue"] = 0
-        super(dControlItemMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _initEvents(self):
-        super(dControlItemMixin, self)._initEvents()
+        super()._initEvents()
 
     def _onWxHit(self, evt):
         self._userChanged = True
         # Flush value on every hit:
         self.flushValue()
-        super(dControlItemMixin, self)._onWxHit(evt)
+        super()._onWxHit(evt)
         # Since super method set this attribute again, we must reset it.
         self._userChanged = False
 

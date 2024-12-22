@@ -12,7 +12,7 @@ class WizardPage(dScrollPanel):
         self._titleFontSize = 18
         self._picture = None
 
-        super(WizardPage, self).__init__(parent=parent, properties=properties, *args, **kwargs)
+        super().__init__(parent=parent, properties=properties, *args, **kwargs)
 
         self._baseClass = WizardPage
         self._wizard = None

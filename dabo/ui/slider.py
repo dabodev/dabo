@@ -40,7 +40,7 @@ class dSlider(dDataControlMixin, wx.Slider):
         )
 
     def _initProperties(self):
-        super(dSlider, self)._initProperties()
+        super()._initProperties()
         style = self._preInitProperties["style"]
         if self._tickPosition:
             tickpos = self.TickPosition[0].upper()
@@ -58,7 +58,7 @@ class dSlider(dDataControlMixin, wx.Slider):
         self._preInitProperties["style"] = style
 
     def _initEvents(self):
-        super(dSlider, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_SCROLL, self._onWxHit)
 
     def _onWxHit(self, evt):
@@ -67,7 +67,7 @@ class dSlider(dDataControlMixin, wx.Slider):
         self._lastVal = newval
         if (changed and self._continuous) or not ui.isMouseLeftDown():
             self.flushValue()
-            super(dSlider, self)._onWxHit(evt)
+            super()._onWxHit(evt)
 
     # Property definitions
     @property

@@ -26,7 +26,7 @@ class dSearchBox(dTextBoxMixin, wx.SearchCtrl):
         )
 
     def _initEvents(self):
-        super(dSearchBox, self)._initEvents()
+        super()._initEvents()
         # Following code fixes Windows platform control issue,
         # crashing when destroying and control has focus on it.
         if self.Application.Platform in ("Win", "GTK"):
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     # This test sets up several textboxes, each editing different data types.
     class TestBase(dSearchBox):
         def initProperties(self):
-            super(TestBase, self).initProperties()
+            super().initProperties()
             self.LogEvents = [
                 "ValueChanged",
                 "searchButtonClicked",
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     class PWText(TestBase):
         def __init__(self, *args, **kwargs):
             kwargs["PasswordEntry"] = True
-            super(PWText, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
         def afterInit(self):
             self.Value = "TopSecret!"

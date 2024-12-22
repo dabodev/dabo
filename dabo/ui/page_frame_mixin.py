@@ -21,7 +21,7 @@ class dPageFrameMixin(dControlMixin):
 
     def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         kwargs["style"] = self._extractKey((properties, kwargs), "style", 0) | wx.CLIP_CHILDREN
-        super(dPageFrameMixin, self).__init__(
+        super().__init__(
             preClass,
             parent,
             properties=properties,
@@ -35,10 +35,10 @@ class dPageFrameMixin(dControlMixin):
 
         self._imageList = {}
         self._pageSizerClass = dSizer
-        super(dPageFrameMixin, self)._beforeInit(pre)
+        super()._beforeInit(pre)
 
     def _initEvents(self):
-        super(dPageFrameMixin, self)._initEvents()
+        super()._initEvents()
         self.Bind(self._evtPageChanged, self.__onPageChanged)
         self.Bind(self._evtPageChanging, self.__onPageChanging)
         self.bindEvent(events.Create, self.__onCreate)

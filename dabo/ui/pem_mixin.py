@@ -242,7 +242,7 @@ class dPemMixin(dObject):
         self.raiseEvent(events.Create)
 
     def _initEvents(self):
-        super(dPemMixin, self)._initEvents()
+        super()._initEvents()
         self.autoBindEvents()
 
     def _initUI(self):
@@ -251,7 +251,7 @@ class dPemMixin(dObject):
 
     def getPropertyInfo(cls, name):
         """Abstract method: subclasses MUST override for UI-specifics."""
-        return super(dPemMixin, cls).getPropertyInfo(name)
+        return super().getPropertyInfo(name)
 
     getPropertyInfo = classmethod(getPropertyInfo)
 
@@ -932,7 +932,7 @@ class dPemMixin(dObject):
         callback(keyEvent)
 
     def Show(self, show=True):
-        ret = super(dPemMixin, self).Show(show)
+        ret = super().Show(show)
         if show and ret:
             # updates were potentially suppressed while the object
             # wasn't visible, so update now.
@@ -1031,7 +1031,7 @@ class dPemMixin(dObject):
         pass
 
     def getPropertyInfo(cls, name):
-        return super(dPemMixin, cls).getPropertyInfo(name)
+        return super().getPropertyInfo(name)
 
     getPropertyInfo = classmethod(getPropertyInfo)
 
@@ -1195,7 +1195,7 @@ class dPemMixin(dObject):
 
         # Call immediately in this callstack so the object isn't completely
         # gone by the time the callback is called.
-        super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, *args, **kwargs)
+        super().raiseEvent(eventClass, nativeEvent, *args, **kwargs)
 
     def formCoordinates(self, pos=None):
         """
@@ -1508,7 +1508,7 @@ class dPemMixin(dObject):
                 func = func[0]
             else:
                 args = ()
-            prop.fset(self, func(*args))
+            prop.fset(obj, func(*args))
 
     def refresh(self, fromRefresh=False):
         """Repaints this control and all contained objects."""
@@ -2256,7 +2256,11 @@ class dPemMixin(dObject):
         """
         if parent is None:
             parent = self.Parent
-        children = parent.GetChildren()
+        try:
+            # Some classes are collections that aren't bound by wx containership
+            children = parent.Children
+        except AttributeError:
+            children = parent.GetChildren()
         kid_name_mapping = {kid: kid.GetName() for kid in children}
         nameError = name in kid_name_mapping.values()
         candidate = name
@@ -2452,8 +2456,8 @@ class dPemMixin(dObject):
                     self._border = self.drawRectangle(
                         0,
                         0,
-                        self.Width,
-                        self.Height,
+                        round(self.Width),
+                        round(self.Height),
                         penColor=self.BorderColor,
                         penWidth=val,
                     )
@@ -3508,7 +3512,7 @@ class DrawObject(dObject):
             "horizontal": wx.BRUSHSTYLE_HORIZONTAL_HATCH,
             "vertical": wx.BRUSHSTYLE_VERTICAL_HATCH,
         }
-        super(DrawObject, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._inInit = False
 
     def update(self):
@@ -3668,7 +3672,7 @@ class DrawObject(dObject):
             for x in range(x1, x1 + wd):
                 currRow = (r1 + rf, g1 + gf, b1 + bf)
                 dc.SetBrush(wx.Brush(currRow, wx.PENSTYLE_SOLID))
-                dc.DrawRectangle(x1 + (x - x1), y1, 1, ht)
+                dc.DrawRectangle(round(x1 + (x - x1)), round(y1), 1, round(ht))
                 rf = rf + rstep
                 gf = gf + gstep
                 bf = bf + bstep
@@ -3676,7 +3680,7 @@ class DrawObject(dObject):
             for y in range(y1, y1 + ht):
                 currCol = (r1 + rf, g1 + gf, b1 + bf)
                 dc.SetBrush(wx.Brush(currCol, wx.PENSTYLE_SOLID))
-                dc.DrawRectangle(x1, y1 + (y - y1), wd, ht)
+                dc.DrawRectangle(round(x1), round(y1 + (y - y1)), round(wd), round(ht))
                 rf = rf + rstep
                 gf = gf + gstep
                 bf = bf + bstep

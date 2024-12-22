@@ -351,7 +351,7 @@ class dCalendar(BaseCalendar):
     def __init__(self, *args, **kwargs):
         style = kwargs.get("style", 0)
         kwargs["style"] = style | wxcal.CAL_SEQUENTIAL_MONTH_SELECTION
-        super(dCalendar, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class dExtendedCalendar(BaseCalendar):
@@ -365,7 +365,7 @@ class dExtendedCalendar(BaseCalendar):
     def __init__(self, *args, **kwargs):
         style = kwargs.get("style", 0)
         kwargs["style"] = style & ~wxcal.CAL_SEQUENTIAL_MONTH_SELECTION
-        super(dExtendedCalendar, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 ui.BaseCalendar = BaseCalendar

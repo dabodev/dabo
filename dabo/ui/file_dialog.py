@@ -8,7 +8,7 @@ from ..dLocalize import _
 class OsDialogMixin(object):
     def _beforeInit(self):
         self._dir = self._fname = self._msg = self._path = self._wildcard = ""
-        super(OsDialogMixin, self)._beforeInit()
+        super()._beforeInit()
 
     def show(self):
         self._dir = self._fname = self._path = ""
@@ -111,7 +111,7 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
             app = settings.get_application()
             if app and app.ActiveForm:
                 parent = app.ActiveForm
-        super(dFileDialog, self).__init__(
+        super().__init__(
             parent=parent,
             message=message,
             defaultDir=defaultPath,
@@ -131,7 +131,7 @@ class dFolderDialog(OsDialogMixin, wx.DirDialog):
         self._baseClass = dFolderDialog
         if parent is None:
             parent = application.get_application().ActiveForm
-        super(dFolderDialog, self).__init__(
+        super().__init__(
             parent=parent,
             message=message,
             defaultPath=defaultPath,
@@ -154,7 +154,7 @@ class dSaveDialog(dFileDialog):
         self._baseClass = dSaveDialog
         if parent is None:
             parent = application.get_application().ActiveForm
-        super(dSaveDialog, self).__init__(
+        super().__init__(
             parent=parent,
             message=message,
             defaultPath=defaultPath,

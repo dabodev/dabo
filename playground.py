@@ -16,12 +16,12 @@ class MenuBar(dMenuBar):
         self.dmenu2 = self.appendMenu(MyDaboMenu(1, self, MenuID="base_whatever2"))
         self.emenu = self.appendMenu(EditMenu(self, MenuID="base_edit"))
         self.vmenu = self.appendMenu(ViewMenu(self, MenuID="base_view"))
-        super(MenuBar, self)._afterInit()
+        super()._afterInit()
 
 
 class EditMenu(dMenu):
     def _afterInit(self):
-        super(EditMenu, self)._afterInit()
+        super()._afterInit()
         app = self.Application
         self.Caption = _("&Edit")
 
@@ -119,7 +119,7 @@ class EditMenu(dMenu):
 
 class ViewMenu(dMenu):
     def _afterInit(self):
-        super(ViewMenu, self)._afterInit()
+        super()._afterInit()
         app = self.Application
         _ = lambda a: a
         self.Caption = _("&View")
@@ -161,10 +161,10 @@ class ViewMenu(dMenu):
 class MyDaboMenu(dMenu):
     def __init__(self, pos, *args, **kwargs):
         self.__pos = pos
-        super(MyDaboMenu, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _afterInit(self):
-        super(MyDaboMenu, self)._afterInit()
+        super()._afterInit()
 
         app = self.Application
 

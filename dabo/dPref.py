@@ -82,7 +82,7 @@ class dPref(object):
         # be changed by framework tools designed to access the
         # the preference database.
         self._persistAll = False
-        super(dPref, self).__init__()
+        super().__init__()
         self._parent = None
         self._noneType = type(None)
         self._typeDict = {
@@ -167,7 +167,7 @@ class dPref(object):
 
     def __setattr__(self, att, val):
         if att in regularAtts:
-            super(dPref, self).__setattr__(att, val)
+            super().__setattr__(att, val)
             # self.__dict__[att] = val
             return
         persist = False

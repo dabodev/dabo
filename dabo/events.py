@@ -19,7 +19,7 @@ class dEvent(object):
     def __init__(self, eventObject, uiEvent=None, eventData=None, *args, **kwargs):
         # Event objects get instantiated with every single event, so try
         # to keep code to a minimum here.
-        # super(dEvent, self).__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs)
 
         self._eventObject = eventObject
         self._uiEvent = uiEvent
@@ -332,7 +332,7 @@ class ChildBorn(dEvent):
             self.Child = kwargs["child"]
         except KeyError:
             self.Child = None
-        super(ChildBorn, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def appliesToClass(eventClass, objectClass):
         from . import ui

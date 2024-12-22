@@ -17,7 +17,7 @@ class dPageFrameNoTabs(dPanel):
         self._pageSizerClass = dSizer
         self._activePage = None
         self._pages = []
-        super(dPageFrameNoTabs, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._baseClass = dPageFrameNoTabs
 
     def _afterInit(self):
@@ -25,7 +25,7 @@ class dPageFrameNoTabs(dPanel):
 
         if self.Sizer is None:
             self.Sizer = dSizer()
-        super(dPageFrameNoTabs, self)._afterInit()
+        super()._afterInit()
 
     def appendPage(self, pgCls=None, makeActive=False):
         """
@@ -103,7 +103,7 @@ class dPageFrameNoTabs(dPanel):
             except AttributeError:
                 # could be that the page is a single control, not a container
                 pass
-        super(dPageFrameNoTabs, self).layout()
+        super().layout()
 
     def showPage(self, pg):
         ap = self._activePage

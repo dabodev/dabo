@@ -19,7 +19,7 @@ ASC, DESC = (n_("asc"), n_("desc"))
 # Controls for the select page:
 class SelectControlMixin(dObject):
     def initProperties(self):
-        super(SelectControlMixin, self).initProperties()
+        super().initProperties()
         self.SaveRestoreValue = True
 
 
@@ -48,11 +48,11 @@ class SelectSpinner(SelectControlMixin, dui.dSpinner):
 
 class SelectionOpDropdown(dui.dDropdownList):
     def initProperties(self):
-        super(SelectionOpDropdown, self).initProperties()
+        super().initProperties()
         self.SaveRestoreValue = True
 
     def initEvents(self):
-        super(SelectionOpDropdown, self).initEvents()
+        super().initEvents()
         self.bindEvent(dEvents.Hit, self.onChoiceMade)
         self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
 
@@ -85,7 +85,7 @@ class SelectionOpDropdown(dui.dDropdownList):
 
 class Page(dui.dPage):
     def initEvents(self):
-        super(Page, self).initEvents()
+        super().initEvents()
         self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
         self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 
@@ -146,7 +146,7 @@ class SelectOptionsPanel(dPanel):
 
 class SortLabel(dui.dLabel):
     def initEvents(self):
-        super(SortLabel, self).initEvents()
+        super().initEvents()
         self.bindEvent(dEvents.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
         # Add a property for the related field
         self.relatedDataField = ""
@@ -154,7 +154,7 @@ class SortLabel(dui.dLabel):
 
 class SelectPage(Page):
     def _createItems(self):
-        super(SelectPage, self)._createItems()
+        super()._createItems()
 
         ## The following line is needed to get the Select page scrollbars to lay
         ## out without the user having to resize manually. I tried putting it in
@@ -164,7 +164,7 @@ class SelectPage(Page):
         self.Sizer.FitInside(self)
 
     def afterInit(self):
-        super(SelectPage, self).afterInit()
+        super().afterInit()
         # Holds info which will be used to create the dynamic
         # WHERE clause based on user input
         self.selectFields = {}
@@ -174,7 +174,7 @@ class SelectPage(Page):
 
     def _initProperties(self):
         self.UpdateOnPageEnter = False
-        super(SelectPage, self)._initProperties()
+        super()._initProperties()
 
     def onSortLabelRClick(self, evt):
         obj = self.sortObj = evt.EventObject
@@ -247,7 +247,7 @@ class SelectPage(Page):
         if self.selectOptionsPanel:
             self.Sizer.append(self.selectOptionsPanel, "expand", 1, border=20)
             self.selectOptionsPanel.setFocus()
-        super(SelectPage, self).createItems()
+        super().createItems()
 
     def setFrom(self, biz):
         """Subclass hook."""
@@ -555,7 +555,7 @@ class BrowsePage(Page):
     def __init__(self, parent, Name=None, *args, **kwargs):
         if Name is None:
             Name = "pageBrowse"
-        super(BrowsePage, self).__init__(parent, Name=Name, *args, **kwargs)
+        super().__init__(parent, Name=Name, *args, **kwargs)
 
     def _onPageEnter(self):
         if not self.itemsCreated:
@@ -589,12 +589,12 @@ class EditPage(Page):
         self._dataSource = ds
         self.childGrids = []
         self.childrenAdded = False
-        super(EditPage, self).__init__(parent, *args, **kwargs)
+        super().__init__(parent, *args, **kwargs)
         if self.DataSource:
             self.buildPage()
 
     def initEvents(self):
-        super(EditPage, self).initEvents()
+        super().initEvents()
         self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 
     def buildPage(self):

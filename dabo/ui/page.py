@@ -13,16 +13,16 @@ class dPage(dScrollPanel):
         self._pendingUpdates = False
         self._deferredUpdates = False
         kwargs["AlwaysResetSizer"] = self._extractKey(kwargs, "AlwaysResetSizer", True)
-        super(dPage, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._baseClass = dPage
 
     def _afterInit(self):
         self.initSizer()
         self.itemsCreated = False
-        super(dPage, self)._afterInit()
+        super()._afterInit()
 
     def _initEvents(self):
-        super(dPage, self)._initEvents()
+        super()._initEvents()
         self.bindEvent(events.PageEnter, self.__onPageEnter)
         self.bindEvent(events.PageLeave, self.__onPageLeave)
 
@@ -62,7 +62,7 @@ class dPage(dScrollPanel):
                     return
             except (ValueError, AttributeError):
                 pass
-        super(dPage, self).update()
+        super().update()
 
     def __onPageEnter(self, evt):
         if not self.itemsCreated:

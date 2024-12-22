@@ -13,7 +13,7 @@ class dFontDialog(wx.FontDialog):
         dat = wx.FontData()
         if fontData is not None:
             dat.SetInitialFont(fontData)
-        super(dFontDialog, self).__init__(parent=parent, data=dat)
+        super().__init__(parent=parent, data=dat)
 
     def show(self):
         ret = dConstants.DLG_CANCEL

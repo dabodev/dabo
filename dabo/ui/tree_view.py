@@ -399,7 +399,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         )
 
     def _initEvents(self):
-        super(dTreeView, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_LEFT_UP, self._onWxHit)
         self.Bind(wx.EVT_KEY_UP, self.__onKeyUp)
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.__onTreeSel)
@@ -439,7 +439,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         return True
 
     def _getInitPropertiesList(self):
-        original = list(super(dTreeView, self)._getInitPropertiesList())
+        original = list(super()._getInitPropertiesList())
         original.remove("MultipleSelect")
         return tuple(original)
 

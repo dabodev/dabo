@@ -25,7 +25,7 @@ class dListBox(dControlItemMixin, wx.ListBox):
         )
 
     def _initEvents(self):
-        super(dListBox, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_LISTBOX, self._onWxHit)
 
     def clearSelections(self):

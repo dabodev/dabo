@@ -30,19 +30,19 @@ class dCollapsiblePanel(dControlMixin, pcp.PyCollapsiblePane):
         self._pPane = dPanel(self, Visible=False, BorderStyle="None")
 
     def _initEvents(self):
-        super(dCollapsiblePanel, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self._onWxHit)
 
     def _initProperties(self):
         self.ExpanderDimensions = (4, 8)
-        super(dCollapsiblePanel, self)._initProperties()
+        super()._initProperties()
 
     def _onWxHit(self, evt):
         parent = self.Parent
         parent.lockDisplay()
         parent.layout()
         parent.unlockDisplay()
-        super(dCollapsiblePanel, self)._onWxHit(evt)
+        super()._onWxHit(evt)
 
     def Collapse(self, collapse=True):
         if collapse:

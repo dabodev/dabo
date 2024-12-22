@@ -145,7 +145,7 @@ class _BasePanelMixin(object):
             if dc is None:
                 dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
                 dc.Clear()  # make sure you clear the bitmap!
-        super(_PanelMixin, self)._redraw(dc)
+        super()._redraw(dc)
 
     # property definitions follow:
     @property
@@ -387,12 +387,12 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
     @property
     def Children(self):
         """Child controls of this panel. Excludes the wx-specific scroll bars  (list of objects)"""
-        ret = super(ui.dScrollPanel, self).Children
+        ret = super().Children
         return [kid for kid in ret if isinstance(kid, ui.dPemMixin)]
 
     @Children.setter
     def Children(self, val):
-        super(dScrollPanel, self)._setChildren(val)
+        super()._setChildren(val)
 
     @property
     def HorizontalScroll(self):

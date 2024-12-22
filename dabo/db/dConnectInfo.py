@@ -55,7 +55,7 @@ class dConnectInfo(dObject):
             self._name
         ) = self._remoteHost = ""
         self._keepAliveInterval = None
-        super(dConnectInfo, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if connInfo:
             self.setConnInfo(connInfo)
 

@@ -276,7 +276,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         # scaled x,y of closest point
         sx, sy = mDataDict["scaledXY"]
         # 10by10 square centered on point
-        dc.DrawRectangle(sx - 5, sy - 5, 10, 10)
+        dc.DrawRectangle(round(sx - 5), round(sy - 5), 10, 10)
         px, py = mDataDict["pointXY"]
         cNum = mDataDict["curveNum"]
         pntIn = mDataDict["pIndex"]

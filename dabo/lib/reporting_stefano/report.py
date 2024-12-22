@@ -62,7 +62,7 @@ class Page(Serializable):
     detail = AttributeChild("report.Band")
 
     def __init__(self, **args):
-        super(Page, self).__init__(**args)
+        super().__init__(**args)
         self.header = self.footer = self.background = self.foreground = self.detail = None
 
     @property

@@ -17,7 +17,7 @@ class CalPanel(ui.dPanel):
             self.date = datetime.date.today()
         self.ctrl = ctrl
         self.extended = extended
-        super(CalPanel, self).__init__(parent, pos=pos)
+        super().__init__(parent, pos=pos)
 
     def afterInit(self):
         """
@@ -77,7 +77,7 @@ class dDateTextBox(ui.dTextBox):
         self.ampm = False
         # Do we use the extended format for the calendar display?
         self._extendedCalendar = False
-        return super(dDateTextBox, self)._beforeInit(*args, **kwargs)
+        return super()._beforeInit(*args, **kwargs)
 
     def _afterInit(self):
         if not self.Value:
@@ -118,10 +118,10 @@ C: Popup Calendar to Select
             self.Enabled and not self.ReadOnly
         ]
 
-        super(dDateTextBox, self)._afterInit()
+        super()._afterInit()
 
     def _initEvents(self):
-        super(dDateTextBox, self)._initEvents()
+        super()._initEvents()
         self.bindEvent(events.KeyChar, self.__onChar)
         self.bindEvent(events.LostFocus, self.__onLostFocus)
         self.bindEvent(events.MouseLeftDoubleClick, self.__onDblClick)

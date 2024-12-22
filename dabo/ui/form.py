@@ -59,7 +59,7 @@ class BaseForm(dFormMixin):
     def _afterInit(self):
         self.Sizer = dSizer("vertical")
         self.Sizer.layout()
-        super(BaseForm, self)._afterInit()
+        super()._afterInit()
         if self.RequeryOnLoad:
             ui.callAfter(self.requery)
 
@@ -74,7 +74,7 @@ class BaseForm(dFormMixin):
             self.activeControlValid()
             ret = self.confirmChanges()
         if ret:
-            ret = super(BaseForm, self)._beforeClose(evt)
+            ret = super()._beforeClose(evt)
         return ret
 
     def notifyUser(self, msg, title=None, severe=False, exception=None):
@@ -114,10 +114,10 @@ class BaseForm(dFormMixin):
             ui.callAfterInterval(interval, self.update, 0)
         else:
             try:
-                super(BaseForm, self).update()
+                super().update()
             except (RuntimeError, TypeError):
                 # I think I'm dealing with a deadobject error. Sometimes getting:
-                #   <type 'exceptions.TypeError'>: super(type, obj): obj must be an instance
+                #   <type 'exceptions.TypeError'>: super(): obj must be an instance
                 #   or subtype of type
                 pass
 
@@ -1132,7 +1132,7 @@ class dForm(BaseForm, wx.Frame):
         if self.Modal:
             dForm._hackToDialog()
         # dForm.__bases__[-1].Show(self, show)
-        ret = super(dForm, self).Show(show)
+        ret = super().Show(show)
         dForm._hackToFrame()
         return ret
 

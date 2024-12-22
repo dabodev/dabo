@@ -49,7 +49,7 @@ decimalPoint = None
 
 class dGridDataTable(wx.grid.GridTableBase):
     def __init__(self, parent):
-        super(dGridDataTable, self).__init__()
+        super().__init__()
         self._clearCache()
         self.grid = parent
         self._initTable()
@@ -378,7 +378,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         dabo_module.info("GridListEditor: Init ")
         dabo_module.info(ustr(args))
         dabo_module.info(ustr(kwargs))
-        super(GridListEditor, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def Create(self, parent, id, evtHandler, *args, **kwargs):
         dabo_module.info("GridListEditor: Create")
@@ -388,8 +388,6 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         self.SetControl(self.control)
         if evtHandler:
             self.control.PushEventHandler(evtHandler)
-
-    #        super(GridListEditor, self).Create(parent, id, evtHandler)
 
     def Clone(self):
         return self.__class__()
@@ -424,13 +422,6 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
     def Reset(self):
         dabo_module.info("GridListEditor: Reset")
         self.control.Value = self.value
-
-    #    def SetSize(self, rectorig):
-    #        dabo_module.info("GridListEditor: SetSize: %s" % rectorig)
-    #        dabo_module.info("GridListEditor: type of rectorig: %s" % type(rectorig))
-    # #            rect = wx.Rect(rectorig)
-    # #            dabo_module.info("GridListEditor RECT: %s" % rect)
-    #        super(GridListEditor, self).SetSize(rectorig)
 
     def IsAcceptedKey(self, key):
         dabo_module.info("GridListEditor: check key: %d" % (key))
@@ -566,11 +557,11 @@ class dColumn(wx._core.Object, dPemMixin):
 
         # Default to string renderer
         self._rendererClass = self.stringRendererClass
-        super(dColumn, self)._beforeInit(None)
+        super()._beforeInit(None)
 
     def _afterInit(self):
         self._isConstructed = True
-        super(dColumn, self)._afterInit()
+        super()._afterInit()
         ui.callAfter(self._restoreFontZoom)
 
     def GetParent(self):
@@ -618,7 +609,7 @@ class dColumn(wx._core.Object, dPemMixin):
 
     def _restoreFontZoom(self):
         if self.Form and self.Form.SaveRestorePosition:
-            super(dColumn, self)._restoreFontZoom()
+            super()._restoreFontZoom()
 
     def _getDefaultFont(self):
         ret = dFont(Size=10, Bold=False, Italic=False, Underline=False)
@@ -1945,7 +1936,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # If there is a custom sort method, set this to True
         self.customSort = False
 
-        super(dGrid, self)._afterInit()
+        super()._afterInit()
 
         # Set the header props/events
         self.initHeader()
@@ -1954,7 +1945,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     @ui.deadCheck
     def _afterInitAll(self):
-        super(dGrid, self)._afterInitAll()
+        super()._afterInitAll()
         for col in self.Columns:
             col._setRenderer()
 
@@ -2004,7 +1995,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.bindEvent(events.Create, self._onCreate)
         self.bindEvent(events.Destroy, self._onDestroy)
 
-        super(dGrid, self)._initEvents()
+        super()._initEvents()
 
     def initHeader(self):
         """Initialize behavior for the grid header region."""
@@ -2061,7 +2052,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # Force invisible column dynamic properties to update (possible to make Visible again):
         invisible_cols = [c._updateDynamicProps() for c in self.Columns if not c.Visible]
 
-        super(dGrid, self).refresh()
+        super().refresh()
         self.__inRefresh = False
 
     def _refreshHeader(self):
@@ -2071,21 +2062,21 @@ class dGrid(dControlMixin, wx.grid.Grid):
         try:
             ret = self._Table.GetValue(row, col, useCache=useCache)
         except AttributeError:
-            ret = super(dGrid, self).GetCellValue(row, col)
+            ret = super().GetCellValue(row, col)
         return ret
 
     def GetValue(self, row, col, dynamicUpdate=True):
         try:
             ret = self._Table.GetValue(row, col, dynamicUpdate=dynamicUpdate)
         except (AttributeError, TypeError):
-            ret = super(dGrid, self).GetValue(row, col)
+            ret = super().GetValue(row, col)
         return ret
 
     def SetValue(self, row, col, val):
         try:
             self._Table.SetValue(row, col, val)
         except Exception as e:
-            super(dGrid, self).SetCellValue(row, col, val)
+            super().SetCellValue(row, col, val)
             # Update the main data source
             self._setCellValue(row, col, val)
 
@@ -5482,7 +5473,7 @@ class _dGrid_test(dGrid):
         # self.Searchable = False
 
     def afterInit(self):
-        super(_dGrid_test, self).afterInit()
+        super().afterInit()
 
         self.addColumn(
             Name="Geek",

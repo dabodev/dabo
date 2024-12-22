@@ -25,7 +25,7 @@ class dFont(dObject):
             )
         self._macNonScaledSize = 0
 
-        super(dFont, self).__init__(properties=properties, *args, **kwargs)
+        super().__init__(properties=properties, *args, **kwargs)
 
     def _propsChanged(self):
         self.raiseEvent(events.FontPropertiesChanged)

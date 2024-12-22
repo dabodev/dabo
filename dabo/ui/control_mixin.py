@@ -23,7 +23,7 @@ class dControlMixin(ui.dPemMixin):
             self.Parent._activeControl = self
 
     def _initEvents(self):
-        super(dControlMixin, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_NAVIGATION_KEY, self.__onWxNavKey)
         self.bindEvent(events.GotFocus, self.__onGotFocus)
 

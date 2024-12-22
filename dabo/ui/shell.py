@@ -188,7 +188,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
         """Need to check for the case where the control is released, as the wx-level
         shell makes a CallAfter for ScrollToLine().
         """
-        super(dShell, self).ScrollToLine(lnum)
+        super().ScrollToLine(lnum)
 
     def processLine(self):
         """
@@ -196,7 +196,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
         gets processed into our internal stack.
         """
         edt = self.CanEdit()
-        super(dShell, self).processLine()
+        super().processLine()
         if edt:
             # push the latest command into the stack
             try:
@@ -207,7 +207,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 
     def push(self, command, silent=False):
         """Need to raise an event when the interpreter executes a command."""
-        super(dShell, self).push(command, silent=silent)
+        super().push(command, silent=silent)
         if not self.more:
             self.raiseEvent(events.ShellCommandRun)
 
@@ -277,7 +277,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
     def OnKeyDown(self, evt):
         """Override on the Mac, as the navigation defaults are different than on Win/Lin"""
         if self.plat != "Mac":
-            return super(dShell, self).OnKeyDown(evt)
+            return super().OnKeyDown(evt)
         key = evt.GetKeyCode()
         # If the auto-complete window is up let it do its thing.
         if self.AutoCompActive():
@@ -327,7 +327,7 @@ class dShell(dControlMixin, wx.py.shell.Shell):
                 start = endpos
             self.SetSelection(start, endpos)
             return
-        return super(dShell, self).OnKeyDown(evt)
+        return super().OnKeyDown(evt)
 
     # Property definitions
     @property
@@ -373,10 +373,10 @@ class dShellForm(dSplitForm):
         # Class to use for creating the interactive shell
         self._shellClass = dShell
         self._sashPct = 80
-        super(dShellForm, self)._beforeInit(pre)
+        super()._beforeInit(pre)
 
     def _afterInit(self):
-        super(dShellForm, self)._afterInit()
+        super()._afterInit()
         self.cmdHistKey = self.PreferenceManager.command_history
         self._historyPanel = None
         self._lastCmd = None

@@ -24,7 +24,7 @@ class dBox(dControlMixin, wx.StaticBox):
         )
 
     def _initEvents(self):
-        super(dBox, self)._initEvents()
+        super()._initEvents()
 
 
 ui.dBox = dBox

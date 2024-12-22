@@ -27,7 +27,7 @@ class dCheckList(dControlItemMixin, wx.CheckListBox):
         )
 
     def _initEvents(self):
-        super(dCheckList, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_CHECKLISTBOX, self._onWxHit)
 
     def GetSelections(self):

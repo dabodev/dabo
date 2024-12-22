@@ -550,17 +550,17 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         rhts = self.GetRowHeights()
         dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
         for hh in rhts:
-            dc.DrawRectangle(x2, y2, w, hh)
+            dc.DrawRectangle(round(x2), round(y2), round(w), round(hh))
             y2 += hh + vgap
         x2 = x
         y2 = y
         cwds = self.GetColWidths()
         dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
         for ww in cwds:
-            dc.DrawRectangle(x2, y2, ww, h)
+            dc.DrawRectangle(round(x2), round(y2), round(ww), round(hh))
             x2 += ww + hgap
         dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
-        dc.DrawRectangle(x, y, w, h)
+        dc.DrawRectangle(round(x), round(y), round(w), round(h))
 
         for ch in self.Children:
             if ch.IsSizer():

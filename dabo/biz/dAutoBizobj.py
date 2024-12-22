@@ -66,7 +66,7 @@ def autoCreateTables(noAccessDialog=None):
             class DbAdminLogin(dui.dDialog):
                 def __init__(self, parent, conn):
                     self._conn = conn
-                    super(DbAdminLogin, self).__init__(parent)
+                    super().__init__(parent)
 
                 def addControls(self):
                     import dabo.dEvents as dEvents
@@ -226,7 +226,7 @@ class dAutoBizobj(dBizobj):
     If there is a field that is a stamp field, it is set to not update that field."""
 
     def _beforeInit(self):
-        super(dAutoBizobj, self)._beforeInit()
+        super()._beforeInit()
         self._table = None
         self._table_checked = False
 

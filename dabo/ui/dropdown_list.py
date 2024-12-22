@@ -32,7 +32,7 @@ class dDropdownList(dControlItemMixin, wx.Choice):
         )
 
     def _initEvents(self):
-        super(dDropdownList, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_CHOICE, self._onWxHit)
 
 

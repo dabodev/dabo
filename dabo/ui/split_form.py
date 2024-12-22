@@ -9,7 +9,7 @@ from . import dForm, dSplitter, makeDynamicProperty
 class dSplitForm(dForm):
     def __init__(self, *args, **kwargs):
         self._splitter = None
-        super(dSplitForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def unsplit(self):
         self.Splitter.unsplit()

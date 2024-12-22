@@ -82,11 +82,11 @@ class dSizerMixin(dObject):
     GridSizerItem = wx.GBSizerItem
 
     def __init__(self, *args, **kwargs):
-        super(dSizerMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _afterInit(self):
         self.outlineColor = self.outlineStyle = self.outlineWidth = None
-        super(dSizerMixin, self)._afterInit()
+        super()._afterInit()
 
     def appendItems(self, items, *args, **kwargs):
         """Append each item to the sizer."""
@@ -701,7 +701,13 @@ class dSizerMixin(dObject):
             # dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
             dc.SetLogicalFunction(wx.COPY)
             # Draw the outline
-            ui.callAfter(dc.DrawRectangle, x + off, y + off, w - (2 * off), h - (2 * off))
+            ui.callAfter(
+                dc.DrawRectangle,
+                round(x + off),
+                round(y + off),
+                round(w - (2 * off)),
+                round(h - (2 * off)),
+            )
 
         if recurse:
             for ch in self.GetChildren():

@@ -68,7 +68,7 @@ class dSpinner(dDataPanel, wx.Control):
         nm = self._extractKey((properties, attProperties, kwargs), "NameBase", "")
         if not nm:
             nm = self._extractKey((properties, attProperties, kwargs), "Name", "dSpinner")
-        super(dSpinner, self).__init__(
+        super().__init__(
             parent=parent,
             properties=properties,
             attProperties=attProperties,
@@ -80,8 +80,12 @@ class dSpinner(dDataPanel, wx.Control):
         if TextBoxClass is None:
             TextBoxClass = dTextBox
         self._proxy_textbox = TextBoxClass(
-            self, Value=0, StrictNumericEntry=False, _EventTarget=self,
-            AutoResizeType="Grow", OnHit=self._on_textbox_hit,
+            self,
+            Value=0,
+            StrictNumericEntry=False,
+            _EventTarget=self,
+            AutoResizeType="Grow",
+            OnHit=self._on_textbox_hit,
         )
         self._proxy_label = dLabel(self)
         self._proxy_spinner = _dSpinButton(parent=self, _EventTarget=self)
@@ -258,7 +262,7 @@ class dSpinner(dDataPanel, wx.Control):
             typ = "text"
         else:
             typ = "spin"
-        super(dSpinner, self)._onWxHit(evt, hitType=typ)
+        super()._onWxHit(evt, hitType=typ)
 
     def _onWxKeyDown(self, evt):
         """
@@ -275,7 +279,7 @@ class dSpinner(dDataPanel, wx.Control):
 
     def flushValue(self):
         self._checkBounds()
-        super(dSpinner, self).flushValue()
+        super().flushValue()
 
     def _numericStringVal(self, val):
         """
@@ -286,7 +290,8 @@ class dSpinner(dDataPanel, wx.Control):
         if isinstance(val, str):
             if val.count(locale.localeconv()["decimal_point"]) > 0:
                 func = decimal
-            else: func = int
+            else:
+                func = int
             try:
                 ret = func(val)
             except ValueError:

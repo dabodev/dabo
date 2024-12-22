@@ -47,7 +47,7 @@ class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):
         )
 
     def _initEvents(self):
-        super(dBitmapButton, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_BUTTON, self._onWxHit)
 
     def _sizeToBitmap(self):

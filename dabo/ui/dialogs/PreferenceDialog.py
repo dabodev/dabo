@@ -47,7 +47,7 @@ class PreferenceDialog(dOkCancelDialog):
         # off when the dialog is shown, and either canceled or persisted, depending
         # on the user's action.
         self.preferenceKeys = []
-        super(PreferenceDialog, self)._afterInit()
+        super()._afterInit()
 
     def addControls(self):
         """

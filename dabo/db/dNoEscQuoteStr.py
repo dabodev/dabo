@@ -5,7 +5,7 @@ from ..dObject import dObject
 class dNoEscQuoteStr(dObject):
     def __init__(self, value):
         self._baseClass = dNoEscQuoteStr
-        super(dNoEscQuoteStr, self).__init__()
+        super().__init__()
         self._value = value
 
     def __str__(self):

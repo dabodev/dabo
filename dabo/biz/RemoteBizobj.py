@@ -16,13 +16,13 @@ class RemoteBizobj(dBizobj):
     cacheDir = None
 
     def _beforeInit(self):
-        return super(RemoteBizobj, self)._beforeInit()
+        return super()._beforeInit()
 
     def _afterInit(self):
         # This is used as the identifier that connects to the client bizobj
         self.hashval = None
         self.defineConnection()
-        super(RemoteBizobj, self)._afterInit()
+        super()._afterInit()
 
     @classmethod
     def _createCacheDir(cls, pth=None):

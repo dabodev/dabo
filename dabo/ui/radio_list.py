@@ -201,7 +201,7 @@ class dRadioList(dControlItemMixin, wx.Panel):
         # set the EventData["index"] properly.
         evt.SetInt(pos)
         self._userChanged = True
-        super(dRadioList, self)._onWxHit(evt)
+        super()._onWxHit(evt)
 
     def _onButtonGotFocus(self, wxEvt):
         # Received from individual buttons

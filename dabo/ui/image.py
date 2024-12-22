@@ -85,7 +85,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         self.Picture = picName
 
     def _initEvents(self):
-        super(dImage, self)._initEvents()
+        super()._initEvents()
         self.bindEvent(events.Resize, self._onResize)
 
     def _onResize(self, evt):
@@ -93,7 +93,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             self._showPic()
 
     def update(self):
-        ui.callAfterInterval(100, super(dImage, self).update)
+        ui.callAfterInterval(100, super().update)
 
     def _calcNewRotation(self, amt):
         ds = self._displayState

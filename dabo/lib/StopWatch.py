@@ -6,7 +6,7 @@ class StopWatch(object):
     """This is a lightweight stopwatch for timing things."""
 
     def __init__(self, *args, **kwargs):
-        super(StopWatch, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.reset()
 
     def reset(self):

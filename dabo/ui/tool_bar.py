@@ -56,13 +56,13 @@ class dToolBar(dControlMixin, wx.ToolBar):
         # explicitly.
         self.ShowCaptions = False
         self.Dockable = True
-        super(dToolBar, self)._initProperties()
+        super()._initProperties()
 
     def _getInitPropertiesList(self):
         additional = [
             "Dockable",
         ]
-        original = list(super(dToolBar, self)._getInitPropertiesList())
+        original = list(super()._getInitPropertiesList())
         return tuple(original + additional)
 
     def _realize(self):
@@ -460,7 +460,7 @@ class dToolBarItem(dObject):
         app = self.Application
         if app:
             app.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, wxItem)
-        super(dToolBarItem, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if OnHit is not None:
             self.bindEvent(events.Hit, OnHit)
         if wxItem.ToolBar:

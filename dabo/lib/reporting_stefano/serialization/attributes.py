@@ -11,7 +11,7 @@ from dabo.lib.utils import ustr
 class SerializableAttribute(object):
     def __init__(self, default):
         self.default = default
-        super(SerializableAttribute, self).__init__()
+        super().__init__()
 
     def evaluate(self, value, env):
         """Abstract method, must be overridden in subclasses."""

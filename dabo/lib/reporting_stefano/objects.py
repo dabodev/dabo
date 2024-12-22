@@ -179,7 +179,7 @@ class Image(GenericObject):
 #                       columns='1',
 #                       expr='""',
 #                       **args):
-#        super(Frameset, self).__init__(**args)
+#        super().__init__(**args)
 #        self.borderWidth = self.getPt(eval(borderWidth))
 #        self.borderColor = eval(borderColor, self.env)
 #        self.frameId = eval(frameId, self.env)

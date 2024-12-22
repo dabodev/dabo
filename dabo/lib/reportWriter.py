@@ -222,7 +222,7 @@ class ReportObjectCollection(list):
     """Abstract ordered list of things like variables, groups, and band objects."""
 
     def __init__(self, parent=None, *args, **kwargs):
-        super(ReportObjectCollection, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.parent = parent
 
     def addObject(self, cls):
@@ -260,7 +260,7 @@ class ReportObject(CaselessDict):
     """Abstract report object, such as a drawable object, a variable, or a group."""
 
     def __init__(self, parent=None, *args, **kwargs):
-        super(ReportObject, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.parent = parent
         self.initAvailableProps()
         self.insertRequiredElements()
@@ -504,7 +504,7 @@ class Defaults(ReportObject):
     """Place to put default property values for objects on the report."""
 
     def initAvailableProps(self):
-        super(Defaults, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["FontName"] = toPropDict(
             str,
             "Helvetica",
@@ -516,7 +516,7 @@ class Drawable(ReportObject):
     """Abstract drawable report object, such as a rectangle or string."""
 
     def initAvailableProps(self):
-        super(Drawable, self).initAvailableProps()
+        super().initAvailableProps()
 
         self.AvailableProps["DesignerLock"] = toPropDict(
             bool,
@@ -603,10 +603,10 @@ class Report(ReportObject):
 
     def __init__(self, *args, **kwargs):
         self.reportWriter = None
-        super(Report, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def initAvailableProps(self):
-        super(Report, self).initAvailableProps()
+        super().initAvailableProps()
 
         self.AvailableProps["Author"] = toPropDict(
             str,
@@ -666,14 +666,14 @@ class Report(ReportObject):
         self.setdefault("ReportEnd", ReportEnd(self))
         self.setdefault("Groups", Groups(self))
         self.setdefault("Variables", Variables(self))
-        super(Report, self).insertRequiredElements()
+        super().insertRequiredElements()
 
 
 class Page(ReportObject):
     """Represents the page."""
 
     def initAvailableProps(self):
-        super(Page, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["MarginBottom"] = toPropDict(
             float, ".5 in", """Specifies the page's bottom margin."""
         )
@@ -722,7 +722,7 @@ class Group(ReportObject):
     """Represents report groups."""
 
     def initAvailableProps(self):
-        super(Group, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["expr"] = toPropDict(
             str,
             None,
@@ -765,14 +765,14 @@ class Group(ReportObject):
             self["GroupHeader"] = GroupHeader(self)
         if "GroupFooter" not in self:
             self["GroupFooter"] = GroupFooter(parent=self)
-        super(Group, self).insertRequiredElements()
+        super().insertRequiredElements()
 
 
 class Variable(ReportObject):
     """Represents report variables."""
 
     def initAvailableProps(self):
-        super(Variable, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["InitialValue"] = toPropDict(
             str, None, """Specifies the variable's initial value."""
         )
@@ -805,7 +805,7 @@ class Band(ReportObject):
     """Abstract band."""
 
     def initAvailableProps(self):
-        super(Band, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["Height"] = toPropDict(
             float,
             0.0,
@@ -852,7 +852,7 @@ class Band(ReportObject):
     def insertRequiredElements(self):
         """Insert any missing required elements into the band."""
         self.setdefault("Objects", Objects(self))
-        super(Band, self).insertRequiredElements()
+        super().insertRequiredElements()
 
     def _getBandName(self):
         name = self.__class__.__name__
@@ -865,7 +865,7 @@ class PageBackground(Band):
 
 class PageHeader(Band):
     def initAvailableProps(self):
-        super(PageHeader, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["ColumnBreakAfter"] = toPropDict(
             bool,
             False,
@@ -890,7 +890,7 @@ class GroupHeader(Band):
 
 class GroupFooter(Band):
     def initAvailableProps(self):
-        super(GroupFooter, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["PrintAtBottom"] = toPropDict(
             bool,
             False,
@@ -905,7 +905,7 @@ class PageForeground(Band):
 
 class ReportBegin(Band):
     def initAvailableProps(self):
-        super(ReportBegin, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["PageBreakAfter"] = toPropDict(
             bool,
             False,
@@ -921,7 +921,7 @@ class ReportBegin(Band):
 
 class ReportEnd(Band):
     def initAvailableProps(self):
-        super(ReportEnd, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["PageBreakBefore"] = toPropDict(
             bool,
             False,
@@ -933,7 +933,7 @@ class Rectangle(Drawable):
     """Represents a rectangle."""
 
     def initAvailableProps(self):
-        super(Rect, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["FillColor"] = toPropDict(
             tuple,
             None,
@@ -968,7 +968,7 @@ class String(Drawable):
     """Represents a text string."""
 
     def initAvailableProps(self):
-        super(String, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["expr"] = toPropDict(
             str, "String", """Specifies the string to print."""
         )
@@ -1043,7 +1043,7 @@ class Memo(String):
     """Represents a string object that can span multiple lines."""
 
     def initAvailableProps(self):
-        super(Memo, self).initAvailableProps()
+        super().initAvailableProps()
 
         del self.AvailableProps["ScalePercent"]
         del self.AvailableProps["Align"]
@@ -1106,7 +1106,7 @@ class Image(Drawable):
     """Represents an image."""
 
     def initAvailableProps(self):
-        super(Image, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["expr"] = toPropDict(str, "", """Specifies the image to use.""")
 
         self.AvailableProps["BorderWidth"] = toPropDict(
@@ -1137,7 +1137,7 @@ class BarGraph(Drawable):
     """Represents a bar graph"""
 
     def initAvailableProps(self):
-        super(BarGraph, self).initAvailableProps()
+        super().initAvailableProps()
 
         self.AvailableProps["expr"] = toPropDict(
             list, [], """Specifies the data to display on the graph."""
@@ -1235,7 +1235,7 @@ class Line(Drawable):
     """Represents a line."""
 
     def initAvailableProps(self):
-        super(Line, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["LineCap"] = toPropDict(
             str,
             "square",
@@ -1283,7 +1283,7 @@ class SpanningLine(Line):
     """Represents a line that spans from a group or page header to a group or page footer."""
 
     def initAvailableProps(self):
-        super(SpanningLine, self).initAvailableProps()
+        super().initAvailableProps()
         for prop in (
             "x",
             "y",
@@ -1324,7 +1324,7 @@ class SpanningRectangle(Rectangle):
     """Represents a rectangle that spans from a group or page header to a group or page footer."""
 
     def initAvailableProps(self):
-        super(SpanningRectangle, self).initAvailableProps()
+        super().initAvailableProps()
         for prop in ("x", "y", "Width", "Height", "Rotation", "vAnchor", "hAnchor"):
             del self.AvailableProps[prop]
         self.AvailableProps["x"] = toPropDict(
@@ -1358,7 +1358,7 @@ class Frameset(Drawable):
     """Represents a frameset.  DEPRECATED; Use Memo instead."""
 
     def initAvailableProps(self):
-        super(Frameset, self).initAvailableProps()
+        super().initAvailableProps()
 
         self.AvailableProps["FrameId"] = toPropDict(str, None, """(to remove)""")
 
@@ -1393,14 +1393,14 @@ class Frameset(Drawable):
     def insertRequiredElements(self):
         """Insert any missing required elements into the frameset."""
         self.setdefault("Objects", Objects(self))
-        super(Frameset, self).insertRequiredElements()
+        super().insertRequiredElements()
 
 
 class Paragraph(Drawable):
     """Represents a paragraph.  DEPRECATED; Use Memo instead."""
 
     def initAvailableProps(self):
-        super(Paragraph, self).initAvailableProps()
+        super().initAvailableProps()
         self.AvailableProps["Style"] = toPropDict(
             str,
             "Normal",

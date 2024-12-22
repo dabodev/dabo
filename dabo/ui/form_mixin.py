@@ -69,7 +69,7 @@ class dFormMixin(dPemMixin):
         # Flag to prevent infinite loops when doing field-level validation
         self._fieldValidationControl = None
 
-        super(dFormMixin, self).__init__(
+        super().__init__(
             preClass,
             parent,
             properties=properties,
@@ -93,7 +93,7 @@ class dFormMixin(dPemMixin):
             "StayOnTop",
             "TinyTitleBar",
         ]
-        original = list(super(dFormMixin, self)._getInitPropertiesList())
+        original = list(super()._getInitPropertiesList())
         return tuple(original + additional)
 
     def _afterInit(self):
@@ -134,7 +134,7 @@ class dFormMixin(dPemMixin):
         # If there are custom menu hotkey bindings, re-set them
         wx.CallAfter(self._restoreMenuPrefs)
 
-        super(dFormMixin, self)._afterInit()
+        super()._afterInit()
 
         ## pkm 2010-08-03: The below results in smoother, nicer forms (no menu flickering or
         ##                 other weird artifacts like page tabs partially disappearing),
@@ -146,7 +146,7 @@ class dFormMixin(dPemMixin):
         ##self.SetDoubleBuffered(True)
 
     def _initEvents(self):
-        super(dFormMixin, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
         self.Bind(wx.EVT_CLOSE, self.__onWxClose)
         self.bindEvent(events.Deactivate, self.__onDeactivate)
@@ -193,7 +193,7 @@ class dFormMixin(dPemMixin):
             and not self.IsMaximized()
         ):
             return
-        super(dFormMixin, self).Maximize(maximize, *args, **kwargs)
+        super().Maximize(maximize, *args, **kwargs)
 
     def SetPosition(self, val):
         # On Windows MDI Child frames when the main form has a toolbar, setting the
@@ -204,7 +204,7 @@ class dFormMixin(dPemMixin):
             tb = self.Form.ToolBar
         if sys.platform.startswith("win") and self.MDI and tb:
             top -= tb.Height
-        super(dFormMixin, self).SetPosition((left, top))
+        super().SetPosition((left, top))
 
     def _createToolBar(self):
         if self.ShowToolBar and self.ToolBar is None:
@@ -320,7 +320,7 @@ class dFormMixin(dPemMixin):
 
     @ui.deadCheck
     def __refresh(self):
-        super(dFormMixin, self).refresh()
+        super().refresh()
 
     def reload(self):
         """
@@ -391,7 +391,7 @@ class dFormMixin(dPemMixin):
 
     def Show(self, *args, **kwargs):
         self.restoreSizeAndPositionIfNeeded()
-        super(dFormMixin, self).Show(*args, **kwargs)
+        super().Show(*args, **kwargs)
 
     def showModal(self):
         """
@@ -657,7 +657,7 @@ class dFormMixin(dPemMixin):
         control's font zoom isn't dependent on the control being created at
         form load time.
         """
-        super(dFormMixin, self)._setAbsoluteFontZoom(amt)
+        super()._setAbsoluteFontZoom(amt)
         if self.Application and self.SaveRestorePosition:
             self.Application.setUserSetting(
                 "%s.fontzoom" % self.getAbsoluteName(), self._currFontZoom

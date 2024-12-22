@@ -32,7 +32,7 @@ class dLine(dControlMixin, wx.StaticLine):
         )
 
     def _initEvents(self):
-        super(dLine, self)._initEvents()
+        super()._initEvents()
 
     # property definitions follow:
     @property

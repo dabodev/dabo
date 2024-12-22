@@ -44,7 +44,7 @@ class dComboBox(ui.dControlItemMixin, wx.ComboBox):
         return kwargs
 
     def _initEvents(self):
-        super(dComboBox, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_COMBOBOX, self.__onComboBox)
         #         self.Bind(wx.EVT_TEXT_ENTER, self.__onTextBox)
         self.Bind(wx.EVT_KEY_DOWN, self.__onWxKeyDown)

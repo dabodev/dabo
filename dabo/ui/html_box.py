@@ -52,7 +52,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
             self.OnCellClicked = self.__OnCellClicked
 
     def _initEvents(self):
-        super(dHtmlBox, self)._initEvents()
+        super()._initEvents()
         self.bindEvent(events.HtmlLinkClicked, self.__onLinkClicked)
 
     def __OnCellClicked(self, cell, x, y, evt):

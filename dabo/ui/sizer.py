@@ -56,13 +56,13 @@ class dSizer(dSizerMixin, wx.BoxSizer):
 class dSizerV(dSizer):
     def __init__(self, *args, **kwargs):
         kwargs["FixedOrientation"] = "V"
-        super(dSizerV, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class dSizerH(dSizer):
     def __init__(self, *args, **kwargs):
         kwargs["FixedOrientation"] = "H"
-        super(dSizerH, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 ui.dSizer = dSizer

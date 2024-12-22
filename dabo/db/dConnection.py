@@ -11,7 +11,7 @@ class dConnection(dObject):
     def __init__(self, connectInfo=None, parent=None, forceCreate=False, **kwargs):
         self._baseClass = dConnection
         self._forceCreate = forceCreate
-        super(dConnection, self).__init__()
+        super().__init__()
         # Store a reference to the parent object (bizobj maybe; app
         # object connection collection most likely)
         self.Parent = parent

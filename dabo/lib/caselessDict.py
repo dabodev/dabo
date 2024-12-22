@@ -10,7 +10,7 @@ class CaselessDict(dict):
 
     def __init__(self, otherDict=None, *args, **kwargs):
         self._originalCase = {}
-        super(CaselessDict, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if isinstance(otherDict, dict):
             self.update(otherDict)

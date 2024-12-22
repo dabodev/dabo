@@ -30,7 +30,7 @@ class SimpleCrypt(object):
     """
 
     def __init__(self, key=None):
-        super(SimpleCrypt, self).__init__()
+        super().__init__()
         if callable(key):
             # Providing a callable is probably more secure than storing the key
             # directly in your code

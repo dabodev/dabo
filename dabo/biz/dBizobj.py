@@ -57,7 +57,7 @@ class dBizobj(dObject):
         # We need to make sure the cursor is created *before* the call to
         # initProperties()
         self._initProperties()
-        super(dBizobj, self).__init__(properties=properties, *args, **kwargs)
+        super().__init__(properties=properties, *args, **kwargs)
         self._afterInit()
         self.__att_try_setFieldVal = True
 
@@ -113,7 +113,7 @@ class dBizobj(dObject):
         self.beforeInit()
 
     def _afterInit(self):
-        super(dBizobj, self)._afterInit()
+        super()._afterInit()
         for crs in self.__cursorsToRequery:
             self._syncCursorProps(crs)
             crs.requery()

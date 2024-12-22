@@ -268,7 +268,7 @@ def makeDynamicProperty(prop, additionalDoc=None):
 
 Specify a function and optional arguments that will get called from the
 update() method. The return value of the function will get set to the
-{propName} property. If Dynamic{propName} is set to None (the default),{propName} 
+{propName} property. If Dynamic{propName} is set to None (the default),{propName}
 will not be dynamically evaluated.
 """
     )
@@ -2288,7 +2288,7 @@ def spawnProcess(cmd, wait=False, handler=None):
 
     class Proc(wx.Process):
         def __init__(self, parent, *args, **kwargs):
-            super(Proc, self).__init__(parent, *args, **kwargs)
+            super().__init__(parent, *args, **kwargs)
             self._handler = parent
 
         def OnTerminate(self, pid, status):

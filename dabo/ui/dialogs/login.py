@@ -48,7 +48,7 @@ class Login(dOkCancelDialog):
         self.ShowCloseButton = True
 
     def addControls(self):
-        super(Login, self).addControls()
+        super().addControls()
 
         self.lblUserName = Lbl(self, Caption=_("User:"))
         self.txtUserName = Txt(self, SaveRestoreValue=True, RegID="txtUserName")
@@ -103,14 +103,14 @@ class Login(dOkCancelDialog):
 
     def runCancel(self):
         self.user, self.password = None, None
-        super(Login, self).runCancel()
+        super().runCancel()
 
     def onEnterKey(self, evt):
         self.runOK()
 
     def runOK(self):
         self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
-        super(Login, self).runOK()
+        super().runOK()
 
     @property
     def IconFile(self):

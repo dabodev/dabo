@@ -452,12 +452,12 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
         )
 
     def _initEvents(self):
-        super(dAutoComplete, self)._initEvents()
+        super()._initEvents()
 
     def onKeyDown(self, evt):
         """This prevents events from being passed to autocomplete's onKeyDown"""
         if isinstance(evt, wx.KeyEvent):
-            super(dAutoComplete, self).onKeyDown(evt)
+            super().onKeyDown(evt)
 
     def onKeyUp(self, evt):
         if isinstance(evt, wx.KeyEvent):

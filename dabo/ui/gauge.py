@@ -23,7 +23,7 @@ class dGauge(dControlMixin, wx.Gauge):
         )
 
     def _initEvents(self):
-        super(dGauge, self)._initEvents()
+        super()._initEvents()
 
     # Property definitions:
     @property

@@ -27,10 +27,10 @@ class _dDockManager(aui.AuiManager):
             flag_allow_float | flag_transparent_drag | flag_rectangle_hint | flag_transparent_hint
         )
         try:
-            super(_dDockManager, self).__init__(win, flags=flags)
+            super().__init__(win, flags=flags)
         except TypeError:
             # Later AGW version
-            super(_dDockManager, self).__init__(win, agwFlags=flags)
+            super().__init__(win, agwFlags=flags)
         self.Bind(aui.EVT_AUI_RENDER, self.aui_render)
 
     def aui_render(self, evt):
@@ -100,7 +100,7 @@ class dDockPanel(dPanel):
         self._showMaximizeButton = False
         self._showMinimizeButton = False
         self._showPinButton = True
-        super(dDockPanel, self).__init__(
+        super().__init__(
             parent, properties=properties, attProperties=attProperties, *args, **kwargs
         )
         if self.Floating:
@@ -132,7 +132,7 @@ class dDockPanel(dPanel):
             changed = changed and (candidate != name)
             name = candidate
 
-            candidate = super(dDockPanel, self)._uniqueNameForParent(name, parent)
+            candidate = super()._uniqueNameForParent(name, parent)
             changed = changed and (candidate != name)
             name = candidate
         return name
@@ -212,7 +212,7 @@ class dDockPanel(dPanel):
             val = self._extractKey(props, delayed, None)
             if val is not None:
                 self._propDelayDict[delayed] = val
-        return super(dDockPanel, self)._beforeSetProperties(props)
+        return super()._beforeSetProperties(props)
 
     def _afterSetProperties(self):
         nm = self.Name
@@ -871,7 +871,7 @@ class dDockForm(dForm):
         self._centerPanel = pc(self, name="CenterPanel", typ="center")
         self._centerPanel.Sizer = dSizer("v")
         self._panels = {}
-        super(dDockForm, self)._afterInit()
+        super()._afterInit()
         self.bindEvent(events.Destroy, self.__onDestroy)
 
     def __onDestroy(self, evt):
@@ -922,7 +922,7 @@ class dDockForm(dForm):
     def update(self, interval=None):
         if not self._inUpdate:
             self._inUpdate = True
-            super(dDockForm, self).update(interval=interval)
+            super().update(interval=interval)
             # Update the panels
             for pnl in list(self._panels.keys()):
                 pnl.update()
@@ -937,12 +937,12 @@ class dDockForm(dForm):
             if self.SaveRestorePosition and not self.TempForm:
                 self.Application.setUserSetting("perspective", self._mgr.SavePerspective())
                 if not self._finito:
-                    super(dDockForm, self).saveSizeAndPosition()
+                    super().saveSizeAndPosition()
 
     def restoreSizeAndPosition(self):
         """Restore the panel layout, if possible, then call the default behavior."""
         if self.Application and self.SaveRestorePosition:
-            super(dDockForm, self).restoreSizeAndPosition()
+            super().restoreSizeAndPosition()
             ps = self.Application.getUserSetting("perspective", "")
             if ps:
                 self._mgr.LoadPerspective(ps)

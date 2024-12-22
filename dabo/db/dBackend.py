@@ -30,7 +30,7 @@ class dBackend(dObject):
 
     def __init__(self):
         self._baseClass = dBackend
-        super(dBackend, self).__init__()
+        super().__init__()
         self.dbModuleName = None
         self._connection = None
         # Reference to the cursor that is using this object

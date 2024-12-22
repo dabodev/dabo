@@ -31,7 +31,7 @@ LINESEP = "\n"
 class DesignerClassConverter(dObject):
     def __init__(self, *args, **kwargs):
         self._createDesignerControls = False
-        super(DesignerClassConverter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def afterInit(self):
         # Set the text definitions separately. Since they require special indentation to match the
@@ -67,21 +67,18 @@ class DesignerClassConverter(dObject):
         self._encoding = settings.getEncoding()
 
     def classFromText(self, src):
-        """Given a text file, returns a class object that that file
-        represents. You can pass the text as either a file path,
-        a file object, or raw XML/JSON text.
+        """
+        Given a text file, returns a class object that that file represents. You can pass the text
+        as either a file path, a file object, or raw XML/JSON text.
         """
         dct = self.dictFromStoredText(src)
         # Traverse the dct, looking for superclass information
-        super = self.flattenClassDict(dct)
-        if super:
+        super_info = self.flattenClassDict(dct)
+        if super_info:
             # We need to modify the info to incorporate the superclass info
-            self.addInheritedInfo(dct, super, updateCode=True)
+            self.addInheritedInfo(dct, super_info, updateCode=True)
         # Parse the returned dict and create the class definition text
         self.createClassText(dct)
-        import pudb
-
-        pudb.set_trace()
         if isinstance(self.classText, bytes):
             self.classText = self.classText.decode(self._encoding)
         # Work-around for bug in which a trailing comment line throws an error
@@ -177,7 +174,7 @@ class DesignerClassConverter(dObject):
         return xtd.xmltodict(xml)
 
     @classmethod
-    def addInheritedInfo(cls, src, super, updateCode=False):
+    def addInheritedInfo(cls, src, super_info, updateCode=False):
         """Called recursively on the class container structure, modifying
         the attributes to incorporate superclass information. When the
         'updateCode' parameter is True, superclass code is added to the
@@ -189,7 +186,7 @@ class DesignerClassConverter(dObject):
         code = src.get("code", {})
         classID = atts.get("classID", "")
         if classID:
-            superInfo = super.get(classID, {"attributes": {}, "code": {}, "properties": {}})
+            superInfo = super_info.get(classID, {"attributes": {}, "code": {}, "properties": {}})
             src["attributes"] = superInfo["attributes"].copy()
             src["attributes"].update(atts)
             src["properties"] = superInfo.get("properties", {}).copy()
@@ -199,7 +196,7 @@ class DesignerClassConverter(dObject):
                 src["code"].update(code)
         if kids:
             for kid in kids:
-                cls.addInheritedInfo(kid, super, updateCode)
+                cls.addInheritedInfo(kid, super_info, updateCode)
 
     def flattenClassDict(self, cd, retDict=None):
         """Given a dict containing a series of nested objects such as would
@@ -872,7 +869,7 @@ class DesignerClassConverter(dObject):
         # Standard class template
         self.containerClassTemplate = """class %(clsName)s(%(superName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
-        super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
+        super().__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
         self.Sizer = None
 %(indCode)s
 
@@ -880,7 +877,7 @@ class DesignerClassConverter(dObject):
         # Standard template for wizards
         self.wizardClassTemplate = """class %(clsName)s(%(superName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
-        super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
+        super().__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
 %(indCode)s
 
 """
@@ -893,7 +890,7 @@ class DesignerClassConverter(dObject):
         # OK/Cancel dialog class template
         self.okCancelDialogClassTemplate = """class %(clsName)s(%(superName)s):
     def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
-        super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
+        super().__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
 %(indCode)s
 """
         self._hdrText = """import dabo

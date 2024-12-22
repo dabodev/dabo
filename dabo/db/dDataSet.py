@@ -43,7 +43,7 @@ class dDataSet(tuple):
     def __init__(self, sequence=None):
         # Note that as immutable objects, tuples are created with __new__,
         # so we must not pass the argument to the __init__ method of tuple.
-        super(dDataSet, self).__init__()
+        super().__init__()
         self._connection = None
         self._cursor = None
         self._bizobj = None
@@ -80,10 +80,10 @@ class dDataSet(tuple):
             self._connection.close()
 
     def __add__(self, *args, **kwargs):
-        return dDataSet(super(dDataSet, self).__add__(*args, **kwargs))
+        return dDataSet(super().__add__(*args, **kwargs))
 
     def __mul__(self, *args, **kwargs):
-        return dDataSet(super(dDataSet, self).__mul__(*args, **kwargs))
+        return dDataSet(super().__mul__(*args, **kwargs))
 
     @staticmethod
     def _adapt_decimal(decVal):

@@ -57,14 +57,14 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
         )
 
     def _initEvents(self):
-        super(dBorderlessButton, self)._initEvents()
+        super()._initEvents()
         # The EVT_BUTTON event for this control is fired
         # to the parent of the control rather than the control.
         # Binding to EVT_LEFT_UP fixes the problem. -nwl
         self.Bind(wx.EVT_LEFT_UP, self._onWxHit)
 
     def _getInitPropertiesList(self):
-        return super(dBorderlessButton, self)._getInitPropertiesList() + ("ButtonShape",)
+        return super()._getInitPropertiesList() + ("ButtonShape",)
 
     # Property definitions
     @property

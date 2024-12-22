@@ -9,7 +9,7 @@ class SortingForm(dOkCancelDialog):
 
     def __init__(self, parent=None, Choices=[], *args, **kwargs):
         self._itms = list(Choices)
-        super(SortingForm, self).__init__(parent=parent, *args, **kwargs)
+        super().__init__(parent=parent, *args, **kwargs)
         self.AutoSize = False
         self.Size = (330, 300)
         self._listCaption = ""

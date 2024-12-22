@@ -10,9 +10,7 @@ class dTimer(PM):
 
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dTimer
-        super(dTimer, self).__init__(
-            preClass=None, parent=parent, properties=properties, *args, **kwargs
-        )
+        super().__init__(preClass=None, parent=parent, properties=properties, *args, **kwargs)
 
     def isRunning(self):
         return self.Enabled
@@ -29,7 +27,7 @@ class dTimer(PM):
     def release(self):
         """Make sure that the timer is stopped first"""
         self.stop()
-        super(dTimer, self).release()
+        super().release()
 
     # The following methods are not needed except for
     # compatibility with the various properties.

@@ -12,7 +12,7 @@ class dLed(dDataPanel):
         self._onColor = "green"
         self._on = False
         self._inUpdate = False
-        super(dLed, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _afterInit(self):
         self._baseClass = dLed
@@ -21,7 +21,7 @@ class dLed(dDataPanel):
         self.led.DynamicYpos = lambda: self.Height / 2
         self.led.DynamicRadius = lambda: min(self.Width, self.Height) / 2
         self.led.DynamicFillColor = lambda: self.Color
-        super(dLed, self)._afterInit()
+        super()._afterInit()
         self.layout(resetMin=True)
         self.update()
 
@@ -34,7 +34,7 @@ class dLed(dDataPanel):
         if self._inUpdate:
             return
         self._inUpdate = True
-        super(dLed, self).update()
+        super().update()
         self._inUpdate = False
 
     # Property Definitions

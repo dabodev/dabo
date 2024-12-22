@@ -26,10 +26,10 @@ class FileMenu(dMenu):
     def __init__(self, *args, **kwargs):
         if "MRU" not in kwargs:
             kwargs["MRU"] = True
-        super(FileMenu, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _afterInit(self):
-        super(FileMenu, self)._afterInit()
+        super()._afterInit()
         app = self.Application
         self.Caption = _("&File")
 
@@ -89,7 +89,7 @@ class FileMenu(dMenu):
 
 class EditMenu(dMenu):
     def _afterInit(self):
-        super(EditMenu, self)._afterInit()
+        super()._afterInit()
         app = self.Application
         self.Caption = _("&Edit")
 
@@ -185,7 +185,7 @@ class EditMenu(dMenu):
 
 class ViewMenu(dMenu):
     def _afterInit(self):
-        super(ViewMenu, self)._afterInit()
+        super()._afterInit()
         app = self.Application
         self.Caption = _("&View")
 
@@ -225,7 +225,7 @@ class ViewMenu(dMenu):
 
 class HelpMenu(dMenu):
     def _afterInit(self):
-        super(HelpMenu, self)._afterInit()
+        super()._afterInit()
         app = self.Application
         self.Caption = _("&Help")
 
@@ -262,7 +262,7 @@ class dBaseMenuBar(dMenuBar):
         self.editMenu = self.appendMenu(EditMenu(self, MenuID="base_edit"))
         self.viewMenu = self.appendMenu(ViewMenu(self, MenuID="base_view"))
         self.helpMenu = self.appendMenu(HelpMenu(self, MenuID="base_help"))
-        super(dBaseMenuBar, self)._afterInit()
+        super()._afterInit()
 
 
 ui.dBaseMenuBar = dBaseMenuBar

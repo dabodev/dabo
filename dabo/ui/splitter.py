@@ -151,7 +151,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
         )
 
     def _initEvents(self):
-        super(dSplitter, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_SPLITTER_DCLICK, self._onSashDClick)
         self.Bind(wx.EVT_SPLITTER_SASH_POS_CHANGED, self._onSashPos)
 
@@ -161,7 +161,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             self.createPanes()
         if self._splitOnInit:
             self.split()
-        super(dSplitter, self)._afterInit()
+        super()._afterInit()
 
     def _makeSplitterPanelClass(self, cls):
         mixin = SplitterPanelMixin
@@ -485,7 +485,7 @@ ui.dSplitter = dSplitter
 class _dSplitter_test(dSplitter):
     def __init__(self, *args, **kwargs):
         kwargs["createPanes"] = True
-        super(_dSplitter_test, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def initProperties(self):
         self.Width = 250

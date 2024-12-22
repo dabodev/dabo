@@ -130,7 +130,7 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
     def _onWxHit(self, evt, *args, **kwargs):
         # This fixes wx masked control issue firing multiple EVT_TEXT events.
         if self._value != self.Value:
-            super(dMaskedTextBox, self)._onWxHit(evt, *args, **kwargs)
+            super()._onWxHit(evt, *args, **kwargs)
 
     # Property definitions
     @property
@@ -339,7 +339,7 @@ class dMaskedTextBox(dTextBoxMixin, masked.TextCtrl):
         if val is None:
             val = ""
 
-        super(dMaskedTextBox, self)._setValue(val)
+        super()._setValue(val)
 
     @property
     def ValueMode(self):

@@ -8,16 +8,11 @@ import time
 import wx
 import wx.lib.masked as masked
 
-from .. import application
-from .. import events
-from .. import settings
-from .. import ui
+from .. import application, events, settings, ui
 from ..dLocalize import _
 from ..lib import dates
 from ..lib.utils import ustr
-from ..ui import dDataControlMixin
-from ..ui import dKeys
-from ..ui import makeDynamicProperty
+from ..ui import dDataControlMixin, dKeys, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -56,7 +51,7 @@ class dTextBoxMixinBase(dDataControlMixin):
         )
 
     def _initEvents(self):
-        super(dTextBoxMixinBase, self)._initEvents()
+        super()._initEvents()
         self.Bind(wx.EVT_TEXT, self._onWxHit)
 
     def _onWxHit(self, evt):
@@ -73,7 +68,7 @@ class dTextBoxMixinBase(dDataControlMixin):
             return
         self._inFlush = True
         self._updateStringDisplay()
-        ret = super(dTextBoxMixinBase, self).flushValue()
+        ret = super().flushValue()
         self._inFlush = False
         return ret
 
@@ -218,17 +213,15 @@ class dTextBoxMixinBase(dDataControlMixin):
             return
         sz_typ = self._auto_resize_type
         best_width = self.DoGetBestSize()[0]
-        need_resize = (sz_typ == "All")
+        need_resize = sz_typ == "All"
         if not need_resize:
             # Grow
-            need_resize = self.Width <  best_width
-        print("NEED", need_resize)
+            need_resize = self.Width < best_width
         if need_resize:
             print("Sz", self.Size)
             self.Width = best_width
             print("Sz", self.Size)
             self.Parent.layout()
-
 
     # Property Definitions
     @property
