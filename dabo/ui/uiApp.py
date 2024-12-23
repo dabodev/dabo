@@ -6,9 +6,12 @@ import time
 
 import wx
 
-from .. import dColors, events, settings, ui
-from ..dLocalize import _, n_
-from ..dObject import dObject
+from .. import color_tools
+from .. import events
+from .. import settings
+from .. import ui
+from ..localization import _, n_
+from ..base_object import dObject
 from ..lib import utils
 from ..lib.utils import cleanMenuCaption
 
@@ -45,7 +48,7 @@ class SplashScreen(wx.Frame):
 
         if maskColor is not None:
             if isinstance(maskColor, str):
-                maskColor = dColors.colorTupleFromName(maskColor)
+                maskColor = color_tools.colorTupleFromName(maskColor)
             self._bmp.SetMask(wx.Mask(self._bmp, maskColor))
 
         if wx.Platform == "__WXGTK__":

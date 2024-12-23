@@ -4,10 +4,9 @@ import sys
 
 import dabo
 from dabo import dEvents as dEvents
-from dabo import dException as dException
 from dabo import ui as dui
-from dabo.dLocalize import _, n_
-from dabo.dObject import dObject
+from  import _, n_
+from dabo.base_object import dObject
 from dabo.lib.utils import ustr
 from dabo.ui import dPanel
 

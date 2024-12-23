@@ -5,9 +5,9 @@
 import datetime
 
 import dabo
-from dabo import dException as dException
+from dabo import exceptions as exceptions
 from dabo.biz.dBizobj import dBizobj
-from dabo.dLocalize import _
+from dabo.localization import _
 
 # Make sure that the user's installation supports Decimal.
 _USE_DECIMAL = True
@@ -54,7 +54,7 @@ def autoCreateTables(noAccessDialog=None):
     from dabo import ui as dui
 
     if len(g._AutoTables) == 0:
-        raise dException.dException(_("No tables have been setup for autocreation."))
+        raise exceptions.dException(_("No tables have been setup for autocreation."))
 
     g._toExc = {}
     for biz in list(g._AutoTables.values()):
@@ -146,12 +146,12 @@ def autoCreateTables(noAccessDialog=None):
 
                     self._data = (self.txtUsername.Value, self.txtPassword.Value)
                     self.Accepted = True
-                    self.EndModal(dabo.dConstants.DLG_OK)
+                    self.EndModal(dabo.constants.DLG_OK)
 
                 def onHitCancel(self, evt):
                     self._data = ()
                     self.Accepted = False
-                    self.EndModal(dabo.dConstants.DLG_CANCEL)
+                    self.EndModal(dabo.constants.DLG_CANCEL)
 
                 @property
                 def Answer(self):
@@ -179,12 +179,12 @@ def autoCreateTables(noAccessDialog=None):
                     )
                     try:
                         tempConn = dabo.db.dConnection(ci)
-                    except dException.DBNoAccessException:
+                    except exceptions.DBNoAccessException:
                         dui.stop(
                             _("Could not access the database with the given username and password.")
                         )
                         _writeQueriesToFile(g._toExc)
-                        raise dException.DBNoAccessException
+                        raise exceptions.DBNoAccessException
                     else:
                         cur = tempConn.getDaboCursor()
 
@@ -192,19 +192,19 @@ def autoCreateTables(noAccessDialog=None):
                         for query in g._toExc[k]:
                             try:
                                 cur.execute(query)
-                            except dException.DBNoAccessExeption:
+                            except exceptions.DBNoAccessExeption:
                                 dui.stop(_("Could not setup the database. Access was denied."))
                                 _writeQueriesToFile(g._toExc)
-                                raise dException.DBNoAccessException
+                                raise exceptions.DBNoAccessException
 
                 else:
                     login.release()
                     _writeQueriesToFile(g._toExc)
-                    raise dException.DBNoAccessException
+                    raise exceptions.DBNoAccessException
 
         else:
             _writeQueriesToFile(g._toExc)
-            raise dException.DBNoAccessException
+            raise exceptions.DBNoAccessException
 
 
 def _writeQueriesToFile(queries):
@@ -292,7 +292,7 @@ class dAutoBizobj(dBizobj):
     def createTable(self):
         """Create the tables that has been asigned to this bizobj."""
         if self._table is None:
-            raise dException.dException(_("No table has been defined for this bizobj."))
+            raise exceptions.dException(_("No table has been defined for this bizobj."))
 
         if self._CurrentCursor.BackendObject.isExistingTable(self.Table.Name):
             self._table_checked = True
@@ -320,7 +320,7 @@ class dAutoBizobj(dBizobj):
 
                     try:
                         self.save()
-                    except dException.DBQueryException as e:
+                    except exceptions.DBQueryException as e:
                         if self._conn in g._toExc:
                             g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
                         else:
@@ -334,7 +334,7 @@ class dAutoBizobj(dBizobj):
 
                     try:
                         self.save()
-                    except dException.DBQueryException as e:
+                    except exceptions.DBQueryException as e:
                         print("failed")
                         if self._conn in g._toExc:
                             g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)

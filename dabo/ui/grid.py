@@ -15,12 +15,21 @@ import wx
 import wx.grid
 from wx._core import PyAssertionError
 
-from .. import application, biz, db, dColors, dException, events, settings, ui
-from ..dBug import loggit
-from ..dLocalize import _, n_
-from ..dObject import dObject
+from .. import application
+from .. import biz
+from .. import db
+from .. import color_tools
+from .. import exceptions
+from .. import events
+from .. import settings
+from .. import ui
+from ..debugging import loggit
+from ..localization import _, n_
+from ..base_object import dObject
 from ..lib import dates
-from ..lib.utils import caseInsensitiveSortKey, noneSortKey, ustr
+from ..lib.utils import caseInsensitiveSortKey
+from ..lib.utils import noneSortKey
+from ..lib.utils import ustr
 from . import (
     dButton,
     dCheckBox,
@@ -338,7 +347,7 @@ class dGridDataTable(wx.grid.GridTableBase):
             if field and (row < bizobj.RowCount):
                 try:
                     ret = bizobj.getFieldVal(field, row)
-                except dException.FieldNotFoundException:
+                except exceptions.FieldNotFoundException:
                     pass
                 if not _fromGridEditor:
                     ret = self.getStringValue(ret)
@@ -571,7 +580,7 @@ class dColumn(wx._core.Object, dPemMixin):
     def getDataTypeForColumn(self):
         try:
             return self.DataType
-        except (dException.FieldNotFoundException, dException.NoRecordsException):
+        except (exceptions.FieldNotFoundException, exceptions.NoRecordsException):
             return None
 
     def _setRenderer(self):
@@ -618,7 +627,7 @@ class dColumn(wx._core.Object, dPemMixin):
             try:
                 ret.Face = "Arial"
                 ret.Size = 9
-            except dException.FontNotFoundException:
+            except exceptions.FontNotFoundException:
                 # I had this happen to a customer running Win XP. No idea why Arial
                 # would be missing. --pkm 2009-10-24
                 pass
@@ -853,7 +862,7 @@ class dColumn(wx._core.Object, dPemMixin):
     def BackColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self._gridColAttr.SetBackgroundColour(val)
             self._refreshGrid()
         else:
@@ -889,7 +898,7 @@ class dColumn(wx._core.Object, dPemMixin):
     def CellBackColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self._setCellProp("SetBackgroundColour", val)
         else:
             self._properties["CellBackColor"] = val
@@ -927,7 +936,7 @@ class dColumn(wx._core.Object, dPemMixin):
     def CellForeColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self._setCellProp("SetTextColour", val)
         else:
             self._properties["CellForeColor"] = val
@@ -1219,7 +1228,7 @@ class dColumn(wx._core.Object, dPemMixin):
             return self._gridColAttr.GetTextColour()
         except wx.PyAssertionError:
             # Getting the color failed on Mac and win: "no default attr"
-            default = dColors.colorTupleFromName("black")
+            default = color_tools.colorTupleFromName("black")
             self._gridColAttr.SetTextColour(default)
             return default
 
@@ -1227,7 +1236,7 @@ class dColumn(wx._core.Object, dPemMixin):
     def ForeColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self._gridColAttr.SetTextColour(val)
             self._refreshGrid()
         else:
@@ -1246,7 +1255,7 @@ class dColumn(wx._core.Object, dPemMixin):
     def HeaderBackColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self._headerBackColor = val
             self._refreshHeader()
         else:
@@ -1354,7 +1363,7 @@ class dColumn(wx._core.Object, dPemMixin):
     def HeaderForeColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self._headerForeColor = val
             self._refreshHeader()
         else:
@@ -2952,7 +2961,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 # Use the default sort() in the bizobj:
                 try:
                     biz.sort(columnToSort, sortOrder, self.caseSensitiveSorting)
-                except dException.NoRecordsException:
+                except exceptions.NoRecordsException:
                     # no records to sort: who cares.
                     pass
             else:
@@ -3983,7 +3992,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                         try:
                             bizobj.RowNumber = newRow
                             self.Form.update()
-                        except dException.BusinessRuleViolation as e:
+                        except exceptions.BusinessRuleViolation as e:
                             ui.stop(e)
                             ui.callAfter(self.refresh)
                 else:
@@ -4750,7 +4759,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
     def HeaderBackColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self._headerBackColor = val
             self.refresh()
         else:
@@ -4769,7 +4778,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
     def HeaderForeColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self._headerForeColor = val
             self.refresh()
         else:
@@ -5129,7 +5138,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if self._constructed():
             self._selectionBackColor = val
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self.SetSelectionBackground(val)
         else:
             self._properties["SelectionBackColor"] = val
@@ -5144,7 +5153,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if self._constructed():
             self._selectionForeColor = val
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self.SetSelectionForeground(val)
         else:
             self._properties["SelectionForeColor"] = val
@@ -5519,7 +5528,7 @@ class _dGrid_test(dGrid):
                 self.FontSize = 24
 
             def onKeyChar(self, evt):
-                self.ForeColor = dColors.randomColor()
+                self.ForeColor = color_tools.randomColor()
                 self.FontItalic = not self.FontItalic
 
         # Since we're using a big font, set a minimum height for the editor
@@ -5552,7 +5561,7 @@ class _dGrid_test(dGrid):
         )
         self.addColumn(col)
 
-        col.ListEditorChoices = dColors.colors
+        col.ListEditorChoices = color_tools.colors
         col.CustomEditorClass = col.listEditorClass
 
         col.HeaderVerticalAlignment = "Bottom"

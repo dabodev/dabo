@@ -14,7 +14,9 @@ import sys
 from functools import partial
 from pathlib import Path
 
-from . import application, settings, version
+from . import application
+from . import settings
+from . import version
 
 # Reference to the running application object
 app_reference = None
@@ -44,14 +46,22 @@ def makeDaboDirectories(homedir=None):
 
 
 def _load_base_modules():
-    from . import dConstants, dException, dObject, events
+    from . import constants
+    from . import exceptions
+    from . import base_object
+    from . import events
 
 
 def _load_remaining_modules():
-    from . import db, dPref, ui
+    from . import db
+    from . import preference_mgr
+    from . import ui
 
     ui.load_namespace()
-    from . import biz, dColors, events, settings
+    from . import biz
+    from . import color_tools
+    from . import events
+    from . import settings
 
 
 # if settings.implicitImports:
@@ -78,12 +88,12 @@ error = logger.error
 if settings.localizeDabo:
     # Install localization service for dabo. dApp will install localization service
     # for the user application separately.
-    from . import dLocalize
+    from . import localization
 
-    dLocalize.install("dabo")
+    localization.install("dabo")
 
 if settings.importDebugger:
-    from .dBug import logPoint
+    from .debugging import logPoint
 
     try:
         import pudb as pdb

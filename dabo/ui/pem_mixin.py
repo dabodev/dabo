@@ -6,10 +6,16 @@ import types
 
 import wx
 
-from .. import dColors, dException, events, lib, settings, ui
-from ..dLocalize import _
-from ..dObject import dObject
-from ..lib.utils import dictStringify, ustr
+from .. import color_tools
+from .. import exceptions
+from .. import events
+from .. import lib
+from .. import settings
+from .. import ui
+from ..localization import _
+from ..base_object import dObject
+from ..lib.utils import dictStringify
+from ..lib.utils import ustr
 from ..ui import makeDynamicProperty
 
 # Can't import here due to circular imports
@@ -312,7 +318,7 @@ class dPemMixin(dObject):
         if func:
             try:
                 func(*args, **kwargs)
-            except dException.StopIterationException:
+            except exceptions.StopIterationException:
                 # This is raised when the object does not want to pass
                 # the iteration on through its Children.
                 func = None
@@ -1534,7 +1540,7 @@ class dPemMixin(dObject):
         """Convert Dabo colors to wx.Colour objects"""
         if isinstance(val, wx.Colour):
             return val
-        val = dColors.colorTupleFromName(val) if isinstance(val, str) else val
+        val = color_tools.colorTupleFromName(val) if isinstance(val, str) else val
         if isinstance(val, tuple):
             return wx.Colour(*val)
         return val
@@ -2326,7 +2332,7 @@ class dPemMixin(dObject):
     def BackColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             if val is None:
                 self.SetBackgroundColour(wx.NullColour)
             elif val != self.GetBackgroundColour().Get():
@@ -2349,7 +2355,7 @@ class dPemMixin(dObject):
     def BorderColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self._borderColor = val
             if self._border:
                 self._border.PenColor = val
@@ -2763,7 +2769,7 @@ class dPemMixin(dObject):
     def ForeColor(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             if val != self.GetForegroundColour().Get():
                 self.SetForegroundColour(val)
                 # Need to jiggle the font size to force the color change to take
@@ -3970,7 +3976,7 @@ class DrawObject(dObject):
     @GradientColor1.setter
     def GradientColor1(self, val):
         if isinstance(val, str):
-            val = dColors.colorTupleFromName(val)
+            val = color_tools.colorTupleFromName(val)
         if self._gradientColor1 != val:
             self._gradientColor1 = val
             self.update()
@@ -3983,7 +3989,7 @@ class DrawObject(dObject):
     @GradientColor2.setter
     def GradientColor2(self, val):
         if isinstance(val, str):
-            val = dColors.colorTupleFromName(val)
+            val = color_tools.colorTupleFromName(val)
         if self._gradientColor2 != val:
             self._gradientColor2 = val
             self.update()

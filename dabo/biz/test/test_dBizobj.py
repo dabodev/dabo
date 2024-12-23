@@ -111,7 +111,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         def testBogus():
             return biz.Record.bogus_field_name
 
-        self.assertRaises(dabo.dException.FieldNotFoundException, testBogus)
+        self.assertRaises(dabo.exceptions.FieldNotFoundException, testBogus)
         self.assertEqual(biz.Record.combined_name, "PaulKeithMcNett:23")
         biz.Record.combined_name = "shouldn't be able to set this"
         self.assertEqual(biz.Record.combined_name, "PaulKeithMcNett:23")
@@ -227,7 +227,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz.Record.cField = newVal
         self.assertEqual(biz.oldVal("cField"), oldVal)
         self.assertEqual(biz.Record.cField, newVal)
-        self.assertRaises(dabo.dException.FieldNotFoundException, biz.oldVal, "bogusField")
+        self.assertRaises(dabo.exceptions.FieldNotFoundException, biz.oldVal, "bogusField")
 
     ## - End method unit tests -
 
@@ -242,7 +242,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz.deleteAll()
         self.assertEqual(biz.RowCount, 0)
 
-        self.assertRaises(dabo.dException.NoRecordsException, biz.delete)
+        self.assertRaises(dabo.exceptions.NoRecordsException, biz.delete)
 
         biz.new()
         self.assertEqual(biz.RowCount, 1)
@@ -407,15 +407,15 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         self.assertEqual(bizChild.RowNumber, -1)
 
         # Trying to get the field value from the nonexistent record should raise
-        # dException.NoRecordsException:
+        # exceptions.NoRecordsException:
         def testGetField():
             return bizChild.Record.pk
 
         def testSetField():
             bizChild.Record.pk = 23
 
-        self.assertRaises(dabo.dException.NoRecordsException, testGetField)
-        self.assertRaises(dabo.dException.NoRecordsException, testSetField)
+        self.assertRaises(dabo.exceptions.NoRecordsException, testGetField)
+        self.assertRaises(dabo.exceptions.NoRecordsException, testSetField)
 
         next(bizMain)
 

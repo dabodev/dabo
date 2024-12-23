@@ -3,7 +3,7 @@
 
 import datetime
 
-from dabo.dLocalize import _
+from dabo.localization import _
 from dabo.lib.RemoteConnector import RemoteConnector
 
 from .dBackend import dBackend

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import dabo.biz
-from dabo.dLocalize import _
+from  import _
 
 
 class Bizobj(dabo.biz.dBizobj):

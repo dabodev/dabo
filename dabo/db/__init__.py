@@ -32,7 +32,7 @@ import datetime
 from decimal import Decimal
 
 import dabo
-from dabo.dException import FieldNotFoundException
+from dabo.exceptions import FieldNotFoundException
 
 from .dConnectInfo import dConnectInfo
 from .dConnection import dConnection

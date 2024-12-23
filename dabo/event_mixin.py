@@ -4,7 +4,7 @@ import traceback
 import types
 
 from . import events, settings
-from .dLocalize import _
+from .localization import _
 
 
 class EventMixin(object):

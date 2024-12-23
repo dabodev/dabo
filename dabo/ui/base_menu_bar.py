@@ -14,7 +14,7 @@ import os
 import wx
 
 from .. import icons, ui
-from ..dLocalize import _, n_
+from ..localization import _, n_
 from . import dMenu, dMenuBar
 
 iconPath = (

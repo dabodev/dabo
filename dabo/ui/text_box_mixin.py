@@ -9,7 +9,7 @@ import wx
 import wx.lib.masked as masked
 
 from .. import application, events, settings, ui
-from ..dLocalize import _
+from ..localization import _
 from ..lib import dates
 from ..lib.utils import ustr
 from ..ui import dDataControlMixin, dKeys, makeDynamicProperty

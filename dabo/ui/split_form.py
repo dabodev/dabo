@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import dColors, ui
-from ..dLocalize import _
-from . import dForm, dSplitter, makeDynamicProperty
+from .. import color_tools
+from .. import ui
+from ..localization import _
+from . import dForm
+from . import dSplitter
+from . import makeDynamicProperty
 
 
 class dSplitForm(dForm):
@@ -111,8 +114,8 @@ class _dSplitForm_test(dSplitForm):
         self.Caption = "Splitter Demo"
 
     def afterInit(self):
-        self.Splitter.Panel1.BackColor = dColors.randomColor()
-        self.Splitter.Panel2.BackColor = dColors.randomColor()
+        self.Splitter.Panel1.BackColor = color_tools.randomColor()
+        self.Splitter.Panel2.BackColor = color_tools.randomColor()
 
 
 if __name__ == "__main__":

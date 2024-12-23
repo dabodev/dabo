@@ -3,9 +3,10 @@ import warnings
 
 import wx
 
-from .. import dConstants as kons
-from .. import events, ui
-from ..dLocalize import _
+from .. import constants
+from .. import events
+from .. import ui
+from ..localization import _
 from . import (
     dButton,
     dCheckBox,
@@ -116,7 +117,7 @@ class dDialog(dFormMixin, wx.Dialog):
         ui.callAfter(self._afterShow)
         if self.Modal:
             ret = self.ShowModal()
-            return {wx.ID_OK: kons.DLG_OK, wx.ID_CANCEL: kons.DLG_CANCEL}.get(ret, ret)
+            return {wx.ID_OK: constants.DLG_OK, wx.ID_CANCEL: constants.DLG_CANCEL}.get(ret, ret)
         return self.Show(True)
 
     def _addControls(self):
@@ -399,7 +400,7 @@ class dStandardButtonDialog(dDialog):
             pass
         if self.runOK() is not False:
             if self.IsModal():
-                self.EndModal(kons.DLG_OK)
+                self.EndModal(constants.DLG_OK)
             else:
                 self.release()
 
@@ -419,19 +420,19 @@ class dStandardButtonDialog(dDialog):
             pass
 
         if self.runCancel() is not False:
-            self.EndModal(kons.DLG_CANCEL)
+            self.EndModal(constants.DLG_CANCEL)
         else:
             evt.stop()
 
     def _onYes(self, evt):
         self.Accepted = True
         if self.runYes() is not False:
-            self.EndModal(kons.DLG_YES)
+            self.EndModal(constants.DLG_YES)
 
     def _onNo(self, evt):
         self.Accepted = False
         if self.runNo() is not False:
-            self.EndModal(kons.DLG_NO)
+            self.EndModal(constants.DLG_NO)
         else:
             evt.stop()
 

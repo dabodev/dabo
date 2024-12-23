@@ -12,10 +12,12 @@ from io import StringIO
 from os.path import join as pathjoin
 from zipfile import ZipFile
 
-from .. import application, dException, settings
+from .. import application
+from .. import exceptions
+from .. import settings
 from ..application import dApp
-from ..dLocalize import _
-from ..dObject import dObject
+from ..localization import _
+from ..base_object import dObject
 from . import utils
 from .manifest import Manifest
 from .utils import ustr
@@ -128,13 +130,13 @@ class RemoteConnector(object):
             errText = e.read()
             errMsg = "\n".join(errText.splitlines()[4:])
             if errcode == 409:
-                raise dException.BusinessRuleViolation(errMsg)
+                raise exceptions.BusinessRuleViolation(errMsg)
             elif errcode == 500:
-                raise dException.ConnectionLostException(errMsg)
+                raise exceptions.ConnectionLostException(errMsg)
             elif errcode == 204:
-                raise dException.NoRecordsException(errMsg)
+                raise exceptions.NoRecordsException(errMsg)
             elif errcode == 400:
-                raise dException.DBQueryException(errMsg)
+                raise exceptions.DBQueryException(errMsg)
         else:
             # If successful, we need to clear the mementos. We don't need to
             # store anything; passing None will just  clear the mementos.

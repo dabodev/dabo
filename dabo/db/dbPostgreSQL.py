@@ -4,7 +4,7 @@ import codecs
 import datetime
 
 import dabo
-from dabo.dLocalize import _
+from dabo.localization import _
 from dabo.lib.utils import ustr
 
 from .dBackend import dBackend
@@ -238,7 +238,7 @@ class Postgres(dBackend):
         Most backends will return a non-zero number if there are deletions.
         Some do not, so this will have to be customized in those cases.
         """
-        # raise dException.dException(_("No records deleted"))
+        # raise exceptions.dException(_("No records deleted"))
         return
 
     def flush(self, cursor):

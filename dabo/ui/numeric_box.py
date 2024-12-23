@@ -6,7 +6,7 @@ import wx
 import wx.lib.masked as masked
 
 from .. import events, ui
-from ..dLocalize import _
+from ..localization import _
 from . import dDataControlMixin as ddcm
 from . import dTextBoxMixin, makeDynamicProperty
 

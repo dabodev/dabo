@@ -27,7 +27,7 @@ particular database.
 
 import datetime
 
-from dabo.dLocalize import _
+from dabo.localization import _
 from dabo.lib.utils import ustr
 
 from .dBackend import dBackend

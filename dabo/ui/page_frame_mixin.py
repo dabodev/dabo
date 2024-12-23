@@ -4,7 +4,7 @@ import sys
 import wx
 
 from .. import events, lib, settings, ui
-from ..dLocalize import _
+from ..localization import _
 from ..lib.utils import ustr
 from . import dControlMixin, dPage, makeDynamicProperty
 

@@ -3,7 +3,7 @@ import wx
 from wx import adv as wx_adv
 
 from .. import ui
-from ..dLocalize import _
+from ..localization import _
 from . import dControlMixin, makeDynamicProperty
 
 

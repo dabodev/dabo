@@ -4,9 +4,9 @@ import pickle
 import time
 
 import dabo
-import dabo.dConstants as kons
-import dabo.dException as dException
-from dabo.dLocalize import _
+import dabo.constants as kons
+import dabo.exceptions as exceptions
+from dabo.localization import _
 from dabo.lib.connParser import importConnections
 
 from .dBizobj import dBizobj
@@ -150,9 +150,9 @@ class RemoteBizobj(dBizobj):
                     pk = rec.get(kf)
                     try:
                         self.moveToPK(pk)
-                    except dException.RowNotFoundException:
+                    except exceptions.RowNotFoundException:
                         ds = self.DataSource
-                        raise dException.WebServerException(
+                        raise exceptions.WebServerException(
                             _("PK '%(pk)s' not present in dataset for DataSource '%(ds)s'")
                             % locals()
                         )
@@ -164,7 +164,7 @@ class RemoteBizobj(dBizobj):
                         # Check for update conflicts; abort if found
                         currval = self.getFieldVal(col)
                         if currval != oldval:
-                            raise dException.WebServerException(
+                            raise exceptions.WebServerException(
                                 _(
                                     "Update Conflict: the value in column '%s' has been changed "
                                     "by someone else."
@@ -184,25 +184,25 @@ class RemoteBizobj(dBizobj):
 
             try:
                 self.saveAll()
-            except dException.ConnectionLostException as e:
+            except exceptions.ConnectionLostException as e:
                 if primary:
                     self._CurrentCursor.rollbackTransaction()
                     return (500, _("Connection to database was lost."))
                 else:
                     raise
-            except dException.NoRecordsException as e:
+            except exceptions.NoRecordsException as e:
                 if primary:
                     self._CurrentCursor.rollbackTransaction()
                     return (204, _("No records were saved."))
                 else:
                     raise
-            except dException.BusinessRuleViolation as e:
+            except exceptions.BusinessRuleViolation as e:
                 if primary:
                     self._CurrentCursor.rollbackTransaction()
                     return (409, _("Business Rule Violation: %s.") % e)
                 else:
                     raise
-            except dException.DBQueryException as e:
+            except exceptions.DBQueryException as e:
                 if primary:
                     self._CurrentCursor.rollbackTransaction()
                     return (400, _("Database Query Exception: %s.") % e)

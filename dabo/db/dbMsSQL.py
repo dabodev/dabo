@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from dabo.dLocalize import _
+from dabo.localization import _
 from dabo.lib.utils import ustr
 
 from .dBackend import dBackend
@@ -251,7 +251,7 @@ select kc.COLUMN_NAME from INFORMATION_SCHEMA.KEY_COLUMN_USAGE as kc
         Most backends will return a non-zero number if there are deletions.
         Some do not, so this will have to be customized in those cases.
         """
-        # raise dException.dException(_("No records deleted"))
+        # raise exceptions.dException(_("No records deleted"))
         return
 
     def flush(self, cursor):

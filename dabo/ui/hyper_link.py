@@ -2,9 +2,13 @@
 import wx
 import wx.lib.agw.hyperlink as hyperlink
 
-from .. import dColors, events, ui
-from ..dLocalize import _
-from . import AlignmentMixin, dControlMixin, makeDynamicProperty
+from .. import color_tools
+from .. import events
+from .. import ui
+from ..localization import _
+from . import AlignmentMixin
+from . import dControlMixin
+from . import makeDynamicProperty
 
 
 class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
@@ -47,11 +51,11 @@ class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):
         """Updated the link with the specified colors."""
         lc, vc, rc = self.LinkColor, self.VisitedColor, self.HoverColor
         if isinstance(lc, str):
-            lc = dColors.colorTupleFromName(lc)
+            lc = color_tools.colorTupleFromName(lc)
         if isinstance(vc, str):
-            vc = dColors.colorTupleFromName(vc)
+            vc = color_tools.colorTupleFromName(vc)
         if isinstance(rc, str):
-            rc = dColors.colorTupleFromName(rc)
+            rc = color_tools.colorTupleFromName(rc)
         self.SetColours(lc, vc, rc)
         self.UpdateLink(True)
 

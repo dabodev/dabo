@@ -3,8 +3,8 @@ import datetime
 import decimal
 
 import dabo
-import dabo.dException as dException
-from dabo.dLocalize import _
+import dabo.exceptions as exceptions
+from dabo.localization import _
 from dabo.lib.utils import ustr
 
 from .dBackend import dBackend
@@ -98,9 +98,9 @@ class MySQL(dBackend):
             except UnicodeError:
                 errMsg = ustr(e)
             if "access denied" in errMsg.lower():
-                raise dException.DBNoAccessException(errMsg)
+                raise exceptions.DBNoAccessException(errMsg)
             else:
-                raise dException.DatabaseException(errMsg)
+                raise exceptions.DatabaseException(errMsg)
         return self._connection
 
     def getDictCursorClass(self):
@@ -347,7 +347,7 @@ class MySQL(dBackend):
 
             try:
                 cursor.execute(sql)
-            except dException.DBNoAccessException:
+            except exceptions.DBNoAccessException:
                 toExc.append(sql)
 
         if createIndexes:
@@ -366,7 +366,7 @@ class MySQL(dBackend):
                 if toExc == []:
                     try:
                         cursor.execute(sql)
-                    except dException.DBNoAccessException:
+                    except exceptions.DBNoAccessException:
                         toExc.append(sql)
                 else:
                     toExc.append(sql)

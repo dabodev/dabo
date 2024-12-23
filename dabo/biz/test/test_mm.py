@@ -2,7 +2,7 @@
 import unittest
 
 import dabo
-import dabo.dException as dException
+import dabo.exceptions
 from dabo.lib import getRandomUUID
 
 
@@ -93,7 +93,7 @@ class Test_Many_To_Many(unittest.TestCase):
         cbiz = self.company_biz
         pbiz.seek("Leafe", "last_name")
         self.assertRaises(
-            dException.DataSourceNotFoundException,
+            exceptions.DataSourceNotFoundException,
             pbiz.mmAssociateValue,
             "dummy",
             "company",
@@ -345,7 +345,7 @@ class Test_Many_To_Many(unittest.TestCase):
         rbiz = self.restricted_biz
         pbiz.addMMBizobj(rbiz, "rest_alloc", "person_id", "restricted_id")
         self.assertRaises(
-            dException.DBQueryException, pbiz.mmAssociateValue, rbiz, "regular", "test"
+            exceptions.DBQueryException, pbiz.mmAssociateValue, rbiz, "regular", "test"
         )
         pbiz.removeMMBizobj(rbiz)
 

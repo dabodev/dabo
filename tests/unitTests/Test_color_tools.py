@@ -1,5 +1,5 @@
 """
-Unit Tests for dColors.py
+Unit Tests for color_tools.py
 
 Copyright (c) 2004 - 2007 Paul McNett, Ed Leafe, et. al.
 
@@ -14,7 +14,7 @@ If this file is run standalone, it will automatically run all of the test cases 
 import random
 import unittest
 
-from dabo import dColors
+from dabo import color_tools
 
 
 class TestHexToDec(unittest.TestCase):
@@ -64,28 +64,28 @@ class TestHexToDec(unittest.TestCase):
     def testKnownValues(self):
         """hexToDec should give known result with known input"""
         for hex, integer in self.knownValues:
-            result = dColors.hexToDec(hex)
+            result = color_tools.hexToDec(hex)
             self.assertEqual(integer, result)
 
     def testBadHexInput(self):
         """hexToDec should fail when a non-hex character is entered"""
-        self.assertRaises(dColors.InvalidCharError, dColors.hexToDec, "#$%uidkxb")
+        self.assertRaises(color_tools.InvalidCharError, color_tools.hexToDec, "#$%uidkxb")
 
     def testNoneStringInput(self):
         """hexToDec should fail when a non-string variable is entered"""
-        self.assertRaises(dColors.TypeError, dColors.hexToDec, 92)
+        self.assertRaises(color_tools.TypeError, color_tools.hexToDec, 92)
 
     def testCaseInsensitive(self):
         """hexToDec should accept and give same result for both upper and lowercase input"""
-        lower = dColors.hexToDec("abcdef123")
-        upper = dColors.hexToDec("ABCDEF123")
+        lower = color_tools.hexToDec("abcdef123")
+        upper = color_tools.hexToDec("ABCDEF123")
         self.assertEqual(lower, upper)
 
     def testLeadingZeros(self):
         """testing hexToDec(number) = hexToDec('00'+number)"""
         number = "FF"
-        result = dColors.hexToDec(number)
-        zeroResult = dColors.hexToDec("000" + number)
+        result = color_tools.hexToDec(number)
+        zeroResult = color_tools.hexToDec("000" + number)
         self.assertEqual(result, zeroResult)
 
 
@@ -135,13 +135,13 @@ class TestTupleHexConversion(unittest.TestCase):
     def testKnownValuesTupleToHex(self):
         """tupleToHex should give known result with known input"""
         for hex, tuple in self.knownValues:
-            result = dColors.tupleToHex(tuple)
+            result = color_tools.tupleToHex(tuple)
             self.assertEqual(result, hex)
 
     def testKnownValuesHexToTuple(self):
         """colorTupleFromHex should give known result with known input"""
         for hex, tuple in self.knownValues:
-            result = dColors.colorTupleFromHex(hex)
+            result = color_tools.colorTupleFromHex(hex)
             self.assertEqual(result, tuple)
 
     def testSanity(self):
@@ -153,47 +153,47 @@ class TestTupleHexConversion(unittest.TestCase):
                 random.choice(list(range(256))),
                 random.choice(list(range(256))),
             )
-            self.assertEqual((a, b, c), dColors.colorTupleFromHex(dColors.tupleToHex((a, b, c))))
+            self.assertEqual((a, b, c), color_tools.colorTupleFromHex(color_tools.tupleToHex((a, b, c))))
 
     # Test Errors
     def testTupleToHexNegativeInput(self):
         """tupleToHex should fail with a negative integer input"""
-        self.assertRaises(dColors.RgbValueError, dColors.tupleToHex, (-1, -1, -1))
+        self.assertRaises(color_tools.RgbValueError, color_tools.tupleToHex, (-1, -1, -1))
 
     def testTupleToHexIntegerTooLargeInput(self):
         """tupleToHex should fail with an input larger than 255"""
-        self.assertRaises(dColors.RgbValueError, dColors.tupleToHex, (256, 256, 256))
+        self.assertRaises(color_tools.RgbValueError, color_tools.tupleToHex, (256, 256, 256))
 
     def testTupleToHexLessThanThreeElements(self):
         """tupleToHex should fail with less than 3 elements in the tuple"""
-        self.assertRaises(dColors.LengthError, dColors.tupleToHex, (1, 1))
+        self.assertRaises(color_tools.LengthError, color_tools.tupleToHex, (1, 1))
 
     def testTupleToHexMoreThanThreeElements(self):
         """tupleToHex should fail with more than 3 elements in the tuple"""
-        self.assertRaises(dColors.LengthError, dColors.tupleToHex, (1, 1, 1, 1))
+        self.assertRaises(color_tools.LengthError, color_tools.tupleToHex, (1, 1, 1, 1))
 
     def testTupleToHexNonIntegerInput(self):
         """tupleToHex should fail if anyone of the elements is a non-integer"""
-        self.assertRaises(dColors.IntegerTypeError, dColors.tupleToHex, ("string", 1, 1))
-        self.assertRaises(dColors.IntegerTypeError, dColors.tupleToHex, (1, "string", 1))
-        self.assertRaises(dColors.IntegerTypeError, dColors.tupleToHex, (1, 1, "string"))
+        self.assertRaises(color_tools.IntegerTypeError, color_tools.tupleToHex, ("string", 1, 1))
+        self.assertRaises(color_tools.IntegerTypeError, color_tools.tupleToHex, (1, "string", 1))
+        self.assertRaises(color_tools.IntegerTypeError, color_tools.tupleToHex, (1, 1, "string"))
 
     def testHexToTupleBadHexInput(self):
         """colorTupleFromHex should fail when a non-hex character is entered"""
-        self.assertRaises(dColors.InvalidCharError, dColors.colorTupleFromHex, "#$%uidkxb")
+        self.assertRaises(color_tools.InvalidCharError, color_tools.colorTupleFromHex, "#$%uidkxb")
 
     def testHexToTupleCaseInsensitive(self):
         """The method should accept and give same result for both upper and lowercase input"""
-        lower = dColors.colorTupleFromHex("abcdef123")
-        upper = dColors.colorTupleFromHex("ABCDEF123")
+        lower = color_tools.colorTupleFromHex("abcdef123")
+        upper = color_tools.colorTupleFromHex("ABCDEF123")
         self.assertEqual(lower, upper)
 
     # misc. tests
     def testHexToTupleLeadingZeros(self):
         """testing colorTupleFromHex(number) = colorTupleFromHex('00'+number)"""
         number = "0A0CFF"
-        result = dColors.colorTupleFromHex(number)
-        zeroResult = dColors.colorTupleFromHex("000" + number)
+        result = color_tools.colorTupleFromHex(number)
+        zeroResult = color_tools.colorTupleFromHex("000" + number)
         self.assertEqual(result, zeroResult)
 
 
@@ -215,18 +215,18 @@ class TestColorTupleFromName(unittest.TestCase):
     # happy path tests
     def testKnownColorValues(self):
         """colorTupleFromName should return a known value for a known color name input"""
-        for name in list(dColors.colorDict.keys()):
-            result = dColors.colorTupleFromName(name)
-            self.assertEqual(result, dColors.colorDict[name])
+        for name in list(color_tools.colorDict.keys()):
+            result = color_tools.colorTupleFromName(name)
+            self.assertEqual(result, color_tools.colorDict[name])
 
     # need to refactor these next 2.  Test smells for repeated code tests
     def testKnownHexStringValues(self):
         """colorTupleFromName should return a known value for a known hex string input"""
-        self.assertEqual(dColors.colorTupleFromName("#010101"), (1, 1, 1))
+        self.assertEqual(color_tools.colorTupleFromName("#010101"), (1, 1, 1))
 
     def testKnownColorTupleStringValues(self):
         """colorTupleFromName should return a known value for a known color tuple string input"""
-        self.assertEqual(dColors.colorTupleFromName("(1, 1, 1)"), (1, 1, 1))
+        self.assertEqual(color_tools.colorTupleFromName("(1, 1, 1)"), (1, 1, 1))
 
     # error tests
     def testColorNameError(self):
@@ -234,7 +234,7 @@ class TestColorTupleFromName(unittest.TestCase):
         colorTupleFromName should fail when given a string that is not a valid color name, hex
         string, or color tuple string
         """
-        self.assertRaises(KeyError, dColors.colorTupleFromName, "Some Invalid Color Name")
+        self.assertRaises(KeyError, color_tools.colorTupleFromName, "Some Invalid Color Name")
 
 
 class TestColorTupleFromString(unittest.TestCase):
@@ -258,55 +258,55 @@ class TestColorTupleFromString(unittest.TestCase):
         """colorTupleFromString should return known results for known values"""
         for a in range(256):
             test = "(%i, %i, %i)" % (a, 255 - a, a)
-            result = dColors.colorTupleFromString(test)
+            result = color_tools.colorTupleFromString(test)
             self.assertEqual((a, 255 - a, a), result)
 
             test = "(%i, %i, %i)" % (a, a, a)
-            result = dColors.colorTupleFromString(test)
+            result = color_tools.colorTupleFromString(test)
             self.assertEqual((a, a, a), result)
 
     # Error Path Tests
     def testMissingCommas(self):
         """colorTupleFromString should fail with a lack of commas between integer values"""
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1 1, 1)")
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1 1, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, 1 1)")
 
     def testMissingParentheses(self):
         """colorTupleFromString should fail with a lack of parentheses surrounding the tuple"""
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "1, 1, 1)")
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 1")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "1, 1, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, 1, 1")
 
     def testTupleTooSmall(self):
         """
         colorTupleFromString should fail when the number of integer elements in the string
         is below 3
         """
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, 1)")
 
     def testTupleTooLarge(self):
         """
         colorTupleFromString should fail when the number of integer elements in the string
         is above 3
         """
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 1, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, 1, 1, 1)")
 
     def testTupleNonInteger(self):
         """colorTupleFromString should fail when one or more of the numbers are non-integers"""
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1.5, 1, 1)")
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1.5, 1)")
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 1.5)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1.5, 1, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, 1.5, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, 1, 1.5)")
 
     def testIntegerTooLarge(self):
         """colorTupleFromTest should fail when one or more of the integers is above 255"""
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(256, 1, 1)")
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 256, 1)")
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 256)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(256, 1, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, 256, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, 1, 256)")
 
     def testIntegerTooSmall(self):
         """colorTupleFromTest should fail when one or more of the integers is below 0"""
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(-1, 1, 1)")
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, -1, 1)")
-        self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, -1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(-1, 1, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, -1, 1)")
+        self.assertRaises(KeyError, color_tools.colorTupleFromString, "(1, 1, -1)")
 
 
 # used for running this module bare without the test suite

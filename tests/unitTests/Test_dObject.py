@@ -1,5 +1,5 @@
 """
-Unit Tests for dColors.py
+Unit Tests for dObject.py
 
 Copyright (c) 2004 - 2007 Paul McNett, Ed Leafe, et. al.
 
@@ -14,7 +14,7 @@ If this file is run standalone, it will automatically run all of the test cases 
 import unittest
 
 from dabo.dApp import dApp
-from dabo.dObject import *
+from dabo.base_object import *
 
 
 class BaseTestdObject(unittest.TestCase):
@@ -170,7 +170,7 @@ class TestPreferenceManagerProperty(BaseTestdObject):
         Set dObject.PreferenceManager to n. dObject.PreferenceManagier should be equal to n.
         (round trip test)
         """
-        from dabo.dPref import dPref
+        from dabo.preference_mgr import dPref
 
         testDPref = dPref()
         self.dObject.PreferenceManager = testDPref

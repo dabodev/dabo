@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import dabo
 from dabo import dEvents as dEvents
-from dabo import dException as dException
 from dabo import ui as dui
-from dabo.dLocalize import _
+from  import _
 from dabo.ui import dKeys
 
 

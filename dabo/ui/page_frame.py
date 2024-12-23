@@ -4,10 +4,19 @@ import sys
 
 import wx
 
-from .. import dColors, events, lib, settings, ui
-from ..dLocalize import _
+from .. import color_tools
+from .. import events
+from .. import lib
+from .. import settings
+from .. import ui
+from ..localization import _
 from ..lib.utils import ustr
-from . import dCheckBox, dDropdownList, dLabel, dPage, dPageFrameMixin, dSizer
+from . import dCheckBox
+from . import dDropdownList
+from . import dLabel
+from . import dPage
+from . import dPageFrameMixin
+from . import dSizer
 
 dabo_module = settings.get_dabo_package()
 
@@ -413,7 +422,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         if self._constructed():
             self._activeTabColor = val
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             if isinstance(val, tuple):
                 self.SetActiveTabColour(wx.Colour(*val))
                 self.Refresh()
@@ -439,7 +448,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         if self._constructed():
             self._activeTabTextColor = val
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             if isinstance(val, tuple):
                 self.SetActiveTabTextColour(wx.Colour(*val))
                 self.Refresh()
@@ -465,7 +474,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         if self._constructed():
             self._inactiveTabTextColor = val
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             if isinstance(val, tuple):
                 self.SetNonActiveTabTextColour(wx.Colour(*val))
                 self.Refresh()
@@ -598,7 +607,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
         if self._constructed():
             self._tabAreaColor = val
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             if isinstance(val, tuple):
                 self.SetTabAreaColour(wx.Colour(*val))
                 self.Refresh()

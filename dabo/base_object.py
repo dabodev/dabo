@@ -3,7 +3,7 @@ import string
 import types
 
 from . import settings
-from .dLocalize import _
+from .localization import _
 from .event_mixin import EventMixin
 from .lib.propertyHelperMixin import PropertyHelperMixin
 
@@ -391,7 +391,7 @@ class dObject(PropertyHelperMixin, EventMixin):
                 except AttributeError:
                     pass
             if ret is None:
-                from .dPref import dPref  ## here to avoid circular import
+                from .preference_mgr import dPref  ## here to avoid circular import
 
                 ret = self._preferenceManager = dPref(key=self.BasePrefKey)
         return ret
@@ -399,7 +399,7 @@ class dObject(PropertyHelperMixin, EventMixin):
     @PreferenceManager.setter
     def PreferenceManager(self, val):
         """Reference to the Preference Management object  (dPref)"""
-        from .dPref import dPref  ## here to avoid circular import
+        from .preference_mgr import dPref  ## here to avoid circular import
 
         if not isinstance(val, dPref):
             raise TypeError("PreferenceManager must be a dPref object")

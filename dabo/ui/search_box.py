@@ -2,7 +2,7 @@
 import wx
 
 from .. import events, ui
-from ..dLocalize import _
+from ..localization import _
 from . import dTextBoxMixin, makeDynamicProperty
 
 

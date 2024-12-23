@@ -2,9 +2,18 @@
 import wx
 import wx.lib.agw.foldpanelbar as fpb
 
-from .. import dColors, events, settings, ui
-from ..dLocalize import _
-from . import dCheckBox, dControlMixin, dForm, dGridSizer, dLabel, dSizer, makeDynamicProperty
+from .. import color_tools
+from .. import events
+from .. import settings
+from .. import ui
+from ..localization import _
+from . import dCheckBox
+from . import dControlMixin
+from . import dForm
+from . import dGridSizer
+from . import dLabel
+from . import dSizer
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -925,8 +934,8 @@ if __name__ == "__main__":
             p = self.p1
             style = random.choice(p._barStyles)
             p.BarStyle = style
-            color1 = dColors.randomColorName()
-            color2 = dColors.randomColorName()
+            color1 = color_tools.randomColorName()
+            color2 = color_tools.randomColorName()
             p.BarColor1 = color1
             p.BarColor2 = color2
             if style in ("VerticalFill", "HorizontalFill"):
@@ -935,11 +944,6 @@ if __name__ == "__main__":
                 p.Caption = "Style: %s" % style
             else:
                 p.Caption = "Style: %s; Color: %s" % (style, color1)
-
-        #             lbl = dLabel(p, Caption="Changed to %s" % p.BarStyle,
-        #                     FontItalic=True, FontSize=12)
-        #             p.Sizer.append(lbl)
-        #             p.layout()
 
         def onCollapseAll(self, evt):
             self.slideControl.collapseAll()

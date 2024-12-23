@@ -21,16 +21,21 @@ from pathlib import Path
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
-from . import db, dException, dLocalize, dUserSettingProvider, lib, settings, ui
-from .dLocalize import _
-from .dObject import dObject
-from .dPref import dPref
-from .dSecurityManager import dSecurityManager
+from . import db
+from . import exceptions
+from . import localization
+from . import user_setting_provider
+from . import lib
+from . import settings
+from . import ui
+from .localization import _
+from .base_object import dObject
+from .preference_mgr import dPref
+from .security_manager import dSecurityManager
 from .lib import connParser
 from .lib.SimpleCrypt import SimpleCrypt
-from .lib.utils import cleanMenuCaption, ustr
-
-# import __version__
+from .lib.utils import cleanMenuCaption
+from .lib.utils import ustr
 
 
 dabo_module = settings.get_dabo_package()
@@ -310,11 +315,11 @@ try again when it is running.
         # If there's a locale directory for the app and it looks valid, install it:
         localeDir = os.path.join(self.HomeDirectory, "locale")
         localeDomain = self.getAppInfo("appShortName").replace(" ", "_").lower()
-        if os.path.isdir(localeDir) and dLocalize.isValidDomain(localeDomain, localeDir):
+        if os.path.isdir(localeDir) and localization.isValidDomain(localeDomain, localeDir):
             lang = getattr(self, "_language", None)
             charset = getattr(self, "_charset", None)
-            dLocalize.install(localeDomain, localeDir)
-            dLocalize.setLanguage(lang, charset)
+            localization.install(localeDomain, localeDir)
+            localization.setLanguage(lang, charset)
 
         # Add the 'lib' directory, if present, to sys.path
         libdir = os.path.join(self.HomeDirectory, "lib")
@@ -982,7 +987,7 @@ try again when it is running.
         try:
             ret = self.dbConnections[connName]
         except KeyError:
-            raise dException.ConnectionNotFoundException(
+            raise exceptions.ConnectionNotFoundException(
                 _("No connection named '%s' is defined") % connName
             )
         return ret
@@ -1107,7 +1112,7 @@ try again when it is running.
         will be raised. You may optionally pass a character set to use.
         """
         self._language, self._charset = lang, charset
-        dLocalize.setLanguage(lang, charset)
+        localization.setLanguage(lang, charset)
 
     def showCommandWindow(self, context=None):
         """
@@ -1803,7 +1808,7 @@ try again when it is running.
         try:
             ret = self._userSettingProviderClass
         except AttributeError:
-            ret = self._userSettingProviderClass = dUserSettingProvider.dUserSettingProvider
+            ret = self._userSettingProviderClass = user_setting_provider.dUserSettingProvider
         return ret
 
     @UserSettingProviderClass.setter

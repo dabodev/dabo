@@ -3,7 +3,7 @@ import os
 
 import wx
 
-from ..dLocalize import _
+from ..localization import _
 from . import dControlMixin, makeDynamicProperty
 
 # Need to define this exception class for x-platform
@@ -60,7 +60,7 @@ class _dPdfWindow_test(dPdfWindow):
     def afterInit(self):
         # Run the dReportWriter test, which will output a test
         # pdf in this directory, and load that into the dPdfWindow:
-        os.system("python ../../dReportWriter.py")
+        os.system("python ../../report_writer.py")
         self.LoadFile(os.path.abspath("dRW-test.pdf"))
 
 

@@ -8,7 +8,7 @@ import wx.stc as stc
 from wx.py import pseudo
 
 from .. import db, events, ui
-from ..dLocalize import _
+from ..localization import _
 from . import (
     dBaseMenuBar,
     dButton,

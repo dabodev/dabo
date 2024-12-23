@@ -8,7 +8,7 @@ import os
 import wx
 
 from .. import events, settings, ui
-from ..dLocalize import _
+from ..localization import _
 from ..lib import utils
 from . import dDataControlMixin, dForm, dImageMixin, makeDynamicProperty
 

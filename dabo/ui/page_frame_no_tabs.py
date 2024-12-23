@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-from .. import dColors, events, lib, ui
-from ..dLocalize import _
-from . import dPage, dPanel, makeDynamicProperty
+from .. import color_tools
+from .. import events
+from .. import lib
+from .. import ui
+from ..localization import _
+from . import dPage
+from . import dPanel
+from . import makeDynamicProperty
 
 
 class dPageFrameNoTabs(dPanel):
@@ -279,7 +284,7 @@ from . import dButton, dDropdownList, dForm, dLabel, dSizer
 class TestPage(dPage):
     def afterInit(self):
         self.lbl = ui.dLabel(self, FontSize=36)
-        color = random.choice(list(dColors.colorDict.keys()))
+        color = random.choice(list(color_tools.colorDict.keys()))
         self.BackColor = self.lbl.Caption = color
         self.Sizer = sz = ui.dSizer("h")
         sz.appendSpacer(1, 1)

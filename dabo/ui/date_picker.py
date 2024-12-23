@@ -9,7 +9,7 @@ import wx
 from wx import adv as wx_adv
 
 from .. import application, ui
-from ..dLocalize import _
+from ..localization import _
 from ..lib.utils import ustr
 from . import dDataControlMixin, makeDynamicProperty
 

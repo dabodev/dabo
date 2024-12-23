@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from .. import events, ui
-from ..dLocalize import _
+from ..localization import _
 from . import dScrollPanel, makeDynamicProperty
 
 

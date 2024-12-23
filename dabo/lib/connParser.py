@@ -5,7 +5,7 @@ import xml.sax
 from io import StringIO
 
 from .. import application, settings
-from ..dLocalize import _
+from ..localization import _
 from . import utils
 
 # Tuple containing all file-based database types.

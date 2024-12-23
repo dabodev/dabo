@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from ..dLocalize import _
+from ..localization import _
 from . import dBorderSizer, dButton, dGauge, dLabel, dPanel
 
 

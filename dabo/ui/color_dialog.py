@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import application, dColors, dConstants, settings, ui
+from .. import application
+from .. import color_tools
+from .. import constants
+from .. import settings
+from .. import ui
 
 
 class dColorDialog(wx.ColourDialog):
@@ -16,7 +20,7 @@ class dColorDialog(wx.ColourDialog):
         if color is not None:
             if isinstance(color, str):
                 try:
-                    color = dColors.colorTupleFromName(color)
+                    color = color_tools.colorTupleFromName(color)
                     dat.SetColour(color)
                 except KeyError:
                     pass
@@ -30,10 +34,10 @@ class dColorDialog(wx.ColourDialog):
 
     def show(self):
         self._selColor = None
-        ret = dConstants.DLG_CANCEL
+        ret = constants.DLG_CANCEL
         res = self.ShowModal()
         if res == wx.ID_OK:
-            ret = dConstants.DLG_OK
+            ret = constants.DLG_OK
             col = self.GetColourData().GetColour()
             self._selColor = col.Red(), col.Green(), col.Blue()
         return ret

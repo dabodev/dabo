@@ -10,9 +10,14 @@ import sys
 import wx
 import wx.stc as stc
 
-from .. import application, dColors, events, settings, ui
-from ..dLocalize import _
-from . import dDataControlMixin, dTimer
+from .. import application
+from .. import color_tools
+from .. import events
+from .. import settings
+from .. import ui
+from ..localization import _
+from . import dDataControlMixin
+from . import dTimer
 
 dabo_module = settings.get_dabo_package()
 
@@ -2062,7 +2067,7 @@ Do you want to overwrite it?"""
     @BookmarkBackColor.setter
     def BookmarkBackColor(self, val):
         if isinstance(val, str):
-            val = dColors.colorTupleFromName(val)
+            val = color_tools.colorTupleFromName(val)
         if isinstance(val, tuple):
             self._bookmarkBackColor = val
             self._setBookmarkMarker()
@@ -2077,7 +2082,7 @@ Do you want to overwrite it?"""
     @BookmarkForeColor.setter
     def BookmarkForeColor(self, val):
         if isinstance(val, str):
-            val = dColors.colorTupleFromName(val)
+            val = color_tools.colorTupleFromName(val)
         if isinstance(val, tuple):
             self._bookmarkForeColor = val
             self._setBookmarkMarker()
@@ -2365,7 +2370,7 @@ Do you want to overwrite it?"""
         if self._constructed():
             self._selectionBackColor = val
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self.SetSelBackground(1, val)
         else:
             self._properties["SelectionBackColor"] = val
@@ -2392,7 +2397,7 @@ Do you want to overwrite it?"""
         if self._constructed():
             self._selectionForeColor = val
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             self.SetSelForeground(1, val)
         else:
             self._properties["SelectionForeColor"] = val

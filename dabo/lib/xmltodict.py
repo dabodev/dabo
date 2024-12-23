@@ -14,8 +14,9 @@ from xml.parsers import expat
 
 import six
 
-from .. import dException, settings
-from ..dLocalize import _
+from .. import exceptions
+from .. import settings
+from ..localization import _
 from .utils import resolvePath, ustr
 
 default_encoding = settings.getEncoding()
@@ -199,7 +200,7 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
         except expat.ExpatError as e:
             errmsg = _("An invalid XML string was encountered: %s") % e
     if errmsg:
-        raise dException.XmlException(errmsg)
+        raise exceptions.XmlException(errmsg)
     if addCodeFile and isPath:
         # Get the associated code file, if any
         codePth = "%s-code.py" % os.path.splitext(xml)[0]

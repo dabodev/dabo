@@ -4,11 +4,20 @@ import sys
 
 import wx
 
-from .. import dException, events, icons, settings, ui
-from ..dLocalize import _
+from .. import exceptions
+from .. import events
+from .. import icons
+from .. import settings
+from .. import ui
+from ..localization import _
 from ..lib.utils import cleanMenuCaption, ustr
 from ..lib.xmltodict import xmltodict as XTD
-from . import dDataControlMixin, dMenu, dPemMixin, dStatusBar, dToolBar, makeDynamicProperty
+from . import dDataControlMixin
+from . import dMenu
+from . import dPemMixin
+from . import dStatusBar
+from . import dToolBar
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -125,7 +134,7 @@ class dFormMixin(dPemMixin):
         if self._cxnName:
             try:
                 self.Connection = app.getConnectionByName(self._cxnName)
-            except dException.ConnectionNotFoundException:
+            except exceptions.ConnectionNotFoundException:
                 self.Connection = None
             if self.Connection is None:
                 dabo_module.info(_("Could not establish connection '%s'") % self._cxnName)
@@ -402,7 +411,7 @@ class dFormMixin(dPemMixin):
             wxPython does not currently support this. DO NOT USE this method.
 
         """
-        raise dException.FeatureNotSupportedException(
+        raise exceptions.FeatureNotSupportedException(
             _("The underlying UI toolkit does not support modal forms. Use a dDialog instead.")
         )
 

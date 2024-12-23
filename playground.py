@@ -6,7 +6,7 @@ Intent: Have a playground with accessible wx.lib.inspection.InspectionTool for
 
 import wx
 
-from dabo.dLocalize import _
+from dabo.localization import _
 from dabo.ui import dMenu, dMenuBar, dMenuItem
 
 

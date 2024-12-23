@@ -2,10 +2,14 @@
 import wx
 import wx.lib.mixins.listctrl as ListMixin
 
-from .. import dColors, events, settings, ui
-from ..dLocalize import _
+from .. import color_tools
+from .. import events
+from .. import settings
+from .. import ui
+from ..localization import _
 from ..lib.utils import ustr
-from . import dControlItemMixin, makeDynamicProperty
+from . import dControlItemMixin
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -432,7 +436,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
 
     def setItemBackColor(self, itm, val):
         if isinstance(val, str):
-            color = dColors.colorTupleFromName(val)
+            color = color_tools.colorTupleFromName(val)
         else:
             color = val
         self.SetItemBackgroundColour(itm, color)
@@ -442,7 +446,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
 
     def setItemForeColor(self, itm, val):
         if isinstance(val, str):
-            color = dColors.colorTupleFromName(val)
+            color = color_tools.colorTupleFromName(val)
         else:
             color = val
         self.SetItemTextColour(itm, color)

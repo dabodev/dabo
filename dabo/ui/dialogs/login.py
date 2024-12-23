@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from ... import icons
-from ...dLocalize import _
+from ...localization import _
 from .. import dImage, dLabel, dOkCancelDialog, dSizer, dTextBox
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from ... import ui
-from ...dLocalize import _
+from ...localization import _
 from .. import (
     dBitmapButton,
     dButton,

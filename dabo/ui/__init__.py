@@ -20,12 +20,12 @@ from .. import events
 from .. import icons
 from .. import settings
 from .. import ui
-from ..dException import dException
-from ..dLocalize import _
+from ..exceptions import dException
+from ..localization import _
 from ..lib import utils
 from ..lib.xmltodict import xmltodict
 from ..lib.utils import ustr
-from .. import dConstants
+from .. import constants
 from .uiApp import uiApp
 
 # Can't import here due to circular imports
@@ -1206,7 +1206,7 @@ def getColor(color=None):
     """
     ret = None
     dlg = ui.dColorDialog(_getActiveForm(), color)
-    if dlg.show() == dConstants.DLG_OK:
+    if dlg.show() == constants.DLG_OK:
         ret = dlg.getColor()
     dlg.release()
     return ret
@@ -1272,7 +1272,7 @@ def getFont(font=None):
             return None
         param = font._nativeFont
     dlg = ui.dFontDialog(_getActiveForm(), param)
-    if dlg.show() == dConstants.DLG_OK:
+    if dlg.show() == constants.DLG_OK:
         fnt = dlg.getFont()
     dlg.release()
     if fnt is not None:
@@ -1294,7 +1294,7 @@ def _getPath(cls, wildcard, **kwargs):
     if isinstance(cls, str):
         cls = getattr(ui, cls)
     fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
-    if fd.show() == dConstants.DLG_OK:
+    if fd.show() == constants.DLG_OK:
         pth = fd.Path
         try:
             idx = fd.GetFilterIndex()

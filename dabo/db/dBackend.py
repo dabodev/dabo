@@ -7,10 +7,10 @@ import threading
 import time
 
 import dabo
-import dabo.dException as dException
+import dabo.exceptions as exceptions
 from dabo.db import dTable
-from dabo.dLocalize import _
-from dabo.dObject import dObject
+from dabo.localization import _
+from dabo.base_object import dObject
 from dabo.lib.utils import ustr
 
 from .dCursorMixin import dCursorMixin
@@ -108,14 +108,14 @@ class dBackend(dObject):
         Most backends will return a non-zero number if there are updates.
         Some do not, so this will have to be customized in those cases.
         """
-        raise dException.dException(_("No records updated"))
+        raise exceptions.dException(_("No records updated"))
 
     def noResultsOnDelete(self):
         """
         Most backends will return a non-zero number if there are deletions.
         Some do not, so this will have to be customized in those cases.
         """
-        raise dException.dException(_("No records deleted"))
+        raise exceptions.dException(_("No records deleted"))
 
     def flush(self, cursor):
         """Only used in some backends"""

@@ -3,10 +3,13 @@ import types
 
 import wx
 
-from .. import dException, events, ui
-from ..dLocalize import _
+from .. import exceptions
+from .. import events
+from .. import ui
+from ..localization import _
 from ..lib.utils import ustr
-from . import dPemMixin, makeDynamicProperty
+from . import dPemMixin
+from . import makeDynamicProperty
 
 
 class dMenuItem(dPemMixin, wx.MenuItem):
@@ -256,7 +259,7 @@ class _AbstractExtendedMenuItem(dMenuItem):
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         # Remove the 'Icon' property, as it interferes with the 'selected' display
         if self.__class__ is _AbstractExtendedMenuItem:
-            raise dException.dException(
+            raise exceptions.dException(
                 "dAbstractExtendedMenuItem class should not be instantiated directly."
             )
         # Remove the 'Icon' property, as it interferes with the 'selected' display

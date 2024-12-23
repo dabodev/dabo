@@ -2,7 +2,7 @@
 import wx
 
 from .. import settings, ui
-from ..dLocalize import _
+from ..localization import _
 from . import dSizerMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()

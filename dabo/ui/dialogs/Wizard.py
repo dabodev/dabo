@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from ... import dConstants as k
-from ... import events, ui
+from ... import constants as constants
+from ... import events
+from ... import ui
 from ...application import dApp
-from ...dLocalize import _
+from ...localization import _
 from .. import (
     dBitmapButton,
     dBorderSizer,
@@ -156,7 +157,7 @@ class Wizard(dDialog):
         if self.verifyCancel:
             if not ui.areYouSure(self.confirmCancelMsg, _("Cancel Received"), cancelButton=False):
                 return
-        ui.callAfter(self.closeWizard, k.DLG_CANCEL)
+        ui.callAfter(self.closeWizard, constants.DLG_CANCEL)
 
     def _finish(self):
         pg = self._pages[self.CurrentPage]
@@ -164,7 +165,7 @@ class Wizard(dDialog):
         if ok is not False:
             finOK = self.finish()
             if finOK is not False:
-                ui.callAfter(self.closeWizard, k.DLG_OK)
+                ui.callAfter(self.closeWizard, constants.DLG_OK)
 
     def finish(self):
         """

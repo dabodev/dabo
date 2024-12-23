@@ -5,8 +5,10 @@ import os
 import wx
 import wx.richtext
 
-from .. import application, dColors, ui
-from ..dLocalize import _
+from .. import application
+from .. import color_tools
+from .. import ui
+from ..localization import _
 from ..lib.utils import ustr
 from . import (
     dButton,
@@ -207,7 +209,7 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
             try:
                 wxc = wx.Colour(*val)
             except TypeError:
-                ct = dColors.colorTupleFromName(val)
+                ct = color_tools.colorTupleFromName(val)
                 wxc = wx.Colour(*ct)
             rng = self.GetSelectionRange()
             ta = wx.richtext.TextAttrEx()
@@ -389,7 +391,7 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
             try:
                 wxc = wx.Colour(*val)
             except TypeError:
-                ct = dColors.colorTupleFromName(val)
+                ct = color_tools.colorTupleFromName(val)
                 wxc = wx.Colour(*ct)
             rng = self.GetSelectionRange()
             ta = wx.richtext.TextAttrEx()

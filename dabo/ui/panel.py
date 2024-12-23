@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import dColors, events, ui
-from ..dLocalize import _
-from . import dControlMixin, dDataControlMixin, makeDynamicProperty
+from .. import color_tools
+from .. import events
+from .. import ui
+from ..localization import _
+from . import dControlMixin
+from . import dDataControlMixin
+from . import makeDynamicProperty
 
 
 class _BasePanelMixin(object):
@@ -444,7 +448,7 @@ class _dPanel_test(dPanel):
 
     def onHover(self, evt):
         self._normBack = self.BackColor
-        self.BackColor = dColors.randomColor()
+        self.BackColor = color_tools.randomColor()
 
     def endHover(self, evt):
         self.BackColor = self._normBack

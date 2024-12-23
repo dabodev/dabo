@@ -3,7 +3,7 @@ import wx
 import wx.lib.agw.pycollapsiblepane as pcp
 
 from .. import ui
-from ..dLocalize import _
+from ..localization import _
 from . import dControlMixin, dPanel
 
 

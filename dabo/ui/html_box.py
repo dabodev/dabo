@@ -11,7 +11,7 @@ import urllib.request
 import wx.html
 
 from .. import events, ui
-from ..dLocalize import _
+from ..localization import _
 from . import dControlMixin, makeDynamicProperty
 
 try:

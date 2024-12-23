@@ -4,7 +4,7 @@ import os
 import sys
 
 from ... import ui
-from ...dLocalize import _
+from ...localization import _
 from ...lib.utils import cleanMenuCaption
 from .. import (
     dButton,

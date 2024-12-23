@@ -9,7 +9,7 @@ import sys
 Decimal = decimal.Decimal
 
 from .. import application, settings
-from ..dLocalize import _
+from ..localization import _
 from ..lib.dates import getStringFromDate
 
 ######################################################

@@ -3,8 +3,8 @@ import os
 import sys
 import time
 
-from dabo.dLocalize import _
-from dabo.dObject import dObject
+from dabo.localization import _
+from dabo.base_object import dObject
 from dabo.lib.utils import ustr
 
 

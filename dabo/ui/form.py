@@ -4,10 +4,18 @@ import time
 
 import wx
 
-from .. import application, biz, dException, events, settings, ui
-from ..dLocalize import _
+from .. import application
+from .. import biz
+from .. import exceptions
+from .. import events
+from .. import settings
+from .. import ui
+from ..localization import _
 from ..lib.utils import ustr
-from . import dButton, dFormMixin, dSizer, makeDynamicProperty
+from . import dButton
+from . import dFormMixin
+from . import dSizer
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -260,16 +268,16 @@ class BaseForm(dFormMixin):
 
         try:
             response = func(*args, **kwargs)
-        except dException.NoRecordsException:
+        except exceptions.NoRecordsException:
             bail(_("No records in dataset."))
             return False
-        except dException.BeginningOfFileException:
+        except exceptions.BeginningOfFileException:
             bail(self.getCurrentRecordText(dataSource) + " (BOF)")
             return False
-        except dException.EndOfFileException:
+        except exceptions.EndOfFileException:
             bail(self.getCurrentRecordText(dataSource) + " (EOF)")
             return False
-        except dException.dException as e:
+        except exceptions.dException as e:
             bail(ustr(e), meth=self.notifyUser, exception=e)
             return False
         else:
@@ -410,17 +418,17 @@ class BaseForm(dFormMixin):
                 % (self.SaveAllRows and "all records" or "current record",)
             )
 
-        except dException.ConnectionLostException as e:
+        except exceptions.ConnectionLostException as e:
             msg = self._connectionLostMsg(ustr(e))
             self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
             sys.exit()
 
-        except dException.NoRecordsException as e:
+        except exceptions.NoRecordsException as e:
             # No records were saved. No big deal; just let 'em know.
             self.updateStatusText(_("Nothing to save!"))
             return True
 
-        except (dException.BusinessRuleViolation, dException.DBQueryException) as e:
+        except (exceptions.BusinessRuleViolation, exceptions.DBQueryException) as e:
             txt = _("Save Failed")
             self.updateStatusText(txt)
             msg = "%s:\n\n%s" % (txt, ustr(e))
@@ -467,9 +475,9 @@ class BaseForm(dFormMixin):
                 _("Changes to %s canceled.")
                 % (self.SaveAllRows and "all records" or "current record",)
             )
-        except dException.NoRecordsException as e:
+        except exceptions.NoRecordsException as e:
             dabo_module.error(_("Cancel failed; no records to cancel."))
-        except dException.dException as e:
+        except exceptions.dException as e:
             dabo_module.error(_("Cancel failed with response: %s") % e)
             self.notifyUser(ustr(e), title=_("Cancel Not Allowed"), exception=e)
         self.afterCancel()
@@ -533,22 +541,22 @@ class BaseForm(dFormMixin):
                 _("%(rc)s record%(plcnt)sselected in %(elapsed)s second%(plelap)s") % locals()
             )
 
-        except dException.MissingPKException as e:
+        except exceptions.MissingPKException as e:
             self.notifyUser(ustr(e), title=_("Requery Failed"), severe=True, exception=e)
             self.StatusText = ""
 
-        except dException.ConnectionLostException as e:
+        except exceptions.ConnectionLostException as e:
             msg = self._connectionLostMsg(ustr(e))
             self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
             self.StatusText = ""
             sys.exit()
 
-        except dException.DBQueryException as e:
+        except exceptions.DBQueryException as e:
             dabo_module.error(_("Database Execution failed with response: %s") % e)
             self.notifyUser(ustr(e), title=_("Database Action Failed"), severe=True, exception=e)
             self.StatusText = ""
 
-        except dException.dException as e:
+        except exceptions.dException as e:
             dabo_module.error(_("Requery failed with response: %s") % e)
             self.notifyUser(ustr(e), title=_("Requery Not Allowed"), severe=True, exception=e)
             self.StatusText = ""
@@ -595,11 +603,11 @@ class BaseForm(dFormMixin):
                 self.updateStatusText(_("Record Deleted."))
                 # Notify listeners that the row number changed:
                 self.raiseEvent(events.RowNumChanged)
-            except dException.ConnectionLostException as e:
+            except exceptions.ConnectionLostException as e:
                 msg = self._connectionLostMsg(ustr(e))
                 self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
                 sys.exit()
-            except dException.dException as e:
+            except exceptions.dException as e:
                 msg = ustr(e)
                 dabo_module.error(_("Delete failed with response: %s") % msg)
                 self.notifyUser(msg, title=_("Deletion Not Allowed"), severe=True, exception=e)
@@ -631,11 +639,11 @@ class BaseForm(dFormMixin):
                 bizobj.deleteAll()
                 # Notify listeners that the row number changed:
                 self.raiseEvent(events.RowNumChanged)
-            except dException.ConnectionLostException as e:
+            except exceptions.ConnectionLostException as e:
                 msg = self._connectionLostMsg(ustr(e))
                 self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
                 sys.exit()
-            except dException.dException as e:
+            except exceptions.dException as e:
                 dabo_module.error(_("Delete All failed with response: %s") % e)
                 self.notifyUser(ustr(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
         self.update()
@@ -658,7 +666,7 @@ class BaseForm(dFormMixin):
 
         try:
             bizobj.new()
-        except dException.dException as e:
+        except exceptions.dException as e:
             self.notifyUser(
                 _("Add new record failed with response:\n\n%s") % e,
                 severe=True,
@@ -912,9 +920,9 @@ Database error message: %s"""
         try:
             bizobj.fieldValidation(df, val)
             ret = True
-        except dException.BusinessRuleViolation as e:
+        except exceptions.BusinessRuleViolation as e:
             self.onFieldValidationFailed(ctrl, ds, df, val, e)
-        except dException.BusinessRulePassed:
+        except exceptions.BusinessRulePassed:
             self.onFieldValidationPassed(ctrl, ds, df, val)
             ret = True
         return ret

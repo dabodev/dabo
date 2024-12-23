@@ -7,7 +7,7 @@ import wx
 
 from dabo import dEvents as dEvents
 from dabo import ui as dui
-from dabo.dLocalize import _
+from  import _
 from dabo.lib import reportUtils
 
 from . import Grid, Page, PageFrame
@@ -692,7 +692,7 @@ class Form(dui.dForm):
             outputfile = reportUtils.getTempFile()
 
             try:
-                import dabo.dReportWriter as drw
+                import dabo.report_writer as drw
             except ImportError:
                 dui.stop("Error importing dReportWriter. Check your terminal output.")
                 return

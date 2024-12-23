@@ -7,7 +7,7 @@ This demo is like invoice.py, but shows how to use the progress dialog.
 
 from .. import ui
 from ..application import dApp
-from ..dReportWriter import dReportWriter
+from ..report_writer import dReportWriter
 from ..lib import reportUtils
 
 

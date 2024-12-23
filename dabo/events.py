@@ -3,7 +3,7 @@ import logging
 import time
 
 from . import settings
-from .dLocalize import _
+from .localization import _
 
 
 class dEvent(object):
@@ -261,7 +261,7 @@ class SpinnerEvent(dEvent):
 
 class ReportEvent(dEvent):
     def appliesToClass(eventClass, objectClass):
-        from .dReportWriter import dReportWriter
+        from .report_writer import dReportWriter
 
         try:
             return issubclass(objectClass, dReportWriter)

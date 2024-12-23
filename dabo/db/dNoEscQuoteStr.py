@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ..dObject import dObject
+from ..base_object import dObject
 
 
 class dNoEscQuoteStr(dObject):

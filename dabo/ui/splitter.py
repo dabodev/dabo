@@ -3,9 +3,13 @@ import random
 
 import wx
 
-from .. import dColors, events, ui
-from ..dLocalize import _
-from . import dControlMixin, dForm, makeDynamicProperty
+from .. import color_tools
+from .. import events
+from .. import ui
+from ..localization import _
+from . import dControlMixin
+from . import dForm
+from . import makeDynamicProperty
 
 
 class SplitterPanelMixin(object):
@@ -494,8 +498,8 @@ class _dSplitter_test(dSplitter):
         self.ShowPanelSplitMenu = True
 
     def afterInit(self):
-        self.Panel1.BackColor = random.choice(list(dColors.colorDict.values()))
-        self.Panel2.BackColor = random.choice(list(dColors.colorDict.values()))
+        self.Panel1.BackColor = random.choice(list(color_tools.colorDict.values()))
+        self.Panel2.BackColor = random.choice(list(color_tools.colorDict.values()))
 
     def onSashDoubleClick(self, evt):
         if not ui.areYouSure("Remove the sash?", cancelButton=False):

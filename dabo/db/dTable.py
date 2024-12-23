@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-import dabo.dException as dException
-from dabo.dLocalize import _
-from dabo.dObject import dObject
+from dabo.localization import _
+from dabo.base_object import dObject
 
 
 class dTable(dObject):

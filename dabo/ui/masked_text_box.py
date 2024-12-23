@@ -5,7 +5,7 @@ import wx
 import wx.lib.masked as masked
 
 from .. import settings, ui
-from ..dLocalize import _
+from ..localization import _
 from . import dTextBoxMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()

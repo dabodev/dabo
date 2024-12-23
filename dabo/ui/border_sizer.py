@@ -2,7 +2,7 @@
 import wx
 
 from .. import ui
-from ..dLocalize import _
+from ..localization import _
 from . import dBox, dButton, dForm, dLabel, dPanel, dSizer, dSizerMixin, makeDynamicProperty
 
 

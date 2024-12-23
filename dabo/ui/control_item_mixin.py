@@ -2,7 +2,7 @@
 import wx
 
 from .. import ui
-from ..dLocalize import _
+from ..localization import _
 from ..lib.propertyHelperMixin import _DynamicList
 from ..lib.utils import ustr
 from . import dDataControlMixin, makeDynamicProperty

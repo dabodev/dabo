@@ -4,9 +4,9 @@ import time
 import wx
 
 from .. import db, events, ui
-from ..dLocalize import _
-from ..dObject import dObject
-from ..dPref import dPref
+from ..localization import _
+from ..base_object import dObject
+from ..preference_mgr import dPref
 from ..lib.propertyHelperMixin import PropertyHelperMixin
 from ..lib.utils import ustr
 from . import dFormMixin, dSizerMixin

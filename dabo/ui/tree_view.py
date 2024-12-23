@@ -5,11 +5,15 @@ import re
 
 import wx
 
-from .. import dColors, events, settings, ui
-from ..dLocalize import _
-from ..dObject import dObject
+from .. import color_tools
+from .. import events
+from .. import settings
+from .. import ui
+from ..localization import _
+from ..base_object import dObject
 from ..lib.utils import ustr
-from . import dControlMixin, makeDynamicProperty
+from . import dControlMixin
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -79,7 +83,7 @@ class dNode(dObject):
     @BackColor.setter
     def BackColor(self, val):
         if isinstance(val, str):
-            val = dColors.colorTupleFromName(val)
+            val = color_tools.colorTupleFromName(val)
         self.tree.SetItemBackgroundColour(self.itemID, val)
 
     @property
@@ -231,7 +235,7 @@ class dNode(dObject):
     @ForeColor.setter
     def ForeColor(self, val):
         if isinstance(val, str):
-            val = dColors.colorTupleFromName(val)
+            val = color_tools.colorTupleFromName(val)
         self.tree.SetItemTextColour(self.itemID, val)
 
     @property

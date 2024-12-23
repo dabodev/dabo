@@ -24,7 +24,7 @@ pysqlite2: http://initd.org/tracker/pysqlite
         sys.exit(msg)
 
 import dabo
-from dabo.dLocalize import _
+from dabo.localization import _
 from dabo.lib.utils import ustr
 
 

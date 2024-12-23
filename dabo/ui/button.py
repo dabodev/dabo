@@ -2,7 +2,7 @@
 import wx
 
 from .. import events, ui
-from ..dLocalize import _
+from ..localization import _
 
 
 class dButton(ui.dControlMixin, wx.Button):

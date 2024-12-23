@@ -1,4 +1,4 @@
-"""Clears the 'from dabo.dLocalize import *' lines from all python
+"""Clears the 'from dabo.localization import *' lines from all python
 files underneath the directory or directories you specify. If you
 don't specify a directory, the current directory will be used.
 """
@@ -16,7 +16,7 @@ def clear_localize_walk(arg, dirname, fnames):
             wlines = []
             for idx, line in enumerate(rlines):
                 lineno = idx + 1
-                if "dLocalize" in line:
+                if "localization" in line:
                     print("--> Removing line %s, '%s'" % (lineno, line))
                     continue
                 wlines.append(line)

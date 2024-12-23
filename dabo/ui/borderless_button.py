@@ -9,8 +9,12 @@ try:
 except ImportError:
     raise ImportError("Your version of wxPython is too old for dBorderlessButton")
 
-from .. import application, dColors, events, settings, ui
-from ..dLocalize import _
+from .. import application
+from .. import color_tools
+from .. import events
+from .. import settings
+from .. import ui
+from ..localization import _
 
 dabo_module = settings.get_dabo_package()
 
@@ -80,10 +84,10 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
     def BackColorHover(self, val):
         if self._constructed():
             if isinstance(val, str):
-                val = dColors.colorTupleFromName(val)
+                val = color_tools.colorTupleFromName(val)
             if isinstance(val, tuple):
                 self._backColoHover = val
-                self.SetPressColor(wx.Color(*val))
+                self.SetPressColor(wx.Colour(*val))
             else:
                 raise ValueError("BackColorHover must be a valid color string or tuple")
         else:

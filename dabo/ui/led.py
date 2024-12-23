@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import dColors, ui
-from ..dLocalize import _
+from .. import color_tools
+from .. import ui
+from ..localization import _
 from . import dDataPanel
 
 
@@ -119,7 +120,7 @@ if __name__ == "__main__":
             vs.append(dLabel(mp, Caption="On Color:"))
             dd = dDropdownList(
                 mp,
-                Choices=dColors.colors,
+                Choices=color_tools.colors,
                 DataSource=self.LED,
                 DataField="OnColor",
                 Value="mediumseagreen",
@@ -129,7 +130,7 @@ if __name__ == "__main__":
             vs.append(dLabel(mp, Caption="Off Color:"))
             dd = dDropdownList(
                 mp,
-                Choices=dColors.colors,
+                Choices=color_tools.colors,
                 DataSource=self.LED,
                 DataField="OffColor",
                 Value="orangered",

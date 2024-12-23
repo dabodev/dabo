@@ -34,9 +34,9 @@ import ui
 suiteList = [db.suite(), biz.suite(), lib.suite(), ui.suite()]
 
 # import any tests for the main dabo folder
-import Test_dColors
+import Test_color_tools
 
-suiteList.append(unittest.TestLoader().loadTestsFromModule(Test_dColors))
+suiteList.append(unittest.TestLoader().loadTestsFromModule(Test_color_tools))
 import Test_dObject
 
 suiteList.append(unittest.TestLoader().loadTestsFromModule(Test_dObject))
@@ -49,4 +49,4 @@ if coverage:
     coverage.stop()
     # You can uncomment this to get test coverage on a particular module, but if you want to see the
     # entire report for dabo, run "python CoverageReport.py". I would pipe it to a file though.
-    # coverage.report([dabo.dColors, dabo.dObject, dabo])
+    # coverage.report([dabo.color_tools, dabo.base_object, dabo])

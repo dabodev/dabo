@@ -17,7 +17,7 @@ from locale import getpreferredencoding
 osp = os.path
 
 from .. import settings
-from ..dLocalize import _
+from ..localization import _
 
 try:
     from win32com.shell import shell, shellcon

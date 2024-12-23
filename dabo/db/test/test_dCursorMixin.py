@@ -165,15 +165,15 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         self.assertEqual(cur._mementos[self.cur.Record.pk]["ifield"], 23)
 
         # Querying or setting a field that doesn't exist should raise
-        # dException.FieldNotFoundException:
+        # exceptions.FieldNotFoundException:
         def testGetRecord():
             return cur.Record.nonExistingFieldName
 
         def testSetRecord():
             cur.Record.nonExistingFieldName = "ppp"
 
-        self.assertRaises(dabo.dException.FieldNotFoundException, testGetRecord)
-        self.assertRaises(dabo.dException.FieldNotFoundException, testSetRecord)
+        self.assertRaises(dabo.exceptions.FieldNotFoundException, testGetRecord)
+        self.assertRaises(dabo.exceptions.FieldNotFoundException, testSetRecord)
 
     def test_RowCount(self):
         cur = self.cur
@@ -224,7 +224,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         cur.Record.cfield = newVal
         self.assertEqual(cur.oldVal("cfield"), oldVal)
         self.assertEqual(cur.Record.cfield, newVal)
-        self.assertRaises(dabo.dException.FieldNotFoundException, cur.oldVal, "bogusField")
+        self.assertRaises(dabo.exceptions.FieldNotFoundException, cur.oldVal, "bogusField")
 
     ## - End method unit tests -
 

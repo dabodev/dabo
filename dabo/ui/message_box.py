@@ -10,7 +10,7 @@ along with convenience functions to allow calling like::
 import wx
 
 from .. import application, settings, ui
-from ..dLocalize import _
+from ..localization import _
 
 
 def getForm():

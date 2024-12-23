@@ -2,8 +2,8 @@
 import wx
 
 from .. import application, events, settings, ui
-from ..dLocalize import _
-from ..dObject import dObject
+from ..localization import _
+from ..base_object import dObject
 from ..lib.utils import ustr
 from . import makeDynamicProperty
 

@@ -120,7 +120,7 @@ overrideLocaleLanguage = False
 # Default encoding to use when none is specified
 defaultEncoding = "utf-8"
 
-# Default log file for the dabo.dBug.loggit function
+# Default log file for the dabo.debugging.loggit function
 loggitFile = "functionCall.log"
 
 # Events should be processed from the latest to earliest binding.
@@ -246,7 +246,7 @@ copyLineSeparator = "\n"
 # Turn to False for better 'import dabo' performance from inside web apps, for example.
 implicitImports = True
 
-# Setting to determine if we call dLocalize.install("dabo") when dabo is imported.
+# Setting to determine if we call localization.install("dabo") when dabo is imported.
 localizeDabo = True
 
 # When field values are float, and DataStructure isn't explicit, do we convert float

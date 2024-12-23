@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import string
 
-from ..dLocalize import _
+from ..localization import _
 
 
 class PropertyHelperMixin(object):

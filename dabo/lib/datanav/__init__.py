@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dabo.dLocalize import _
+from  import _
 
 
 class QryOperatorEnum:

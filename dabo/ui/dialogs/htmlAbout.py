@@ -3,7 +3,7 @@ import os
 import string
 import sys
 
-from ...dLocalize import _
+from ...localization import _
 from .. import (
     dBitmapButton,
     dButton,
