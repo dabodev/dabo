@@ -35,7 +35,7 @@ To run Dabo, and apps based on Dabo, you need:
  * One or more of the following operating systems:
    * Windows XP or higher
    * Macintosh OSX 10.5 or higher
-   * Linux 2.6 or higher with X11 running and Gtk2
+   * Linux 6 or higher with X11 running and Gtk3
 
 How you get started is pretty much up to you. There are two related projects: `dabo_demo`, which
 contains demonstrtion code for the various Dabo classes, and `dabo_`ide`, which contains tools for
