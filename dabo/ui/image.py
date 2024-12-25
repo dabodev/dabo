@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import imghdr
+#import imghdr
 import io
 import os
 
@@ -236,14 +236,20 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
     def _getFrameCount(self):
         if not self.Picture:
             return 0
-        with open(self.Picture, "rb") as ff:
-            typ = imghdr.what(ff)
+        typ = os.path.splitext(self.Picture)[1].replace('.', '')
+        #jfcs 12/25/2024 imghdr has been Deprecated in python 3.13
+        #with open(self.Picture, "rb") as ff:
+            #typ = imghdr.what(ff)
+        
         if typ in ("gif",):
             anim = wx.animate.Animation(self.Picture)
             cnt = anim.GetFrameCount()
         else:
             cnt = self.__image.GetImageCount(self.Picture)
         return cnt
+    
+    
+    
 
     def _getPicture(self):
         return self._picture
