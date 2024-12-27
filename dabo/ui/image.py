@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#import imghdr
+# import imghdr
 import io
 import os
 
+import filetype
 import wx
 
 from .. import events, settings, ui
-from ..localization import _
 from ..lib import utils
+from ..localization import _
 from . import dDataControlMixin, dForm, dImageMixin, makeDynamicProperty
 
 # See if PIL is installed
@@ -233,28 +234,29 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         self._inShowPic = False
 
     # Property definitions
-    def _getFrameCount(self):
+    @property
+    def FrameCount(self):
+        """
+        Number of frames in the current image. Will be 1 for most images, but can be greater for
+        animated GIFs, ICOs and some TIFF files. (read-only) (int)
+        """
         if not self.Picture:
             return 0
-        typ = os.path.splitext(self.Picture)[1].replace('.', '')
-        #jfcs 12/25/2024 imghdr has been Deprecated in python 3.13
-        #with open(self.Picture, "rb") as ff:
-            #typ = imghdr.what(ff)
-        
-        if typ in ("gif",):
+        typ = os.path.splitext(self.Picture)[1].replace(".", "")
+        if filetype.guess(self.Picture).extension in ("gif",):
             anim = wx.animate.Animation(self.Picture)
             cnt = anim.GetFrameCount()
         else:
             cnt = self.__image.GetImageCount(self.Picture)
         return cnt
-    
-    
-    
 
-    def _getPicture(self):
+    @property
+    def Picture(self):
+        """The file used as the source for the displayed image.  (str)"""
         return self._picture
 
-    def _setPicture(self, val):
+    @Picture.setter
+    def Picture(self, val):
         if not val:
             # Empty string passed; clear any current image
             self._picture = ""
@@ -332,10 +334,17 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             self._imgProp = 1.0
         self._showPic()
 
-    def _getPictureIndex(self):
+    @property
+    def PictureIndex(self):
+        """
+        When displaying images from files that can contain multiple images, such as GIF, TIFF and
+        ICO, this determines which image is used. Default=-1, which displays the first image for GIF
+        and TIFF, and the main image for ICO.  (int)
+        """
         return self._pictureIndex
 
-    def _setPictureIndex(self, val):
+    @PictureIndex.setter
+    def PictureIndex(self, val):
         if self._constructed():
             self._pictureIndex = val
             if not self._inReload:
@@ -346,10 +355,23 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         else:
             self._properties["PictureIndex"] = val
 
-    def _getScaleMode(self):
+    @property
+    def ScaleMode(self):
+        """
+        Determines how the image responds to sizing. Can be one of the following:
+
+            =============== ===================
+            Clip            Only that part of the image that fits in the control's size
+                            is displayed
+            Proportional    The image resizes to fit the control without changing its
+                            original proportions. (default)
+            Stretch         The image resizes to the Height/Width of the control.
+            =============== ===================
+        """
         return self._scaleMode
 
-    def _setScaleMode(self, val):
+    @ScaleMode.setter
+    def ScaleMode(self, val):
         """Only the first letter is significant."""
         initial = val[0].lower()
         modes = {"c": "Clip", "p": "Proportional", "s": "Stretch"}
@@ -359,10 +381,13 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         except KeyError:
             dabo_module.error(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'."))
 
-    def _getValue(self):
+    @property
+    def Value(self):
+        """Image content for this control  (binary img data)"""
         return self._imageData
 
-    def _setValue(self, val):
+    @Value.setter
+    def Value(self, val):
         if self._constructed():
             if self._imageData == val:
                 return
@@ -389,71 +414,15 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         else:
             self._properties["Value"] = val
 
-    def _getImg(self):
+    @property
+    def _Img(self):
+        """Underlying image handler object  (wx.Image)"""
         if self.__image is None:
             try:
                 self.__image = wx.NullImage.Copy()
             except ui.assertionException:
                 self.__image = wx.NullImage
         return self.__image
-
-    FrameCount = property(
-        _getFrameCount,
-        None,
-        None,
-        _(
-            "Number of frames in the current image. Will be 1 for most images, but can be greater "
-            "for animated GIFs, ICOs and some TIFF files. (read-only) (int)"
-        ),
-    )
-
-    Picture = property(
-        _getPicture,
-        _setPicture,
-        None,
-        _("The file used as the source for the displayed image.  (str)"),
-    )
-
-    PictureIndex = property(
-        _getPictureIndex,
-        _setPictureIndex,
-        None,
-        _(
-            """When displaying images from files that can contain multiple
-            images, such as GIF, TIFF and ICO, this determines which image
-            is used. Default=-1, which displays the first image for GIF and TIFF,
-            and the main image for ICO.  (int)"""
-        ),
-    )
-
-    ScaleMode = property(
-        _getScaleMode,
-        _setScaleMode,
-        None,
-        _(
-            """Determines how the image responds to sizing. Can be one
-            of the following:
-
-                =============== ===================
-                Clip            Only that part of the image that fits in the control's size
-                                is displayed
-                Proportional    The image resizes to fit the control without changing its
-                                original proportions. (default)
-                Stretch         The image resizes to the Height/Width of the control.
-                =============== ===================
-
-            """
-        ),
-    )
-
-    Value = property(
-        _getValue,
-        _setValue,
-        None,
-        _("Image content for this control  (binary img data)"),
-    )
-
-    _Image = property(_getImg, None, None, _("Underlying image handler object  (wx.Image)"))
 
     DynamicPicture = makeDynamicProperty(Picture)
     DynamicScaleMode = makeDynamicProperty(ScaleMode)
