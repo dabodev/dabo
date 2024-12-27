@@ -13,8 +13,8 @@ If this file is run standalone, it will automatically run all of the test cases 
 
 import unittest
 
-from dabo.dApp import dApp
 from dabo.base_object import *
+from dabo.dApp import dApp
 
 
 class BaseTestdObject(unittest.TestCase):

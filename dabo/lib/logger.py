@@ -3,9 +3,9 @@ import os
 import sys
 import time
 
-from dabo.localization import _
 from dabo.base_object import dObject
 from dabo.lib.utils import ustr
+from dabo.localization import _
 
 
 class Log(dObject):

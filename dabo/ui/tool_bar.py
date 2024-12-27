@@ -4,8 +4,8 @@ import os.path
 import wx
 
 from .. import events, ui
-from ..localization import _
 from ..base_object import dObject
+from ..localization import _
 from . import dControlMixin, dMenu, makeDynamicProperty
 
 

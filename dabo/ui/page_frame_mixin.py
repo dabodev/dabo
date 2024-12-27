@@ -4,8 +4,8 @@ import sys
 import wx
 
 from .. import events, lib, settings, ui
-from ..localization import _
 from ..lib.utils import ustr
+from ..localization import _
 from . import dControlMixin, dPage, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()

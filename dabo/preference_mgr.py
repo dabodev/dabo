@@ -5,9 +5,9 @@ import warnings
 from decimal import Decimal
 
 from . import db, settings
-from .localization import _
 from .lib import utils
 from .lib.utils import ustr
+from .localization import _
 
 # Can't import here due to circular imports
 # dabo_module = None

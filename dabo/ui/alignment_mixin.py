@@ -2,8 +2,8 @@
 import wx
 
 from .. import ui
-from ..localization import _
 from ..lib.utils import ustr
+from ..localization import _
 from ..ui import makeDynamicProperty
 
 

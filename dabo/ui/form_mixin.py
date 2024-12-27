@@ -4,20 +4,11 @@ import sys
 
 import wx
 
-from .. import exceptions
-from .. import events
-from .. import icons
-from .. import settings
-from .. import ui
-from ..localization import _
+from .. import events, exceptions, icons, settings, ui
 from ..lib.utils import cleanMenuCaption, ustr
 from ..lib.xmltodict import xmltodict as XTD
-from . import dDataControlMixin
-from . import dMenu
-from . import dPemMixin
-from . import dStatusBar
-from . import dToolBar
-from . import makeDynamicProperty
+from ..localization import _
+from . import dDataControlMixin, dMenu, dPemMixin, dStatusBar, dToolBar, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

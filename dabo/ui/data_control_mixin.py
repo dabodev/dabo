@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
-from .. import application
-from .. import biz
-from .. import exceptions
-from .. import events
-from .. import settings
-from .. import ui
-from ..localization import _
+from .. import application, biz, events, exceptions, settings, ui
 from ..base_object import dObject
-from ..preference_mgr import dPref
 from ..lib.utils import ustr
+from ..localization import _
+from ..preference_mgr import dPref
 
 dabo_module = settings.get_dabo_package()
 

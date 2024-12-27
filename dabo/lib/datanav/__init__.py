@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from  import _
+from ...localization import _
 
 
 class QryOperatorEnum:

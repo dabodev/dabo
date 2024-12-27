@@ -7,9 +7,9 @@ import wx
 
 from dabo import dEvents as dEvents
 from dabo import ui as dui
-from  import _
 from dabo.lib import reportUtils
 
+from ...localization import _
 from . import Grid, Page, PageFrame
 
 # See if the reporting libraries are present

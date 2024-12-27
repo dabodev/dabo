@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import color_tools
-from .. import ui
+from .. import color_tools, ui
 from ..localization import _
 from . import dDataPanel
 

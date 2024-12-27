@@ -5,11 +5,10 @@ import sys
 
 import six
 
-from .. import application
-from .. import settings
+from .. import application, settings
 from ..exceptions import DBFileDoesNotExistException, DBQueryException
-from ..localization import _
 from ..lib.utils import ustr
+from ..localization import _
 from .dBackend import dBackend
 from .dCursorMixin import dCursorMixin
 from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ

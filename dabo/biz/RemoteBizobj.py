@@ -6,8 +6,8 @@ import time
 import dabo
 import dabo.constants as kons
 import dabo.exceptions as exceptions
-from dabo.localization import _
 from dabo.lib.connParser import importConnections
+from dabo.localization import _
 
 from .dBizobj import dBizobj
 

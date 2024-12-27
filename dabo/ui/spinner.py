@@ -7,8 +7,8 @@ from decimal import Decimal as decimal
 import wx
 
 from .. import events, settings, ui
-from ..localization import _
 from ..lib.utils import ustr
+from ..localization import _
 from . import (
     dDataControlMixin,
     dDataPanel,

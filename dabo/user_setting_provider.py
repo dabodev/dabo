@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from .localization import _
 from .base_object import dObject
+from .localization import _
 
 
 class dUserSettingProvider(dObject):

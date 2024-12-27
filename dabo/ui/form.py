@@ -4,18 +4,10 @@ import time
 
 import wx
 
-from .. import application
-from .. import biz
-from .. import exceptions
-from .. import events
-from .. import settings
-from .. import ui
-from ..localization import _
+from .. import application, biz, events, exceptions, settings, ui
 from ..lib.utils import ustr
-from . import dButton
-from . import dFormMixin
-from . import dSizer
-from . import makeDynamicProperty
+from ..localization import _
+from . import dButton, dFormMixin, dSizer, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

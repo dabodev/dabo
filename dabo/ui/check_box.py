@@ -2,8 +2,8 @@
 import wx
 
 from .. import ui
-from ..localization import _
 from ..lib.utils import get_super_property_value, set_super_property_value
+from ..localization import _
 from . import dDataControlMixin, makeDynamicProperty
 
 

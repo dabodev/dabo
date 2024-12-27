@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import application
-from .. import constants
-from .. import settings
-from .. import ui
+from .. import application, constants, settings, ui
 from ..localization import _
 
 

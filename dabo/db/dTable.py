@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from dabo.localization import _
 from dabo.base_object import dObject
+from dabo.localization import _
 
 
 class dTable(dObject):

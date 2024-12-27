@@ -4,8 +4,8 @@ import decimal
 
 import dabo
 import dabo.exceptions as exceptions
-from dabo.localization import _
 from dabo.lib.utils import ustr
+from dabo.localization import _
 
 from .dBackend import dBackend
 from .dCursorMixin import dCursorMixin

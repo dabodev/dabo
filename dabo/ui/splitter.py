@@ -3,13 +3,9 @@ import random
 
 import wx
 
-from .. import color_tools
-from .. import events
-from .. import ui
+from .. import color_tools, events, ui
 from ..localization import _
-from . import dControlMixin
-from . import dForm
-from . import makeDynamicProperty
+from . import dControlMixin, dForm, makeDynamicProperty
 
 
 class SplitterPanelMixin(object):

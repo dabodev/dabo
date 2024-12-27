@@ -24,8 +24,8 @@ pysqlite2: http://initd.org/tracker/pysqlite
         sys.exit(msg)
 
 import dabo
-from dabo.localization import _
 from dabo.lib.utils import ustr
+from dabo.localization import _
 
 
 class dDataSet(tuple):

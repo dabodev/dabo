@@ -15,21 +15,12 @@ import wx
 import wx.grid
 from wx._core import PyAssertionError
 
-from .. import application
-from .. import biz
-from .. import db
-from .. import color_tools
-from .. import exceptions
-from .. import events
-from .. import settings
-from .. import ui
-from ..debugging import loggit
-from ..localization import _, n_
+from .. import application, biz, color_tools, db, events, exceptions, settings, ui
 from ..base_object import dObject
+from ..debugging import loggit
 from ..lib import dates
-from ..lib.utils import caseInsensitiveSortKey
-from ..lib.utils import noneSortKey
-from ..lib.utils import ustr
+from ..lib.utils import caseInsensitiveSortKey, noneSortKey, ustr
+from ..localization import _, n_
 from . import (
     dButton,
     dCheckBox,

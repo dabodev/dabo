@@ -1,7 +1,7 @@
 import time
 
-from .localization import _
 from .base_object import dObject
+from .localization import _
 
 
 class dSecurityManager(dObject):

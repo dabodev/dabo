@@ -5,11 +5,9 @@ import os
 import wx
 import wx.richtext
 
-from .. import application
-from .. import color_tools
-from .. import ui
-from ..localization import _
+from .. import application, color_tools, ui
 from ..lib.utils import ustr
+from ..localization import _
 from . import (
     dButton,
     dDataControlMixin,

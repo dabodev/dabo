@@ -5,15 +5,11 @@ import re
 
 import wx
 
-from .. import color_tools
-from .. import events
-from .. import settings
-from .. import ui
-from ..localization import _
+from .. import color_tools, events, settings, ui
 from ..base_object import dObject
 from ..lib.utils import ustr
-from . import dControlMixin
-from . import makeDynamicProperty
+from ..localization import _
+from . import dControlMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

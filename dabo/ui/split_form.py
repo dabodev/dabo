@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import color_tools
-from .. import ui
+from .. import color_tools, ui
 from ..localization import _
-from . import dForm
-from . import dSplitter
-from . import makeDynamicProperty
+from . import dForm, dSplitter, makeDynamicProperty
 
 
 class dSplitForm(dForm):

@@ -2,9 +2,9 @@
 import wx
 
 from .. import application, events, settings, ui
-from ..localization import _
 from ..base_object import dObject
 from ..lib.utils import ustr
+from ..localization import _
 from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()

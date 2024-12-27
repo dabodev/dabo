@@ -2,8 +2,8 @@
 import wx
 
 from .. import settings, ui
-from ..localization import _
 from ..base_object import dObject
+from ..localization import _
 from . import dPemMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()

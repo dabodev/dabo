@@ -14,9 +14,7 @@ import sys
 from functools import partial
 from pathlib import Path
 
-from . import application
-from . import settings
-from . import version
+from . import application, settings, version
 
 # Reference to the running application object
 app_reference = None
@@ -46,22 +44,14 @@ def makeDaboDirectories(homedir=None):
 
 
 def _load_base_modules():
-    from . import constants
-    from . import exceptions
-    from . import base_object
-    from . import events
+    from . import base_object, constants, events, exceptions
 
 
 def _load_remaining_modules():
-    from . import db
-    from . import preference_mgr
-    from . import ui
+    from . import db, preference_mgr, ui
 
     ui.load_namespace()
-    from . import biz
-    from . import color_tools
-    from . import events
-    from . import settings
+    from . import biz, color_tools, events, settings
 
 
 # if settings.implicitImports:

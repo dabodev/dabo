@@ -14,8 +14,7 @@ from xml.parsers import expat
 
 import six
 
-from .. import exceptions
-from .. import settings
+from .. import exceptions, settings
 from ..localization import _
 from .utils import resolvePath, ustr
 

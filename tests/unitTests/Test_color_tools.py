@@ -153,7 +153,9 @@ class TestTupleHexConversion(unittest.TestCase):
                 random.choice(list(range(256))),
                 random.choice(list(range(256))),
             )
-            self.assertEqual((a, b, c), color_tools.colorTupleFromHex(color_tools.tupleToHex((a, b, c))))
+            self.assertEqual(
+                (a, b, c), color_tools.colorTupleFromHex(color_tools.tupleToHex((a, b, c)))
+            )
 
     # Test Errors
     def testTupleToHexNegativeInput(self):

@@ -4,8 +4,8 @@ import os
 import sys
 
 from ... import ui
-from ...localization import _
 from ...lib.utils import cleanMenuCaption
+from ...localization import _
 from .. import (
     dButton,
     dCheckBox,

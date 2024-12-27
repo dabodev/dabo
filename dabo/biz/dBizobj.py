@@ -5,13 +5,12 @@ import types
 import warnings
 
 import dabo
-from dabo import constants
-from dabo import exceptions
-from dabo.db.dCursorMixin import dCursorMixin
-from dabo.localization import _
+from dabo import constants, exceptions
 from dabo.base_object import dObject
+from dabo.db.dCursorMixin import dCursorMixin
 from dabo.lib.RemoteConnector import RemoteConnector
 from dabo.lib.utils import ustr
+from dabo.localization import _
 
 NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
 # To filter logging noise in scan methods, identify the redundant exceptions.
@@ -694,7 +693,10 @@ class dBizobj(dObject):
             # ensure that any changed data they may have is reverted. They are then requeried to
             # populate them with data for the current record in this bizobj.
             for child in self._children:
-                if self.deleteChildLogic == constants.REFINTEG_CASCADE and child.CascadeDeleteFromParent:
+                if (
+                    self.deleteChildLogic == constants.REFINTEG_CASCADE
+                    and child.CascadeDeleteFromParent
+                ):
                     child.deleteAll(startTransaction=False)
             if startTransaction:
                 self.commitTransaction()

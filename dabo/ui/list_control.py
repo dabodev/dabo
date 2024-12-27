@@ -2,14 +2,10 @@
 import wx
 import wx.lib.mixins.listctrl as ListMixin
 
-from .. import color_tools
-from .. import events
-from .. import settings
-from .. import ui
-from ..localization import _
+from .. import color_tools, events, settings, ui
 from ..lib.utils import ustr
-from . import dControlItemMixin
-from . import makeDynamicProperty
+from ..localization import _
+from . import dControlItemMixin, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

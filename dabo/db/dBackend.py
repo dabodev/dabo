@@ -8,10 +8,10 @@ import time
 
 import dabo
 import dabo.exceptions as exceptions
-from dabo.db import dTable
-from dabo.localization import _
 from dabo.base_object import dObject
+from dabo.db import dTable
 from dabo.lib.utils import ustr
+from dabo.localization import _
 
 from .dCursorMixin import dCursorMixin
 from .dNoEscQuoteStr import dNoEscQuoteStr

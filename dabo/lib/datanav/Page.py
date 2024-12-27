@@ -5,11 +5,11 @@ import sys
 import dabo
 from dabo import dEvents as dEvents
 from dabo import ui as dui
-from  import _, n_
 from dabo.base_object import dObject
 from dabo.lib.utils import ustr
 from dabo.ui import dPanel
 
+from ...localization import _, n_
 from . import QRY_OPERATOR, Grid
 
 ASC, DESC = (n_("asc"), n_("desc"))

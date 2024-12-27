@@ -2,10 +2,10 @@
 import random
 
 import dabo
-from dabo.localization import _
 from dabo.base_object import dObject
 from dabo.lib.connParser import importConnections
 from dabo.lib.SimpleCrypt import SimpleCrypt
+from dabo.localization import _
 
 
 class dConnectInfo(dObject):

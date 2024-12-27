@@ -2,8 +2,9 @@
 import dabo
 from dabo import dEvents as dEvents
 from dabo import ui as dui
-from  import _
 from dabo.ui import dKeys
+
+from ...localization import _
 
 
 class Grid(dui.dGrid):

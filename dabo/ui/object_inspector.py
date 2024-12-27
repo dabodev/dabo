@@ -4,11 +4,11 @@ import time
 import wx
 
 from .. import db, events, ui
-from ..localization import _
 from ..base_object import dObject
-from ..preference_mgr import dPref
 from ..lib.propertyHelperMixin import PropertyHelperMixin
 from ..lib.utils import ustr
+from ..localization import _
+from ..preference_mgr import dPref
 from . import dFormMixin, dSizerMixin
 
 

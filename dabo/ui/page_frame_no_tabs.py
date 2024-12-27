@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-from .. import color_tools
-from .. import events
-from .. import lib
-from .. import ui
+from .. import color_tools, events, lib, ui
 from ..localization import _
-from . import dPage
-from . import dPanel
-from . import makeDynamicProperty
+from . import dPage, dPanel, makeDynamicProperty
 
 
 class dPageFrameNoTabs(dPanel):

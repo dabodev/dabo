@@ -3,9 +3,7 @@ import warnings
 
 import wx
 
-from .. import constants
-from .. import events
-from .. import ui
+from .. import constants, events, ui
 from ..localization import _
 from . import (
     dButton,

@@ -21,22 +21,14 @@ from pathlib import Path
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
-from . import db
-from . import exceptions
-from . import localization
-from . import user_setting_provider
-from . import lib
-from . import settings
-from . import ui
-from .localization import _
+from . import db, exceptions, lib, localization, settings, ui, user_setting_provider
 from .base_object import dObject
-from .preference_mgr import dPref
-from .security_manager import dSecurityManager
 from .lib import connParser
 from .lib.SimpleCrypt import SimpleCrypt
-from .lib.utils import cleanMenuCaption
-from .lib.utils import ustr
-
+from .lib.utils import cleanMenuCaption, ustr
+from .localization import _
+from .preference_mgr import dPref
+from .security_manager import dSecurityManager
 
 dabo_module = settings.get_dabo_package()
 

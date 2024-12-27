@@ -9,9 +9,9 @@ import wx
 import wx.lib.masked as masked
 
 from .. import application, events, settings, ui
-from ..localization import _
 from ..lib import dates
 from ..lib.utils import ustr
+from ..localization import _
 from ..ui import dDataControlMixin, dKeys, makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()

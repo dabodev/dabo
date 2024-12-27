@@ -6,16 +6,10 @@ import types
 
 import wx
 
-from .. import color_tools
-from .. import exceptions
-from .. import events
-from .. import lib
-from .. import settings
-from .. import ui
-from ..localization import _
+from .. import color_tools, events, exceptions, lib, settings, ui
 from ..base_object import dObject
-from ..lib.utils import dictStringify
-from ..lib.utils import ustr
+from ..lib.utils import dictStringify, ustr
+from ..localization import _
 from ..ui import makeDynamicProperty
 
 # Can't import here due to circular imports

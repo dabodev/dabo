@@ -9,8 +9,8 @@ import sys
 Decimal = decimal.Decimal
 
 from .. import application, settings
-from ..localization import _
 from ..lib.dates import getStringFromDate
+from ..localization import _
 
 ######################################################
 # Very first thing: check for required libraries:

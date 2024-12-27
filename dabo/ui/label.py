@@ -2,8 +2,8 @@
 import wx
 
 from .. import events, ui
-from ..localization import _
 from ..lib.utils import get_super_property_value, set_super_property_value
+from ..localization import _
 from . import AlignmentMixin, dCheckBox, dControlMixin, dPanel, dSizer, makeDynamicProperty
 
 

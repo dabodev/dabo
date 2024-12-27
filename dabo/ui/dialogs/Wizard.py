@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from ... import constants as constants
-from ... import events
-from ... import ui
+from ... import events, ui
 from ...application import dApp
 from ...localization import _
 from .. import (

@@ -16,8 +16,8 @@ from datetime import datetime
 from io import IOBase
 
 from .. import settings
-from ..localization import _
 from ..base_object import dObject
+from ..localization import _
 from ..ui.dialogs import Wizard
 from . import utils
 from . import xmltodict as xtd

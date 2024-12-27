@@ -24,8 +24,8 @@ except Exception as e:
     dabo_module.error(_("Error importing numpy.oldnumeric: %s") % e)
     numpy = False
 
-from ..localization import _
 from ..lib.utils import ustr
+from ..localization import _
 from . import dControlMixin, makeDynamicProperty
 
 

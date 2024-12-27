@@ -3,9 +3,9 @@ import string
 import types
 
 from . import settings
-from .localization import _
 from .event_mixin import EventMixin
 from .lib.propertyHelperMixin import PropertyHelperMixin
+from .localization import _
 
 NONE_TYPE = type(None)
 

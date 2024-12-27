@@ -4,8 +4,8 @@ import sys
 import wx
 
 from .. import events, ui
-from ..localization import _
 from ..lib.utils import cleanMenuCaption, ustr
+from ..localization import _
 from . import (
     dCheckMenuItem,
     dMenuItem,
