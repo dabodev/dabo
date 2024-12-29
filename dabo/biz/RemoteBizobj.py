@@ -3,13 +3,12 @@ import os
 import pickle
 import time
 
-import dabo
-import dabo.constants as kons
-import dabo.exceptions as exceptions
-from dabo.lib.connParser import importConnections
-from dabo.localization import _
+from .. import constants, db, exceptions, settings
+from ..lib.connParser import importConnections
+from ..localization import _
+from .bizobj import dBizobj
 
-from .dBizobj import dBizobj
+dabo_module = settings.get_dabo_package()
 
 
 class RemoteBizobj(dBizobj):
@@ -87,8 +86,8 @@ class RemoteBizobj(dBizobj):
                 cxnDict["PlainTextPassword"] = plainTextPassword
             if password:
                 cxnDict["Password"] = password
-            ci = dabo.db.dConnectInfo(cxnDict)
-            cn = dabo.db.dConnection(ci)
+            ci = db.dConnectInfo(cxnDict)
+            cn = db.dConnection(ci)
             self.setConnection(cn)
 
     def storeToCache(self, hashval):
@@ -143,7 +142,7 @@ class RemoteBizobj(dBizobj):
             changeRecs = myDiff[2]
             kids = myDiff[3]
             for rec in changeRecs:
-                newrec = rec.get(kons.CURSOR_TMPKEY_FIELD, False)
+                newrec = rec.get(constants.CURSOR_TMPKEY_FIELD, False)
                 if newrec:
                     self.new()
                 else:
@@ -157,7 +156,7 @@ class RemoteBizobj(dBizobj):
                             % locals()
                         )
                 for col, vals in list(rec.items()):
-                    if col in (kf, kons.CURSOR_TMPKEY_FIELD):
+                    if col in (kf, constants.CURSOR_TMPKEY_FIELD):
                         continue
                     oldval, newval = vals
                     if not newrec:
@@ -176,7 +175,7 @@ class RemoteBizobj(dBizobj):
             if kids:
                 for kidHash, kidInfo in list(kids.items()):
                     kidDS, kidKey, kidData, kidKids = kidInfo
-                    kidClass = dabo._bizDict.get(kidDS)
+                    kidClass = dabo_module._bizDict.get(kidDS)
                     if not kidClass:
                         abort(404, _("DataSource '%s' not found") % kidDS)
                     kidBiz = kidClass.load(kidHash, kidDS)

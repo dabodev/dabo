@@ -5,7 +5,7 @@ dabo.db is the lowest tier, db access.
 This is where the communication to and from the backend database happens, and
 cursors get generated to be manipulated by the bizobj's in dabo.biz.
 
-dabo.biz.dBiz is the entity that will interact with this dabo.db stuff, but you
+dabo.biz.dBizobj is the entity that will interact with this dabo.db stuff, but you
 can also work with dabo.db directly if you want. Perhaps you just want to read
 some rows from a backend database in a script. Here's an example of that::
 
@@ -31,9 +31,8 @@ some rows from a backend database in a script. Here's an example of that::
 import datetime
 from decimal import Decimal
 
-import dabo
-from dabo.exceptions import FieldNotFoundException
-
+from .. import settings
+from ..exceptions import FieldNotFoundException
 from .dConnectInfo import dConnectInfo
 from .dConnection import dConnection
 from .dCursorMixin import dCursorMixin
@@ -76,7 +75,7 @@ def getDataType(pythonType):
     the Decimal type is available.
     """
     ret = pythonType
-    if pythonType is float and dabo.convertFloatToDecimal:
+    if pythonType is float and settings.convertFloatToDecimal:
         ret = daboTypes["N"]
     return ret
 

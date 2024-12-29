@@ -3,8 +3,8 @@ import datetime
 import unittest
 from decimal import Decimal
 
-import dabo.db
-from dabo.lib import getRandomUUID
+from ...lib import getRandomUUID
+from .. import db, exceptions, settings
 
 # Testing anything other than sqlite requires network access. So set these
 # flags so that only the db's you want to test against are True.
@@ -90,11 +90,11 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 
     def test_AuxCursor(self):
         cur = self.cur
-        self.assertTrue(isinstance(cur.AuxCursor, dabo.db.dCursorMixin))
+        self.assertTrue(isinstance(cur.AuxCursor, db.dCursorMixin))
 
     def test_BackendObject(self):
         cur = self.cur
-        self.assertTrue(isinstance(cur.BackendObject, dabo.db.dBackend.dBackend))
+        self.assertTrue(isinstance(cur.BackendObject, db.dBackend.dBackend))
 
     def test_CurrentSQL(self):
         cur = self.cur
@@ -172,8 +172,8 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         def testSetRecord():
             cur.Record.nonExistingFieldName = "ppp"
 
-        self.assertRaises(dabo.exceptions.FieldNotFoundException, testGetRecord)
-        self.assertRaises(dabo.exceptions.FieldNotFoundException, testSetRecord)
+        self.assertRaises(exceptions.FieldNotFoundException, testGetRecord)
+        self.assertRaises(exceptions.FieldNotFoundException, testSetRecord)
 
     def test_RowCount(self):
         cur = self.cur
@@ -224,7 +224,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         cur.Record.cfield = newVal
         self.assertEqual(cur.oldVal("cfield"), oldVal)
         self.assertEqual(cur.Record.cfield, newVal)
-        self.assertRaises(dabo.exceptions.FieldNotFoundException, cur.oldVal, "bogusField")
+        self.assertRaises(exceptions.FieldNotFoundException, cur.oldVal, "bogusField")
 
     ## - End method unit tests -
 
@@ -312,11 +312,11 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         self.assertIsInstance(rec.cfield, str)
         self.assertIsInstance(rec.ifield, int)
         self.assertIsInstance(rec.nfield, Decimal)
-        self.assertEqual(dabo.convertFloatToDecimal, True)
+        self.assertEqual(settings.convertFloatToDecimal, True)
         self.assertIsInstance(rec.ffield, Decimal)
-        dabo.convertFloatToDecimal = False
+        settings.convertFloatToDecimal = False
         cur.requery()
-        self.assertEqual(dabo.convertFloatToDecimal, False)
+        self.assertEqual(settings.convertFloatToDecimal, False)
         self.assertIsInstance(rec.ffield, float)
 
     def test_convert_float_to_decimal(self):
@@ -340,7 +340,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 
 class Test_dCursorMixin_sqlite(Test_dCursorMixin, unittest.TestCase):
     def setUp(self):
-        con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
+        con = db.dConnection(DbType="SQLite", Database=":memory:")
         self.cur = con.getDaboCursor()
         self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
         super().setUp()
@@ -348,7 +348,7 @@ class Test_dCursorMixin_sqlite(Test_dCursorMixin, unittest.TestCase):
 
 class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
     def setUp(self):
-        con = dabo.db.dConnection(
+        con = db.dConnection(
             DbType="MySQL",
             User="dabo_unittest",
             password="T30T35DB4K30Z45I67N60",
@@ -366,7 +366,7 @@ class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
 
 class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
     def setUp(self):
-        con = dabo.db.dConnection(
+        con = db.dConnection(
             DbType="Oracle",
             User="fwadm",
             password="V7EE74E49H6BV27TA0J65G2AS21",
@@ -388,7 +388,7 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
     ##         I intend to set up a test server, but don't know when it will
     ##         actually occur.
     def setUp(self):
-        con = dabo.db.dConnection(
+        con = db.dConnection(
             DbType="Firebird",
             User="dabotester",
             password="Y57W8EN6CB06KBCCDCX01D6B",

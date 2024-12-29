@@ -4,13 +4,15 @@ import time
 import types
 import warnings
 
-import dabo
-from dabo import constants, exceptions
-from dabo.base_object import dObject
-from dabo.db.dCursorMixin import dCursorMixin
-from dabo.lib.RemoteConnector import RemoteConnector
-from dabo.lib.utils import ustr
-from dabo.localization import _
+from .. import constants, db, exceptions, settings
+from ..base_object import dObject
+from ..db.dCursorMixin import dCursorMixin
+from ..lib.RemoteConnector import RemoteConnector
+from ..lib.utils import ustr
+from ..localization import _
+
+dabo_module = settings.get_dabo_package()
+
 
 NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
 # To filter logging noise in scan methods, identify the redundant exceptions.
@@ -421,8 +423,8 @@ class dBizobj(dObject):
         try:
             return self.Application.getTransactionToken(self)
         except AttributeError:
-            if not hasattr(dabo, "_bizTransactionToken"):
-                dabo._bizTransactionToken = self
+            if not hasattr(dabo_module, "_bizTransactionToken"):
+                dabo_module._bizTransactionToken = self
                 return True
             return False
 
@@ -434,7 +436,9 @@ class dBizobj(dObject):
         try:
             ret = self.Application.hasTransactionToken(self)
         except AttributeError:
-            ret = hasattr(dabo, "_bizTransactionToken") and (dabo._bizTransactionToken is self)
+            ret = hasattr(dabo_module, "_bizTransactionToken") and (
+                dabo_module._bizTransactionToken is self
+            )
         return ret
 
     def _releaseTransactionToken(self):
@@ -446,8 +450,11 @@ class dBizobj(dObject):
             self.Application.releaseTransactionToken(self)
         except AttributeError:
             # No Application in play: fake it.
-            if hasattr(dabo, "_bizTransactionToken") and dabo._bizTransactionToken == self:
-                del dabo._bizTransactionToken
+            if (
+                hasattr(dabo_module, "_bizTransactionToken")
+                and dabo_module._bizTransactionToken == self
+            ):
+                del dabo_module._bizTransactionToken
 
     def saveAll(self, startTransaction=True, saveTheChildren=True):
         """
@@ -516,7 +523,7 @@ class dBizobj(dObject):
         if rp:
             return rp.save(startTransaction=startTransaction)
         if not self.RowCount:
-            dabo.log.error(_("Abort attempt to save an empty cursor of %s.") % self.Name)
+            dabo_module.log.error(_("Abort attempt to save an empty cursor of %s.") % self.Name)
             return
         if not self.isChanged():
             return
@@ -930,7 +937,7 @@ class dBizobj(dObject):
             if self._logScanException(e):
                 nm = self.Name
                 ue = ustr(e)
-                dabo.log.error(_("Error in scanRows of %(nm)s: %(ue)s") % locals())
+                dabo_module.log.error(_("Error in scanRows of %(nm)s: %(ue)s") % locals())
             if self.ScanRestorePosition:
                 self.__setCurrentStatus(currentStatus)
             raise
@@ -965,7 +972,7 @@ class dBizobj(dObject):
             if self._logScanException(e):
                 nm = self.Name
                 ue = ustr(e)
-                dabo.log.error(_("Error in scanKeys of %(nm)s: %(ue)s") % locals())
+                dabo_module.log.error(_("Error in scanKeys of %(nm)s: %(ue)s") % locals())
             if self.ScanRestorePosition:
                 self.__setCurrentStatus(currentStatus)
             raise
@@ -1013,7 +1020,7 @@ class dBizobj(dObject):
             if self._logScanException(e):
                 nm = self.Name
                 ue = ustr(e)
-                dabo.log.error(_("Error in scanChangedRows of %(nm)s: %(ue)s") % locals())
+                dabo_module.log.error(_("Error in scanChangedRows of %(nm)s: %(ue)s") % locals())
             self.__setCurrentStatus(currentStatus)
             raise
 
@@ -1097,7 +1104,9 @@ class dBizobj(dObject):
                     else:
                         nm = self.Name
                         ue = ustr(e)
-                        dabo.log.error(_("Failed to set RowNumber of %(nm)s: %(ue)s") % locals())
+                        dabo_module.log.error(
+                            _("Failed to set RowNumber of %(nm)s: %(ue)s") % locals()
+                        )
 
     def replace(self, field, valOrExpr, scope=None):
         """
@@ -1374,7 +1383,7 @@ class dBizobj(dObject):
         if newPK != currPK:
             try:
                 self.moveToPK(currPK)
-            except dabo.exceptions.RowNotFoundException:
+            except exceptions.RowNotFoundException:
                 # The old row was filtered out of the dataset
                 try:
                     self.first()
@@ -1570,7 +1579,7 @@ class dBizobj(dObject):
             # Need to use ustr(pk) because pk might be a tuple.
             upk = ustr(pk)
             nm = self.Name
-            raise dabo.exceptions.RowNotFoundException(
+            raise exceptions.RowNotFoundException(
                 _("PK Value '%(upk)s' not found in the dataset of '%(nm)s'") % locals()
             )
 
@@ -2175,7 +2184,7 @@ class dBizobj(dObject):
         except IndexError:
             return None
             # raise ValueError(_("Field '%s' does not exist in the DataStructure") % fld)
-        return dabo.db.getPythonType(fldInfo)
+        return db.getPythonType(fldInfo)
 
     def getPrecisionForField(self, fld):
         """
@@ -2869,7 +2878,7 @@ afterDelete() which is only called after a delete().""",
             if cursor is not None:
                 ret = cursor.Encoding
             if ret is None:
-                ret = dabo.getEncoding()
+                ret = settings.getEncoding()
             self._encoding = ret
         return ret
 
@@ -3011,7 +3020,7 @@ afterDelete() which is only called after a delete().""",
         try:
             ret = self._cursorRecord
         except AttributeError:
-            ret = self._cursorRecord = dabo.db._getRecord(self)
+            ret = self._cursorRecord = db._getRecord(self)
         return ret
 
     @property

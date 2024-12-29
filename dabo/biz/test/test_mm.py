@@ -1,29 +1,29 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-import dabo
-import dabo.exceptions
-from dabo.lib import getRandomUUID
+from .. import db, exceptions
+from ..biz import dBizobj
+from ..lib import getRandomUUID
 
 
 class Test_Many_To_Many(unittest.TestCase):
     def setUp(self):
-        self.conn = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
-        pbiz = self.person_biz = dabo.biz.dBizobj(self.conn)
+        self.conn = db.dConnection(DbType="SQLite", Database=":memory:")
+        pbiz = self.person_biz = dBizobj(self.conn)
         self.crs = self.person_biz.getTempCursor()
         self.createSchema()
         pbiz.KeyField = "pkid"
         pbiz.DataSource = "person"
         pbiz.requery()
-        comp = self.company_biz = dabo.biz.dBizobj(self.conn)
+        comp = self.company_biz = dBizobj(self.conn)
         comp.KeyField = "pkid"
         comp.DataSource = "company"
         comp.requery()
-        fan_club = self.fan_club_biz = dabo.biz.dBizobj(self.conn)
+        fan_club = self.fan_club_biz = dBizobj(self.conn)
         fan_club.KeyField = "pkid"
         fan_club.DataSource = "fan_club"
         fan_club.requery()
-        self.restricted_biz = dabo.biz.dBizobj(self.conn)
+        self.restricted_biz = dBizobj(self.conn)
         self.restricted_biz.KeyField = "pkid"
         self.restricted_biz.DataSource = "restricted"
         self.restricted_biz.requery()

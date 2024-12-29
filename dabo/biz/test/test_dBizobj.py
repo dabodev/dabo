@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-import dabo
-import dabo.biz
-import dabo.db
-from dabo.lib import getRandomUUID
+from ...lib import getRandomUUID
+from .. import biz, db, exceptions, settings
 
 ## Only tests against sqlite, as we already test dCursorMixin against the
 ## various backends.
@@ -12,8 +10,8 @@ from dabo.lib import getRandomUUID
 
 class Test_dBizobj(unittest.TestCase):
     def setUp(self):
-        self.con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
-        biz = self.biz = dabo.biz.dBizobj(self.con)
+        self.con = db.dConnection(DbType="SQLite", Database=":memory:")
+        biz = self.biz = biz.dBizobj(self.con)
         self.temp_table_name = "parent"
         self.temp_child_table_name = "child"
         self.temp_child2_table_name = "grandchild"
@@ -111,14 +109,14 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         def testBogus():
             return biz.Record.bogus_field_name
 
-        self.assertRaises(dabo.exceptions.FieldNotFoundException, testBogus)
+        self.assertRaises(exceptions.FieldNotFoundException, testBogus)
         self.assertEqual(biz.Record.combined_name, "PaulKeithMcNett:23")
         biz.Record.combined_name = "shouldn't be able to set this"
         self.assertEqual(biz.Record.combined_name, "PaulKeithMcNett:23")
 
     def test_Encoding(self):
         biz = self.biz
-        self.assertEqual(biz.Encoding, dabo.getEncoding())
+        self.assertEqual(biz.Encoding, settings.getEncoding())
         biz.Encoding = "latin-1"
         self.assertEqual(biz.Encoding, "latin-1")
 
@@ -227,7 +225,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz.Record.cField = newVal
         self.assertEqual(biz.oldVal("cField"), oldVal)
         self.assertEqual(biz.Record.cField, newVal)
-        self.assertRaises(dabo.exceptions.FieldNotFoundException, biz.oldVal, "bogusField")
+        self.assertRaises(exceptions.FieldNotFoundException, biz.oldVal, "bogusField")
 
     ## - End method unit tests -
 
@@ -242,7 +240,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz.deleteAll()
         self.assertEqual(biz.RowCount, 0)
 
-        self.assertRaises(dabo.exceptions.NoRecordsException, biz.delete)
+        self.assertRaises(exceptions.NoRecordsException, biz.delete)
 
         biz.new()
         self.assertEqual(biz.RowCount, 1)
@@ -257,7 +255,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
     def testDeleteChildThenDeleteParent(self):
         """See ticket #1312"""
         bizMain = self.biz
-        bizChild = dabo.biz.dBizobj(self.con)
+        bizChild = biz.dBizobj(self.con)
         bizChild.KeyField = "pk"
         bizChild.DataSource = self.temp_child_table_name
         bizChild.LinkField = "parent_fk"
@@ -279,7 +277,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
     def testSaveNewUnchanged(self):
         """See ticket #1101"""
         bizMain = self.biz
-        bizChild = dabo.biz.dBizobj(self.con)
+        bizChild = biz.dBizobj(self.con)
         bizChild.KeyField = "pk"
         bizChild.DataSource = self.temp_child_table_name
         bizChild.LinkField = "parent_fk"
@@ -374,7 +372,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
     def testChildren(self):
         bizMain = self.biz
-        bizChild = dabo.biz.dBizobj(self.con)
+        bizChild = biz.dBizobj(self.con)
         bizChild.KeyField = "pk"
         bizChild.DataSource = self.temp_child_table_name
         bizChild.LinkField = "parent_fk"
@@ -414,8 +412,8 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         def testSetField():
             bizChild.Record.pk = 23
 
-        self.assertRaises(dabo.exceptions.NoRecordsException, testGetField)
-        self.assertRaises(dabo.exceptions.NoRecordsException, testSetField)
+        self.assertRaises(exceptions.NoRecordsException, testGetField)
+        self.assertRaises(exceptions.NoRecordsException, testSetField)
 
         next(bizMain)
 
@@ -497,7 +495,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
     def testChildren_cancel(self):
         bizMain = self.biz
-        bizChild = dabo.biz.dBizobj(self.con)
+        bizChild = biz.dBizobj(self.con)
         bizChild.KeyField = "pk"
         bizChild.DataSource = self.temp_child_table_name
         bizChild.LinkField = "parent_fk"
@@ -516,7 +514,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
     def testChildren_clearParent(self):
         """Requerying bizMain to 0 records should remove bizChild's records, too."""
         bizMain = self.biz
-        bizChild = dabo.biz.dBizobj(self.con)
+        bizChild = biz.dBizobj(self.con)
         bizChild.KeyField = "pk"
         bizChild.DataSource = self.temp_child_table_name
         bizChild.LinkField = "parent_fk"
@@ -533,7 +531,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
     def testChildren_moveParentRecordPointer(self):
         """Moving the parent record pointer shouldn't erase child changes."""
         bizMain = self.biz
-        bizChild = dabo.biz.dBizobj(self.con)
+        bizChild = biz.dBizobj(self.con)
         bizChild.KeyField = "pk"
         bizChild.DataSource = self.temp_child_table_name
         bizChild.LinkField = "parent_fk"
@@ -636,7 +634,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         RowNumber -1 after calling parent.getChangedRows().
         """
         bizMain = self.biz
-        bizChild = dabo.biz.dBizobj(self.con)
+        bizChild = biz.dBizobj(self.con)
         bizChild.KeyField = "pk"
         bizChild.DataSource = self.temp_child_table_name
         bizChild.LinkField = "parent_fk"
@@ -658,13 +656,13 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         a single record from child bizobjs seem to get saved.
         """
         bizMain = self.biz
-        bizChild = dabo.biz.dBizobj(self.con)
+        bizChild = biz.dBizobj(self.con)
         bizChild.KeyField = "pk"
         bizChild.DataSource = self.temp_child_table_name
         bizChild.LinkField = "parent_fk"
         bizChild.FillLinkFromParent = True
 
-        bizChild2 = dabo.biz.dBizobj(self.con)
+        bizChild2 = biz.dBizobj(self.con)
         bizChild2.KeyField = "pk"
         bizChild2.DataSource = self.temp_child2_table_name
         bizChild2.LinkField = "parent_fk"

@@ -21,7 +21,7 @@ So, dabo.biz sits in between dabo.db and dabo.ui
 
 """
 
-from .dBizobj import dBizobj
+from .bizobj import dBizobj
 from .RemoteBizobj import RemoteBizobj
 
 # from .dAutoBizobj import dAutoBizobj
