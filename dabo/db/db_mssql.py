@@ -4,7 +4,7 @@ import datetime
 from dabo.lib.utils import ustr
 from dabo.localization import _
 
-from .dBackend import dBackend
+from .backend import dBackend
 
 
 class MSSQL(dBackend):

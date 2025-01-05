@@ -6,7 +6,7 @@ import warnings
 
 from .. import constants, db, exceptions, settings
 from ..base_object import dObject
-from ..db.dCursorMixin import dCursorMixin
+from ..db.cursor_mixin import dCursorMixin
 from ..lib.RemoteConnector import RemoteConnector
 from ..lib.utils import ustr
 from ..localization import _

@@ -5,7 +5,7 @@ import re
 import dabo
 from dabo.lib.utils import ustr
 
-from .dBackend import dBackend
+from .backend import dBackend
 
 
 class Firebird(dBackend):

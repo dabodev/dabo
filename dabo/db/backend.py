@@ -6,15 +6,13 @@ import sys
 import threading
 import time
 
-import dabo
-import dabo.exceptions as exceptions
-from dabo.base_object import dObject
-from dabo.db import dTable
-from dabo.lib.utils import ustr
-from dabo.localization import _
-
-from .dCursorMixin import dCursorMixin
-from .dNoEscQuoteStr import dNoEscQuoteStr
+from .. import exceptions
+from ..base_object import dObject
+from ..lib.utils import ustr
+from ..localization import _
+from .cursor_mixin import dCursorMixin
+from .no_esc_quote_str import dNoEscQuoteStr
+from .table import dTable
 
 
 class dBackend(dObject):

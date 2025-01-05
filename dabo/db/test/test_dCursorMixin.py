@@ -94,7 +94,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 
     def test_BackendObject(self):
         cur = self.cur
-        self.assertTrue(isinstance(cur.BackendObject, db.dBackend.dBackend))
+        self.assertTrue(isinstance(cur.BackendObject, db.backend.dBackend))
 
     def test_CurrentSQL(self):
         cur = self.cur

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
 
-import dabo
-from dabo.base_object import dObject
-from dabo.lib.connParser import importConnections
-from dabo.lib.SimpleCrypt import SimpleCrypt
-from dabo.localization import _
+from ..base_object import dObject
+from ..lib.connParser import importConnections
+from ..lib.SimpleCrypt import SimpleCrypt
+from ..localization import _
 
 
 class dConnectInfo(dObject):
@@ -169,33 +168,33 @@ class dConnectInfo(dObject):
             nm = dbType.lower()
             try:
                 if nm == "mysql":
-                    from . import dbMySQL
+                    from . import db_mysql
 
-                    self._backendObject = dbMySQL.MySQL()
+                    self._backendObject = db_mysql.MySQL()
                 elif nm == "sqlite":
-                    from . import dbSQLite
+                    from . import db_sqlite
 
-                    self._backendObject = dbSQLite.SQLite()
+                    self._backendObject = db_sqlite.SQLite()
                 elif nm == "firebird":
-                    from . import dbFirebird
+                    from . import db_firebird
 
-                    self._backendObject = dbFirebird.Firebird()
+                    self._backendObject = db_firebird.Firebird()
                 elif nm == "postgresql":
-                    from . import dbPostgreSQL
+                    from . import db_postgresql
 
-                    self._backendObject = dbPostgreSQL.Postgres()
+                    self._backendObject = db_postgresql.Postgres()
                 elif nm == "mssql":
-                    from . import dbMsSQL
+                    from . import db_mssql
 
-                    self._backendObject = dbMsSQL.MSSQL()
+                    self._backendObject = db_mssql.MSSQL()
                 elif nm == "oracle":
-                    from . import dbOracle
+                    from . import db_oracle
 
-                    self._backendObject = dbOracle.Oracle()
+                    self._backendObject = db_oracle.Oracle()
                 elif nm == "web":
-                    from . import dbWeb
+                    from . import db_web
 
-                    self._backendObject = dbWeb.Web()
+                    self._backendObject = db_web.Web()
                 elif nm == "odbc":
                     import dbODBC
 

@@ -10,7 +10,7 @@ import datetime
 from dabo.lib.utils import ustr
 from dabo.localization import _
 
-from .dBackend import dBackend
+from .backend import dBackend
 
 
 class Oracle(dBackend):
@@ -172,7 +172,7 @@ class Oracle(dBackend):
 # only for testing
 #
 def main():
-    from dabo.db.dConnectInfo import dConnectInfo
+    from dabo.db.connect_info import dConnectInfo
 
     ora = Oracle()
     connInfo = dConnectInfo(

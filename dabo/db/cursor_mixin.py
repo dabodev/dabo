@@ -10,8 +10,8 @@ from ..base_object import dObject
 from ..lib import dates
 from ..lib.utils import caseInsensitiveSortKey, noneSortKey, ustr
 from ..localization import _
-from .dDataSet import dDataSet
-from .dNoEscQuoteStr import dNoEscQuoteStr
+from .dataset import dDataSet
+from .no_esc_quote_str import dNoEscQuoteStr
 
 cursor_flags = (
     constants.CURSOR_MEMENTO,

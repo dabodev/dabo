@@ -7,9 +7,9 @@ import dabo.exceptions as exceptions
 from dabo.lib.utils import ustr
 from dabo.localization import _
 
-from .dBackend import dBackend
-from .dCursorMixin import dCursorMixin
-from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
+from .backend import dBackend
+from .cursor_mixin import dCursorMixin
+from .no_esc_quote_str import dNoEscQuoteStr
 
 
 class MySQLAutoReconnectCursor(dCursorMixin):
@@ -312,7 +312,7 @@ class MySQL(dBackend):
                     sql = sql + "DATETIME "
                 elif fld.DataType == "Stamp":
                     sql = sql + "TIMESTAMP "
-                    fld.Default = dNoEQ("CURRENT_TIMESTAMP")
+                    fld.Default = dNoEscQuoteStr("CURRENT_TIMESTAMP")
                 elif fld.DataType == "Binary":
                     if fld.Size <= 255:
                         sql = sql + "TINYBLOB "

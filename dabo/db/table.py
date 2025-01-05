@@ -26,7 +26,7 @@ class dTable(dObject):
 
     Code Example::
 
-        from dabo.db import dTable
+        from db import dTable
         myTable = dTable(Name="mytemp", IsTemp=True)
         myTable.addField(Name="theid", IsPK=True, DataType="int",
                 Size=2, IsAutoIncrement=True)

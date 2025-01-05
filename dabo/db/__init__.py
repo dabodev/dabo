@@ -10,7 +10,7 @@ can also work with dabo.db directly if you want. Perhaps you just want to read
 some rows from a backend database in a script. Here's an example of that::
 
     from connectInfo import ConnectInfo
-    from dConnection import dConnection
+    from connection import dConnection
 
     ci = ConnectInfo('MySQL')
     ci.host = 'paulmcnett.com'
@@ -33,11 +33,10 @@ from decimal import Decimal
 
 from .. import settings
 from ..exceptions import FieldNotFoundException
-from .dConnectInfo import dConnectInfo
-from .dConnection import dConnection
-from .dCursorMixin import dCursorMixin
-from .dDataSet import dDataSet
-from .dTable import dTable
+from .connect_info import dConnectInfo
+from .connection import dConnection
+from .cursor_mixin import dCursorMixin
+from .dataset import dDataSet
 
 daboTypes = {
     "C": str,  ## text

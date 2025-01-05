@@ -6,8 +6,8 @@ import datetime
 from dabo.lib.RemoteConnector import RemoteConnector
 from dabo.localization import _
 
-from .dBackend import dBackend
-from .dbSQLite import SQLite
+from .backend import dBackend
+from .db_sqlite import SQLite
 
 
 class Web(SQLite):

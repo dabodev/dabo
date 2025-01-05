@@ -273,7 +273,7 @@ class dObject(PropertyHelperMixin, EventMixin):
         """The base Dabo class of the object. Read-only  (type)
 
         Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
-            class dBackend(object)
+            class dBackend(object):
                def __init__(self):
                    self._baseClass = dBackend
         In other words, BaseClass isn't the actual Python base class of the object, but the

@@ -9,9 +9,8 @@ from .. import application, settings
 from ..exceptions import DBFileDoesNotExistException, DBQueryException
 from ..lib.utils import ustr
 from ..localization import _
-from .dBackend import dBackend
-from .dCursorMixin import dCursorMixin
-from .dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
+from .backend import dBackend
+from .no_esc_quote_str import dNoEscQuoteStr
 
 dabo_module = settings.get_dabo_package()
 
@@ -268,7 +267,7 @@ class SQLite(dBackend):
                     sql = sql + "TEXT "
                 elif fld.DataType == "Stamp":
                     sql = sql + "TEXT "
-                    fld.Default = dNoEQ("CURRENT_TIMESTAMP")
+                    fld.Default = dNoEscQuoteStr("CURRENT_TIMESTAMP")
                 elif fld.DataType == "Binary":
                     sql = sql + "BLOB "
 
