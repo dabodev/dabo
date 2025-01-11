@@ -1589,13 +1589,13 @@ try again when it is running.
         self._mainFormClass = val
 
     @property
-    def NoneDisp(self):
+    def NoneDisplay(self):
         """Text to display for null (None) values.  (str)"""
         v = self._noneDisplay = getattr(self, "_noneDisplay", _("< None >"))
         return v
 
-    @NoneDisp.setter
-    def NoneDisp(self, val):
+    @NoneDisplay.setter
+    def NoneDisplay(self, val):
         assert isinstance(val, str)
         self._noneDisplay = val
 

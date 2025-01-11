@@ -768,13 +768,6 @@ class dColumn(wx._core.Object, dPemMixin):
             settingName = "%s.%s.%s.%s" % (form.Name, grid.Name, colName, prop)
             app.setUserSetting(settingName, val)
 
-    def _getColumnIndex(self):
-        """Return our column index in the grid, or -1."""
-        try:
-            return self.Parent.Columns.index(self)
-        except (ValueError, AttributeError):
-            return -1
-
     def _updateEditor(self):
         """The Field, DataType, or CustomEditor has changed: set in the attr"""
         editorClass = self.EditorClass
@@ -931,6 +924,14 @@ class dColumn(wx._core.Object, dPemMixin):
             self._setCellProp("SetTextColour", val)
         else:
             self._properties["CellForeColor"] = val
+
+    @property
+    def ColumnIndex(self):
+        """Return our column index in the grid, or -1."""
+        try:
+            return self.Parent.Columns.index(self)
+        except (ValueError, AttributeError):
+            return -1
 
     @property
     def CustomEditorClass(self):
@@ -2325,14 +2326,14 @@ class dGrid(dControlMixin, wx.grid.Grid):
             + a string, which maps to a bizobj on the form.
 
         The columns will be taken from the first record of the dataset, with each
-        column header caption being set to the field name, unless    the optional
+        column header caption being set to the field name, unless the optional
         keyCaption parameter is passed. This parameter is a 1:1 dict containing
         the data set keys as its keys, and the desired caption as the
         corresponding value.
 
         If the includeFields parameter is a sequence, the only columns added will
         be the fieldnames included in the includeFields sequence. If the
-        includeFields    parameter is None, all fields will be added to the grid.
+        includeFields parameter is None, all fields will be added to the grid.
 
         The columns will be in the order returned by ds.keys(), unless the
         optional colOrder parameter is passed. Like the keyCaption property,
@@ -3375,9 +3376,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 ## yet it hasn't yet taken effect: force it.
                 col.Width = col.Width
         except (
-            wx.PyAssertionError,
-            wx.core.PyAssertionError,
-            wx._core.PyAssertionError,
+            wx.wxAssertionError,
+            wx._core.wxAssertionError,
         ):
             # If the underlying wx grid doesn't yet know about the column, such
             # as when adding columns with inBatch=True, this can throw an error
@@ -5315,7 +5315,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             self._properties["SortIndicatorSize"] = val
 
     @property
-    def Table(self):
+    def _Table(self):
         """Reference to the internal table class  (dGridDataTable)"""
         ## pkm: we can't call this until after the grid is fully constructed. Need to fix.
         try:
@@ -5330,8 +5330,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 tbl = None
         return tbl
 
-    @Table.setter
-    def Table(self, tbl):
+    @_Table.setter
+    def _Table(self, tbl):
         if self._constructed():
             self.SetTable(tbl, True)
         else:

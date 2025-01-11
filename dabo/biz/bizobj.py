@@ -2743,7 +2743,7 @@ afterDelete() which is only called after a delete().""",
         return self._CurrentCursor.CurrentSQL
 
     @property
-    def CurrentCursor(self):
+    def _CurrentCursor(self):
         """The cursor object for the currently selected key value. (dCursorMixin child)"""
         try:
             return self.__cursors[self.__currentCursorKey]
@@ -2755,8 +2755,8 @@ afterDelete() which is only called after a delete().""",
             except KeyError:
                 return None
 
-    @CurrentCursor.setter
-    def CurrentCursor(self, val):
+    @_CurrentCursor.setter
+    def _CurrentCursor(self, val):
         """Sees if there is a cursor in the cursors dict with a key that matches
         the current parent key. If not, creates one.
         """
@@ -2765,7 +2765,7 @@ afterDelete() which is only called after a delete().""",
             self.createCursor()
 
     @property
-    def CurrentCursorKey(self):
+    def _CurrentCursorKey(self):
         """The currently selected cursor key value. (read only)"""
         return self.__currentCursorKey
 
@@ -3024,7 +3024,7 @@ afterDelete() which is only called after a delete().""",
         return ret
 
     @property
-    def RemoteProxy(self):
+    def _RemoteProxy(self):
         """
         If this bizobj is being run remotely, returns a reference to the RemoteConnector
         object that will handle communication with the server.  (read-only) (RemoteConnector)
@@ -3200,7 +3200,7 @@ afterDelete() which is only called after a delete().""",
         self._scanReverse = val
 
     @property
-    def SqlMgr(self):
+    def SqlManager(self):
         """Reference to the cursor that handles SQL Builder information (cursor)"""
         if self._sqlMgrCursor is None:
             cursorClass = self._getCursorClass(self.dCursorMixinClass, self.dbapiCursorClass)

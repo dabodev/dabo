@@ -725,15 +725,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             # This is being called back by the BackendObject
             self.__nonUpdateFields = nonUp
             return
-        dataStructure = getattr(self, "_dataStructure", None)
-        if dataStructure is not None:
+        if self.DataStructure is not None:
             # Use the explicitly-set DataStructure to find the NonUpdateFields.
             self.__nonUpdateFields = [
                 f[0] for f in self.DataStructure if (f[3] != self.Table) or not f[4]
             ]
         else:
             # Create the _dataStructure attribute
-            self._getDataStructure()
+            self.__createDataStructure()
             # Delegate to the backend object to figure it out.
             self.__nonUpdateFields = self.BackendObject.setNonUpdateFields(self)
 
@@ -859,7 +858,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         if not _records:
             raise exceptions.NoRecordsException(_("No records in dataset '%s'.") % self.Table)
         if row is None:
-            row = self._getRowNumber()
+            row = self.RowNumber
         try:
             rec = _records[row]
         except IndexError:
@@ -2815,6 +2814,41 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         """
         self._table = self.AuxCursor._table = self.sqlManager._table = "%s" % tbl
 
+    def __createDataStructure(self):
+        # Get the information from the backend. Note that elements 3 and 4 get
+        # guessed-at values.
+        val = getattr(self, "_savedStructureDescription", [])
+        if not val:
+            if self.BackendObject is None:
+                # Nothing we can do. We are probably an AuxCursor
+                pass
+            else:
+                ds = self.BackendObject.getStructureDescription(self)
+                gf_names = [gf[0] for gf in self.getFields(self.Table)]
+                for field in ds:
+                    field_name, field_type, pk = field[0], field[1], field[2]
+                    try:
+                        field_scale = field[5]
+                    except IndexError:
+                        field_scale = None
+                    if field_name in gf_names:
+                        table_name = self.Table
+                    else:
+                        table_name = "_foreign_table_"
+                    val.append(
+                        (
+                            field_name,
+                            field_type,
+                            pk,
+                            table_name,
+                            field_name,
+                            field_scale,
+                        )
+                    )
+            self._savedStructureDescription = val
+        self._dataStructure = val
+        return val
+
     ## Property getter/setter methods ##
     @property
     def AutoPopulatePK(self):
@@ -2910,39 +2944,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         2) The backend table method
 
         """
-        val = getattr(self, "_dataStructure", None)
-        if val is None:
-            # Get the information from the backend. Note that elements 3 and 4 get
-            # guessed-at values.
-            val = getattr(self, "_savedStructureDescription", [])
-            if not val:
-                if self.BackendObject is None:
-                    # Nothing we can do. We are probably an AuxCursor
-                    pass
-                else:
-                    ds = self.BackendObject.getStructureDescription(self)
-                    gf_names = [gf[0] for gf in self.getFields(self.Table)]
-                    for field in ds:
-                        field_name, field_type, pk = field[0], field[1], field[2]
-                        try:
-                            field_scale = field[5]
-                        except IndexError:
-                            field_scale = None
-                        if field_name in gf_names:
-                            table_name = self.Table
-                        else:
-                            table_name = "_foreign_table_"
-                        val.append(
-                            (
-                                field_name,
-                                field_type,
-                                pk,
-                                table_name,
-                                field_name,
-                                field_scale,
-                            )
-                        )
-                self._savedStructureDescription = val
+        val = getattr(self, "_dataStructure", None) or self.__createDataStructure()
         return tuple(val)
 
     @DataStructure.setter
