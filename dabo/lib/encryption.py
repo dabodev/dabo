@@ -18,7 +18,7 @@ class Encryption(dObject):
     without a salt, but it will be less secure. If you are unfamiliar with salts in cryptography,
     this is a good introduction: https://en.wikipedia.org/wiki/Salt_%28cryptography%29
 
-    It is very important to not store either your password or salt in your code. Instead, create a
+    It is very important to not store neither your password nor salt in your code. Instead, create a
     function in your code that will retrieve it from a local file that is *NOT* included in your
     project. This way you can use public sites like Github or Gitlab without anyone being able to
     discover your secret values.

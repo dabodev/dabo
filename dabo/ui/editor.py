@@ -1455,7 +1455,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
                 break
             if os.path.exists(fname):
                 r = ui.areYouSure(
-                    _("File '%s' already exists. Do you " "want to overwrite it?") % fname,
+                    _("File '%s' already exists. Do you want to overwrite it?") % fname,
                     defaultNo=True,
                 )
                 if r is None:

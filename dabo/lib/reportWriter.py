@@ -141,7 +141,7 @@ def getSubFont(fontName, subFontName="Helvetica"):
     if oblique:
         subFontName += "Oblique"
     if subFontName not in substitutedFontNames:
-        log.error(_("Font '%(fontName)s' not found. Substituting " "'%(subFontName)s'") % locals())
+        log.error(_("Font '%(fontName)s' not found. Substituting '%(subFontName)s'") % locals())
         substitutedFontNames.append(subFontName)
     return subFontName
 

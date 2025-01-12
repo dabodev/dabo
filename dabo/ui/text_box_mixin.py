@@ -878,7 +878,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
                     # to continue
                     uv = ustr(strVal)
                     ue = ustr(e)
-                    dabo_module.error(_("Error setting value to '%(uv)s': " "%(ue)s") % locals())
+                    dabo_module.error(_("Error setting value to '%(uv)s': %(ue)s") % locals())
 
             if type(_oldVal) != type(val) or _oldVal != val:
                 self._afterValueChanged()

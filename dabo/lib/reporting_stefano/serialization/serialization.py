@@ -34,7 +34,7 @@ class Serializable(object, metaclass=SerializableMeta):
 
     def getExpectedNames(cls):
         assert hasattr(cls, "_xmlSerializationAttributes"), (
-            "Class %r does not " "define list of attributes needed for deserialization" % cls
+            "Class %r does not define list of attributes needed for deserialization" % cls
         )
         names = []
         for attrName, attrType in cls._xmlSerializationAttributes:
@@ -48,7 +48,7 @@ class Serializable(object, metaclass=SerializableMeta):
 
     def getChildObjType(cls, childName):
         assert hasattr(cls, "_xmlSerializationAttributes"), (
-            "Class %r does not " "define list of attributes needed for deserialization" % cls
+            "Class %r does not define list of attributes needed for deserialization" % cls
         )
         for attrName, attrType in cls._xmlSerializationAttributes:
             if isinstance(attrType, SerializableAttribute):

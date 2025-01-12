@@ -62,7 +62,7 @@ class dLine(dControlMixin, wx.StaticLine):
         elif value == "h":
             self._addWindowStyleFlag(wx.LI_HORIZONTAL)
         else:
-            raise ValueError("The only possible values are " "'Horizontal' and 'Vertical'.")
+            raise ValueError("The only possible values are 'Horizontal' and 'Vertical'.")
 
     DynamicOrientation = makeDynamicProperty(Orientation)
 

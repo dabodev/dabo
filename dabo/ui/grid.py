@@ -3411,7 +3411,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         else:
             typcoi = type(colOrIdx)
             msg = (
-                _("Values must be a dColumn or an int; received '%(colOrIdx)s' " "(%(typcoi)s)")
+                _("Values must be a dColumn or an int; received '%(colOrIdx)s' (%(typcoi)s)")
                 % locals()
             )
             if logOnly:

@@ -286,9 +286,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
             self._multiChoices.sort(key=lambda x: locale.strxfrm(x[0]).lower())
         self._updateDataList(self._multiChoices)
         if len(choices) < 2 or len(choices[0]) < 2:
-            raise ValueError(
-                "You have to pass me a multi-dimension list with " "at least two entries"
-            )
+            raise ValueError("You have to pass me a multi-dimension list with at least two entries")
             # with only one entry, the dropdown artifacts
         for numCol, rowValues in enumerate(choices[0]):
             if self._colNames:
@@ -800,7 +798,6 @@ if __name__ == "__main__":
     import dLabel
     import dPanel
     import dSizer
-
     import test
 
     class TestPanel(dPanel):

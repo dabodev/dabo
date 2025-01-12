@@ -116,11 +116,9 @@ class Postgres(dBackend):
         return "'%s'" % ustr(val)
 
     def getTables(self, cursor, includeSystemTables=False):
-        query = ["SELECT schemaname||'.'||tablename AS tablename" " FROM pg_tables WHERE"]
+        query = ["SELECT schemaname||'.'||tablename AS tablename FROM pg_tables WHERE"]
         if not includeSystemTables:
-            query.append(
-                "(schemaname NOT LIKE 'pg_%' AND " "schemaname NOT LIKE 'information%') AND"
-            )
+            query.append("(schemaname NOT LIKE 'pg_%' AND schemaname NOT LIKE 'information%') AND")
         query.append(
             """has_schema_privilege(schemaname, 'usage') AND """
             """has_table_privilege('"'||schemaname||'"."'||tablename||'"', 'select')"""
@@ -167,9 +165,7 @@ class Postgres(dBackend):
         else:
             sql.append("AND pg_table_is_visible(c.oid)")
         if not includeSystemFields:
-            sql.append(
-                "AND a.attname NOT IN " " ('ctid', 'cmin', 'cmax', 'tableoid', 'xmax', 'xmin')"
-            )
+            sql.append("AND a.attname NOT IN  ('ctid', 'cmin', 'cmax', 'tableoid', 'xmax', 'xmin')")
         sql.append(
             "AND has_schema_privilege(n.oid, 'usage')"
             " AND has_table_privilege(c.oid, 'select')"
@@ -307,7 +303,7 @@ class Postgres(dBackend):
             tempCursor.close()
         if not rs or rs[0] is None:
             raise AttributeError(
-                "Unable to determine the sequence used" " or the sequence returns a strange value."
+                "Unable to determine the sequence used or the sequence returns a strange value."
             )
         else:
             return rs[0]

@@ -2845,7 +2845,7 @@ afterDelete() which is only called after a delete().""",
             val = tuple(val)
         if not isinstance(val, (type(None), tuple)):
             raise TypeError(
-                _("Invalid type '%s' for property DataStructure. " "An tuple value is required.")
+                _("Invalid type '%s' for property DataStructure. A tuple value is required.")
                 % type(val)
             )
         for key, cursor in list(self.__cursors.items()):
