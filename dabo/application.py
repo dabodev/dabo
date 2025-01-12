@@ -24,7 +24,7 @@ from zipfile import ZipFile
 from . import db, exceptions, lib, localization, settings, ui, user_setting_provider
 from .base_object import dObject
 from .lib import connParser
-from .lib.SimpleCrypt import SimpleCrypt
+from .lib.encryption import Encryption
 from .lib.utils import cleanMenuCaption, ustr
 from .localization import _
 from .preference_mgr import dPref
@@ -146,8 +146,6 @@ class dApp(dObject):
         -- of dConnection objects. This allows connections to be shared
         -- application-wide.
 
-        -- decide which ui to use (wx) and gets that ball rolling
-
         -- look for a MainForm in an expected place, otherwise use default dabo
         -- dFormMain, and instantiate that.
 
@@ -202,6 +200,8 @@ class dApp(dObject):
         self._transactionTokens = {}
         # Holds update check times in case of errors.
         self._lastCheckInfo = None
+        # Reference to the Encryption object
+        self._encryption = Encryption()
         # Location and Name of the project; used for Web Update
         self._projectInfo = (None, None)
         self._setProjInfo()
@@ -806,20 +806,26 @@ try again when it is running.
             return None
 
     # These two methods pass encryption/decryption requests
-    # to the Crypto object
+    # to the encryption object
     def encrypt(self, val):
         """
-        Return the encrypted string value. The request is passed
-        to the Crypto object for processing.
+        Takes a string or bytes and returns the encrypted string value.
+
+        The request is passed to the Encryption object for processing, and it will handle
+        encoding/decoding from strings to bytes. Note that the encrypted value will always be
+        returned as a decoded string.
         """
-        return self.Crypto.encrypt(val)
+        return self._encryption.encrypt(val)
 
     def decrypt(self, val):
         """
-        Return decrypted string value. The request is passed to
-        the Crypto object for processing.
+        Return decrypted string value.
+
+        The request is passed to the Encryption object for processing. Since encryption requires
+        bytes, the object will handle encoding/decoding. Note that the encrypted value will always
+        be returned as a decoded string.
         """
-        return self.Crypto.decrypt(val)
+        return self._encryption.decrypt(val)
 
     def getCharset(self):
         """Returns one of 'unicode' or 'ascii'."""
@@ -885,7 +891,7 @@ try again when it is running.
                     except Exception as ex:
                         uex = ustr(ex)
                         dabo_module.error(
-                            _("Error loading database connection " "info from file %(f)s:\n%(uex)s")
+                            _("Error loading database connection info from file %(f)s:\n%(uex)s")
                             % locals()
                         )
                     else:
@@ -1349,29 +1355,19 @@ try again when it is running.
         return ret
 
     @property
-    def Crypto(self):
-        """Reference to the object that provides cryptographic services.  (varies)"""
-        if getattr(self, "_cryptoProvider", None) is None:
-            # Use the default crypto
-            self._cryptoProvider = SimpleCrypt()
-        return self._cryptoProvider
-
-    @Crypto.setter
-    def Crypto(self, val):
-        self._cryptoProvider = val
-
-    @property
     def CryptoKey(self):
         """
-        When set, creates a DES crypto object if PyCrypto is installed. Note that
-        each time this property is set, a new PyCrypto instance is created, and
-        any previous crypto objects are released. Write-only.  (varies)
+        The password and optional salt value used to secure encrypted values in your application.
+
+        If this is a single value (str or bytes), a default salt will be used. It is recommended to
+        use a 2-tuple of (password, salt), or even better, a callable that will return that 2-tuple.
+        You cannot read this value, for security reasons.  Write-only.  (varies)
         """
         raise ValueError("The CryptoKey property is write-only")
 
     @CryptoKey.setter
     def CryptoKey(self, val):
-        self._cryptoProvider = SimpleCrypt(key=val)
+        self._encryption.set_key(val)
 
     @property
     def DefaultForm(self):

@@ -3,7 +3,7 @@ import random
 
 from ..base_object import dObject
 from ..lib.connParser import importConnections
-from ..lib.SimpleCrypt import SimpleCrypt
+from ..lib.encryption import Encryption
 from ..localization import _
 
 
@@ -55,6 +55,12 @@ class dConnectInfo(dObject):
         ) = self._remoteHost = ""
         self._keepAliveInterval = None
         super().__init__(**kwargs)
+
+        # Necessary when using this class outside of a Dabo application. See the docstring
+        # for the dabo.application.Application.CryptoKey property for the format needed.
+        self._encryption = Encryption()
+        self._encryption.set_key(kwargs.get("crypto_key"))
+
         if connInfo:
             self.setConnInfo(connInfo)
 
@@ -105,41 +111,19 @@ class dConnectInfo(dObject):
         if self.Application:
             return self.Application.encrypt(val)
         else:
-            return self.Crypto.encrypt(val)
+            return self._encryption.encrypt(val)
 
     def decrypt(self, val):
         if self.Application:
             return self.Application.decrypt(val)
         else:
-            return self.Crypto.decrypt(val)
+            return self._encryption.decrypt(val)
 
     def revealPW(self):
         return self.decrypt(self.Password)
 
     def getBackendObject(self):
         return self._backendObject
-
-    @property
-    def Crypto(self):
-        """
-        Reference to the object that provides cryptographic services if run
-        outside of an application.  (varies)
-        """
-        try:
-            ret = self.Application.Crypto
-        except AttributeError:
-            try:
-                ret = self._cryptoProvider
-            except AttributeError:
-                ret = self._cryptoProvider = None
-        if ret is None:
-            # Use the default crypto
-            ret = self._cryptoProvider = SimpleCrypt()
-        return self._cryptoProvider
-
-    @Crypto.setter
-    def Crypto(self, val):
-        self._cryptoProvider = val
 
     @property
     def CustomParameters(self):
