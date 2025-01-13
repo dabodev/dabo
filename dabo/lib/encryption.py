@@ -57,7 +57,6 @@ class Encryption(dObject):
         if isinstance(self.__key, str):
             self.__key = self.__key.encode(self.encoding)
 
-
     def _get_key(self):
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
@@ -76,6 +75,8 @@ class Encryption(dObject):
         return token.decode(self.encoding)
 
     def decrypt(self, token):
+        if not token:
+            return ""
         token = token.encode(self.encoding) if isinstance(token, str) else token
         f = Fernet(self.__key)
         val = f.decrypt(token)

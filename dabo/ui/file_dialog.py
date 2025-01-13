@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import application, constants, settings, ui
+from .. import application
+from .. import constants
+from .. import settings
+from .. import ui
 from ..localization import _
 
 
@@ -130,7 +133,7 @@ class dFolderDialog(OsDialogMixin, wx.DirDialog):
         self._multiple = False
         self._baseClass = dFolderDialog
         if parent is None:
-            parent = application.get_application().ActiveForm
+            parent = settings.get_application().ActiveForm
         super().__init__(
             parent=parent,
             message=message,
@@ -153,7 +156,7 @@ class dSaveDialog(dFileDialog):
     ):
         self._baseClass = dSaveDialog
         if parent is None:
-            parent = application.get_application().ActiveForm
+            parent = settings.get_application().ActiveForm
         super().__init__(
             parent=parent,
             message=message,
