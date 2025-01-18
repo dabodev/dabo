@@ -34,8 +34,9 @@ class Encryption(dObject):
 
     def beforeInit(self):
         self.encoding = settings.getEncoding()
+        self.key_cache = {}
         self.__password = self.__salt = b""
-        self.__key = self._get_key()
+        self.__key = b""
 
     def set_key(self, key):
         keyvals = key() if callable(key) else key
@@ -45,8 +46,9 @@ class Encryption(dObject):
             # Some tools, like the preference manager, use local DBs with no password
             self.__password = keyvals or "default"
             self.__salt = b"\xc6\x15\xb2Y\x974\x81\x9d\x82\xb5S\xd6\x84\x00y4"
+        # Invalidate any previously computed key
+        self.__key = b""
         self._set_encoded()
-        self.__key = self._get_key()
 
     def _set_encoded(self):
         """Ensure that the password and salt are bytes, not str"""
@@ -58,17 +60,23 @@ class Encryption(dObject):
             self.__key = self.__key.encode(self.encoding)
 
     def _get_key(self):
-        kdf = PBKDF2HMAC(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=self.__salt,
-            iterations=1_000_000,
-        )
-        return base64.urlsafe_b64encode(kdf.derive(self.__password))
+        cache_key = (self.__password, self.__salt)
+        cached = self.key_cache.get(cache_key)
+        if not cached:
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=self.__salt,
+                iterations=1_000_000,
+            )
+            cached = base64.urlsafe_b64encode(kdf.derive(self.__password))
+            self.key_cache[cache_key] = cached
+        return cached
 
     def encrypt(self, val):
         if not val:
             return ""
+        self.__key = self.__key or self._get_key()
         val = val.encode(self.encoding) if isinstance(val, str) else val
         f = Fernet(self.__key)
         token = f.encrypt(val)
@@ -77,6 +85,7 @@ class Encryption(dObject):
     def decrypt(self, token):
         if not token:
             return ""
+        self.__key = self.__key or self._get_key()
         token = token.encode(self.encoding) if isinstance(token, str) else token
         f = Fernet(self.__key)
         val = f.decrypt(token)
