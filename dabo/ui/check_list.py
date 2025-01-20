@@ -66,9 +66,15 @@ class dCheckList(dControlItemMixin, wx.CheckListBox):
             ##      If this is the case, callAfter is the ticket.
             ui.callAfter(self.Check, index, True)
 
-    def _getMultipleSelect(self):
+    @property
+    def MultipleSelect(self):
         """MultipleSelect for dCheckList is always True."""
         return True
+
+    @MultipleSelect.setter
+    def MultipleSelect(self, val):
+        """Always True, so ignore"""
+        return
 
 
 ui.dCheckList = dCheckList

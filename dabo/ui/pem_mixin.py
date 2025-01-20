@@ -1129,6 +1129,8 @@ class dPemMixin(dObject):
         paged controls to switch to the page that contains this object.
         """
         cntnr = self.getContainingPage()
+        if not cntnr:
+            return
         if isinstance(cntnr, ui.dialogs.WizardPage):
             self.Form.CurrentPage = cntnr
         else:

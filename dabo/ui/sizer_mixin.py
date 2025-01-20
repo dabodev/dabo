@@ -660,7 +660,7 @@ class dSizerMixin(dObject):
         else:
             if isinstance(self.outlineColor, str):
                 # translate to a wx.Colour
-                self.outlineColor = wx.NamedColour(self.outlineColor)
+                self.outlineColor = wx.Colour(self.outlineColor)
         if self.outlineWidth is None:
             if self.Application.Platform == "Win":
                 # Make 'em a bit wider.

@@ -415,7 +415,7 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
             self._properties["Value"] = val
 
     @property
-    def _Img(self):
+    def _Image(self):
         """Underlying image handler object  (wx.Image)"""
         if self.__image is None:
             try:
