@@ -5,8 +5,10 @@ import sys
 
 import six
 
-from .. import application, settings
-from ..exceptions import DBFileDoesNotExistException, DBQueryException
+from .. import application
+from .. import settings
+from ..exceptions import DBFileDoesNotExistException
+from ..exceptions import DBQueryException
 from ..lib.utils import ustr
 from ..localization import _
 from .backend import dBackend

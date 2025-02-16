@@ -2,9 +2,13 @@
 import wx
 import wx.lib.agw.hyperlink as hyperlink
 
-from .. import color_tools, events, ui
+from .. import color_tools
+from .. import events
+from .. import ui
 from ..localization import _
-from . import AlignmentMixin, dControlMixin, makeDynamicProperty
+from . import AlignmentMixin
+from . import dControlMixin
+from . import makeDynamicProperty
 
 
 class dHyperLink(dControlMixin, AlignmentMixin, hyperlink.HyperLinkCtrl):

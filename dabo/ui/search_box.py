@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import events, ui
+from .. import events
+from .. import ui
 from ..localization import _
-from . import dTextBoxMixin, makeDynamicProperty
+from . import dTextBoxMixin
+from . import makeDynamicProperty
 
 
 class dSearchBox(dTextBoxMixin, wx.SearchCtrl):

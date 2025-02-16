@@ -5,10 +5,12 @@ from decimal import Decimal
 import wx
 import wx.lib.masked as masked
 
-from .. import events, ui
+from .. import events
+from .. import ui
 from ..localization import _
 from . import dDataControlMixin as ddcm
-from . import dTextBoxMixin, makeDynamicProperty
+from . import dTextBoxMixin
+from . import makeDynamicProperty
 
 
 class dNumericBox(dTextBoxMixin, masked.NumCtrl):

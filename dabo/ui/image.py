@@ -8,10 +8,15 @@ import os
 import filetype
 import wx
 
-from .. import events, settings, ui
+from .. import events
+from .. import settings
+from .. import ui
 from ..lib import utils
 from ..localization import _
-from . import dDataControlMixin, dForm, dImageMixin, makeDynamicProperty
+from . import dDataControlMixin
+from . import dForm
+from . import dImageMixin
+from . import makeDynamicProperty
 
 # See if PIL is installed
 _USE_PIL = True

@@ -4,7 +4,9 @@ import unittest
 from decimal import Decimal
 
 from ...lib import getRandomUUID
-from .. import db, exceptions, settings
+from .. import db
+from .. import exceptions
+from .. import settings
 
 # Testing anything other than sqlite requires network access. So set these
 # flags so that only the db's you want to test against are True.

@@ -3,7 +3,8 @@ import wx
 
 from .. import ui
 from ..localization import _
-from . import dControlItemMixin, makeDynamicProperty
+from . import dControlItemMixin
+from . import makeDynamicProperty
 
 
 class dListBox(dControlItemMixin, wx.ListBox):

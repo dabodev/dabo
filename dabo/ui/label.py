@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import events, ui
-from ..lib.utils import get_super_property_value, set_super_property_value
+from .. import events
+from .. import ui
+from ..lib.utils import get_super_property_value
+from ..lib.utils import set_super_property_value
 from ..localization import _
-from . import AlignmentMixin, dCheckBox, dControlMixin, dPanel, dSizer, makeDynamicProperty
+from . import AlignmentMixin
+from . import dCheckBox
+from . import dControlMixin
+from . import dPanel
+from . import dSizer
+from . import makeDynamicProperty
 
 
 class dLabel(dControlMixin, AlignmentMixin, wx.StaticText):

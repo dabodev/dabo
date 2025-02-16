@@ -3,7 +3,8 @@ import os
 import os.path
 import sys
 
-from . import report, serialization
+from . import report
+from . import serialization
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

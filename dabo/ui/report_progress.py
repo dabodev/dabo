@@ -2,7 +2,11 @@
 import wx
 
 from ..localization import _
-from . import dBorderSizer, dButton, dGauge, dLabel, dPanel
+from . import dBorderSizer
+from . import dButton
+from . import dGauge
+from . import dLabel
+from . import dPanel
 
 
 class dReportProgress(dPanel):

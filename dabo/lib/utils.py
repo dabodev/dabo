@@ -20,7 +20,8 @@ from .. import settings
 from ..localization import _
 
 try:
-    from win32com.shell import shell, shellcon
+    from win32com.shell import shell
+    from win32com.shell import shellcon
 except ImportError:
     shell, shellcon = None, None
 

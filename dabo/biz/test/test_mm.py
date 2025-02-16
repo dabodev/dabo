@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from .. import db, exceptions
+from .. import db
+from .. import exceptions
 from ..biz import dBizobj
 from ..lib import getRandomUUID
 

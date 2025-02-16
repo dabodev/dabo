@@ -9,7 +9,9 @@ along with convenience functions to allow calling like::
 
 import wx
 
-from .. import application, settings, ui
+from .. import application
+from .. import settings
+from .. import ui
 from ..localization import _
 
 
@@ -230,7 +232,10 @@ ui.showMessageBox = showMessageBox
 
 if __name__ == "__main__":
     from ..application import dApp
-    from ..ui import dButton, dForm, dLabel, dLine
+    from ..ui import dButton
+    from ..ui import dForm
+    from ..ui import dLabel
+    from ..ui import dLine
 
     app = dApp()
     app.showMainFormOnStart = False

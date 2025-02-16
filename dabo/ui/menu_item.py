@@ -3,10 +3,13 @@ import types
 
 import wx
 
-from .. import events, exceptions, ui
+from .. import events
+from .. import exceptions
+from .. import ui
 from ..lib.utils import ustr
 from ..localization import _
-from . import dPemMixin, makeDynamicProperty
+from . import dPemMixin
+from . import makeDynamicProperty
 
 
 class dMenuItem(dPemMixin, wx.MenuItem):

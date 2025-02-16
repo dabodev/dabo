@@ -4,9 +4,13 @@ import time
 
 import wx
 
-from .. import events, settings, ui
+from .. import events
+from .. import settings
+from .. import ui
 from ..localization import _
-from . import dControlItemMixin, dDataControlMixin, makeDynamicProperty
+from . import dControlItemMixin
+from . import dDataControlMixin
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

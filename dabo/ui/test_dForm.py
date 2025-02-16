@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from .. import biz, db, ui
+from .. import biz
+from .. import db
+from .. import ui
 from ..application import dApp
 from ..lib import getRandomUUID
 

@@ -6,11 +6,15 @@ import time
 
 import wx
 
-from .. import color_tools, events, settings, ui
+from .. import color_tools
+from .. import events
+from .. import settings
+from .. import ui
 from ..base_object import dObject
 from ..lib import utils
 from ..lib.utils import cleanMenuCaption
-from ..localization import _, n_
+from ..localization import _
+from ..localization import n_
 
 # Can't import here due to circular imports
 dabo_module = None

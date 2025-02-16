@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-from .. import application, biz, events, exceptions, settings, ui
+from .. import application
+from .. import biz
+from .. import events
+from .. import exceptions
+from .. import settings
+from .. import ui
 from ..base_object import dObject
 from ..lib.utils import ustr
 from ..localization import _

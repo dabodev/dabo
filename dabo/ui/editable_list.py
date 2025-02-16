@@ -4,7 +4,8 @@ from wx import adv as wx_adv
 
 from .. import ui
 from ..localization import _
-from . import dControlMixin, makeDynamicProperty
+from . import dControlMixin
+from . import makeDynamicProperty
 
 
 class dEditableList(dControlMixin, wx_adv.EditableListBox):

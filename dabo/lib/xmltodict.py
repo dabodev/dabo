@@ -14,9 +14,11 @@ from xml.parsers import expat
 
 import six
 
-from .. import exceptions, settings
+from .. import exceptions
+from .. import settings
 from ..localization import _
-from .utils import resolvePath, ustr
+from .utils import resolvePath
+from .utils import ustr
 
 default_encoding = settings.getEncoding()
 # Normalize the names, as xml.sax running on Gtk will complain for some variations

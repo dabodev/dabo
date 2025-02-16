@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import application, events, settings, ui
+from .. import application
+from .. import events
+from .. import settings
+from .. import ui
 from ..base_object import dObject
 from ..lib.utils import ustr
 from ..localization import _

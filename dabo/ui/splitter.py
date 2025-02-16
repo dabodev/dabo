@@ -3,9 +3,13 @@ import random
 
 import wx
 
-from .. import color_tools, events, ui
+from .. import color_tools
+from .. import events
+from .. import ui
 from ..localization import _
-from . import dControlMixin, dForm, makeDynamicProperty
+from . import dControlMixin
+from . import dForm
+from . import makeDynamicProperty
 
 
 class SplitterPanelMixin(object):
@@ -415,7 +419,7 @@ class dSplitter(dControlMixin, wx.SplitterWindow):
             if 0 <= val <= 100:
                 sz = {"V": self.Width, "H": self.Height}[self.Orientation[0]]
                 pct = val / 100.0
-                self.SashPosition = (sz * pct)
+                self.SashPosition = sz * pct
                 self.SetSashGravity(pct)
         else:
             self._properties["SashPercent"] = val

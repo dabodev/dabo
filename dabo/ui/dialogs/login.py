@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 from ... import icons
 from ...localization import _
-from .. import dImage, dLabel, dOkCancelDialog, dSizer, dTextBox
+from .. import dImage
+from .. import dLabel
+from .. import dOkCancelDialog
+from .. import dSizer
+from .. import dTextBox
 
 
 class Lbl(dLabel):

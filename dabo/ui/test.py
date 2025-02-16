@@ -21,7 +21,8 @@ from pathlib import Path
 
 import wx
 
-from .. import settings, ui
+from .. import settings
+from .. import ui
 from ..application import dApp
 
 # Log all events except the really frequent ones:
@@ -44,7 +45,9 @@ class Test(object):
             frame = classRefs[0](None, *args, **kwargs)
             isDialog = issubclass(classRefs[0], wx.Dialog)
         else:
-            from . import dForm, dPanel, dSizer
+            from . import dForm
+            from . import dPanel
+            from . import dSizer
 
             frame = dForm(Name="formTest")
             panel = frame.addObject(dPanel, Name="panelTest")
@@ -81,7 +84,11 @@ class Test(object):
 
     def testAll(self):
         """Create a dForm and populate it with example dWidgets."""
-        from ..ui import dEditBox, dForm, dLabel, dScrollPanel, dSizer
+        from ..ui import dEditBox
+        from ..ui import dForm
+        from ..ui import dLabel
+        from ..ui import dScrollPanel
+        from ..ui import dSizer
 
         frame = dForm(Name="formTestAll")
         frame.Caption = "Test of all the dControls"

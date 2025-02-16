@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-from .. import events, ui
+from .. import events
+from .. import ui
 from ..localization import _
-from . import dPanel, makeDynamicProperty
-from . import dPemMixin as PM
+from . import dPanel
+from . import dPemMixin
+from . import makeDynamicProperty
 
 
-class dTimer(PM):
+class dTimer(dPemMixin):
     """Creates a timer, for causing something to happen at regular intervals."""
 
     def __init__(self, parent=None, properties=None, *args, **kwargs):

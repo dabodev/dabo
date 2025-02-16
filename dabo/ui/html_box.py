@@ -10,9 +10,11 @@ import urllib.request
 
 import wx.html
 
-from .. import events, ui
+from .. import events
+from .. import ui
 from ..localization import _
-from . import dControlMixin, makeDynamicProperty
+from . import dControlMixin
+from . import makeDynamicProperty
 
 try:
     import webbrowser as wb

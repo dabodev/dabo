@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import color_tools, events, ui
+from .. import color_tools
+from .. import events
+from .. import ui
 from ..localization import _
-from . import dControlMixin, dDataControlMixin, makeDynamicProperty
+from . import dControlMixin
+from . import dDataControlMixin
+from . import makeDynamicProperty
 
 
 class _BasePanelMixin(object):

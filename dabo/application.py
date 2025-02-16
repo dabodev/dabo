@@ -21,11 +21,18 @@ from pathlib import Path
 from xml.sax._exceptions import SAXParseException
 from zipfile import ZipFile
 
-from . import db, exceptions, lib, localization, settings, ui, user_setting_provider
+from . import db
+from . import exceptions
+from . import lib
+from . import localization
+from . import settings
+from . import ui
+from . import user_setting_provider
 from .base_object import dObject
 from .lib import connParser
 from .lib.encryption import Encryption
-from .lib.utils import cleanMenuCaption, ustr
+from .lib.utils import cleanMenuCaption
+from .lib.utils import ustr
 from .localization import _
 from .preference_mgr import dPref
 from .security_manager import dSecurityManager

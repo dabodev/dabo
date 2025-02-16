@@ -4,7 +4,8 @@ import os
 import warnings
 from decimal import Decimal
 
-from . import db, settings
+from . import db
+from . import settings
 from .lib import utils
 from .lib.utils import ustr
 from .localization import _

@@ -13,9 +13,12 @@ import os
 
 import wx
 
-from .. import icons, ui
-from ..localization import _, n_
-from . import dMenu, dMenuBar
+from .. import icons
+from .. import ui
+from ..localization import _
+from ..localization import n_
+from . import dMenu
+from . import dMenuBar
 
 iconPath = (
     os.path.dirname(icons.__file__) + r"/themes/tango/16x16"

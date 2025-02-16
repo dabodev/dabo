@@ -3,7 +3,14 @@ import wx
 
 from .. import ui
 from ..localization import _
-from . import dBox, dButton, dForm, dLabel, dPanel, dSizer, dSizerMixin, makeDynamicProperty
+from . import dBox
+from . import dButton
+from . import dForm
+from . import dLabel
+from . import dPanel
+from . import dSizer
+from . import dSizerMixin
+from . import makeDynamicProperty
 
 
 class dBorderSizer(dSizerMixin, wx.StaticBoxSizer):

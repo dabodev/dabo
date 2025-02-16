@@ -10,7 +10,9 @@ from dabo import ui as dui
 from dabo.lib import reportUtils
 
 from ...localization import _
-from . import Grid, Page, PageFrame
+from . import Grid
+from . import Page
+from . import PageFrame
 
 # See if the reporting libraries are present
 _has_reporting_libs = True

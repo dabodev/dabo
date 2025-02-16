@@ -26,7 +26,8 @@ except Exception as e:
 
 from ..lib.utils import ustr
 from ..localization import _
-from . import dControlMixin, makeDynamicProperty
+from . import dControlMixin
+from . import makeDynamicProperty
 
 
 class _TraceMixin(object):

@@ -8,10 +8,12 @@ import datetime
 import wx
 from wx import adv as wx_adv
 
-from .. import application, ui
+from .. import application
+from .. import ui
 from ..lib.utils import ustr
 from ..localization import _
-from . import dDataControlMixin, makeDynamicProperty
+from . import dDataControlMixin
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

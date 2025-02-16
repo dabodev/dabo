@@ -2,7 +2,8 @@
 import wx
 
 from .. import ui
-from ..localization import _, n_
+from ..localization import _
+from ..localization import n_
 from . import dControlMixin
 
 

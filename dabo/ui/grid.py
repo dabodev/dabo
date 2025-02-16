@@ -7,7 +7,8 @@ import re
 import sys
 import time
 import warnings
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
+from decimal import InvalidOperation
 from functools import reduce
 
 import six
@@ -15,29 +16,37 @@ import wx
 import wx.grid
 from wx._core import PyAssertionError
 
-from .. import application, biz, color_tools, db, events, exceptions, settings, ui
+from .. import application
+from .. import biz
+from .. import color_tools
+from .. import db
+from .. import events
+from .. import exceptions
+from .. import settings
+from .. import ui
 from ..base_object import dObject
 from ..debugging import loggit
 from ..lib import dates
-from ..lib.utils import caseInsensitiveSortKey, noneSortKey, ustr
-from ..localization import _, n_
-from . import (
-    dButton,
-    dCheckBox,
-    dControlMixin,
-    dDropdownList,
-    dFont,
-    dForm,
-    dGridSizer,
-    dKeys,
-    dMenu,
-    dPemMixin,
-    dRadioList,
-    dTextBox,
-    dTimer,
-    dUICursors,
-    makeDynamicProperty,
-)
+from ..lib.utils import caseInsensitiveSortKey
+from ..lib.utils import noneSortKey
+from ..lib.utils import ustr
+from ..localization import _
+from ..localization import n_
+from . import dButton
+from . import dCheckBox
+from . import dControlMixin
+from . import dDropdownList
+from . import dFont
+from . import dForm
+from . import dGridSizer
+from . import dKeys
+from . import dMenu
+from . import dPemMixin
+from . import dRadioList
+from . import dTextBox
+from . import dTimer
+from . import dUICursors
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

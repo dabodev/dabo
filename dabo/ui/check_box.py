@@ -2,9 +2,11 @@
 import wx
 
 from .. import ui
-from ..lib.utils import get_super_property_value, set_super_property_value
+from ..lib.utils import get_super_property_value
+from ..lib.utils import set_super_property_value
 from ..localization import _
-from . import dDataControlMixin, makeDynamicProperty
+from . import dDataControlMixin
+from . import makeDynamicProperty
 
 
 class dCheckBox(dDataControlMixin, wx.CheckBox):

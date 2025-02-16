@@ -3,10 +3,13 @@ import os.path
 
 import wx
 
-from .. import events, ui
+from .. import events
+from .. import ui
 from ..base_object import dObject
 from ..localization import _
-from . import dControlMixin, dMenu, makeDynamicProperty
+from . import dControlMixin
+from . import dMenu
+from . import makeDynamicProperty
 
 
 class dToolBar(dControlMixin, wx.ToolBar):

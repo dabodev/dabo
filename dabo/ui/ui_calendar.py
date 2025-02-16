@@ -4,9 +4,11 @@ import datetime
 import wx
 import wx.adv as wxcal
 
-from .. import events, ui
+from .. import events
+from .. import ui
 from ..localization import _
-from . import dControlMixin, makeDynamicProperty
+from . import dControlMixin
+from . import makeDynamicProperty
 
 # settings: firstDayOfWeek
 

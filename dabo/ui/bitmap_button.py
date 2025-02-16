@@ -5,7 +5,9 @@ import wx
 
 from .. import ui
 from ..localization import _
-from . import dControlMixin, dImageMixin, makeDynamicProperty
+from . import dControlMixin
+from . import dImageMixin
+from . import makeDynamicProperty
 
 
 class dBitmapButton(dControlMixin, dImageMixin, wx.BitmapButton):

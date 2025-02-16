@@ -9,7 +9,11 @@ try:
 except ImportError:
     raise ImportError("Your version of wxPython is too old for dBorderlessButton")
 
-from .. import application, color_tools, events, settings, ui
+from .. import application
+from .. import color_tools
+from .. import events
+from .. import settings
+from .. import ui
 from ..localization import _
 
 dabo_module = settings.get_dabo_package()

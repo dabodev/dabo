@@ -47,7 +47,8 @@ class MySQL(dBackend):
 
         kwargs = {}
         # pymysql doesn't provide decimal converter by default, so we do it here
-        from pymysql import constants, converters
+        from pymysql import constants
+        from pymysql import converters
 
         DECIMAL = constants.FIELD_TYPE.DECIMAL
         conversions = converters.conversions.copy()

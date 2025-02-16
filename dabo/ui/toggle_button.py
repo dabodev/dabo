@@ -2,9 +2,11 @@
 import wx
 import wx.lib.buttons as wxb
 
-from .. import events, ui
+from .. import events
+from .. import ui
 from ..localization import _
-from . import dDataControlMixin, dImageMixin
+from . import dDataControlMixin
+from . import dImageMixin
 
 
 class dToggleButton(dDataControlMixin, dImageMixin, wxb.GenBitmapTextToggleButton):

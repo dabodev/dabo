@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-from .. import color_tools, events, lib, ui
+from .. import color_tools
+from .. import events
+from .. import lib
+from .. import ui
 from ..localization import _
-from . import dPage, dPanel, makeDynamicProperty
+from . import dPage
+from . import dPanel
+from . import makeDynamicProperty
 
 
 class dPageFrameNoTabs(dPanel):
@@ -273,7 +278,11 @@ ui.dPageFrameNoTabs = dPageFrameNoTabs
 
 import random
 
-from . import dButton, dDropdownList, dForm, dLabel, dSizer
+from . import dButton
+from . import dDropdownList
+from . import dForm
+from . import dLabel
+from . import dSizer
 
 
 class TestPage(dPage):

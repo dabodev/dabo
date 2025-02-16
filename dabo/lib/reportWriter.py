@@ -8,7 +8,8 @@ import sys
 
 Decimal = decimal.Decimal
 
-from .. import application, settings
+from .. import application
+from .. import settings
 from ..lib.dates import getStringFromDate
 from ..localization import _
 
@@ -56,16 +57,20 @@ import reportlab.lib.units as units
 import reportlab.pdfgen.canvas as canvas
 import reportlab.platypus as platypus
 from reportlab.lib.utils import ImageReader
-from reportlab.pdfbase.pdfmetrics import getRegisteredFontNames, registerFont
-from reportlab.pdfbase.ttfonts import TTFError, TTFont
+from reportlab.pdfbase.pdfmetrics import getRegisteredFontNames
+from reportlab.pdfbase.pdfmetrics import registerFont
+from reportlab.pdfbase.ttfonts import TTFError
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.rl_config import TTFSearchPath
 
 # import reportlab.lib.colors as colors
 from ..settings import getEncoding
 from . import reportUtils
 from .caselessDict import CaselessDict
-from .utils import resolvePathAndUpdate, ustr
-from .xmltodict import dicttoxml, xmltodict
+from .utils import resolvePathAndUpdate
+from .utils import ustr
+from .xmltodict import dicttoxml
+from .xmltodict import xmltodict
 
 # The below block tried to use the experimental para.Paragraph which
 # handles more html tags, including hyperlinks. However, I couldn't

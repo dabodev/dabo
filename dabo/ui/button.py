@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import events, ui
+from .. import events
+from .. import ui
 from ..localization import _
 
 

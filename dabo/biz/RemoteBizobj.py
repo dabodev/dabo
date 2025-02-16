@@ -3,7 +3,10 @@ import os
 import pickle
 import time
 
-from .. import constants, db, exceptions, settings
+from .. import constants
+from .. import db
+from .. import exceptions
+from .. import settings
 from ..lib.connParser import importConnections
 from ..localization import _
 from .bizobj import dBizobj

@@ -31,5 +31,11 @@ IGNORE_STRING = QRY_OPERATOR.IGNORE
 from .Bizobj import Bizobj
 from .Form import Form
 from .Grid import Grid
-from .Page import BrowsePage, EditPage, Page, SelectionOpDropdown, SelectPage, SortLabel
-from .PageFrame import PageFrame, PageFrameMixin
+from .Page import BrowsePage
+from .Page import EditPage
+from .Page import Page
+from .Page import SelectionOpDropdown
+from .Page import SelectPage
+from .Page import SortLabel
+from .PageFrame import PageFrame
+from .PageFrame import PageFrameMixin

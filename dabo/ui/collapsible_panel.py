@@ -4,7 +4,8 @@ import wx.lib.agw.pycollapsiblepane as pcp
 
 from .. import ui
 from ..localization import _
-from . import dControlMixin, dPanel
+from . import dControlMixin
+from . import dPanel
 
 
 class dCollapsiblePanel(dControlMixin, pcp.PyCollapsiblePane):

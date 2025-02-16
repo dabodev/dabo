@@ -4,7 +4,10 @@ import time
 import types
 import warnings
 
-from .. import constants, db, exceptions, settings
+from .. import constants
+from .. import db
+from .. import exceptions
+from .. import settings
 from ..base_object import dObject
 from ..db.cursor_mixin import dCursorMixin
 from ..lib.RemoteConnector import RemoteConnector

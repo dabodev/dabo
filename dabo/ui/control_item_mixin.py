@@ -5,7 +5,8 @@ from .. import ui
 from ..lib.propertyHelperMixin import _DynamicList
 from ..lib.utils import ustr
 from ..localization import _
-from . import dDataControlMixin, makeDynamicProperty
+from . import dDataControlMixin
+from . import makeDynamicProperty
 
 
 class dControlItemMixin(dDataControlMixin):

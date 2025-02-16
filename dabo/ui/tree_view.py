@@ -5,11 +5,15 @@ import re
 
 import wx
 
-from .. import color_tools, events, settings, ui
+from .. import color_tools
+from .. import events
+from .. import settings
+from .. import ui
 from ..base_object import dObject
 from ..lib.utils import ustr
 from ..localization import _
-from . import dControlMixin, makeDynamicProperty
+from . import dControlMixin
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 
@@ -1354,7 +1358,12 @@ class _dTreeView_test(dTreeView):
 
 if __name__ == "__main__":
     from .application import dApp
-    from .ui import dButton, dCheckBox, dForm, dPanel, dSizer, test
+    from .ui import dButton
+    from .ui import dCheckBox
+    from .ui import dForm
+    from .ui import dPanel
+    from .ui import dSizer
+    from .ui import test
 
     class TreeViewTestForm(dForm):
         def afterInit(self):

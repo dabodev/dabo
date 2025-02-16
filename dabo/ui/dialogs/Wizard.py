@@ -1,40 +1,39 @@
 # -*- coding: utf-8 -*-
 from ... import constants as constants
-from ... import events, ui
+from ... import events
+from ... import ui
 from ...application import dApp
 from ...localization import _
-from .. import (
-    dBitmapButton,
-    dBorderSizer,
-    dButton,
-    dCalendar,
-    dCheckBox,
-    dCheckList,
-    dColumn,
-    dDateTextBox,
-    dDialog,
-    dDropdownList,
-    dEditBox,
-    dExtendedCalendar,
-    dForm,
-    dGrid,
-    dGridSizer,
-    dImage,
-    dLabel,
-    dLine,
-    dListControl,
-    dMaskedTextBox,
-    dMessageBox,
-    dOkCancelDialog,
-    dPageFrame,
-    dPageFrameNoTabs,
-    dPanel,
-    dRadioList,
-    dScrollPanel,
-    dSizer,
-    dSpinner,
-    dTextBox,
-)
+from .. import dBitmapButton
+from .. import dBorderSizer
+from .. import dButton
+from .. import dCalendar
+from .. import dCheckBox
+from .. import dCheckList
+from .. import dColumn
+from .. import dDateTextBox
+from .. import dDialog
+from .. import dDropdownList
+from .. import dEditBox
+from .. import dExtendedCalendar
+from .. import dForm
+from .. import dGrid
+from .. import dGridSizer
+from .. import dImage
+from .. import dLabel
+from .. import dLine
+from .. import dListControl
+from .. import dMaskedTextBox
+from .. import dMessageBox
+from .. import dOkCancelDialog
+from .. import dPageFrame
+from .. import dPageFrameNoTabs
+from .. import dPanel
+from .. import dRadioList
+from .. import dScrollPanel
+from .. import dSizer
+from .. import dSpinner
+from .. import dTextBox
 from . import WizardPage
 
 
@@ -215,9 +214,7 @@ class Wizard(dDialog):
                 else:
                     if isinstance(pg, str):
                         xml = pg
-                        from .lib.DesignerClassConverter import (
-                            DesignerClassConverter,
-                        )
+                        from .lib.DesignerClassConverter import DesignerClassConverter
 
                         conv = DesignerClassConverter()
                         pg = conv.classFromText(xml)

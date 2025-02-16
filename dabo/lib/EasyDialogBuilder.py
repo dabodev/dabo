@@ -17,7 +17,8 @@ targeted and Forms, Dialogs, and Panels.
 
 import types
 
-from .. import events, ui
+from .. import events
+from .. import ui
 from ..application import dApp
 from .utils import ustr
 

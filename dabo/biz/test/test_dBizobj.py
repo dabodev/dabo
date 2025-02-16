@@ -2,7 +2,10 @@
 import unittest
 
 from ...lib import getRandomUUID
-from .. import biz, db, exceptions, settings
+from .. import biz
+from .. import db
+from .. import exceptions
+from .. import settings
 
 ## Only tests against sqlite, as we already test dCursorMixin against the
 ## various backends.

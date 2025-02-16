@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from . import events, settings
+from . import events
+from . import settings
 from .base_object import dObject
 from .lib.reportWriter import ReportWriter
 from .localization import _

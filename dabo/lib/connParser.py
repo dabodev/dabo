@@ -4,7 +4,8 @@ import sys
 import xml.sax
 from io import StringIO
 
-from .. import application, settings
+from .. import application
+from .. import settings
 from ..localization import _
 from . import utils
 

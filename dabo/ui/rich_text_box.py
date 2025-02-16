@@ -5,18 +5,18 @@ import os
 import wx
 import wx.richtext
 
-from .. import application, color_tools, ui
+from .. import application
+from .. import color_tools
+from .. import ui
 from ..lib.utils import ustr
 from ..localization import _
-from . import (
-    dButton,
-    dDataControlMixin,
-    dDropdownList,
-    dForm,
-    dTimer,
-    dToggleButton,
-    makeDynamicProperty,
-)
+from . import dButton
+from . import dDataControlMixin
+from . import dDropdownList
+from . import dForm
+from . import dTimer
+from . import dToggleButton
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

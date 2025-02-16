@@ -4,7 +4,8 @@ import os
 import wx
 
 from ..localization import _
-from . import dControlMixin, makeDynamicProperty
+from . import dControlMixin
+from . import makeDynamicProperty
 
 # Need to define this exception class for x-platform
 try:

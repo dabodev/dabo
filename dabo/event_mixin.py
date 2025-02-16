@@ -3,7 +3,8 @@ import string
 import traceback
 import types
 
-from . import events, settings
+from . import events
+from . import settings
 from .localization import _
 
 

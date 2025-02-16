@@ -3,7 +3,10 @@ import datetime
 
 import wx
 
-from .. import application, events, settings, ui
+from .. import application
+from .. import events
+from .. import settings
+from .. import ui
 from ..localization import _
 
 dabo_module = settings.get_dabo_package()

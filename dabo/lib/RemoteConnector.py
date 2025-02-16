@@ -12,7 +12,9 @@ from io import StringIO
 from os.path import join as pathjoin
 from zipfile import ZipFile
 
-from .. import application, exceptions, settings
+from .. import application
+from .. import exceptions
+from .. import settings
 from ..application import dApp
 from ..base_object import dObject
 from ..localization import _

@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import application, color_tools, constants, settings, ui
+from .. import application
+from .. import color_tools
+from .. import constants
+from .. import settings
+from .. import ui
 
 
 class dColorDialog(wx.ColourDialog):

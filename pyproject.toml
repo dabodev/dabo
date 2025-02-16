@@ -64,7 +64,7 @@ exclude = [
 
 [tool.ruff.lint.isort]
 combine-as-imports = false
-force-single-line = false
+force-single-line = true
 force-sort-within-sections = false
 
 [project]

@@ -5,10 +5,16 @@ import re
 import time
 from decimal import Decimal
 
-from .. import constants, db, exceptions, settings, ui
+from .. import constants
+from .. import db
+from .. import exceptions
+from .. import settings
+from .. import ui
 from ..base_object import dObject
 from ..lib import dates
-from ..lib.utils import caseInsensitiveSortKey, noneSortKey, ustr
+from ..lib.utils import caseInsensitiveSortKey
+from ..lib.utils import noneSortKey
+from ..lib.utils import ustr
 from ..localization import _
 from .dataset import dDataSet
 from .no_esc_quote_str import dNoEscQuoteStr

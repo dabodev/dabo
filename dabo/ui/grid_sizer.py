@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import settings, ui
+from .. import settings
+from .. import ui
 from ..localization import _
-from . import dSizerMixin, makeDynamicProperty
+from . import dSizerMixin
+from . import makeDynamicProperty
 
 dabo_module = settings.get_dabo_package()
 

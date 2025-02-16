@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import wx
 
-from .. import color_tools, ui
+from .. import color_tools
+from .. import ui
 from ..localization import _
 from . import dDataPanel
 
@@ -95,7 +96,12 @@ ui.dLed = dLed
 
 if __name__ == "__main__":
     from ..application import dApp
-    from ..ui import dDropdownList, dForm, dLabel, dPanel, dSizer, dToggleButton
+    from ..ui import dDropdownList
+    from ..ui import dForm
+    from ..ui import dLabel
+    from ..ui import dPanel
+    from ..ui import dSizer
+    from ..ui import dToggleButton
 
     class TestForm(dForm):
         def afterInit(self):

@@ -4,18 +4,16 @@ import string
 import sys
 
 from ...localization import _
-from .. import (
-    dBitmapButton,
-    dButton,
-    dColumn,
-    dDialog,
-    dGrid,
-    dHtmlBox,
-    dLabel,
-    dMenu,
-    dPanel,
-    dSizer,
-)
+from .. import dBitmapButton
+from .. import dButton
+from .. import dColumn
+from .. import dDialog
+from .. import dGrid
+from .. import dHtmlBox
+from .. import dLabel
+from .. import dMenu
+from .. import dPanel
+from .. import dSizer
 
 
 class HtmlAbout(dDialog):
