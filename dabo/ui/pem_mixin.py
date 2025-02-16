@@ -3,12 +3,19 @@ import math
 import sys
 import time
 import types
+from contextlib import contextmanager
 
 import wx
 
-from .. import color_tools, events, exceptions, lib, settings, ui
+from .. import color_tools
+from .. import events
+from .. import exceptions
+from .. import lib
+from .. import settings
+from .. import ui
 from ..base_object import dObject
-from ..lib.utils import dictStringify, ustr
+from ..lib.utils import dictStringify
+from ..lib.utils import ustr
 from ..localization import _
 from ..ui import makeDynamicProperty
 
@@ -1035,6 +1042,7 @@ class dPemMixin(dObject):
 
     getPropertyInfo = classmethod(getPropertyInfo)
 
+    @contextmanager
     def lockDisplay(self):
         """
         Locks the visual updates to the control.
@@ -1042,19 +1050,29 @@ class dPemMixin(dObject):
         This can significantly improve performance when many items are being
         updated at once.
 
-        IMPORTANT: you must call unlockDisplay() when you are done, or your
-        object will never draw. unlockDisplay() must be called once for every
-        time lockDisplay() is called in order to resume repainting of the
-        control. Alternatively, you can call lockDisplay() many times, and
-        then call unlockDisplayAll() once when you are done.
+        It is a contextmanager, so the preferred way to use this is in a `with` statement:
+
+            with self.lockDisplay():
+                ...do your stuff
+
+        This will ensure that the display in unlocked when the `with` block exits.
+
+        IMPORTANT: When called outside a `with` block, you must call unlockDisplay() when you are
+        done, or your object will never draw. unlockDisplay() must be called once for every time
+        lockDisplay() is called in order to resume repainting of the control. Alternatively, you can
+        call lockDisplay() many times, and then call unlockDisplayAll() once when you are done.
 
         Note that lockDisplay currently doesn't do anything on GTK.
         """
-        if self._displayLockCount:
-            self._displayLockCount += 1
-        else:
-            self._displayLockCount = 1
-            self.Freeze()
+        try:
+            if self._displayLockCount:
+                self._displayLockCount += 1
+            else:
+                self._displayLockCount = 1
+                self.Freeze()
+            yield True
+        finally:
+            self.unlockDisplay()
 
     def unlockDisplay(self):
         """

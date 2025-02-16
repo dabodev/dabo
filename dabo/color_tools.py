@@ -2,6 +2,9 @@
 import random
 import re
 
+from dabo import application
+from dabo import ui
+
 
 class HexError(Exception):
     pass
@@ -317,3 +320,71 @@ def colorNameFromTuple(colorTuple, firstOnly=False):
         except IndexError:
             ret = ""
     return ret
+
+
+def text_color_on_background(r, g, b):
+    """
+    Determines if white or black text would look best against a given background.
+
+    When displaying text on a colored background, it needs to be visible. This function takes the
+    background color's RGB values, and returns 'white' or 'black', depending on the background's
+    luminance (lightness).
+    """
+    # Calculate relative luminance
+    luminance = (0.299 * r) + (0.587 * g) + (0.114 * b)
+    # Choose black for lighter backgrounds, white for darker ones
+    return "black" if luminance > 128 else "white"
+
+
+if __name__ == "__main__":
+
+    class ColorForm(ui.dForm):
+        def afterInit(self):
+            bp = self.back_panel = ui.dScrollPanel(self)
+            self.Sizer.append1x(bp)
+            vsz = bp.Sizer = ui.dSizerV()
+            vsz.appendSpacer(16)
+            lbl = ui.dLabel(bp, Caption="Filter:")
+            txt = self.filter_text = ui.dTextBox(bp, OnHit=self.filter)
+            hsz = ui.dSizerH()
+            hsz.append(lbl, border=2, alignment="right")
+            hsz.append1x(txt, border=2)
+            vsz.append(hsz, alignment="center")
+
+            gsz = self.color_grid_sizer = ui.dGridSizer(MaxCols=6)
+            self.color_panels = []
+            panel_height = 80
+            label_bottom = panel_height - 5
+            for name, rgb in colorDict.items():
+                p = ui.dPanel(bp, Name=name, BackColor=name, Height=panel_height, BorderWidth=1)
+                self.color_panels.append(p)
+                ui.dLabel(
+                    p,
+                    Caption=name,
+                    ForeColor=text_color_on_background(*rgb),
+                    Left=2,
+                    Bottom=label_bottom,
+                )
+                gsz.append(p, layout="x")
+            gsz.setColExpand(True, "all", proportion=1)
+            vsz.append1x(gsz, border=20)
+            self.layout()
+
+        def color_choice(self, evt):
+            color = evt.EventObject.StringValue
+            self.color_sample.BackColor = color
+
+        def filter(self, evt):
+            filter_val = evt.EventObject.Value
+            [self.color_grid_sizer.remove(p) for p in self.color_panels]
+            with self.lockDisplay():
+                for pnl in self.color_panels:
+                    vis = filter_val.lower() in pnl.RegID
+                    pnl.Visible = vis
+                    if vis:
+                        self.color_grid_sizer.append(pnl, layout="x")
+            self.layout()
+
+    app = application.dApp()
+    app.MainFormClass = ColorForm
+    app.start()

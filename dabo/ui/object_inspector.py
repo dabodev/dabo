@@ -3,13 +3,16 @@ import time
 
 import wx
 
-from .. import db, events, ui
+from .. import db
+from .. import events
+from .. import ui
 from ..base_object import dObject
 from ..lib.propertyHelperMixin import PropertyHelperMixin
 from ..lib.utils import ustr
 from ..localization import _
 from ..preference_mgr import dPref
-from . import dFormMixin, dSizerMixin
+from . import dFormMixin
+from . import dSizerMixin
 
 
 class ObjectInspectorForm(ui.dForm):
@@ -604,7 +607,7 @@ class ObjectInspectorForm(ui.dForm):
     def afterInitAll(self):
         objnote = "NOTE: The 'obj' variable refers to the object selected in the tree."
         intro = "%s\n%s" % (ui.getSystemInfo(), objnote)
-        shell_panel = self.Form.shellPanel
+        shell_panel = self.shellPanel
         self.shell = ui.dShell(shell_panel, showInterpIntro=False, introText=intro)
         self.shell.interp.locals["self"] = self
         sz = shell_panel.Sizer = ui.dBorderSizer(shell_panel, Caption="Interactive Interpreter")
