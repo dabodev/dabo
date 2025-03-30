@@ -56,7 +56,7 @@ class Test(object):
             frame.testObjects = []
             for class_ in classRefs:
                 obj = class_(parent=panel, LogEvents=logEvents, *args, **kwargs)
-                panel.Sizer.append(obj, "expand")
+                panel.Sizer.append(obj, 1, "expand")
                 frame.testObjects.append(obj)
 
             # This will get a good approximation of the required size

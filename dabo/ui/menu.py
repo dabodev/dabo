@@ -4,6 +4,7 @@ import sys
 import wx
 
 from .. import events
+from .. import settings
 from .. import ui
 from ..lib.utils import cleanMenuCaption
 from ..lib.utils import ustr
@@ -103,7 +104,13 @@ class dMenu(dPemMixin, wx.Menu):
 
     def _setDynamicEnabled(self):
         """For each dMenuItem, set Enabled per the item's DynamicEnabled prop."""
+        if not settings.dynamicMenuEnabling:
+            # This is turned off in apps that are experiencing crashes
+            return
         for item in self.Children:
+            if not item:
+                # 'Dead' item - its wx component is being destroyed
+                continue
             # separators haven't been abstracted yet, so there are still pure wx items.
             try:
                 de = item.DynamicEnabled

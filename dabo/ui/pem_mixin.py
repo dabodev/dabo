@@ -262,14 +262,6 @@ class dPemMixin(dObject):
 
     getPropertyInfo = classmethod(getPropertyInfo)
 
-    def addObject(self, classRef, Name=None, *args, **kwargs):
-        """
-        Create an instance of classRef, and make it a child of self.
-
-        Abstract method: subclasses MUST override for UI-specifics.
-        """
-        pass
-
     def reCreate(self, child=None):
         """Abstract method: subclasses MUST override for UI-specifics."""
         pass
@@ -960,6 +952,7 @@ class dPemMixin(dObject):
         except KeyError:
             pass
 
+    @ui.deadCheck
     def _getID(self):
         """Override the default behavior to return the wxPython ID."""
         try:
@@ -2282,21 +2275,14 @@ class dPemMixin(dObject):
         except AttributeError:
             children = parent.GetChildren()
         kid_name_mapping = {kid: kid.GetName() for kid in children}
-        nameError = name in kid_name_mapping.values()
+        nameError = hasattr(parent, name) or name in kid_name_mapping.values()
         candidate = name
         i = 0
         while nameError:
             nameError = False
             if i:
                 candidate = "%s%s" % (name, i)
-            if hasattr(parent, candidate):
-                att = getattr(parent, candidate)
-                if att and att is not self:
-                    nameError = [
-                        win
-                        for win in children
-                        if win != self and kid_name_mapping.get(win, win.GetName()) == candidate
-                    ]
+            nameError = hasattr(parent, candidate)
             i += 1
         return candidate
 

@@ -1357,13 +1357,13 @@ class _dTreeView_test(dTreeView):
 
 
 if __name__ == "__main__":
-    from .application import dApp
-    from .ui import dButton
-    from .ui import dCheckBox
-    from .ui import dForm
-    from .ui import dPanel
-    from .ui import dSizer
-    from .ui import test
+    from ..application import dApp
+    from . import dButton
+    from . import dCheckBox
+    from . import dForm
+    from . import dPanel
+    from . import dSizer
+    from . import test
 
     class TreeViewTestForm(dForm):
         def afterInit(self):

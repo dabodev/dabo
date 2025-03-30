@@ -77,6 +77,8 @@ class EventMixin(object):
             bindings = self._EventBindings
         for binding in bindings:
             bindingClass, bindingFunction = binding[0], binding[1]
+            if not event:
+                continue
             if bindingClass == eventClass:
                 bindingFunction(event)
             if not event.Continue:

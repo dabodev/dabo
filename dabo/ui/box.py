@@ -34,6 +34,7 @@ class _dBox_test(dBox):
     def initProperties(self):
         self.Width = 100
         self.Height = 20
+        self.BorderWidth = 3
 
 
 if __name__ == "__main__":

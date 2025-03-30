@@ -259,6 +259,9 @@ root_path = Path(__file__).parent
 # Subdirectories that make up a standard Dabo app
 standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui")
 
+# Do we do dynamic menu enabling? This was crashing on recent versions of the Class Designer.
+dynamicMenuEnabling = False
+
 ### Settings - end
 
 

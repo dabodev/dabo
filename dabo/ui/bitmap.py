@@ -36,7 +36,7 @@ ui.dBitmap = dBitmap
 
 class _dBitmap_test(dBitmap):
     def initProperties(self):
-        self.Picture = "daboIcon016"
+        self.Picture = "daboIcon064"
 
 
 #        self.Size = (40,30)

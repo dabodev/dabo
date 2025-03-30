@@ -230,6 +230,6 @@ class _dBorderlessButton_test(dBorderlessButton):
 
 
 if __name__ == "__main__":
-    from ui import test
+    from . import test
 
     test.Test().runTest(_dBorderlessButton_test)
