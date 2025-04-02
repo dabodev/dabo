@@ -1039,7 +1039,6 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
     def __onKeyChar(self, evt):
         keyChar = evt.EventData["keyChar"]
         self._insertChar = ""
-        print("CHAR", keyChar, "AUTOCOM", self.AutoCompActive(), "CODE", self.CodeCompletion)
 
         if keyChar == "(" and self.AutoCompActive():
             self._insertChar = "("

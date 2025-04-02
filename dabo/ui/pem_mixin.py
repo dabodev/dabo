@@ -2127,6 +2127,9 @@ class dPemMixin(dObject):
         """
         if self._inRedraw:
             return
+        if not self:
+            # If the underlying wx object is destroyed
+            return
         self._inRedraw = True
         # Clear the idle flag.
         self._needRedraw = False
@@ -3335,6 +3338,8 @@ class dPemMixin(dObject):
     @Transparency.setter
     def Transparency(self, val):
         if self._constructed():
+            if not self.CanSetTransparent():
+                return
             val = min(max(val, 0), 255)
             delay = self.TransparencyDelay
             if delay:

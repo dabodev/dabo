@@ -28,9 +28,13 @@ except ImportError:
 
 def get_super_property(obj, prop):
     """Objects may need to reference a property in their superclass"""
+    base = getattr(obj, "BaseClass", object)
     mro = obj.__class__.__mro__
     ret = None
     for sup in mro[1:]:
+        if sup is base:
+            # Avoid infinite recursion
+            continue
         ret = getattr(sup, prop, None)
         if ret:
             break

@@ -105,7 +105,7 @@ class DesignerClassConverter(dObject):
         or the raw text itself. Determines the format of the stored text, and
         returns the corresponding dict.
         """
-        # Determine the type of the text. Try JSON first, then XML.
+        # Determine the type of the text. Try XML first, then JSON.
         try:
             dct = self.importXmlSrc(src)
         except ValueError:
@@ -304,7 +304,7 @@ class DesignerClassConverter(dObject):
 
         # Wizards are constructed differently than other top-level classes.
         tmpSpace = {}
-        stmnt = "from %s import %s" % (modpath, shortClsName)
+        stmnt = f"from {modpath} import {shortClsName}"
         try:
             exec(stmnt, tmpSpace)
         except (ImportError, ValueError):
@@ -896,10 +896,13 @@ class DesignerClassConverter(dObject):
         self._hdrText = """import dabo
 
 """
-        self._clsHdrText = """import dabo
-from .. import events
-from .lib.utils import ustr
+        self._clsHdrText = """
 import sys
+
+from dabo import events
+from dabo.lib.utils import ustr
+from dabo import ui
+
 |classImportStatements|
 
 """
