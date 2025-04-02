@@ -193,6 +193,14 @@ class dPemMixin(dObject):
             del self._preInitProperties["style"]
             # This is needed because these classes require a 'parent' param.
             kwargs["parent"] = parent
+        elif isinstance(self, ui.dActivityIndicator):
+            # Doesn't take a 'parent' keyword
+            arg_list = list(args)
+            arg_list.insert(0, self._preInitProperties["id"])
+            arg_list.insert(0, parent)
+            args = tuple(arg_list)
+            del self._preInitProperties["id"]
+            del self._preInitProperties["parent"]
         # This is needed when running from a saved design file
         self._extractKey((properties, self._properties), "designerClass")
         # This attribute is used when saving code with a design file

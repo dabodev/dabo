@@ -166,6 +166,7 @@ def load_namespace():
     from . import hyper_link
     from . import led
     from . import slider
+    from . import activity_indicator
     from . import timer
     from . import text_box_mixin
     from . import text_box

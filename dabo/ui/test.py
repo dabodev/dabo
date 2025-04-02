@@ -38,6 +38,8 @@ class Test(object):
     def runTest(self, classRefs, *args, **kwargs):
         if not isinstance(classRefs, (tuple, list)):
             classRefs = (classRefs,)
+        obj_expand = kwargs.pop("obj_expand", True)
+        obj_proportion = kwargs.pop("obj_proportion", 1)
         isDialog = False
         if issubclass(classRefs[0], (wx.Frame, wx.Dialog)):
             # Can't display a frame within another frame, so create this
@@ -56,7 +58,7 @@ class Test(object):
             frame.testObjects = []
             for class_ in classRefs:
                 obj = class_(parent=panel, LogEvents=logEvents, *args, **kwargs)
-                panel.Sizer.append(obj, 1, "expand")
+                panel.Sizer.append(obj, obj_proportion, obj_expand)
                 frame.testObjects.append(obj)
 
             # This will get a good approximation of the required size
