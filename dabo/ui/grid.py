@@ -1995,7 +1995,6 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.bindEvent(events.GridColSize, self._onGridColSize)
         self.bindEvent(events.GridCellEdited, self._onGridCellEdited)
         self.bindEvent(events.GridMouseLeftClick, self._onGridMouseLeftClick)
-        self.bindEvent(events.MouseWheel, self._onGridMouseWheel)
 
         ## wx.EVT_CONTEXT_MENU doesn't appear to be working for dGrid yet:
         #        self.bindEvent(events.GridContextMenu, self._onContextMenu)
@@ -3804,46 +3803,6 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if menu is not None and len(menu.Children) > 0:
             self.showContextMenu(menu)
 
-    def _onGridMouseWheel(self, evt):
-        ## Override the default implementation which scrolls too slowly.
-        evt.stop()
-        lastWheelTime = getattr(self, "_lastWheelTime", 0)
-        thisWheelTime = self._lastWheelTime = time.time()
-        ui_evt = evt._uiEvent
-        mult = 1
-        if ui_evt.GetWheelRotation() > 0:
-            mult = -1
-        linesPerAction = ui_evt.GetLinesPerAction()
-        scrollAmt = mult * linesPerAction
-        if thisWheelTime - lastWheelTime > 0.5:
-            ## Run the first wheel scroll to occur immediately:
-            self._scrollLines(scrollAmt)
-            return
-        ## Throttle subsequent rapid-fire wheel scrolls through callAfterInterval,
-        ## otherwise the events pile up resulting in poor performance.
-        _accumulatedWheelScroll = getattr(self, "_accumulatedWheelScroll", None)
-        if _accumulatedWheelScroll is None:
-            ui.callAfterInterval(50, self._scrollAccumulatedLines)
-            _accumulatedWheelScroll = 0
-        self._accumulatedWheelScroll = _accumulatedWheelScroll + scrollAmt
-        self._wheelScrollLines = linesPerAction
-
-    def _scrollAccumulatedLines(self):
-        scrollAmt = self._accumulatedWheelScroll
-        if sys.platform.startswith("win") and scrollAmt > self._wheelScrollLines:
-            # I guess Windows doesn't receive as many wheel events per timeslice
-            # as Gtk does. This attempts to compensate.
-            scrollAmt *= scrollAmt * 0.5
-        self._scrollLines(scrollAmt)
-        self._accumulatedWheelScroll = None
-
-    def _scrollLines(self, scrollAmt):
-        ## Without the Freeze/Thaw, performance sucks on Windows as it tries to do
-        ## it smoothly.
-        self.Freeze()
-        self.ScrollLines(scrollAmt)
-        self.Thaw()
-
     def _onGridHeaderMouseRightUp(self, evt):
         """Occurs when the right mouse button goes up in the grid header."""
         pass
@@ -5447,11 +5406,11 @@ class _dGrid_test(dGrid):
     def initProperties(self):
         thisYear = datetime.datetime.now().year
         ds = [
-            {"name": "Ed Leafe", "age": 23.09, "coder": True, "color": "cornsilk"},
-            {"name": "Paul McNett", "age": 34.07, "coder": True, "color": "wheat"},
-            {"name": "Ted Roche", "age": 34.06, "coder": True, "color": "goldenrod"},
-            {"name": "Derek Jeter", "age": 50.1, "coder": False, "color": "white"},
-            {"name": "Halle Berry", "age": 50.2, "coder": False, "color": "orange"},
+            {"name": "Ed Leafe", "age": thisYear - 1957, "coder": True, "color": "cornsilk"},
+            {"name": "Paul McNett", "age": thisYear - 1969, "coder": True, "color": "wheat"},
+            {"name": "Ted Roche", "age": thisYear - 1958, "coder": True, "color": "goldenrod"},
+            {"name": "Derek Jeter", "age": thisYear - 1974, "coder": False, "color": "white"},
+            {"name": "Halle Berry", "age": thisYear - 1966, "coder": False, "color": "orange"},
             {
                 "name": "Steve Wozniak",
                 "age": thisYear - 1950,
@@ -5477,9 +5436,9 @@ class _dGrid_test(dGrid):
         self.Width = 360
         self.Height = 150
         self.Editable = False
-        # self.AlternateRowColoring = True
-        # self.Sortable = False
-        # self.Searchable = False
+        self.AlternateRowColoring = True
+        self.Sortable = True
+        self.Searchable = True
 
     def afterInit(self):
         super().afterInit()
@@ -5538,7 +5497,7 @@ class _dGrid_test(dGrid):
             Name="Age",
             Order=30,
             DataField="age",
-            DataType="float",
+            DataType="int",
             Width=40,
             Caption="Age",
             Sortable=True,
@@ -5635,13 +5594,23 @@ if __name__ == "__main__":
 
             chk = dCheckBox(
                 self,
+                Caption="Sortable?",
+                RegID="sortable",
+                DataSource=self.grid,
+                DataField="Sortable",
+            )
+            chk.update()
+            gsz.append(chk, row=3, col=0)
+
+            chk = dCheckBox(
+                self,
                 Caption="Vertical Headers",
                 RegID="verticalHeaders",
                 DataSource=self.grid,
                 DataField="VerticalHeaders",
             )
             chk.update()
-            gsz.append(chk, row=3, col=0)
+            gsz.append(chk, row=4, col=0)
 
             chk = dCheckBox(
                 self,
@@ -5651,7 +5620,7 @@ if __name__ == "__main__":
                 DataField="AutoAdjustHeaderHeight",
             )
             chk.update()
-            gsz.append(chk, row=4, col=0)
+            gsz.append(chk, row=5, col=0)
 
             radSelect = dRadioList(
                 self,
@@ -5676,7 +5645,7 @@ if __name__ == "__main__":
                     but.Caption = "Make Celebrity Visible"
 
             butVisible = dButton(self, Caption="Toggle Celebrity Visibility", OnHit=setVisible)
-            gsz.append(butVisible, row=5, col=0)
+            gsz.append(butVisible, row=6, col=0)
 
             self.Sizer.append(gsz, halign="Center", border=10)
             gsz.setColExpand(True, 1)
