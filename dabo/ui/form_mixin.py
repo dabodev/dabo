@@ -268,10 +268,7 @@ class dFormMixin(dPemMixin):
 
     def __onClose(self, evt):
         app = self.Application
-
-        if not self._designerMode:
-            self.saveSizeAndPosition()
-
+        self.saveSizeAndPosition()
         force = evt.EventData.get("force", False)
         if not force:
             if self._beforeClose(evt) == False:

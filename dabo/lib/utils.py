@@ -11,6 +11,8 @@
 #    utils.foo()
 
 import os
+import random
+import string
 import sys
 from locale import getpreferredencoding
 
@@ -24,6 +26,9 @@ try:
     from win32com.shell import shellcon
 except ImportError:
     shell, shellcon = None, None
+
+
+ALPHANUM = string.ascii_letters + string.digits
 
 
 def get_super_property(obj, prop):
@@ -51,6 +56,41 @@ def set_super_property_value(obj, prop, val):
     """Objects may need to set the value of a property in their superclass"""
     sup_prop = get_super_property(obj, prop)
     return sup_prop.fset(obj, val)
+
+
+def random_unicode(prefix=None, length=10, low=123, high=111411, alphanum_only=False):
+    prefix = prefix or ""
+    ret = []
+    rlength = length - len(prefix)
+    while len(ret) < rlength:
+        # Not all code points can be correctly encoded by Python, so we need to catch them and try again.
+        char = chr(random.randrange(low, high))
+        if alphanum_only and char not in ALPHANUM:
+            continue
+        try:
+            char.encode("utf-8")
+        except UnicodeEncodeError:
+            continue
+        ret.append(char)
+    return f"{prefix}{''.join(ret)}"
+
+
+def random_string(prefix=None, length=10):
+    return random_unicode(prefix=prefix, length=length, low=42, high=122, alphanum_only=True)
+
+
+def random_bytes(length=None):
+    if not length:
+        length = random.randrange(6, 25)
+    ret = []
+    while len(ret) < length:
+        # Not all code points can be correctly encoded by Python,
+        # so we need to catch them and try again.
+        try:
+            ret.append(chr(random.randint(256, 1114111)).encode("utf-8"))
+        except UnicodeEncodeError:
+            pass
+    return b"".join(ret)
 
 
 # can't compare NoneType to some types: sort None lower than anything else:
