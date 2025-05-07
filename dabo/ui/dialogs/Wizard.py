@@ -34,7 +34,7 @@ from .. import dScrollPanel
 from .. import dSizer
 from .. import dSpinner
 from .. import dTextBox
-from . import WizardPage
+from .WizardPage import WizardPage
 
 
 class Wizard(dDialog):
@@ -291,12 +291,12 @@ class Wizard(dDialog):
 
     # Property definitions
     @property
-    def CurrPage(self):
+    def CurrentPage(self):
         """Index of the current page in the wizard  (WizardPage)"""
         return self._currentPage
 
-    @CurrPage.setter
-    def CurrPage(self, val):
+    @CurrentPage.setter
+    def CurrentPage(self, val):
         if isinstance(val, WizardPage):
             val = self._pages.index(val)
         if self.PageCount == 0:

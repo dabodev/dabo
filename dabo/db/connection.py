@@ -95,7 +95,7 @@ class dConnection(dObject):
         return bool(self._connectInfo.RemoteHost)
 
     @property
-    def ConnInfo(self):
+    def ConnectInfo(self):
         """The connectInfo for the connection.  (dConnectInfo)"""
         return self._connectInfo
 
