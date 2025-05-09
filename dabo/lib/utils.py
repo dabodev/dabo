@@ -32,7 +32,13 @@ ALPHANUM = string.ascii_letters + string.digits
 
 
 def get_super_property(obj, prop):
-    """Objects may need to reference a property in their superclass"""
+    """
+    Objects may need to reference a property in their superclass
+
+    Since the property may not be defined in the object's class, we need to make sure that we return
+    something from a higher class in the inheritance tree.
+    """
+    obj_prop = getattr(obj.__class__, prop)
     base = getattr(obj, "BaseClass", object)
     mro = obj.__class__.__mro__
     ret = None
@@ -41,7 +47,7 @@ def get_super_property(obj, prop):
             # Avoid infinite recursion
             continue
         ret = getattr(sup, prop, None)
-        if ret:
+        if ret and ret is not obj_prop:
             break
     return ret
 
@@ -52,10 +58,11 @@ def get_super_property_value(obj, prop):
     return sup_prop.fget(obj)
 
 
-def set_super_property_value(obj, prop, val):
+def set_super_property_value(obj, prop, val, *args, **kwargs):
     """Objects may need to set the value of a property in their superclass"""
     sup_prop = get_super_property(obj, prop)
-    return sup_prop.fset(obj, val)
+    if sup_prop:
+        return sup_prop.fset(obj, val, *args, **kwargs)
 
 
 def random_unicode(prefix=None, length=10, low=123, high=111411, alphanum_only=False):

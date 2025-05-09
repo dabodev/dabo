@@ -365,79 +365,79 @@ class _DynamicList(list):
         if propname is None:
             propname = "Choices"
         self._setter = getattr(obj.__class__, propname).fset
-        super(_DynamicList, self).__init__(seq)
+        super().__init__(seq)
 
     def _updateControl(self):
         self._setter(self._object, self)
 
     def __add__(self, val):
-        ret = super(_DynamicList, self).__add__(val)
+        ret = super().__add__(val)
         self._updateControl()
         return ret
 
     def __delitem__(self, val):
-        ret = super(_DynamicList, self).__delitem__(val)
+        ret = super().__delitem__(val)
         self._updateControl()
         return ret
 
     def __delslice__(self, i, j):
-        ret = super(_DynamicList, self).__delslice__(i, j)
+        ret = super().__delslice__(i, j)
         self._updateControl()
         return ret
 
     def __iadd__(self, val):
-        ret = super(_DynamicList, self).__iadd__(val)
+        ret = super().__iadd__(val)
         self._updateControl()
         return ret
 
     def __imul__(self, val):
-        ret = super(_DynamicList, self).__imul__(val)
+        ret = super().__imul__(val)
         self._updateControl()
         return ret
 
     def __setitem__(self, i, val):
-        ret = super(_DynamicList, self).__setitem__(i, val)
+        ret = super().__setitem__(i, val)
         self._updateControl()
         return ret
 
     def __setslice__(self, i, j, val):
-        ret = super(_DynamicList, self).__setslice__(i, j, val)
+        ret = super().__setslice__(i, j, val)
         self._updateControl()
         return ret
 
     def append(self, val):
-        ret = super(_DynamicList, self).append(val)
+        ret = super().append(val)
         self._updateControl()
         return ret
 
     def extend(self, iterable):
-        ret = super(_DynamicList, self).extend(iterable)
+        ret = super().extend(iterable)
         self._updateControl()
         return ret
 
     def insert(self, i, val):
-        ret = super(_DynamicList, self).insert(i, val)
+        ret = super().insert(i, val)
         self._updateControl()
         return ret
 
     def pop(self, i=None):
         if i is None:
             i = len(self) - 1
-        ret = super(_DynamicList, self).pop(i)
+        ret = super().pop(i)
         self._updateControl()
         return ret
 
     def remove(self, val):
-        ret = super(_DynamicList, self).remove(val)
+        ret = super().remove(val)
         self._updateControl()
         return ret
 
     def reverse(self):
-        ret = super(_DynamicList, self).reverse()
+        ret = super().reverse()
         self._updateControl()
         return ret
 
-    def sort(self, cmp=None, key=None, reverse=False):
-        ret = super(_DynamicList, self).sort(cmp, key, reverse)
+    def sort(self, key=None, reverse=False):
+        ret = super().sort(key=key, reverse=reverse)
         self._updateControl()
         return ret
