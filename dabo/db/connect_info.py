@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 import random
+from pathlib import Path
 
+from .. import settings
 from ..base_object import dObject
 from ..lib.connParser import importConnections
 from ..lib.encryption import Encryption
+from ..lib.xmltodict import xmltodict
 from ..localization import _
+
+dabo_module = settings.get_dabo_package()
 
 
 class dConnectInfo(dObject):
@@ -81,6 +86,10 @@ class dConnectInfo(dObject):
             "KeepAliveInterval",
         ]
         lprops = [p.lower() for p in props]
+        if isinstance(connInfo, str) and Path(connInfo).exists():
+            # See if it's a .cnxml file
+            connInfo = xmltodict(connInfo)
+
         for k, v in list(connInfo.items()):
             try:
                 propidx = lprops.index(k.lower())
@@ -184,9 +193,11 @@ class dConnectInfo(dObject):
 
                     self._backendObject = dbODBC.ODBC()
                 else:
-                    raise ValueError("Invalid database type: %s." % nm)
+                    raise ValueError(f"Invalid database type: {nm}")
             except ImportError:
-                dabo.log.error(_("You do not have the database module for %s installed") % dbType)
+                dabo_module.log.error(
+                    _(f"You do not have the database module for {dbType} installed")
+                )
                 self._dbType = None
                 self._backendObject = None
             if _oldObject != self._backendObject:
