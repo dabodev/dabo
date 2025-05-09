@@ -1078,13 +1078,12 @@ def getString(message=_("Please enter a string:"), caption="Dabo", defaultValue=
 
     if defaultValue:
         kwargs["Value"] = defaultValue
-    dlg = StringDialog(_getActiveForm())
-    dlg.show()
-    if dlg.Accepted:
-        val = dlg.strVal.Value
-    else:
-        val = None
-    dlg.release()
+    with StringDialog(_getActiveForm()) as dlg:
+        dlg.show()
+        if dlg.Accepted:
+            val = dlg.strVal.Value
+        else:
+            val = None
     return val
 
 
@@ -1105,13 +1104,12 @@ def getInt(message=_("Enter an integer value:"), caption="Dabo", defaultValue=0,
 
     if defaultValue:
         kwargs["Value"] = defaultValue
-    dlg = IntDialog(_getActiveForm())
-    dlg.show()
-    if dlg.Accepted:
-        val = dlg.spnVal.Value
-    else:
-        val = None
-    dlg.Destroy()
+    with IntDialog(_getActiveForm()) as dlg:
+        dlg.show()
+        if dlg.Accepted:
+            val = dlg.spnVal.Value
+        else:
+            val = None
     return val
 
 
@@ -1189,13 +1187,12 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
         def invertSelection(self, evt):
             self.lst.invertSelections()
 
-    dlg = ChoiceDialog(_getActiveForm())
-    dlg.show()
-    if dlg.Accepted:
-        val = dlg.lst.StringValue
-    else:
-        val = None
-    dlg.release()
+    with ChoiceDialog(_getActiveForm()) as dlg:
+        dlg.show()
+        if dlg.Accepted:
+            val = dlg.lst.StringValue
+        else:
+            val = None
     return val
 
 
@@ -1206,10 +1203,9 @@ def getColor(color=None):
     no selection was made.
     """
     ret = None
-    dlg = ui.dColorDialog(_getActiveForm(), color)
-    if dlg.show() == constants.DLG_OK:
-        ret = dlg.getColor()
-    dlg.release()
+    with ui.dColorDialog(_getActiveForm(), color) as dlg:
+        if dlg.show() == constants.DLG_OK:
+            ret = dlg.getColor()
     return ret
 
 
@@ -1227,31 +1223,30 @@ def getDate(dt=None):
         dabo_module = settings.get_dabo_package()
         dabo_module.error(_("Invalid date value passed to getDate(): %s") % dt)
         return None
-    dlg = wx.lib.calendar.CalenDlg(_getActiveForm(), mm, dd, yy)
-    dlg.Centre()
-    if dlg.ShowModal() == wx.ID_OK:
-        result = dlg.result
-        day = int(result[1])
-        month = result[2]
-        year = int(result[3])
-        monthNames = [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        ]
-        ret = datetime.date(year, monthNames.index(month) + 1, day)
-    else:
-        ret = None
-    dlg.Destroy()
+    with wx.lib.calendar.CalenDlg(_getActiveForm(), mm, dd, yy) as dlg:
+        dlg.Centre()
+        if dlg.ShowModal() == wx.ID_OK:
+            result = dlg.result
+            day = int(result[1])
+            month = result[2]
+            year = int(result[3])
+            monthNames = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+            ]
+            ret = datetime.date(year, monthNames.index(month) + 1, day)
+        else:
+            ret = None
     return ret
 
 
@@ -1272,10 +1267,9 @@ def getFont(font=None):
             dabo_module.error("Invalid font class passed to getFont")
             return None
         param = font._nativeFont
-    dlg = ui.dFontDialog(_getActiveForm(), param)
-    if dlg.show() == constants.DLG_OK:
-        fnt = dlg.getFont()
-    dlg.release()
+    with ui.dFontDialog(_getActiveForm(), param) as dlg:
+        if dlg.show() == constants.DLG_OK:
+            fnt = dlg.getFont()
     if fnt is not None:
         ret = ui.dFont(_nativeFont=fnt)
     return ret
@@ -1294,14 +1288,13 @@ def _getPath(cls, wildcard, **kwargs):
     idx = None
     if isinstance(cls, str):
         cls = getattr(ui, cls)
-    fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
-    if fd.show() == constants.DLG_OK:
-        pth = fd.Path
-        try:
-            idx = fd.GetFilterIndex()
-        except AttributeError:
-            idx = None
-    fd.release()
+    with cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs) as fd:
+        if fd.show() == constants.DLG_OK:
+            pth = fd.Path
+            try:
+                idx = fd.GetFilterIndex()
+            except AttributeError:
+                idx = None
     return (pth, idx)
 
 
@@ -2111,7 +2104,7 @@ def bitmapFromData(data):
 
 
 def imageFromData(data):
-    stream = io.StringIO(data)
+    stream = io.BytesIO(data)
     return Image(stream)
 
 

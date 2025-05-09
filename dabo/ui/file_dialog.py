@@ -8,7 +8,7 @@ from .. import ui
 from ..localization import _
 
 
-class OsDialogMixin(object):
+class OsDialogMixin():
     def _beforeInit(self):
         self._dir = self._fname = self._msg = self._path = self._wildcard = ""
         super()._beforeInit()
@@ -40,9 +40,9 @@ class OsDialogMixin(object):
         return self._dir
 
     @Directory.setter
-    def Directory(self, dir):
+    def Directory(self, directory):
         if self._exposeFiles:
-            self.SetDirectory(dir)
+            self.SetDirectory(directory)
 
     @property
     def FileName(self):

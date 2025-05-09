@@ -86,9 +86,8 @@ def areYouSure(
     if defaultNo:
         style = style | wx.NO_DEFAULT
 
-    dlg = dMessageBox(message, title, style, parent=parent)
-    retval = dlg.ShowModal()
-    dlg.Destroy()
+    with dMessageBox(message, title, style, parent=parent) as dlg:
+        retval = dlg.ShowModal()
 
     if retval in (wx.ID_YES, wx.ID_OK):
         return True
@@ -192,17 +191,16 @@ def showMessageBox(
     userAttentionMode=wx.USER_ATTENTION_INFO,
 ):
     style = wx.OK | icon
-    dlg = dMessageBox(
+    with dMessageBox(
         message,
         title,
         style,
         parent=parent,
         requestUserAttention=requestUserAttention,
         userAttentionMode=userAttentionMode,
-    )
-    dlg.CenterOnParent()
-    retval = dlg.ShowModal()
-    dlg.Destroy()
+    ) as dlg:
+        dlg.CenterOnParent()
+        retval = dlg.ShowModal()
     return None
 
 

@@ -68,9 +68,10 @@ class dDialog(dFormMixin, wx.Dialog):
         # if self.IsModal:  #this uses the wx.IsModal that checks the dialog.
         # I believe either is required because the call is to end a modal dialog
         # if it fails no harm.
-        if self.IsModal():
+        # EGL 2025-05-09: IsModal() was failing to release Wizard dialogs. Checking for both fixes
+        # that problem.
+        if self.Modal or self.IsModal():
             try:
-                # self.Destroy()
                 super().EndModal(*args, **kwargs)
             except wx._core.PyAssertionError:
                 # The modal hack is causing problems in some edge cases.
@@ -397,7 +398,7 @@ class dStandardButtonDialog(dDialog):
             # New code should not have onOK
             pass
         if self.runOK() is not False:
-            if self.IsModal():
+            if self.Modal or self.IsModal():
                 self.EndModal(constants.DLG_OK)
             else:
                 self.release()

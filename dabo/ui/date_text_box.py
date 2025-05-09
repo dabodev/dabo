@@ -149,35 +149,35 @@ C: Popup Calendar to Select
         self.dateCalDlg()
 
     def dateCalDlg(self, event=None):  # test the date dialog
-        dlg = wx.lib.calendar.CalenDlg(self)
-        dlg.Centre()
+        with wx.lib.calendar.CalenDlg(self) as dlg:
+            dlg.Centre()
 
-        if dlg.ShowModal() == wx.ID_OK:
-            result = dlg.result
-            day = result[1]
-            month = result[2]
-            month_name = month
-            monthNames = {
-                "January": 1,
-                "February": 2,
-                "March": 3,
-                "April": 4,
-                "May": 5,
-                "June": 6,
-                "July": 7,
-                "August": 8,
-                "September": 9,
-                "October": 10,
-                "November": 11,
-                "December": 12,
-            }
+            if dlg.ShowModal() == wx.ID_OK:
+                result = dlg.result
+                day = result[1]
+                month = result[2]
+                month_name = month
+                monthNames = {
+                    "January": 1,
+                    "February": 2,
+                    "March": 3,
+                    "April": 4,
+                    "May": 5,
+                    "June": 6,
+                    "July": 7,
+                    "August": 8,
+                    "September": 9,
+                    "October": 10,
+                    "November": 11,
+                    "December": 12,
+                }
 
-            month_number = monthNames[month_name]
-            year = result[3]
-            new_date = str(month_number) + "/" + str(day) + "/" + str(year)
-            self.Value = new_date
-        else:
-            return
+                month_number = monthNames[month_name]
+                year = result[3]
+                new_date = str(month_number) + "/" + str(day) + "/" + str(year)
+                self.Value = new_date
+            else:
+                return
 
     def __onChar(self, evt):
         """
