@@ -12,8 +12,6 @@ import os
 import string
 from xml.parsers import expat
 
-import six
-
 from .. import exceptions
 from .. import settings
 from ..localization import _
@@ -186,7 +184,7 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
     if eol not in xml and isPath:
         # argument was a file
         xmlContent = codecs.open(xml, "r", encoding).read()
-        if isinstance(xmlContent, six.string_types):
+        if isinstance(xmlContent, str):
             xmlContent = xmlContent.encode(encoding)
         try:
             ret = parser.Parse(xmlContent)

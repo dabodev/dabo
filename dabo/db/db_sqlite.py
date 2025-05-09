@@ -3,8 +3,6 @@ import os
 import re
 import sys
 
-import six
-
 from .. import application
 from .. import settings
 from ..exceptions import DBFileDoesNotExistException
@@ -69,7 +67,7 @@ class SQLite(dBackend):
                 # Database file does not exist; raise an error
                 raise DBFileDoesNotExistException(_("Database file '%s' does not exist") % pth)
 
-        if isinstance(pth, six.binary_type):
+        if isinstance(pth, bytes):
             pth = pth.decode(settings.fileSystemEncoding)
 
         # Need to specify "isolation_level=None" to have transactions working correctly.

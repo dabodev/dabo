@@ -11,7 +11,6 @@ from decimal import Decimal
 from decimal import InvalidOperation
 from functools import reduce
 
-import six
 import wx
 import wx.grid
 from wx._core import PyAssertionError
@@ -2118,7 +2117,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if col is None:
             col = self.CurrentColumn
         ret = self.GetValue(row, col, dynamicUpdate=False)
-        if isinstance(ret, six.binary_type):
+        if isinstance(ret, bytes):
             ret = ret.decode(self.Encoding)
         return ret
 
