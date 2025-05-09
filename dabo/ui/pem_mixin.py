@@ -2559,7 +2559,7 @@ class dPemMixin(dObject):
     def Children(self):
         """
         Returns a list of object references to the children of this object. Only applies to
-        containers. Children will be None for non-containers.  (list or None)
+        containers. Children will be an empty list for non-containers.  (list)
         """
         if hasattr(self, "GetChildren"):
             return list(self.GetChildren())

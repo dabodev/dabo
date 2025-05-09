@@ -183,7 +183,7 @@ class dEditableList(dControlMixin, wx_adv.EditableListBox):
         return self._editButton
 
     @property
-    def Panel(self):
+    def _Panel(self):
         """Reference to the panel that contains the caption and buttons  (wx.Panel)"""
         if self._panel is None:
             self._panel = [pp for pp in self.Children if isinstance(pp, wx.Panel)][0]

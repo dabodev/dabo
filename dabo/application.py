@@ -930,7 +930,7 @@ try again when it is running.
         """
         Import the common application-level module names into attributes
         of this application object, so that the app code can easily reference them.
-        Example: f there is a 'biz' directory that can be imported, other objects in
+        Example: if there is a 'biz' directory that can be imported, other objects in
         the system can reference bizobjs using the 'self.Application.biz' syntax
         """
         currdir = self.HomeDirectory
