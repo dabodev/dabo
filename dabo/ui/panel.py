@@ -4,6 +4,7 @@ import wx
 from .. import color_tools
 from .. import events
 from .. import ui
+from ..lib.utils import get_super_property_value, set_super_property_value
 from ..localization import _
 from . import dControlMixin
 from . import dDataControlMixin
@@ -391,12 +392,12 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
     @property
     def Children(self):
         """Child controls of this panel. Excludes the wx-specific scroll bars  (list of objects)"""
-        ret = super().Children
+        ret = get_super_property_value(self, "Children")
         return [kid for kid in ret if isinstance(kid, ui.dPemMixin)]
 
     @Children.setter
     def Children(self, val):
-        super()._setChildren(val)
+        set_super_property_value(self, "Children", val)
 
     @property
     def HorizontalScroll(self):
@@ -412,7 +413,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
             self.SetScrollRate({True: rt[0], False: 0}[val], rt[1])
         else:
             # on Mac at least, this is needed when setting from the constructor.
-            ui.callAfter(self._setHorizontalScroll, val, do=True)
+            ui.callAfter(set_super_property_value, self, "HorizontalScroll", val, do=True)
 
     @property
     def VerticalScroll(self):
@@ -427,7 +428,7 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
             rt = self.GetScrollPixelsPerUnit()
             self.SetScrollRate(rt[0], {True: rt[1], False: 0}[val])
         else:
-            ui.callAfter(self._setVerticalScroll, val, do=True)
+            ui.callAfter(set_super_property_value, self, "VerticalScroll", val, do=True)
 
     DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
     DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)
