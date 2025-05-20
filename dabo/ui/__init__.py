@@ -16,17 +16,18 @@ import traceback
 import urllib.request, urllib.parse, urllib.error
 import warnings
 
+from .uiApp import uiApp
+from .. import constants
 from .. import events
 from .. import icons
 from .. import settings
 from .. import ui
+from ..base_object import dObject
 from ..exceptions import dException
 from ..localization import _
 from ..lib import utils
 from ..lib.xmltodict import xmltodict
 from ..lib.utils import ustr
-from .. import constants
-from .uiApp import uiApp
 
 # Can't import here due to circular imports
 dabo_module = None
@@ -86,6 +87,115 @@ del _failedLibs
 #######################################################
 import wx
 from wx import Image, BitmapFromImage
+
+# So that type checkers don't complain about attributes assigned to dabo.ui elsewhere
+dActivityIndicator = dObject
+dAutoComplete = dObject
+dBaseMenuBar = dObject
+dBitmap = dObject
+dBitmapButton = dObject
+dBorderSizer = dObject
+dBorderlessButton = dObject
+dBorderlessForm = dObject
+dBox = dObject
+dButton = dObject
+dCalendar = dObject
+dCheckBox = dObject
+dCheckList = dObject
+dCheckMenuItem = dObject
+dCollapsiblePanel = dObject
+dColorDialog = dObject
+dColumn = dObject
+dComboBox = dObject
+dControlItemMixin = dObject
+dControlMixin = dObject
+dDataControlMixin = dObject
+dDataPanel = dObject
+dDatePicker = dObject
+dDateTextBox = dObject
+dDialog = dObject
+dDockForm = dObject
+dDockPanel = dObject
+dDockTabs = dObject
+dDropdownList = dObject
+dEditBox = dObject
+dEditableList = dObject
+dEditor = dObject
+dExtendedCalendar = dObject
+dFileDialog = dObject
+dFolderDialog = dObject
+dFont = dObject
+dFontDialog = dObject
+dForm = dObject
+dFormMain = dObject
+dFormMainBase = dObject
+dFormMixin = dObject
+dGauge = dObject
+dGlWindow = dObject
+dGrid = dObject
+dGridDataTable = dObject
+dGridSizer = dObject
+dHtmlBox = dObject
+dHyperLink = dObject
+dImage = dObject
+dImageMixin = dObject
+dLabel = dObject
+dLed = dObject
+dLine = dObject
+dLinePlot = dObject
+dListBox = dObject
+dListControl = dObject
+dMaskedTextBox = dObject
+dMediaControl = dObject
+dMenu = dObject
+dMenuBar = dObject
+dMenuItem = dObject
+dMessageBox = dObject
+dNode = dObject
+dNumericBox = dObject
+dOkCancelDialog = dObject
+dPage = dObject
+dPageFrame = dObject
+dPageFrameMixin = dObject
+dPageFrameNoTabs = dObject
+dPageList = dObject
+dPageSelect = dObject
+dPageStyled = dObject
+dPageToolBar = dObject
+dPanel = dObject
+dPdfWindow = dObject
+dPemMixin = dObject
+dRadioList = dObject
+dRadioMenuItem = dObject
+dReportProgress = dObject
+dRichTextBox = dObject
+dSaveDialog = dObject
+dScrollPanel = dObject
+dSearchBox = dObject
+dSeparatorMenuItem = dObject
+dShell = dObject
+dShellForm = dObject
+dSizer = dObject
+dSizerH = dObject
+dSizerMixin = dObject
+dSizerV = dObject
+dSlidePanel = dObject
+dSlidePanelControl = dObject
+dSlider = dObject
+dSpinner = dObject
+dSplitForm = dObject
+dSplitter = dObject
+dStandardButtonDialog = dObject
+dStatusBar = dObject
+dTextBox = dObject
+dTextBoxMixin = dObject
+dTextBoxMixinBase = dObject
+dTimer = dObject
+dToggleButton = dObject
+dToolBar = dObject
+dToolBarItem = dObject
+dToolForm = dObject
+dTreeView = dObject
 
 # Used by the callAfter* functions
 lastCallAfterStack = ""
