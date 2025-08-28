@@ -4,7 +4,8 @@ import wx
 from .. import color_tools
 from .. import events
 from .. import ui
-from ..lib.utils import get_super_property_value, set_super_property_value
+from ..lib.utils import get_super_property_value
+from ..lib.utils import set_super_property_value
 from ..localization import _
 from . import dControlMixin
 from . import dDataControlMixin

@@ -8,7 +8,7 @@ from .. import ui
 from ..localization import _
 
 
-class OsDialogMixin():
+class OsDialogMixin:
     def _beforeInit(self):
         self._dir = self._fname = self._msg = self._path = self._wildcard = ""
         super()._beforeInit()

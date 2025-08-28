@@ -1,4 +1,3 @@
-# dIconsdIcons -*- coding: utf-8 -*-
 """
 3-Tier Desktop Database Business Application Framework
 
