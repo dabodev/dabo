@@ -1248,11 +1248,11 @@ try again when it is running.
         self.uiApp.copyToClipboard(txt)
 
     def onHelpAbout(self, evt):
-        from .dock_form import dDockForm
+        from .ui.dock_form import dDockForm
 
         about = self.AboutFormClass
         if about is None:
-            from ui.dialogs.htmlAbout import HtmlAbout as about
+            from .ui.dialogs.htmlAbout import HtmlAbout as about
         frm = self.ActiveForm
         if frm is None:
             frm = self.MainForm
