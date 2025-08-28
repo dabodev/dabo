@@ -15,7 +15,7 @@ from .. import ui
 from ..lib import dates
 from ..lib.utils import ustr
 from ..localization import _
-# pyrefly: ignore  # missing-module-attribute
+
 from ..ui import dDataControlMixin
 from ..ui import dKeys
 from ..ui import makeDynamicProperty
@@ -31,7 +31,6 @@ valueErrors = (ValueError, decimal.InvalidOperation)
 decimalPoint = None
 
 
-# pyrefly: ignore  # invalid-inheritance
 class dTextBoxMixinBase(dDataControlMixin):
     def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
         global decimalPoint
@@ -48,13 +47,10 @@ class dTextBoxMixinBase(dDataControlMixin):
         ui.callAfter(self._autosize)
 
         dDataControlMixin.__init__(
-            # pyrefly: ignore  # bad-argument-type
             self,
             preClass,
             parent,
-            # pyrefly: ignore  # unexpected-keyword
             properties=properties,
-            # pyrefly: ignore  # unexpected-keyword
             attProperties=attProperties,
             *args,
             **kwargs,
@@ -114,7 +110,6 @@ class dTextBoxMixinBase(dDataControlMixin):
             # The control is being destroyed
             return
         keyCode = evt.keyCode
-        # pyrefly: ignore  # missing-attribute
         if keyCode >= dKeys.key_Space:
             ui.callAfter(self._checkForceCase)
             ui.callAfter(self._checkTextLength)
@@ -230,7 +225,6 @@ class dTextBoxMixinBase(dDataControlMixin):
             need_resize = self.Width < best_width
         if need_resize:
             print("Sz", self.Size)
-            # pyrefly: ignore  # implicitly-defined-attribute
             self.Width = best_width
             print("Sz", self.Size)
             self.Parent.layout()
@@ -299,7 +293,6 @@ class dTextBoxMixinBase(dDataControlMixin):
                     f"Invalid AutoResizeType received: '{val}'. Must be one of (None, 'All', or "
                     "'Grow'."
                 )
-            # pyrefly: ignore  # bad-assignment
             self._auto_resize_type = "All" if first_char == "a" else "Grow"
             self._autosize()
         else:
@@ -328,7 +321,6 @@ class dTextBoxMixinBase(dDataControlMixin):
                 valKey = None
             else:
                 valKey = val[0].upper()
-            # pyrefly: ignore  # bad-assignment
             self._forceCase = {
                 "U": "upper",
                 "L": "lower",
@@ -366,7 +358,6 @@ class dTextBoxMixinBase(dDataControlMixin):
 
     @NoneDisplay.setter
     def NoneDisplay(self, val):
-        # pyrefly: ignore  # implicitly-defined-attribute
         self._noneDisplay = val
 
     @property
@@ -429,14 +420,12 @@ class dTextBoxMixinBase(dDataControlMixin):
         try:
             return self._SelectOnEntry
         except AttributeError:
-            # pyrefly: ignore  # missing-attribute
             ret = not isinstance(self, ui.dEditBox)
             self._SelectOnEntry = ret
             return ret
 
     @SelectOnEntry.setter
     def SelectOnEntry(self, val):
-        # pyrefly: ignore  # implicitly-defined-attribute
         self._SelectOnEntry = bool(val)
 
     @property
@@ -453,7 +442,6 @@ class dTextBoxMixinBase(dDataControlMixin):
                 val = int(val)
                 if val < 1:
                     raise ValueError(_("TextLength must be a positve Integer"))
-                # pyrefly: ignore  # bad-assignment
                 self._textLength = val
             self._checkTextLength()
 
@@ -510,7 +498,6 @@ class dTextBoxMixinBase(dDataControlMixin):
             _oldVal = self.Value
 
             # save the actual value for return by _getValue:
-            # pyrefly: ignore  # implicitly-defined-attribute
             self._value = val
 
             # Update the display no matter what:
@@ -541,9 +528,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
             self,
             preClass,
             parent,
-            # pyrefly: ignore  # bad-keyword-argument
             properties=properties,
-            # pyrefly: ignore  # bad-keyword-argument
             attProperties=attProperties,
             *args,
             **kwargs,
@@ -577,7 +562,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
             return retVal
         elif ustr(dataType) in ("<type 'DateTime'>", "<type 'mx.DateTime.DateTime'>"):
             try:
-                # pyrefly: ignore  # import-error
                 import mx.DateTime
 
                 return mx.DateTime.DateTimeFrom(ustr(strVal))
@@ -589,7 +573,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
             "<type 'mx.DateTime.DateTimeDelta'>",
         ):
             try:
-                # pyrefly: ignore  # import-error
                 import mx.DateTime
 
                 return mx.DateTime.TimeFrom(ustr(strVal))
@@ -603,14 +586,12 @@ class dTextBoxMixin(dTextBoxMixinBase):
             strVal = strVal.strip()
             if not strVal and self.NumericBlankToZero:
                 if type(_oldVal) == decimal.Decimal:
-                    # pyrefly: ignore  # bad-argument-type
                     return decimal.DefaultContext.quantize(decimal.Decimal("0"), _oldVal)
                 return decimal.Decimal("0")
 
             try:
                 if type(_oldVal) == decimal.Decimal:
                     # Enforce the precision as previously set programatically
-                    # pyrefly: ignore  # bad-argument-type
                     return decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
                 return decimal.Decimal(strVal)
             except (ValueError, decimal.InvalidOperation):
@@ -639,7 +620,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
             if dataType == decimal.Decimal:
                 oldVal = getattr(self, "_oldVal", None)
                 if type(oldVal) == decimal.Decimal:
-                    # pyrefly: ignore  # bad-argument-type
                     return decimal.DefaultContext.quantize("0", oldVal)
                 return decimal.Decimal("0")
             return dataType(0)
@@ -655,7 +635,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
                 # old value.
                 raise ValueError(_("Can't convert."))
 
-    # pyrefly: ignore  # bad-override
     def getStringValue(self, value):
         """
         Given a value of any data type, return a string rendition.
@@ -741,7 +720,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
     @NumericBlankToZero.setter
     def NumericBlankToZero(self, val):
-        # pyrefly: ignore  # implicitly-defined-attribute
         self._numericBlankToZero = bool(val)
 
     @property
@@ -772,7 +750,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
 
     @StrictDateEntry.setter
     def StrictDateEntry(self, val):
-        # pyrefly: ignore  # implicitly-defined-attribute
         self._strictDateEntry = bool(val)
 
     @property
@@ -790,7 +767,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
     @StrictNumericEntry.setter
     def StrictNumericEntry(self, val):
         if self._constructed():
-            # pyrefly: ignore  # implicitly-defined-attribute
             self._strictNumericEntry = val
         else:
             self._properties["StrictNumericEntry"] = val
@@ -896,7 +872,6 @@ class dTextBoxMixin(dTextBoxMixinBase):
             _oldVal = self.Value
 
             # save the actual value for return by _getValue:
-            # pyrefly: ignore  # implicitly-defined-attribute
             self._value = val
 
             if val is not None:
@@ -928,7 +903,5 @@ class dTextBoxMixin(dTextBoxMixinBase):
     DynamicValue = makeDynamicProperty(Value)
 
 
-# pyrefly: ignore  # missing-attribute
 ui.dTextBoxMixinBase = dTextBoxMixinBase
-# pyrefly: ignore  # missing-attribute
 ui.dTextBoxMixin = dTextBoxMixin

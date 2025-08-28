@@ -10,11 +10,10 @@ If this file is run standalone, it will automatically run all of the test cases 
 
 import unittest
 
-# pyrefly: ignore  # import-error
 from mock import Mock
 
 import dabo.ui
-# pyrefly: ignore  # import-error
+
 from dabo.dApp import dApp
 
 # We want the dApp and mainForm to persist through the settings for speed sake
@@ -23,7 +22,6 @@ from dabo.dApp import dApp
 App = dApp()
 App.setup()
 
-# pyrefly: ignore  # missing-attribute
 testForm = dabo.ui.dForm()
 
 
@@ -34,7 +32,6 @@ class BaseTestdTextBox(unittest.TestCase):
     """
 
     def setUp(self):
-        # pyrefly: ignore  # missing-attribute
         self.testTextBox = dabo.ui.dTextBox(testForm)
 
     def tearDown(self):
@@ -120,5 +117,4 @@ class TestTextLengthProperty(BaseTestdTextBox):
 
 
 if __name__ == "__main__":
-    # pyrefly: ignore  # not-callable
     unittest.main()
