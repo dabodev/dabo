@@ -29,6 +29,14 @@ class dActivityIndicator(dPemMixin, wx.ActivityIndicator):
             **kwargs,
         )
 
+    def __enter__(self):
+        self.Visible = True
+        self.start()
+
+    def __exit__(self, *args):
+        self.stop()
+        self.release()
+
     def _afterInit(self):
         super()._afterInit()
         self.start()
