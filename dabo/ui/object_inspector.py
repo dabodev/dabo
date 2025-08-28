@@ -15,6 +15,30 @@ from . import dFormMixin
 from . import dSizerMixin
 
 
+class ObjectTreeView(ui.dTreeView):
+    def __init__(self, parent=None, attProperties={"RegID": "objectTree"}, *args, **kwargs):
+        super().__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
+
+    def showObject(self, obj, displayFail=True):
+        nd = self.nodeForObject(obj)
+        if nd:
+            nd.Selected = True
+            self.showNode(nd)
+        elif displayFail:
+            ui.stop(_("Couldn't find object: %s") % obj)
+        else:
+            raise RuntimeError(_("Object '%s' not found") % obj)
+
+    def onTreeSelection(self, evt):
+        ui.callAfter(self.Form.object_selected, self.Selection.Object)
+
+    def expandCurrentNode(self):
+        self.expandBranch(self.Selection)
+
+    def collapseCurrentNode(self):
+        self.collapseBranch(self.Selection)
+
+
 class ObjectInspectorForm(ui.dForm):
     def __init__(
         self,
@@ -53,7 +77,9 @@ class ObjectInspectorForm(ui.dForm):
             currParent.Sizer = obj
 
         obj = ui.dSplitter(
-            currParent, attProperties={"Split": "False", "ShowPanelSplitMenu": "False"}
+            currParent,
+            Name="main_splitter",
+            attProperties={"Split": "False", "ShowPanelSplitMenu": "False"},
         )
         ui.setAfter(obj, "Orientation", "Horizontal")
         ui.setAfter(obj, "Split", True)
@@ -102,17 +128,19 @@ class ObjectInspectorForm(ui.dForm):
         if not currParent.Sizer:
             currParent.Sizer = obj
 
-        obj = ui.dSplitter(
-            currParent, attProperties={"Split": "False", "ShowPanelSplitMenu": "False"}
+        top_splitter = ui.dSplitter(
+            currParent,
+            Name="top_splitter",
+            attProperties={"Split": "False", "ShowPanelSplitMenu": "False"},
         )
-        ui.setAfter(obj, "Orientation", "Vertical")
-        ui.setAfter(obj, "Split", True)
-        ui.setAfter(obj, "SashPosition", 322)
+        ui.setAfter(top_splitter, "Orientation", "Vertical")
+        ui.setAfter(top_splitter, "Split", True)
+        ui.setAfter(top_splitter, "SashPosition", 322)
 
         if currSizer:
-            currSizer.append(obj)
+            currSizer.append(top_splitter)
             currSizer.setItemProps(
-                obj,
+                top_splitter,
                 {
                     "BorderSides": ["All"],
                     "Proportion": 1,
@@ -123,17 +151,16 @@ class ObjectInspectorForm(ui.dForm):
                 },
             )
 
-        splt_10355 = obj
-        splt_10355.createPanes(self.getCustControlClass("dPanel_77336"), pane=1)
-        splt_10355.createPanes(self.getCustControlClass("dPanel_46292"), pane=2)
+        top_splitter.createPanes()
+        top_splitter.Panel1.SashPercent = 33
         parentStack.append(currParent)
         sizerDict[currParent].append(currSizer)
-        currParent = obj
+        currParent = top_splitter
         currSizer = None
         if not (currParent in sizerDict):
             sizerDict[currParent] = []
 
-        currParent = splt_10355.Panel1
+        currParent = top_splitter.Panel1
         currSizer = None
         if not (currParent in sizerDict):
             sizerDict[currParent] = []
@@ -149,7 +176,7 @@ class ObjectInspectorForm(ui.dForm):
         if not currParent.Sizer:
             currParent.Sizer = obj
 
-        obj = self.getCustControlClass("dTreeView_2732")(currParent)
+        obj = self.getCustControlClass("ObjectTreeView")(currParent)
         if currSizer:
             currSizer.append(obj)
             currSizer.setItemProps(
@@ -239,7 +266,7 @@ class ObjectInspectorForm(ui.dForm):
         else:
             currSizer = None
 
-        currParent = splt_10355.Panel2
+        currParent = top_splitter.Panel2
         currSizer = None
         if not (currParent in sizerDict):
             sizerDict[currParent] = []
@@ -439,8 +466,6 @@ class ObjectInspectorForm(ui.dForm):
             nodeColor = None
             if isinstance(kid, wx.ScrollBar):
                 continue
-            #         if isinstance(obj, dSizerMixin):
-            #             kid = obj.getItem(kid)
             if isinstance(kid, dSizerMixin):
                 txt = self.sizer_repr(kid)
                 nodeColor = "blue"
@@ -474,7 +499,6 @@ class ObjectInspectorForm(ui.dForm):
                     frm.removeDrawnObject(toClear["drawingToClear"])
                 except ValueError:
                     pass
-            #            frm.forceSizerOutline()
             else:
                 sz = toClear["outlinedSizer"]
                 frm.removeFromOutlinedSizers(sz)
@@ -761,88 +785,6 @@ class ObjectInspectorForm(ui.dForm):
 
     def getCustControlClass(self, clsName):
         # Define the classes, and return the matching class
-
-        class dPanel_77336(ui.dPanel):
-            def __init__(
-                self,
-                parent=None,
-                attProperties={
-                    "Width": "320",
-                    "AlwaysResetSizer": "True",
-                    "NameBase": "dPanel2",
-                    "Height": "374",
-                },
-                *args,
-                **kwargs,
-            ):
-                ui.dPanel.__init__(
-                    self, parent=parent, attProperties=attProperties, *args, **kwargs
-                )
-
-        class dPanel_46292(ui.dPanel):
-            def __init__(
-                self,
-                parent=None,
-                attProperties={
-                    "Width": "511",
-                    "AlwaysResetSizer": "True",
-                    "NameBase": "dPanel1",
-                    "Height": "374",
-                },
-                *args,
-                **kwargs,
-            ):
-                ui.dPanel.__init__(
-                    self, parent=parent, attProperties=attProperties, *args, **kwargs
-                )
-
-        class dTreeView_2732(ui.dTreeView):
-            def __init__(self, parent=None, attProperties={"RegID": "objectTree"}, *args, **kwargs):
-                ui.dTreeView.__init__(
-                    self, parent=parent, attProperties=attProperties, *args, **kwargs
-                )
-
-            def showObject(self, obj, displayFail=True):
-                nd = self.nodeForObject(obj)
-                if nd:
-                    nd.Selected = True
-                    self.showNode(nd)
-                elif displayFail:
-                    ui.stop(_("Couldn't find object: %s") % obj)
-                else:
-                    raise RuntimeError(_("Object '%s' not found") % obj)
-
-            def onTreeSelection(self, evt):
-                ui.callAfter(self.Form.object_selected, self.Selection.Object)
-
-            def expandCurrentNode(self):
-                self.expandBranch(self.Selection)
-
-            def collapseCurrentNode(self):
-                self.collapseBranch(self.Selection)
-
-        class dGrid_4590(ui.dGrid):
-            def __init__(
-                self,
-                parent=None,
-                attProperties={"RegID": "infoGrid", "SelectionMode": "Row"},
-                *args,
-                **kwargs,
-            ):
-                ui.dGrid.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
-
-            def onGridMouseLeftClick(self, evt):
-                def later():
-                    ds = self.DataSet
-                    row = ds[self.CurrentRow]
-                    prop = row["prop"]
-                    self.Form.PreferenceManager.excluded_props.setValue(prop, True)
-                    lds = list(ds)
-                    lds.remove(row)
-                    self.DataSet = db.dDataSet(lds)
-
-                if evt.altDown:
-                    ui.callAfterInterval(250, later)
 
         return eval(clsName)
 
