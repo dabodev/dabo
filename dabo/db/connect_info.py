@@ -86,9 +86,23 @@ class dConnectInfo(dObject):
             "KeepAliveInterval",
         ]
         lprops = [p.lower() for p in props]
-        if isinstance(connInfo, str) and Path(connInfo).exists():
+        if isinstance(connInfo, (str, Path)) and Path(connInfo).exists():
             # See if it's a .cnxml file
-            connInfo = xmltodict(connInfo)
+            if isinstance(connInfo, Path):
+                connInfo = connInfo.as_posix()
+            connDict = importConnections(connInfo)
+            # The dict has the connection name as the key, and the various settings as its value
+            info = list(connDict.values())[0]
+            self.Name = info.get("name", "")
+            self.DbType = info.get("dbtype", "")
+            self.Host = info.get("host", "")
+            self.RemoteHost = info.get("remotehost", "")
+            self.Database = info.get("database", "")
+            self.User = info.get("user", "")
+            self.Password = info.get("password", "")
+            self.Port = info.get("port", "")
+            self.KeepAliveInterval = info.get("KeepAliveInterval", "")
+            return
 
         for k, v in list(connInfo.items()):
             try:

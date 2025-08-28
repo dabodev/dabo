@@ -445,7 +445,7 @@ if __name__ == "__main__":
         "name": "test",
         "attributes": {
             "path": "c:\\temp\\name",
-            "problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1"),
+            "problemChars": r"Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".encode("latin-1"),
         },
     }
     print("test_dict:", test_dict)
