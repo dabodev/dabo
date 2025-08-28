@@ -262,6 +262,9 @@ standardDirs = ("biz", "cache", "db", "lib", "reports", "resources", "test", "ui
 # Do we do dynamic menu enabling? This was crashing on recent versions of the Class Designer.
 dynamicMenuEnabling = False
 
+# When autosizing grid columns, limit the width to this value
+max_column_width = 500
+
 ### Settings - end
 
 
