@@ -24,6 +24,40 @@ dabo_module = settings.get_dabo_package()
 
 
 class dFormMixin(dPemMixin):
+    # Local attributes
+    __needOutlineRedraw = False
+    _alwaysDrawSizerOutlines = False
+    _autoUpdateStatusText = False
+    _connection = None
+    _cxnName = ""
+    _defaultHeight = 500
+    _defaultLeft = 50
+    _defaultState = "Normal"
+    _defaultTop = 50
+    _defaultWidth = 600
+    _designerMode = False
+    _drawSizerChildren = False
+    _fieldValidationControl = None
+    _floatingPanel = None
+    _icon = None
+    _idleRefreshInterval = 1000
+    _isClosed = False
+    _isModal = False
+    _menuBarClass = None
+    _menuBarFile = None
+    _normLeft = None
+    _normTop = None
+    _objectRegistry = {}
+    _recurseOutlinedSizers = True
+    _saveRestorePosition = None
+    _showMenuBar = True
+    _sizersToOutline = []
+    _statusBarClass = dStatusBar
+    _statusStack = []
+    _tempForm = False
+    debugText = ""
+    useOldDebugDialog = False
+
     def __init__(
         self,
         preClass,
@@ -667,12 +701,12 @@ class dFormMixin(dPemMixin):
         super()._setAbsoluteFontZoom(amt)
         if self.Application and self.SaveRestorePosition:
             self.Application.setUserSetting(
-                "%s.fontzoom" % self.getAbsoluteName(), self._currFontZoom
+                "%s.fontzoom" % self.getAbsoluteName(), self._currentFontZoom
             )
 
     def _restoreFontZoom(self):
         if self.Application:
-            self._currFontZoom = self.Application.getUserSetting(
+            self._currentFontZoom = self.Application.getUserSetting(
                 "%s.fontzoom" % self.getAbsoluteName(), 0
             )
 
@@ -882,7 +916,7 @@ class dFormMixin(dPemMixin):
 
         Otherwise, returns False if this is a SDI (Single Document Interface) form.  Users on
         Microsoft Windows seem to expect MDI, while on other platforms SDI is preferred.
-        self._mdi is defined in dForm.py/dFormMain.py
+        self._mdi is defined in form.py/form_main.py
 
         See also: the global MDI global setting.  (bool)
         """
@@ -944,11 +978,9 @@ class dFormMixin(dPemMixin):
         Specifies whether the form's position and size as set by the user will get saved and
         restored in the next session. Default is True for forms and False for dialogs.
         """
-        try:
-            val = self._saveRestorePosition
-        except AttributeError:
-            val = self._saveRestorePosition = not isinstance(self, ui.dDialog)
-        return val
+        if self._saveRestorePosition is None:
+            self._saveRestorePosition = not isinstance(self, ui.dDialog)
+        return self._saveRestorePosition
 
     @SaveRestorePosition.setter
     def SaveRestorePosition(self, val):
@@ -1001,11 +1033,7 @@ class dFormMixin(dPemMixin):
     @property
     def ShowMenuBar(self):
         """Specifies whether a menubar is created and shown automatically."""
-        if hasattr(self, "_showMenuBar"):
-            val = self._showMenuBar
-        else:
-            val = self._showMenuBar = True
-        return val
+        return self._showMenuBar
 
     @ShowMenuBar.setter
     def ShowMenuBar(self, val):

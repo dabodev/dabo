@@ -15,6 +15,10 @@ class EventMixin(object):
     All Dabo objects inherit this functionality.
     """
 
+    # Local attributes
+    _eventBindings = None
+    __raisedEvents = []
+
     def bindEvent(self, eventClass, function, _auto=False):
         """Bind a dEvent to a callback function."""
         eb = self._EventBindings
@@ -308,11 +312,9 @@ class EventMixin(object):
     @property
     def _EventBindings(self):
         """The list of event bindings ([Event, callback]) for this object."""
-        try:
-            return self._eventBindings
-        except AttributeError:
-            self._eventBindings = []
-            return self._eventBindings
+        # Handle initial `None` value
+        self._eventBindings = self._eventBindings or []
+        return self._eventBindings
 
     @_EventBindings.setter
     def _EventBindings(self, val):

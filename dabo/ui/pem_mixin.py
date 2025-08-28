@@ -34,6 +34,48 @@ class dPemMixin(dObject):
     _call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
     _layout_on_set_caption = False
 
+    # Local attributes
+    _acceleratorTable = {}
+    _border = None
+    _borderColor = (0, 0, 0)
+    _borderLineStyle = "Solid"
+    _borderWidth = 0
+    _cachedForm = None
+    _caption = ""
+    _currentFontZoom = None
+    _delayedEventBindings = []
+    _displayLockCount = 0
+    _drawnObjects = []
+    _dropTarget = None
+    _droppedFileHandler = None
+    _droppedTextHandler = None
+    _dynamic = None
+    _eventTarget = None
+    _finito = False
+    _font = None
+    _hover = False
+    _hoverTimer = None
+    _inRedraw = False
+    _keyBindings = {}
+    _kwEvents = {}
+    _maximumHeight = -1
+    _maximumWidth = -1
+    _minimumHeight = 10
+    _minimumWidth = 10
+    _mouseLeftDown = False
+    _mouseMiddleDown = False
+    _mouseRightDown = False
+    _name = "?"
+    _needRedraw = True
+    _pemObject = None
+    _preInitProperties = None
+    _properties = {}
+    _registryID = ""
+    _transparency = 255
+    _transparencyDelay = 0.25
+    _uiDisabled = False
+    autoClearDrawings = True
+
     def __init__(
         self,
         preClass=None,
@@ -343,7 +385,7 @@ class dPemMixin(dObject):
         self._setAbsoluteFontZoom(0)
 
     def _setRelativeFontZoom(self, amt):
-        abs_zoom = getattr(self, "_currFontZoom", 0) + amt
+        abs_zoom = getattr(self, "_currentFontZoom", 0) + amt
         self._setAbsoluteFontZoom(abs_zoom)
 
     def _setAbsoluteFontZoom(self, newZoom):
@@ -356,7 +398,7 @@ class dPemMixin(dObject):
             fontSize = self.FontSize + newZoom
         else:
             fontSize = origFontSize + newZoom
-        self._currFontZoom = newZoom
+        self._currentFontZoom = newZoom
         if fontSize > 1:
             self.FontSize = fontSize
         ui.callAfterInterval(200, self.refresh)
@@ -370,9 +412,9 @@ class dPemMixin(dObject):
 
     def _restoreFontZoom(self):
         """Called when object is instantiated: restore the zoom based on the form."""
-        if not hasattr(self.Form, "_currFontZoom"):
+        if not hasattr(self.Form, "_currentFontZoom"):
             self.Form._restoreFontZoom()
-        zoom = getattr(self.Form, "_currFontZoom", 0)
+        zoom = getattr(self.Form, "_currentFontZoom", 0)
         if zoom and not isinstance(self, (ui.dPanel, ui.dScrollPanel, ui.dMenuItem)):
             ui.callAfter(self._setAbsoluteFontZoom, zoom)
 
@@ -1075,7 +1117,7 @@ class dPemMixin(dObject):
         finally:
             self.unlockDisplay()
 
-    def unlockDisplay(self):
+    def unlockDisplay(self, report_error=True):
         """
         Unlocks the visual updates to the control.
 
@@ -1091,9 +1133,10 @@ class dPemMixin(dObject):
             try:
                 self.Thaw()
             except ui.assertionException:
-                # Too many 'unlockDisplay' calls to the same object were made. Log
-                # the mistake, but don't throw a Python error.
-                dabo_module.error(_("Extra call to unlockDisplay() for object %s") % self)
+                if report_error:
+                    # Too many 'unlockDisplay' calls to the same object were made. Log
+                    # the mistake, but don't throw a Python error.
+                    dabo_module.error(_(f"Extra call to unlockDisplay() for object {self}"))
 
     def unlockDisplayAll(self):
         """
@@ -1104,7 +1147,7 @@ class dPemMixin(dObject):
         if not self._displayLockCount:
             return
         self._displayLockCount = 1
-        self.unlockDisplay()
+        self.unlockDisplay(report_error=False)
 
     def getDisplayLocker(self):
         """
@@ -2792,9 +2835,7 @@ class dPemMixin(dObject):
     @property
     def Form(self):
         """Object reference to the dForm containing the object. Read-only. (dForm)."""
-        try:
-            return self._cachedForm
-        except AttributeError:
+        if self._cachedForm is None:
             obj, frm = self, None
             while obj:
                 try:
@@ -2808,7 +2849,7 @@ class dPemMixin(dObject):
                     obj = parent
             if frm:
                 self._cachedForm = frm  # Cache for next time
-            return frm
+        return self._cachedForm
 
     @property
     def Height(self):

@@ -33,6 +33,9 @@ class dFormMainBase(dFormMixin):
 
 
 class dFormMain(dFormMainBase, wx.Frame):
+    # Local attributes
+    _mdi = False
+
     def __init__(self, parent=None, properties=None, *args, **kwargs):
         self._baseClass = dFormMain
 

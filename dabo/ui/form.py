@@ -28,6 +28,14 @@ class BaseForm(dFormMixin):
     like next(), last(), save(), and requery().
     """
 
+    # Local attributes
+    _checkForChanges = True
+    _dataUpdateDelay = 100
+    _primaryBizobj = None
+    _rowNavigationDelay = 0
+    bizobjs = {}
+    stopWatch = None
+
     def __init__(self, preClass, parent, properties, attProperties, *args, **kwargs):
         self.bizobjs = {}
         self._primaryBizobj = None
@@ -1089,9 +1097,11 @@ Database error message: %s"""
 
 
 class dForm(BaseForm, wx.Frame):
+    # Local attributes
+    _mdi = False
+
     def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dForm
-        self._mdi = False
 
         if kwargs.pop("Modal", False):
             # Hack this into a wx.Dialog, for true modality

@@ -13,6 +13,14 @@ NONE_TYPE = type(None)
 class dObject(PropertyHelperMixin, EventMixin):
     """The basic ancestor of all Dabo objects."""
 
+    # Local attributes
+    _baseClass = None
+    _basePrefKey = ""
+    _logEvents = None
+    _name = "?"
+    _parent = None
+    _preferenceManager = None
+
     # Subclasses can set these to False, in which case they are responsible
     # for maintaining the following call order:
     #   self._beforeInit()
@@ -25,8 +33,7 @@ class dObject(PropertyHelperMixin, EventMixin):
     _call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
 
     def __init__(self, properties=None, attProperties=None, *args, **kwargs):
-        if not hasattr(self, "_properties"):
-            self._properties = {}
+        self._properties = {}
         if self._call_beforeInit:
             self._beforeInit()
         if self._call_initProperties:
@@ -180,9 +187,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 
     def getAbsoluteName(self):
         """Return the fully qualified name of the object."""
-        names = [
-            self.Name,
-        ]
+        names = [self.Name]
         obj = self
         while True:
             try:
@@ -221,10 +226,7 @@ class dObject(PropertyHelperMixin, EventMixin):
             for item in dir(c):
                 if item[0] in string.lowercase:
                     if item in c.__dict__:
-                        if type(c.__dict__[item]) in (
-                            types.MethodType,
-                            types.FunctionType,
-                        ):
+                        if type(c.__dict__[item]) in (types.MethodType, types.FunctionType):
                             if methodList.count(item) == 0:
                                 methodList.append(item)
         methodList.sort()
@@ -289,11 +291,7 @@ class dObject(PropertyHelperMixin, EventMixin):
     @property
     def BasePrefKey(self):
         """Base key used when saving/restoring preferences  (str)"""
-        try:
-            ret = self._basePrefKey
-        except AttributeError:
-            ret = self._basePrefKey = ""
-        return ret
+        return self._basePrefKey
 
     @BasePrefKey.setter
     def BasePrefKey(self, val):
@@ -325,9 +323,7 @@ class dObject(PropertyHelperMixin, EventMixin):
         object finally reports a LogEvents property. In normal use, this will be the Application
         object.
         """
-        try:
-            le = self._logEvents
-        except AttributeError:
+        if self._logEvents is None:
             # Try to get the value from the parent object, or the Application if
             # no Parent.
             if self.Parent is not None:
@@ -341,7 +337,8 @@ class dObject(PropertyHelperMixin, EventMixin):
                 le = parent.LogEvents
             except AttributeError:
                 le = []
-        return le
+            self._logEvents = le
+        return self._logEvents
 
     @LogEvents.setter
     def LogEvents(self, val):
@@ -350,10 +347,7 @@ class dObject(PropertyHelperMixin, EventMixin):
     @property
     def Name(self):
         """The name of the object.  (str)"""
-        try:
-            return self._name
-        except AttributeError:
-            return "?"
+        return self._name
 
     @Name.setter
     def Name(self, val):
@@ -371,10 +365,7 @@ class dObject(PropertyHelperMixin, EventMixin):
         nonvisual objects, and implementation of parent/child relationships will vary. This
         implementation is the simplest.
         """
-        try:
-            return self._parent
-        except AttributeError:
-            return None
+        return self._parent
 
     @Parent.setter
     def Parent(self, obj):
@@ -383,20 +374,17 @@ class dObject(PropertyHelperMixin, EventMixin):
 
     @property
     def PreferenceManager(self):
-        try:
-            ret = self._preferenceManager
-        except AttributeError:
-            ret = None
+        if self._preferenceManager is None:
             if self.Application is not self:
                 try:
-                    ret = self._preferenceManager = self.Application.PreferenceManager
+                    self._preferenceManager = self.Application.PreferenceManager
                 except AttributeError:
                     pass
-            if ret is None:
+            if self._preferenceManager is None:
                 from .preference_mgr import dPref  ## here to avoid circular import
 
-                ret = self._preferenceManager = dPref(key=self.BasePrefKey)
-        return ret
+                self._preferenceManager = dPref(key=self.BasePrefKey)
+        return self._preferenceManager
 
     @PreferenceManager.setter
     def PreferenceManager(self, val):
