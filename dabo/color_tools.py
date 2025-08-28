@@ -284,7 +284,7 @@ def colorTupleFromName(color):
 
 def colorTupleFromString(color):
     ret = None
-    colorTuplePat = "\((\d+), *(\d+), *(\d+)\)"
+    colorTuplePat = r"\((\d+), *(\d+), *(\d+)\)"
     mtch = re.match(colorTuplePat, color)
     if mtch:
         grps = mtch.groups()

@@ -159,7 +159,7 @@ def getUserAppDataDirectory(appName="Dabo"):
     """
     Return the directory where Dabo can save user preference and setting information.
 
-    On \*nix, this will be something like /home/pmcnett/.dabo
+    On *nix, this will be something like /home/pmcnett/.dabo
     On Windows, it will be more like c:\Documents and Settings\pmcnett\Application Data\Dabo
 
     This function relies on platform conventions to determine this information. If it
@@ -207,7 +207,7 @@ def getSharedAppDataDirectory(appName="Dabo"):
     """
     Return the directory where Dabo can store shared mutable data.
 
-    On \*nix, this will be something like /var/lib/dabo
+    On *nix, this will be something like /var/lib/dabo
     On Windows, it will be more like c:\Documents and Settings\All Users\Application Data\Dabo
 
     This function relies on platform conventions to determine this information. If it
@@ -254,7 +254,7 @@ def getSharedAppDataDirectory(appName="Dabo"):
 def dictStringify(dct):
     """
     The ability to pass a properties dict to an object relies on
-    the practice of passing '\*\*properties' to a function. Seems that
+    the practice of passing '**properties' to a function. Seems that
     Python requires that the keys in any dict being expanded like
     this be strings, not unicode. This method returns a dict with all
     unicode keys changed to strings.

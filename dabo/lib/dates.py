@@ -45,7 +45,7 @@ def _getDateRegex(format):
         if "%d" in format and "%m" in format and ("%y" in format or "%Y" in format):
             for k in conv:
                 format = format.replace(k, conv[k])
-                format.replace(".", "\.")
+                format.replace(".", r"\.")
                 exp = "^%s$" % format
         else:
             return None
@@ -62,7 +62,7 @@ def _getDateTimeRegex(format):
     elements["hour"] = "(?P<hour>[0-1][0-9]|2[0-3])"  ## hour 00-23
     elements["minute"] = "(?P<minute>[0-5][0-9])"  ## minute 00-59
     elements["second"] = "(?P<second>[0-5][0-9])"  ## second 00-59
-    elements["ms"] = "\.{0,1}(?P<ms>[0-9]{0,6})"  ## optional ms
+    elements["ms"] = r"\.{0,1}(?P<ms>[0-9]{0,6})"  ## optional ms
     elements["sep"] = "(?P<sep> |T)"  ## separator between date and time
 
     if format == "ISO8601":
@@ -85,7 +85,7 @@ def _getTimeRegex(format):
     elements["hour"] = "(?P<hour>[0-1][0-9]|2[0-3])"  ## hour 00-23
     elements["minute"] = "(?P<minute>[0-5][0-9])"  ## minute 00-59
     elements["second"] = "(?P<second>[0-5][0-9])"  ## second 00-59
-    elements["ms"] = "\.{0,1}(?P<ms>[0-9]{0,6})"  ## optional ms
+    elements["ms"] = r"\.{0,1}(?P<ms>[0-9]{0,6})"  ## optional ms
     elements["sep"] = "(?P<sep> |T)"
 
     if format == "ISO8601":
