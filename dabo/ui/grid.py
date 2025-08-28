@@ -31,6 +31,7 @@ from ..lib.utils import noneSortKey
 from ..lib.utils import ustr
 from ..localization import _
 from ..localization import n_
+from . import dActivityIndicator
 from . import dButton
 from . import dCheckBox
 from . import dControlMixin
@@ -653,7 +654,7 @@ class dColumn(wx._core.Object, dPemMixin):
         )
         fontSize = origFontSize + newZoom
         headerFontSize = origHeaderFontSize + newZoom
-        self._currFontZoom = newZoom
+        self._currentFontZoom = newZoom
         if fontSize > 1:
             self.FontSize = fontSize
         if headerFontSize > 1:
@@ -2568,6 +2569,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         new width to the user settings table.
         """
         if isinstance(colNum, str) and colNum.lower() == "all":
+            busy = ui.busyInfo("Please wait; resizing...")
             self.BeginBatch()
             self._inAutoSizeLoop = True
             for ii in range(len(self.Columns)):
@@ -2575,8 +2577,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
             self._updateColumnWidths()
             self.EndBatch()
             self._inAutoSizeLoop = False
+            del busy
             return
-        maxWidth = 250  ## limit the width of the column to something reasonable
         if not self._inAutoSizeLoop:
             # lock the screen
             self.lockDisplay()
@@ -2596,12 +2598,21 @@ class dGrid(dControlMixin, wx.grid.Grid):
             idx = self._convertDaboColNumToWxColNum(idx)
             autoWidth = self.GetColSize(idx)
 
+            # Get the max width needed for the column's text
+            ds = self.DataSet
+            fld = colObj.DataField
+            face = colObj.FontFace if colObj.Font else self.FontFace
+            if idx == 0:
+                col_text = (f"{rec.get(fld)}" for rec in ds)
+                col_text_widths = (ui.fontMetric(txt)[0] for txt in col_text)
+                auto_text_width = max(col_text_widths)
+
             # Account for the width of the header caption:
             cw = ui.fontMetricFromFont(colObj.Caption, colObj.HeaderFont._nativeFont)[0] + int(
                 capBuffer
             )
             w = max(autoWidth, cw)
-            w = min(w, maxWidth)
+            w = min(w, settings.max_column_width)
             colObj.Width = w
             if persist:
                 colObj._persist("Width")
@@ -4419,6 +4430,11 @@ class dGrid(dControlMixin, wx.grid.Grid):
             self.raiseEvent(events.GridMouseRightClick, evt, col=col, row=row)
             self._mouseRightDown = (None, None)
         evt.Skip()
+
+    def __onWxGridCellMouseLeftDoubleClick(self, evt):
+        col, row = self._getColRowForPosition(evt.GetPosition())
+
+    #         self.raiseEvent(events.GridMouseLeftDoubleClick, evt, col=col, row=row)
 
     ##----------------------------------------------------------##
     ##         end: wx callbacks to re-route to events            ##

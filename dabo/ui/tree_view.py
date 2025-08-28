@@ -794,7 +794,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
     def makeDirTree(self, dirPath, wildcard=None, ignored=None, showHidden=False, expand=False):
         """
         Make this dTreeView show a filesystem directory hierarchy. You
-        can specify a wildcard pattern: e.g., "\*py" will only include files
+        can specify a wildcard pattern: e.g., "*py" will only include files
         ending in 'py'. You can also pass a list of wildcards, and files
         matching any of these will be included in the tree. If no wildcard
         is specified, all files will be included.
@@ -891,7 +891,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
             self.expandAll()
 
     def _setAbsoluteFontZoom(self, newZoom):
-        self._currFontZoom = newZoom
+        self._currentFontZoom = newZoom
         for node in self.nodes:
             origFontSize = node._origFontSize = getattr(node, "_origFontSize", node.FontSize)
             fontSize = origFontSize + newZoom
