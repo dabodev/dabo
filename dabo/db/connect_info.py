@@ -64,7 +64,9 @@ class dConnectInfo(dObject):
         # Necessary when using this class outside of a Dabo application. See the docstring
         # for the dabo.application.Application.CryptoKey property for the format needed.
         self._encryption = Encryption()
-        self._encryption.set_key(kwargs.get("crypto_key"))
+        crypto_key = kwargs.get("crypto_key")
+        if crypto_key is not None:
+            self._encryption.set_key(kwargs.get("crypto_key"))
 
         if connInfo:
             self.setConnInfo(connInfo)
