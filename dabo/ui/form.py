@@ -770,7 +770,7 @@ Database error message: %s"""
         self.prior()
 
     def onNext(self, evt):
-        next(self)
+        self.next(self)
 
     def onLast(self, evt):
         self.last()
