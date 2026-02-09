@@ -15,7 +15,6 @@ from .. import ui
 from ..lib import dates
 from ..lib.utils import ustr
 from ..localization import _
-
 from ..ui import dDataControlMixin
 from ..ui import dKeys
 from ..ui import makeDynamicProperty

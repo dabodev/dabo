@@ -61,13 +61,13 @@ Notice the textbox in the upper left hand corner?
 ```python
 tb.Value = "yippee!"
 tb.FontBold = True
-print tb.Value
+print(tb.Value)
 ```
 
 Now, use the ui to change the value in the textbox, and switch back to
 the command window.
 ```python
-print tb.Value
+print(tb.Value)
 ```
 
 https://dabodev.com

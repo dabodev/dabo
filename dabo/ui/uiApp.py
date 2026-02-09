@@ -254,7 +254,7 @@ class uiApp(dObject, wx.App):
                     for ch in step1
                     if ch[1].split("/", 1)[0] in ("dabo", "demo", "ide")
                 ]
-                step2.sort(lambda x, y: cmp(x[1], y[1]))
+                step2.sort()
                 # Now split off the project
                 step3 = [
                     {

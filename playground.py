@@ -217,10 +217,10 @@ class MyDaboMenu(dMenu):
 def main():
     from wx.lib.inspection import InspectionTool
 
-    import dabo
+    from dabo.application import dApp
     from dabo.ui import dForm
 
-    app = dabo.dApp()
+    app = dApp()
     app.MainFormClass = None
     app.setup()
 

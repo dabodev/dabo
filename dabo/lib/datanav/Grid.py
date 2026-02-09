@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import dabo
-from dabo import dEvents as dEvents
+from dabo import events
 from dabo import ui as dui
 from dabo.ui import dKeys
 
@@ -14,8 +14,8 @@ class Grid(dui.dGrid):
 
     def _initEvents(self):
         super()._initEvents()
-        self.bindEvent(dEvents.GridMouseLeftDoubleClick, self.onGridLeftDClick)
-        self.bindEvent(dEvents.KeyDown, self._onGridKeyDown)
+        self.bindEvent(events.GridMouseLeftDoubleClick, self.onGridLeftDClick)
+        self.bindEvent(events.KeyDown, self._onGridKeyDown)
 
     def _initProperties(self):
         # Highlight the selected row for the grid

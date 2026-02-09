@@ -36,4 +36,4 @@ if ret.lower() == "y":
     for fileName, lines in list(culprits.items()):
         for line in lines:
             os.system("vi %s +%s" % (fileName, line))
-    #    print "%s: %s" % (k, v)
+    #    print("%s: %s" % (k, v))

@@ -37,11 +37,9 @@ class dControlMixin(ui.dPemMixin):
 
         # Hide a problem on Windows toolbars where a single command event will
         # be raised up to three separate times.
-        #         print "CONTROL WXHIT", self, evt
         now = time.time()
         if not hasattr(self, "_lastHitTime") or (now - self._lastHitTime) > 0.001:
             self.raiseEvent(events.Hit, evt, *args, **kwargs)
-            #            print "CONTROL RAISING HIT"
             self._lastHitTime = time.time()
 
     def __onWxNavKey(self, evt):

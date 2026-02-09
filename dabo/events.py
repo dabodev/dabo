@@ -19,7 +19,7 @@ class dEvent(object):
     def __init__(self, eventObject, uiEvent=None, eventData=None, *args, **kwargs):
         # Event objects get instantiated with every single event, so try
         # to keep code to a minimum here.
-        # super().__init__(*args, **kwargs)
+        super().__init__()
 
         self._eventObject = eventObject
         self._uiEvent = uiEvent

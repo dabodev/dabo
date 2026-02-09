@@ -60,6 +60,7 @@ class dGridDataTable(wx.grid.GridTableBase):
     def __init__(self, parent):
         super().__init__()
         self._clearCache()
+        self._inGetAttr = False
         self.grid = parent
         self._initTable()
 
@@ -85,36 +86,48 @@ class dGridDataTable(wx.grid.GridTableBase):
                 return cv[0].Clone()
 
         dcol = self.grid.Columns[col]
-        dcol._updateCellDynamicProps(row)
 
-        if dcol._gridCellAttrs:
-            attr = dcol._gridCellAttrs.get(row, dcol._gridColAttr)
-        else:
-            attr = dcol._gridColAttr
+        # Guard against re-entrance (e.g., a custom renderer calling GetAttr
+        # from inside its Draw method). Skip dynamic prop updates and renderer
+        # creation on re-entrant calls to avoid recursive repaints.
+        reentrant = self._inGetAttr
+        if not reentrant:
+            self._inGetAttr = True
 
-        ## Now, override with a custom renderer for this row/col if applicable.
-        ## Note that only the renderer is handled here, as we are segfaulting when
-        ## handling the editor here.
-        r = dcol.getRendererClassForRow(row)
-        if r is not None:
-            rnd = r()
-            attr.SetRenderer(rnd)
-            if r in (dcol.floatRendererClass, dcol.decimalRendererClass):
-                rnd.SetPrecision(dcol.Precision)
-        do_incref = True
-        # Now check for alternate row coloration
-        if self.alternateRowColoring:
-            do_incref = False
+        try:
+            if not reentrant:
+                dcol._updateCellDynamicProps(row)
+
+            if dcol._gridCellAttrs:
+                attr = dcol._gridCellAttrs.get(row, dcol._gridColAttr)
+            else:
+                attr = dcol._gridColAttr
+
+            # Always clone to avoid mutating the shared column attr.
+            # Calling SetRenderer/SetOverflow on the shared attr can trigger
+            # synchronous repaints on macOS Cocoa → DrawCell recursion.
             attr = attr.Clone()
-            attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
 
-        # Prevents overwriting when a long cell has None in the one next to it.
-        attr.SetOverflow(False)
+            if not reentrant:
+                ## Override with a custom renderer for this row/col if applicable.
+                r = dcol.getRendererClassForRow(row)
+                if r is not None:
+                    rnd = r()
+                    attr.SetRenderer(rnd)
+                    if r in (dcol.floatRendererClass, dcol.decimalRendererClass):
+                        rnd.SetPrecision(dcol.Precision)
 
-        if do_incref:
-            attr.IncRef()
+            # Now check for alternate row coloration
+            if self.alternateRowColoring:
+                attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
 
-        return attr
+            # Prevents overwriting when a long cell has None in the one next to it.
+            attr.SetOverflow(False)
+
+            return attr
+        finally:
+            if not reentrant:
+                self._inGetAttr = False
 
     def GetRowLabelValue(self, row):
         try:
@@ -148,11 +161,9 @@ class dGridDataTable(wx.grid.GridTableBase):
             if isinstance(col.DataType, type):
                 typeDict = {
                     str: "string",
-                    str: "unicode",
                     bool: "bool",
                     int: "integer",
                     float: "float",
-                    int: "long",
                     datetime.date: "date",
                     datetime.datetime: "datetime",
                     datetime.time: "time",
@@ -572,6 +583,7 @@ class dColumn(wx._core.Object, dPemMixin):
         self._isConstructed = True
         super()._afterInit()
         ui.callAfter(self._restoreFontZoom)
+
 
     def GetParent(self):
         # For wx compatibility
@@ -1134,7 +1146,7 @@ class dColumn(wx._core.Object, dPemMixin):
 
     @property
     def Font(self):
-        if hasattr(self, "_font"):
+        if hasattr(self, "_font") and self._font:
             v = self._font
         else:
             v = self.Font = dFont(_nativeFont=self._gridColAttr.GetFont())
@@ -1405,6 +1417,11 @@ class dColumn(wx._core.Object, dPemMixin):
             self._refreshHeader()
         else:
             self._properties["HeaderVerticalAlignment"] = val
+
+    @property
+    def Height(self):
+        """Column objects do not have a size; instead, get the parent's Height"""
+        return self.Parent.Height
 
     @property
     def HorizontalAlignment(self):
@@ -2332,6 +2349,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
             + a sequence of dicts, containing fieldname/fieldvalue pairs.
             + a string, which maps to a bizobj on the form.
+            + any object with a `getDataSet()` method, which returns a DataSet.
 
         The columns will be taken from the first record of the dataset, with each
         column header caption being set to the field name, unless the optional
@@ -2359,16 +2377,17 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if colTypes is None:
             colTypes = {}
 
-        if isinstance(ds, str) or isinstance(ds, biz.dBizobj):
-            # Assume it is a bizobj datasource.
-            if self.DataSource != ds:
-                self.DataSource = ds
-        else:
-            self.DataSource = None
-            self.DataSet = ds
-        bizobj = self.getBizobj()
+        if not isinstance(ds, db.dDataSet):
+            if isinstance(ds, str) or isinstance(ds, biz.dBizobj):
+                # Assume it is a bizobj datasource.
+                if self.DataSource != ds:
+                    self.DataSource = ds
+            elif hasattr(ds, "getDataSet"):
+                ds = ds.getDataSet()
+        self.DataSource = None
+        self.DataSet = ds
 
-        if bizobj:
+        if bizobj := self.getBizobj():
             data = bizobj.getDataSet(rows=1)
             if data:
                 firstRec = data[0]
@@ -2459,7 +2478,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
         for col in self.Columns:
             if col._gridColAttr is not None:
-                col._gridColAttr.DecRef()
+#                 col._gridColAttr.DecRef()
                 col._gridColAttr = None  # that ref is now unsafe to use.
 
     def _onGridResize(self, evt):
@@ -3469,6 +3488,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
     def cell(self, row, col):
         class GridCell(object):
             def __init__(self, parent, row, col):
+                super().__init__()
                 self.parent = parent
                 self.row = row
                 self.col = col
@@ -4226,7 +4246,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # editors refcount)
         editor = self.GetCellEditor(evt.GetRow(), evt.GetCol())
         ctrl = editor.GetControl()
-        editor.DecRef()
+#         editor.DecRef()
         if hasattr(
             ctrl, "initProperties"
         ):  # Don't want to cause an error while operating on a stock editor.

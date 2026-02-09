@@ -31,6 +31,7 @@ logEvents = ["All", "Idle", "MouseMove"]
 
 class Test(object):
     def __init__(self):
+        super().__init__()
         self.app = dApp()
         self.app.MainFormClass = None
         self.app.setup()

@@ -375,7 +375,7 @@ class dDataSet(tuple):
 
         #         import time
         #         st = time.clock()
-        #         print "starting"
+        #         print("starting")
 
         # Create the table for this dDataSet
         self._populate(self, "dataset")

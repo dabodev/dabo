@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import dabo.biz
+from dabo import biz
 
 from ...localization import _
 
 
-class Bizobj(dabo.biz.dBizobj):
+class Bizobj(biz.dBizobj):
     def addField(self, fld):
         try:
             cursorInfo, alias = fld.split(" as ")

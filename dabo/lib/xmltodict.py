@@ -35,6 +35,7 @@ class Xml2Obj(object):
     """XML to Object"""
 
     def __init__(self, encoding=None):
+        super().__init__()
         self.root = None
         self.nodeStack = []
         self.attsToSkip = []

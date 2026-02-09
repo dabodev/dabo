@@ -97,8 +97,8 @@ class Wizard(dDialog):
 
         self.wizardIcon = dImage(mp, ScaleMode="Proportional")
         if not self.Picture:
-            self.PictureHeight = self.PictureWidth = 96
             self.Picture = "daboIcon096"
+            self.PictureHeight = self.PictureWidth = 96
         hsz = dSizer("h")
         hsz.DefaultSpacing = 20
         hsz.append(self.wizardIcon, 0)
@@ -214,7 +214,7 @@ class Wizard(dDialog):
                 else:
                     if isinstance(pg, str):
                         xml = pg
-                        from .lib.DesignerClassConverter import DesignerClassConverter
+                        from ...lib.DesignerClassConverter import DesignerClassConverter
 
                         conv = DesignerClassConverter()
                         pg = conv.classFromText(xml)

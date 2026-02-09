@@ -18,9 +18,6 @@ class ImageRenderer(wx.grid.GridCellRenderer):
         Customisation Point: Draw the data from grid in the rectangle with attributes using the dc
         """
         self.clip(dc, rect)
-
-        # We use our custom attr, not the one wx passes:
-        attr = grid._Table.GetAttr(row, col)
         try:
             bitmap = self.getValueBitmap(grid, row, col)
             return self.drawBitmap(bitmap, attr, dc, rect, isSelected)
@@ -121,9 +118,6 @@ class BoolRenderer(wx.grid.GridCellRenderer):
         attributes using the dc
         """
         self.clip(dc, rect)
-
-        # We use our custom attr, not the one wx passes:
-        attr = grid._Table.GetAttr(row, col)
         try:
             bitmap = self.getValueBitmap(grid, row, col)
             return self.drawBitmap(bitmap, attr, dc, rect, isSelected)
@@ -204,9 +198,6 @@ class AbstractTextRenderer(wx.grid.GridCellRenderer):
         Customisation Point: Draw the data from grid in the rectangle with attributes using the dc
         """
         self.clip(dc, rect)
-
-        # We use our custom attr, not the one wx passes:
-        attr = grid._Table.GetAttr(row, col)
         try:
             txt = self.getValueText(grid, row, col)
             return self.drawText(txt, attr, dc, rect)

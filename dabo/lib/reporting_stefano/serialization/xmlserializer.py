@@ -14,6 +14,7 @@ def loname(name):
 
 class DeserializingParser(object):
     def __init__(self, rootCls):
+        super().__init__()
         self.expectedNamesStack = [(loname(rootCls.__name__),)]
         self.rootCls = rootCls
         self.objStack = []

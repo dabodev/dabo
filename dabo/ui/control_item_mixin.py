@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 
+from dabo.debugging import logPoint
 from .. import ui
 from ..lib.propertyHelperMixin import _DynamicList
 from ..lib.utils import ustr
@@ -97,7 +98,7 @@ class dControlItemMixin(dDataControlMixin):
 
     def sort(self, sortFunction=None):
         """
-        Sorts the list items. By default, the Python 'cmp' function is
+        Sorts the list items. By default, the standard Python sorting is
         used, but this can be overridden with a custom sortFunction.
         """
         if sortFunction is None:
@@ -144,6 +145,8 @@ class dControlItemMixin(dDataControlMixin):
                 except ValueError:
                     if self._choices:
                         self.PositionValue = 0
+            else:
+                self.PositionValue = 0 if self._choices else -1
             self.unlockDisplay()
         else:
             self._properties["Choices"] = choices
@@ -405,6 +408,7 @@ class dControlItemMixin(dDataControlMixin):
                 if isinstance(string, str):
                     index = self.FindString(string)
                     if index < 0:
+                        import pudb ; pudb.set_trace()
                         raise ValueError(_("String must be present in the choices: '%s'") % string)
                     else:
                         self.setSelection(index)

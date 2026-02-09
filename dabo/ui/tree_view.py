@@ -34,8 +34,7 @@ class dNode(dObject):
         self._filePath = None
         # Custom text to display as a tooltip
         self._toolTipText = None
-        # Add minimal Dabo functionality
-        self.afterInit()
+        super().__init__()
 
     def afterInit(self):
         pass

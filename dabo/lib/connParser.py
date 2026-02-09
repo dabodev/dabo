@@ -15,6 +15,7 @@ FILE_DATABASES = ("sqlite",)
 
 class connHandler(xml.sax.ContentHandler):
     def __init__(self):
+        super().__init__()
         self.connDict = {}
         self.blankConn = {
             "name": "",

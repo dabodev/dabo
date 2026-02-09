@@ -20,9 +20,9 @@ some rows from a backend database in a script. Here's an example of that::
 
     conn = dConnection(ci).getConnection()
     cursor = conn.cursor()
-    print cursor.execute("select * from addressbook order by iid limit 10")
+    print(cursor.execute("select * from addressbook order by iid limit 10"))
     for row in cursor.fetchall():
-        print row[0], row[1]
+        print(row[0], row[1])
 
 """
 

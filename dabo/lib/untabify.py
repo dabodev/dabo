@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #! /usr/bin/env python
 
-"""Replace tabs with spaces in argument files.  Print names of changed files."""
+"""Replace tabs with spaces in argument files. Print names of changed files."""
 
 import getopt
 import os

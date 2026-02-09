@@ -153,7 +153,6 @@ class pymssqlCursor:
                     sql = _quoteparams(operation, params)
                 else:
                     sql = operation
-                # print sql
                 ret = self.__source.query(sql)
                 if ret == 1:
                     self._result = self.__source.fetch_array()
@@ -247,7 +246,6 @@ def _quote(x):
     # elif hasattr(x, 'timetuple'):
     #    x = time.strftime('\'%Y%m%d %H:%M:%S\'', x.timetuple())
     else:
-        # print "didn't like " + x + " " + str(type(x))
         raise InterfaceError("do not know how to handle type %s" % type(x))
 
     return x

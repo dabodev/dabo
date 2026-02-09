@@ -1375,7 +1375,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         """
         Get the entire data set encapsulated in a dDataSet object.
 
-        If the optional    'flds' parameter is given, the result set will be filtered
+        If the optional 'flds' parameter is given, the result set will be filtered
         to only include the specified fields. rowStart specifies the starting row
         to include, and rows is the number of rows to return.
         """
@@ -2454,6 +2454,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
     def createTableAndIndexes(self, tabledef):
         """Create a table and its indexes based on the table definition."""
         self.BackendObject.createTableAndIndexes(tabledef, self)
+
+    def get_records(self, num=None, start=None):
+        """
+        Return all the records created by the most recent query.
+
+        You can limit the number of records returned by the `num` parameter. Default==all.
+
+        You can optionally skip some of the first records by specifying a `start` value.
+        """
+        num = num or len(self._records)
+        start = start or 0
+        return self._records[start:num]
 
     ###     SQL Builder methods     ########
     def getFieldClause(self):

@@ -52,7 +52,7 @@ class LengthAttr(SerializableAttribute):
 class StringChoiceAttr(SerializableAttribute):
     def __init__(self, choices, default):
         self.choices = choices
-        self.default = default
+        super().__init__(default)
 
     def evaluate(self, value, env):
         if value is None:

@@ -282,11 +282,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
         if not self._showHead:
             flags |= wx.LC_NO_HEADER
         self.dropdownlistbox.SetWindowStyleFlag(flags)
-        # prevent errors on "old" systems
-        if sys.version.startswith("2.3"):
-            self._multiChoices.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
-        else:
-            self._multiChoices.sort(key=lambda x: locale.strxfrm(x[0]).lower())
+        self._multiChoices.sort(key=lambda x: locale.strxfrm(x[0]).lower())
         self._updateDataList(self._multiChoices)
         if len(choices) < 2 or len(choices[0]) < 2:
             raise ValueError("You have to pass me a multi-dimension list with at least two entries")
@@ -318,11 +314,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
         self.dropdownlistbox.SetWindowStyleFlag(flags)
         if not isinstance(choices, list):
             self._choices = list(choices)
-        # prevent errors on "old" systems
-        if sys.version.startswith("2.3"):
-            self._choices.sort(lambda x, y: cmp(x.lower(), y.lower()))
-        else:
-            self._choices.sort(key=lambda x: locale.strxfrm(x).lower())
+        self._choices.sort(key=lambda x: locale.strxfrm(x).lower())
         self._updateDataList(self._choices)
         self.dropdownlistbox.InsertColumn(0, "")
         for num, colVal in enumerate(self._choices):

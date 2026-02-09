@@ -1164,7 +1164,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             self.BraceHighlight(braceAtCaret, braceOpposite)
             # pt = self.PointFromPosition(braceOpposite)
             # self.Refresh(True, wxRect(pt.x, pt.y, 5,5))
-            # print pt
+            # print(pt)
             # self.Refresh(False)
 
     def OnMarginClick(self, evt):
@@ -2606,7 +2606,7 @@ Do you want to overwrite it?"""
 
     @property
     def Value(self):
-        """Specifies the current contents of the editor.  (basestring)"""
+        """Specifies the current contents of the editor.  (str)"""
         return self.Text
 
     @Value.setter

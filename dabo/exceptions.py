@@ -91,6 +91,7 @@ class DBQueryException(DatabaseException):
     def __init__(self, err, sql=None):
         self.err_desc = err.rstrip()
         self.sql = sql and sql.strip() or None
+        super().__init__(str(self))
 
     def __str__(self):
         err = self.err_desc

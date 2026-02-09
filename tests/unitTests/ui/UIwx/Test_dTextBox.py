@@ -13,7 +13,6 @@ import unittest
 from mock import Mock
 
 import dabo.ui
-
 from dabo.dApp import dApp
 
 # We want the dApp and mainForm to persist through the settings for speed sake

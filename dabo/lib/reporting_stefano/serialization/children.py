@@ -25,6 +25,7 @@ class SerializableObjectChild(object):
 
 class AttributeChild(SerializableObjectChild):
     def __init__(self, clsName):
+        super().__init__()
         self.expectedClsNames = [clsName]
 
     def attach(self, parentObj, name, attrName):
@@ -39,6 +40,7 @@ class AttributeChild(SerializableObjectChild):
 
 class ObjectListChild(SerializableObjectChild):
     def __init__(self, clsNames):
+        super().__init__()
         self.expectedClsNames = clsNames
 
     def attach(self, parentObj, name, attrName):

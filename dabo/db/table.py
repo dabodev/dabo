@@ -367,15 +367,6 @@ class fType(dObject):
 
 if __name__ == "__main__":
     print("\n\nstarting\n")
-
-    # type = fType(DataType="String", Size=25)
-    # print type.getProperties(("DataType","Size"))
-
-    # col = dField(Name="colname", Type=fType(DataType="String",Size=50))
-    # print col
-    # col = dField(Name="colname", DataType="String", Size=50)
-    # print col
-
     myTable = dTable(Name="mytemp", IsTemp=True)
     myTable.addField(Name="theid", IsPK=True, DataType="int", Size=2, IsAutoIncrement=True)
     myTable.addField(Name="first_name", DataType="string", Size=25, Index="idx_first")

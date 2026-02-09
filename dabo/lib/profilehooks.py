@@ -15,7 +15,7 @@ Usage example (Python 2.4 or newer)::
         if n < 2: return 1
         else: return n * fn(n-1)
 
-    print fn(42)
+    print(fn(42))
 
 Usage example (Python 2.3 or older)::
 
@@ -28,7 +28,7 @@ Usage example (Python 2.3 or older)::
     # Now wrap that function in a decorator
     fn = profile(fn) # or coverage(fn)
 
-    print fn(42)
+    print(fn(42))
 
 Reports for all thusly decorated functions will be printed to sys.stdout
 on program termination.  You can alternatively request for immediate

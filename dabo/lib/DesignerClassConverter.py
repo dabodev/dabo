@@ -1085,7 +1085,7 @@ def getControlClass(base):
         superMixin = cmix
         def __init__(self, *args, **kwargs):
             if hasattr(base, "__init__"):
-                apply(base.__init__,(self,) + args, kwargs)
+                base.__init__(self, *args, **kwargs)
             parent = self._extractKey(kwargs, "parent")
             cmix.__init__(self, parent, **kwargs)
             self.NameBase = ustr(self._baseClass).split(".")[-1].split("'")[0]

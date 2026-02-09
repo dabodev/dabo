@@ -18,11 +18,11 @@ def getPt(val):
 
     Strings can have the unit appended, like "3.5 in", "2 cm", "3 pica", "10 mm".
 
-    > print self.getPt("1 in")
+    > print(self.getPt("1 in"))
     72
-    > print self.getPt("1")
+    > print(self.getPt("1"))
     1
-    > print self.getPt(1)
+    > print(self.getPt(1))
     1
     """
     if isinstance(val, (int, float)):

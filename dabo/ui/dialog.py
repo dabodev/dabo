@@ -296,6 +296,8 @@ class dStandardButtonDialog(dDialog):
 
         # We need a Dabo sizer to wrap the wx sizer.
         self.stdButtonSizer = dSizer()
+        # `CreateButtonSizer` is a standard wx method for dialogs. It takes the flags we defined
+        # above, and returns a sizer for the appropriate buttons.
         sbs = self.CreateButtonSizer(flags)
         self.stdButtonSizer.append1x(sbs)
 

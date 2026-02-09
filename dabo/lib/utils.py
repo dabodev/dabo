@@ -298,7 +298,7 @@ def ustr(value):
     if isinstance(value, Exception):
         return exceptionToUnicode(value)
     try:
-        ## Faster for all-ascii strings and converting from non-basestring types::
+        ## Faster for all-ascii strings and converting from non-string types::
         return str(value)
     except UnicodeDecodeError:
         # Most likely there were bytes whose integer ordinal were > 127 and so the

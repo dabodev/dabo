@@ -2361,11 +2361,11 @@ class ReportWriter(object):
 
         Strings can have the unit appended, like "3.5 in", "2 cm", "3 pica", "10 mm".
 
-        > print self.getPt("1 in")
+        > print(self.getPt("1 in"))
         72
-        > print self.getPt("1")
+        > print(self.getPt("1"))
         1
-        > print self.getPt(1)
+        > print(self.getPt(1))
         1
         """
         if isinstance(val, (int, float)):
@@ -3078,46 +3078,12 @@ class ReportWriter(object):
             self.ReportForm is None or self.ReportForm.getMemento() == self._reportFormMemento
         )
 
-    def _elementSort(self, x=None, y=None):
-        positions = CaselessDict(
-            {
-                "author": 0,
-                "title": 2,
-                "subject": 3,
-                "keywords": 4,
-                "defaults": 6,
-                "columnCount": 5,
-                "page": 10,
-                "groups": 50,
-                "variables": 40,
-                "pageBackground": 55,
-                "pageHeader": 60,
-                "groupHeader": 65,
-                "detail": 70,
-                "groupFooter": 75,
-                "pageFooter": 80,
-                "pageForeground": 90,
-                "objects": 99999,
-                "testcursor": 999999,
-            }
-        )
-
-        posX = positions.get(x, -1)
-        posY = positions.get(y, -1)
-        if posY > posX:
-            return -1
-        elif posY < posX:
-            return 1
-        return cmp(x.lower(), y.lower())
-
     def _getXMLDictFromForm(self, form, d=None):
         """Recursively generate the dict format required for the dicttoxml() function."""
         if d is None:
             d = {"name": "Report", "children": []}
 
         elements = list(form.keys())
-        # elements.sort(key=self._elementSort)
-        # jfcs self._elementSort not needed the sort just works
         elements.sort()
 
         for element in elements:
@@ -3141,7 +3107,6 @@ class ReportWriter(object):
                     formobj = form[element][index]
                     obj = {"name": formobj.__class__.__name__, "children": []}
                     props = list(formobj.keys())
-                    # props.sort(self._elementSort)
                     props.sort()
                     if element in formobj:
                         # Recurse

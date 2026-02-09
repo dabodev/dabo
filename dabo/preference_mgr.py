@@ -89,9 +89,7 @@ class dPref(object):
         self._typeDict = {
             int: "int",
             float: "float",
-            int: "long",
             str: "str",
-            str: "unicode",
             bool: "bool",
             list: "list",
             tuple: "tuple",
@@ -252,7 +250,7 @@ class dPref(object):
         elif typ == "none":
             ret = None
         #         if ret is None:
-        #             print "NONE", rec
+        #             print("NONE", rec)
         return ret
 
     def _persist(self, att, val):

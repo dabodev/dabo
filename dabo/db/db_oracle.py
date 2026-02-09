@@ -82,7 +82,7 @@ class Oracle(dBackend):
         sqlstr = sqlstr % tableName
         cursor.execute(sqlstr)
         rs = cursor.getDataSet(rows=1)
-        # print "rs = cursor.getDataSet(): ", rs
+        # print("rs = cursor.getDataSet(): ", rs)
         try:
             pkField = rs[0]["COLUMN_NAME"].strip()
         except KeyError:

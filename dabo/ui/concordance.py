@@ -29,7 +29,6 @@ for k, v in dabo_to_wx.items():
     wxClasses = wx_to_dabo.setdefault(v, [])
     wxClasses.append(k)
 
-# wxNames = dict([[v,k] for k,v in dabo_to_wx.iteritems()]).items()
 wxNames = list(wx_to_dabo.items())
 wxNames.sort()
 

@@ -90,8 +90,8 @@ dependencies = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "black>=24.10.0",
     "ipython>=8.29.0",
     "pytest-pudb>=0.7.0",

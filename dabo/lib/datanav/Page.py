@@ -3,7 +3,7 @@ import os
 import sys
 
 import dabo
-from dabo import dEvents as dEvents
+from dabo import events
 from dabo import ui as dui
 from dabo.base_object import dObject
 from dabo.lib.utils import ustr
@@ -54,8 +54,8 @@ class SelectionOpDropdown(dui.dDropdownList):
 
     def initEvents(self):
         super().initEvents()
-        self.bindEvent(dEvents.Hit, self.onChoiceMade)
-        self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
+        self.bindEvent(events.Hit, self.onChoiceMade)
+        self.bindEvent(events.ValueChanged, self.onValueChanged)
 
     def onValueChanged(self, evt):
         # italicize if we are ignoring the field:
@@ -87,8 +87,8 @@ class SelectionOpDropdown(dui.dDropdownList):
 class Page(dui.dPage):
     def initEvents(self):
         super().initEvents()
-        self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
-        self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
+        self.bindEvent(events.PageEnter, self.__onPageEnter)
+        self.bindEvent(events.PageLeave, self.__onPageLeave)
 
     def __onPageEnter(self, evt):
         self._onPageEnter()
@@ -148,7 +148,7 @@ class SelectOptionsPanel(dPanel):
 class SortLabel(dui.dLabel):
     def initEvents(self):
         super().initEvents()
-        self.bindEvent(dEvents.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
+        self.bindEvent(events.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
         # Add a property for the related field
         self.relatedDataField = ""
 
@@ -596,7 +596,7 @@ class EditPage(Page):
 
     def initEvents(self):
         super().initEvents()
-        self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
+        self.Form.bindEvent(events.RowNumChanged, self.__onRowNumChanged)
 
     def buildPage(self):
         if not self.DataSource:

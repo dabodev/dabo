@@ -20,6 +20,7 @@ class dObject(PropertyHelperMixin, EventMixin):
     _name = "?"
     _parent = None
     _preferenceManager = None
+    _properties = None
 
     # Subclasses can set these to False, in which case they are responsible
     # for maintaining the following call order:
@@ -33,7 +34,6 @@ class dObject(PropertyHelperMixin, EventMixin):
     _call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
 
     def __init__(self, properties=None, attProperties=None, *args, **kwargs):
-        self._properties = {}
         if self._call_beforeInit:
             self._beforeInit()
         if self._call_initProperties:
@@ -91,8 +91,7 @@ class dObject(PropertyHelperMixin, EventMixin):
             self._afterInit()
         self.setProperties(properties)
 
-        PropertyHelperMixin.__init__(self)
-        EventMixin.__init__(self)
+        super().__init__()
 
     def __repr__(self):
         bc = self.BaseClass

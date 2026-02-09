@@ -200,6 +200,12 @@ class dFormMixin(dPemMixin):
 
     def __onWxClose(self, evt):
         self.raiseEvent(events.Close, evt)
+        # For modal dialogs, if the close was accepted (not vetoed by beforeClose),
+        # end the modal loop so that ShowModal() returns. Without this, the dialog
+        # hides but ShowModal() never returns, hanging the application.
+        if self._isClosed and isinstance(self, ui.dDialog):
+            if getattr(self, "Modal", False) or self.IsModal():
+                self.EndModal(wx.ID_CANCEL)
         if evt.CanVeto():
             evt.Veto()
 

@@ -87,7 +87,6 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
             self.Collapsed = collapsed
         # Enable detection of clicks on the caption bar
         self._captionBar.Bind(wx.EVT_LEFT_UP, self.__onWxCaptionClick)
-        #         print "CAP BAR BINDING"
         # Set up the sizer
         self._baseSizer = sz = dSizer("v")
         self.SetSizer(sz, True)
@@ -168,7 +167,6 @@ class dSlidePanel(dControlMixin, fpb.FoldPanelItem):
         return False
 
     def __onWxCaptionClick(self, evt):
-        #         print "WX CAP CLICK"
         if self._clickedOnIcon(evt):
             # Already handled
             return
@@ -445,11 +443,9 @@ class dSlidePanelControl(dControlMixin, fpb.FoldPanelBar):
         self._panels.append(pnl)
         self.raiseEvent(events.SlidePanelChange, self._createCapBarEvt(pnl))
         pnl.bindEvent(events.SlidePanelCaptionClick, self.__onSlidePanelCaptionClick, pnl)
-        #         print "PANEL CAP CLICK BOUND"
         return pnl
 
     def __onSlidePanelCaptionClick(self, evt):
-        #         print "DABO CAPCLK", self.SingleClick
         if self.SingleClick:
             obj = evt.EventObject
             obj.Expanded = not obj.Expanded

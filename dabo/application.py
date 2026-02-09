@@ -68,6 +68,7 @@ class TempFileHolder(object):
     """
 
     def __init__(self):
+        super().__init__()
         self._tempFiles = []
 
     def __del__(self):

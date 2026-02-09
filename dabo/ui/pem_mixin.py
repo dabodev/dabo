@@ -298,10 +298,6 @@ class dPemMixin(dObject):
         # Finally, at the end of the init cycle, raise the Create event
         self.raiseEvent(events.Create)
 
-    def _initEvents(self):
-        super()._initEvents()
-        self.autoBindEvents()
-
     def _initUI(self):
         """Abstract method: subclasses MUST override for UI-specifics."""
         pass
@@ -1159,6 +1155,7 @@ class dPemMixin(dObject):
 
         class DisplayLocker(object):
             def __init__(self, obj):
+                super().__init__()
                 self._obj = obj
                 obj.Freeze()
 
@@ -2186,7 +2183,7 @@ class dPemMixin(dObject):
         self._needRedraw = False
         if dc is None:
             # First, clear any old drawing if requested
-            if self.autoClearDrawings:
+            if self.autoClearDrawings and hasattr(self, "ClearBackground"):
                 self.ClearBackground()
 
         # Call the hook
@@ -4407,7 +4404,7 @@ class _DropTarget(wx.DropTarget):
 if __name__ == "__main__":
     # Instantiating the mixin directly creates circular imports
     # o = dPemMixin()
-    # print o.BaseClass
+    # print(o.BaseClass)
     # o.BaseClass = "dForm"
-    # print o.BaseClass
+    # print(o.BaseClass)
     print("OK")

@@ -8,6 +8,7 @@ class specHandler(xml.sax.ContentHandler):
     _IsContainer = False
 
     def __init__(self):
+        super().__init__()
         self.appDict = {}
         self.relaDict = {}
         self.currTableDict = {}

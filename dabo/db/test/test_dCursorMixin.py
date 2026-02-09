@@ -19,14 +19,6 @@ db_tests = {
     "oracle": False,
 }
 
-# Convert the flags into class references. Setting to object will keep the tests
-# for that backend from running.
-# for k, v in db_tests.iteritems():
-#    if v:
-#        db_tests[k] = unittest.TestCase
-#    else:
-#        db_tests[k] = object
-
 
 class Test_dCursorMixin(object):
     def setUp(self, _doRequery=True):

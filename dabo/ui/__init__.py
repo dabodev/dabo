@@ -338,7 +338,7 @@ def deadCheck(fn, *args, **kwargs):
     def deadCheckFunc(self, *args, **kwargs):
         if not self:
             # For testing, uncomment the print line below:
-            print("FOUND DEAD OBJECT")
+#             print("FOUND DEAD OBJECT")
             return
         return fn(self, *args, **kwargs)
 
@@ -711,8 +711,6 @@ def discontinueEvent(evt):
 
 
 def getEventData(wxEvt):
-    from . import dMenu
-    from . import dTreeView
     import wx.grid
 
     ed = {}
@@ -1146,7 +1144,7 @@ def getDisplaySize():
 #     calForm.setFocus()
 # #     while calForm.Visible:
 # #         time.sleep(0.5)
-# #         print "wake", calForm.Visible
+# #         print("wake", calForm.Visible)
 #     ret = calForm.cal.Date
 #     calForm.release()
 #     return ret

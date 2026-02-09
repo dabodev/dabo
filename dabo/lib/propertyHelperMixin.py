@@ -119,11 +119,11 @@ class PropertyHelperMixin(object):
         positional arguments. For instance, all of the following are
         equivilent::
 
-            print self.getProperties("Caption", "FontInfo", "Form")
-            print self.getProperties(["Caption", "FontInfo", "Form"])
+            print(self.getProperties("Caption", "FontInfo", "Form"))
+            print(self.getProperties(["Caption", "FontInfo", "Form"]))
             t = ("Caption", "FontInfo", "Form")
-            print self.getProperties(t)
-            print self.getProperties(*t)
+            print(self.getProperties(t))
+            print(self.getProperties(*t))
 
         An exception will be raised if any passed property names don't
         exist, aren't actual properties, or are not readable (do not have

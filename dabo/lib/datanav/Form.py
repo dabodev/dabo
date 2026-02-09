@@ -5,7 +5,7 @@ import traceback
 
 import wx
 
-from dabo import dEvents as dEvents
+from dabo import events as events
 from dabo import ui as dui
 from dabo.lib import reportUtils
 
@@ -642,7 +642,7 @@ class Form(dui.dForm):
                 if showAdvancedQuickReport:
                     self.addObject(dui.dButton, RegID="btnAdvanced", Caption="Advanced")
                     self.Sizer.append(self.btnAdvanced, halign="center")
-                    self.btnAdvanced.bindEvent(dEvents.Hit, self.onAdvanced)
+                    self.btnAdvanced.bindEvent(events.Hit, self.onAdvanced)
 
             def onAdvanced(self, evt):
                 if dui.areYouSure(
@@ -780,7 +780,7 @@ class Form(dui.dForm):
     def pickRecord(self):
         """This form is a picklist, and the user chose a record in the grid."""
         # Raise Hit event so the originating form can act
-        self.raiseEvent(dEvents.Hit)
+        self.raiseEvent(events.Hit)
 
     def getReportForm(self, mode):
         """

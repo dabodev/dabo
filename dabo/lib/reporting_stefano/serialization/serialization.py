@@ -23,6 +23,7 @@ class SerializableMeta(type):
 
 class Serializable(object, metaclass=SerializableMeta):
     def __init__(self, **args):
+        super().__init__()
         self.srcValues = {}
         attributeNames = [attrName for attrName, attrType in self._xmlSerializationAttributes]
         for key, value in args.items():

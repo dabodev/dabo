@@ -8,16 +8,25 @@ from . import settings
 from .localization import _
 
 
-class EventMixin(object):
+class EventMixin:
     """
     Mix-in class making objects know how to bind and raise Dabo events.
 
     All Dabo objects inherit this functionality.
     """
 
-    # Local attributes
-    _eventBindings = None
-    __raisedEvents = []
+    # Class-level defaults so attributes are available before __init__ runs.
+    # (dPemMixin calls _initEvents → bindEvent before dObject.__init__ → EventMixin.__init__)
+    _event_bindings = None
+    _raised_events = None
+
+    def __init__(self):
+        # Don't touch _event_bindings — it may already have bindings from
+        # _initEvents/bindEvent, which runs before this __init__ in the
+        # dPemMixin init sequence.
+        # Per-instance list to avoid the shared-mutable-list problem.
+        if self._raised_events is None:
+            self._raised_events = []
 
     def bindEvent(self, eventClass, function, _auto=False):
         """Bind a dEvent to a callback function."""
@@ -53,47 +62,46 @@ class EventMixin(object):
         # Instantiate the event, no matter if there aren't any bindings: the event
         # did happen, after all, and perhaps we want to log that fact.
 
-        # self.__raisedEvents keeps track of the event being raised, to check against
-        # handling the same event twice, resulting from one of the event handlers causing
-        # the event to happen again recursively.
-        try:
-            self.__raisedEvents
-        except AttributeError:
-            self.__raisedEvents = []
-
         from . import ui
 
+        # Ensure per-instance list exists (may still be the class-level None
+        # if __init__ hasn't run yet).
+        if self._raised_events is None:
+            self._raised_events = []
+
         eventSig = (eventClass, args, kwargs)
-        if eventSig in self.__raisedEvents:
+        if eventSig in self._raised_events:
             # The event is already being handled, but one of the handlers caused it to be
             # raised again.
             return None
-        self.__raisedEvents.append(eventSig)
+        self._raised_events.append(eventSig)
 
-        eventData = kwargs.pop("eventData", None)
-        evtObject = kwargs.pop("eventObject", self)
-
-        event = eventClass(evtObject, uiEvent=uiEvent, eventData=eventData, *args, **kwargs)
-        # Now iterate the bindings, and execute the callbacks:
-        if settings.reverseEventsOrder:
-            bindings = reversed(self._EventBindings)
-        else:
-            bindings = self._EventBindings
-        for binding in bindings:
-            bindingClass, bindingFunction = binding[0], binding[1]
-            if not event:
-                continue
-            if bindingClass == eventClass:
-                bindingFunction(event)
-            if not event.Continue:
-                # The event handler set the Continue flag to False, specifying that
-                # no more event handlers should process the event.
-                break
         try:
-            self.__raisedEvents.pop()
-        except (AttributeError, IndexError):
-            # This is a deleted object; no need (or ability!) to do anything else.
-            return
+            eventData = kwargs.pop("eventData", None)
+            evtObject = kwargs.pop("eventObject", self)
+
+            event = eventClass(evtObject, uiEvent=uiEvent, eventData=eventData, *args, **kwargs)
+            # Now iterate the bindings, and execute the callbacks:
+            if settings.reverseEventsOrder:
+                bindings = reversed(self._EventBindings)
+            else:
+                bindings = self._EventBindings
+            for binding in bindings:
+                bindingClass, bindingFunction = binding[0], binding[1]
+                if not event:
+                    continue
+                if bindingClass == eventClass:
+                    bindingFunction(event)
+                if not event.Continue:
+                    # The event handler set the Continue flag to False, specifying that
+                    # no more event handlers should process the event.
+                    break
+        finally:
+            try:
+                self._raised_events.pop()
+            except (AttributeError, IndexError):
+                # This is a deleted object; no need (or ability!) to do anything else.
+                return
 
         if uiEvent is not None:
             # Let the UI lib know whether to do the default event behavior
@@ -157,14 +165,14 @@ class EventMixin(object):
 
             class MyButton(dui.dButton):
                 def onHit(self, evt):
-                    print "Hit!"
+                    print("Hit!")
 
             class MyPanel(dui.dPanel):
                 def afterInit(self):
                     self.addObject(MyButton, RegID="btn1")
 
                 def onHit_btn1(self, evt):
-                    print "panel: button hit!"
+                    print("panel: button hit!")
 
         When the button is pressed, you'll see both 'hit' messages because of
         auto event binding.
@@ -313,13 +321,13 @@ class EventMixin(object):
     def _EventBindings(self):
         """The list of event bindings ([Event, callback]) for this object."""
         # Handle initial `None` value
-        self._eventBindings = self._eventBindings or []
-        return self._eventBindings
+        self._event_bindings = self._event_bindings or []
+        return self._event_bindings
 
     @_EventBindings.setter
     def _EventBindings(self, val):
         if isinstance(val, list):
-            self._eventBindings = val
+            self._event_bindings = val
         else:
             raise ValueError("_EventBindings must be a list.")
 

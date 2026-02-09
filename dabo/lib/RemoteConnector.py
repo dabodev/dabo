@@ -31,6 +31,7 @@ class RemoteConnector(object):
     """
 
     def __init__(self, obj):
+        super().__init__()
         self.obj = obj
         self._baseURL = None
         self._authHandler = None
@@ -314,12 +315,12 @@ class RemoteConnector(object):
         #                     modulePath = os.path.split(pth)[0].replace(os.sep, ".")
         #                     thismod = os.path.splitext(pth)[0].replace(os.sep, ".")
         #                     if thismod:
-        #                         print "THISMOD", thismod
+        #                         print("THISMOD", thismod)
         #                         sys.modules.pop(thismod, None)
         #                         __import__(thismod)
         #                     if modulePath:
         #                         modl = sys.modules.get(modulePath)
-        #                         print "pth", modulePath, type(modulePath), "MOD", modl
+        #                         print("pth", modulePath, type(modulePath), "MOD", modl)
         #                         if modl:
         #                             reload(modl)
         os.chdir(currdir)
