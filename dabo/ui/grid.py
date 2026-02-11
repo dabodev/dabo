@@ -584,7 +584,6 @@ class dColumn(wx._core.Object, dPemMixin):
         super()._afterInit()
         ui.callAfter(self._restoreFontZoom)
 
-
     def GetParent(self):
         # For wx compatibility
         return self._parent
@@ -2478,7 +2477,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
         for col in self.Columns:
             if col._gridColAttr is not None:
-#                 col._gridColAttr.DecRef()
+                #                 col._gridColAttr.DecRef()
                 col._gridColAttr = None  # that ref is now unsafe to use.
 
     def _onGridResize(self, evt):
@@ -4246,7 +4245,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # editors refcount)
         editor = self.GetCellEditor(evt.GetRow(), evt.GetCol())
         ctrl = editor.GetControl()
-#         editor.DecRef()
+        #         editor.DecRef()
         if hasattr(
             ctrl, "initProperties"
         ):  # Don't want to cause an error while operating on a stock editor.

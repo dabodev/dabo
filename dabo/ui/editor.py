@@ -1753,7 +1753,7 @@ Do you want to overwrite it?"""
             words.sort(key=lambda word: word.upper())
             # For some reason, the STC editor in Windows likes to add icons
             # even if they aren't requested. This explicitly removes them.
-            wds = ["%s?0" % wd for wd in words]
+            wds = [f"{wd}?0" for wd in words]
             self.AutoCompShow(len(word), " ".join(wds))
 
     def getWord(self, whole=None):

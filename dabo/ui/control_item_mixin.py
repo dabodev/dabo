@@ -2,6 +2,7 @@
 import wx
 
 from dabo.debugging import logPoint
+
 from .. import ui
 from ..lib.propertyHelperMixin import _DynamicList
 from ..lib.utils import ustr
@@ -402,18 +403,17 @@ class dControlItemMixin(dDataControlMixin):
             # Clear all current selections:
             self.clearSelections()
             # Select items that match the string tuple:
-            for string in value:
-                if string is None:
+            for str_val in value:
+                if str_val is None:
                     continue
-                if isinstance(string, str):
-                    index = self.FindString(string)
+                if isinstance(str_val, str):
+                    index = self.FindString(str_val)
                     if index < 0:
-                        import pudb ; pudb.set_trace()
-                        raise ValueError(_("String must be present in the choices: '%s'") % string)
+                        raise ValueError(_(f"str_val must be present in the choices: 'str_val'"))
                     else:
                         self.setSelection(index)
                 else:
-                    raise TypeError(_("Unicode or string required."))
+                    raise TypeError(_("String required."))
             self._afterValueChanged()
         else:
             self._properties["StringValue"] = value

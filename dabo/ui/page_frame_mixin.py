@@ -386,6 +386,14 @@ class dPageFrameMixin(dControlMixin):
             self._properties["PageCount"] = val
 
     @property
+    def Children(self):
+        """For paged controls, the children are the pages. wx's GetChildren()
+        doesn't return them because pages are managed in a separate internal
+        collection, not as regular child windows.  (list)
+        """
+        return self.Pages
+
+    @property
     def Pages(self):
         """Returns a list of the contained pages.  (list)"""
         ## pkm: It is possible for pages to not be instances of dPage

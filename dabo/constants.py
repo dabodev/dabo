@@ -34,3 +34,6 @@ DLG_NO = -2
 
 # Flag to indicate that field validation was skipped
 BIZ_DEFAULT_FIELD_VALID = "Dabo default field validation".split(" ")
+
+# Name placeholder for objects
+NULL_NAME = "???"

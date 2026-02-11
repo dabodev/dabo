@@ -10,10 +10,10 @@ If this file is run standalone, it will automatically run all of the test cases 
 
 import unittest
 
+from dabo.dApp import dApp
 from mock import Mock
 
 import dabo.ui
-from dabo.dApp import dApp
 
 # We want the dApp and mainForm to persist through the settings for speed sake
 # NOTE:  It would be really good if we could extract all of this out so we don't have

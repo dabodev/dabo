@@ -455,6 +455,8 @@ class ObjectInspectorForm(ui.dForm):
             except AttributeError:
                 # Not a dabo obj
                 return
+        if not kids:
+            return
         if isinstance(obj, dFormMixin):
             if obj.ToolBar:
                 kids.append(obj.ToolBar)
@@ -589,16 +591,17 @@ class ObjectInspectorForm(ui.dForm):
     def sizer_repr(self, sz):
         """Returns an informative representation for a sizer"""
         if isinstance(sz, ui.dGridSizer):
-            ret = "dGridSizer (%s x %s)" % (sz.HighRow, sz.HighCol)
+            ret = f"dGridSizer ({sz.HighRow} x {sz.HighCol})"
         elif isinstance(sz, ui.dBorderSizer):
-            ret = "dBorderSizer (%s, '%s')" % (sz.Orientation, sz.Caption)
+            ret = f"dBorderSizer ({sz.Orientation}, '{sz.Caption}')"
         else:
-            ret = "dSizer (%s)" % sz.Orientation
+            ret = f"dSizer ({sz.Orientation})"
         return ret
 
     def exclude(self, obj):
+        """Skip floaing window, the object inspector itself, and any dead objects"""
         isFloat = isinstance(obj, ui.dDialog) and hasattr(obj, "Above") and hasattr(obj, "Owner")
-        return isFloat or (obj is self)
+        return isFloat or (obj is self) or not bool(obj)
 
     def _getHighlightInfo(self, obj, frm):
         pos = obj.ClientToScreen((0, 0))

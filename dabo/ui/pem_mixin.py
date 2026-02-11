@@ -2374,6 +2374,7 @@ class dPemMixin(dObject):
 
     # Property definitions follow
     @property
+    @ui.deadCheck
     def BackColor(self):
         """Specifies the background color of the object. (str, 3-tuple, or wx.Colour)"""
         return self.GetBackgroundColour().Get()
@@ -2596,6 +2597,7 @@ class dPemMixin(dObject):
             self._properties["Caption"] = val
 
     @property
+    @ui.deadCheck
     def Children(self):
         """
         Returns a list of object references to the children of this object. Only applies to

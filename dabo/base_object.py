@@ -3,6 +3,7 @@ import string
 import types
 
 from . import settings
+from .constants import NULL_NAME
 from .event_mixin import EventMixin
 from .lib.propertyHelperMixin import PropertyHelperMixin
 from .localization import _
@@ -17,7 +18,7 @@ class dObject(PropertyHelperMixin, EventMixin):
     _baseClass = None
     _basePrefKey = ""
     _logEvents = None
-    _name = "?"
+    _name = NULL_NAME
     _parent = None
     _preferenceManager = None
     _properties = None
@@ -119,7 +120,7 @@ class dObject(PropertyHelperMixin, EventMixin):
         if regid:
             nm = regid
 
-        if (not nm) or (nm == "?"):
+        if (not nm) or (nm == NULL_NAME):
             # No name; use module.classname
             nm = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         if not self:
@@ -198,7 +199,7 @@ class dObject(PropertyHelperMixin, EventMixin):
                 try:
                     name = parent.Name
                 except AttributeError:
-                    name = "?"
+                    name = NULL_NAME
                 names.append(name)
                 obj = parent
             else:

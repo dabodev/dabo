@@ -338,7 +338,7 @@ def deadCheck(fn, *args, **kwargs):
     def deadCheckFunc(self, *args, **kwargs):
         if not self:
             # For testing, uncomment the print line below:
-#             print("FOUND DEAD OBJECT")
+            #             print("FOUND DEAD OBJECT")
             return
         return fn(self, *args, **kwargs)
 
