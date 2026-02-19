@@ -2323,9 +2323,20 @@ class dPemMixin(dObject):
         try:
             # Some classes are collections that aren't bound by wx containership
             children = parent.Children
+            if isinstance(children, property):
+                print(f"fget patch hit: {parent} at pem_mixin.py:2327")
+                children = children.fget(parent)
         except AttributeError:
             children = parent.GetChildren()
-        kid_name_mapping = {kid: kid.GetName() for kid in children}
+        try:
+            kid_name_mapping = {kid: kid.Name for kid in children}
+        except AttributeError:
+            try:
+                kid_name_mapping = {kid: kid.GetName() for kid in children}
+                print("GETNAME", self)
+            except AttributeError:
+                print("GIVINGUP", self)
+                return name
         nameError = hasattr(parent, name) or name in kid_name_mapping.values()
         candidate = name
         i = 0

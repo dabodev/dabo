@@ -198,6 +198,12 @@ class _BasePanelMixin(object):
             self.Unbind(wx.EVT_SIZE)
 
     @property
+    def Children(self):
+        """Child controls of this panel. Excludes the wx-specific scroll bars  (list of objects)"""
+        children = self.GetChildren()
+        return [kid for kid in children if isinstance(kid, ui.dPemMixin)]
+
+    @property
     def MinSizerHeight(self):
         """Minimum height for the panel. Default=10px  (int)"""
         return self._minSizerHeight
@@ -389,16 +395,6 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
         if sz:
             x, y = self.GetViewStart()
             self.Scroll(x, y + (direction * sz))
-
-    @property
-    def Children(self):
-        """Child controls of this panel. Excludes the wx-specific scroll bars  (list of objects)"""
-        ret = get_super_property_value(self, "Children")
-        return [kid for kid in ret if isinstance(kid, ui.dPemMixin)]
-
-    @Children.setter
-    def Children(self, val):
-        set_super_property_value(self, "Children", val)
 
     @property
     def HorizontalScroll(self):

@@ -1,36 +1,3 @@
-[tool.black]
-line-length = 100
-include = '\.pyi?$'
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    ".vscode",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "site-packages",
-    "venv",
-]
-
-
 [tool.ruff]
 line-length = 100
 exclude = [
@@ -69,7 +36,7 @@ force-sort-within-sections = false
 
 [project]
 name = "dabo"
-version = "3.1.0"
+version = "2026.1.0"
 description = "A framework for developing data-driven business applications"
 readme = "README.md"
 authors = [
@@ -94,6 +61,5 @@ build-backend = "hatchling.build"
 dev = [
     "black>=24.10.0",
     "ipython>=8.29.0",
-    "pytest-pudb>=0.7.0",
     "ruff>=0.8.0",
 ]
