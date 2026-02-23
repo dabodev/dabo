@@ -36,7 +36,7 @@ force-sort-within-sections = false
 
 [project]
 name = "dabo"
-version = "2026.1.1"
+version = "2026.1.2"
 description = "A framework for developing data-driven business applications"
 readme = "README.md"
 authors = [
@@ -61,5 +61,6 @@ build-backend = "hatchling.build"
 dev = [
     "black>=24.10.0",
     "ipython>=8.29.0",
+    "pudb>=2025.1.5",
     "ruff>=0.8.0",
 ]

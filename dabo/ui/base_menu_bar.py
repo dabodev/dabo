@@ -178,6 +178,7 @@ class EditMenu(dMenu):
 
         self.Parent.preferencesMenuItem = self.append(
             _("Pr&eferences"),
+            id=wx.ID_PREFERENCES,
             OnHit=app.onEditPreferences,
             bmp="%s/categories/preferences-system.png" % iconPath,
             ItemID="edit_preferences",
