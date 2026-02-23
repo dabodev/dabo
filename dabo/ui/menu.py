@@ -414,6 +414,8 @@ class dMenu(dPemMixin, wx.Menu):
             itmSpecial = kwargs.pop("special")
         except KeyError:
             itmSpecial = None
+        if itmSpecial == "pref" and "id" not in kwargs:
+            kwargs["id"] = wx.ID_PREFERENCES
         cls = {
             NormalItemType: dMenuItem,
             CheckItemType: dCheckMenuItem,

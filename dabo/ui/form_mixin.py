@@ -276,7 +276,7 @@ class dFormMixin(dPemMixin):
         ):
             # SBC = self.StatusBarClass
             # self.StatusBar = SBC(self)
-            self.StatusBar = self.StatusBarClass
+            self.StatusBar = self.StatusBarClass(self)
 
     def __onDeactivate(self, evt):
         if self.Application is not None and self.Application.ActiveForm == self:
@@ -648,33 +648,31 @@ class dFormMixin(dPemMixin):
 
     def registerObject(self, obj):
         """
-        Stores a reference to the passed object using the RegID key
-        property of the object for later retrieval. You may reference the
-        object as if it were a child object of this form; i.e., by using simple
-        dot notation, with the RegID as the 'name' of the object.
+        Stores a reference to the passed object using the RegID key property of the object for later
+        retrieval. You may reference the object as if it were a child object of this form; i.e., by
+        using simple dot notation, with the RegID as the 'name' of the object.
         """
         if hasattr(obj, "RegID"):
-            id = obj.RegID
-            if id in self._objectRegistry:
+            id_ = obj.RegID
+            if id_ in self._objectRegistry:
                 # In wxPython 4.x, a 'dead object' is now a logical False
-                # if not isinstance(self._objectRegistry[id], ui.deadObject):
-                if not self._objectRegistry[id]:
-                    raise KeyError(_("Duplicate RegID '%s' found") % id)
+                if not self._objectRegistry[id_]:
+                    raise KeyError(_(f"Duplicate RegID '{id_}' found"))
                 else:
-                    del self.__dict__[id]
-            self._objectRegistry[id] = obj
-            if hasattr(self, id) or id in self.__dict__:
-                dabo_module.error(_("RegID '%s' conflicts with existing name") % id)
+                    del self.__dict__[id_]
+            self._objectRegistry[id_] = obj
+            if hasattr(self, id_) or id_ in self.__dict__:
+                dabo_module.error(_(f"RegID '{id_}' conflicts with existing name"))
             else:
-                self.__dict__[id] = obj
+                self.__dict__[id_] = obj
 
-    def getObjectByRegID(self, id):
+    def getObjectByRegID(self, id_):
         """
-        Given a RegID value, this will return a reference to the
-        associated object, if any. If not, returns None.
+        Given a RegID value, this will return a reference to the associated object, if any. If not,
+        returns None.
         """
-        if id in self._objectRegistry:
-            return self._objectRegistry[id]
+        if id_ in self._objectRegistry:
+            return self._objectRegistry[id_]
         else:
             return None
 

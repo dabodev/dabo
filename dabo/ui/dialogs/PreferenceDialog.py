@@ -3,6 +3,7 @@ import inspect
 import os
 import sys
 
+from ... import settings
 from ... import ui
 from ...lib.utils import cleanMenuCaption
 from ...localization import _
@@ -25,11 +26,8 @@ dayMins = 24 * 60
 class PreferenceDialog(dOkCancelDialog):
     def _afterInit(self):
         self._includeDefaultPages = True
-        update = dabo.checkForWebUpdates
+        update = settings.checkForWebUpdates
         if update:
-            # If they are running Subversion, don't update.
-            if os.path.isdir(os.path.join(os.path.split(dabo.__file__)[0], ".svn")):
-                update = False
             # Frozen App:
             if hasattr(sys, "frozen") and inspect.stack()[-1][1] != "daborun.py":
                 update = False
@@ -54,14 +52,12 @@ class PreferenceDialog(dOkCancelDialog):
         adding controls to the category page.
         """
         self._addPages()
-        dabo.ui.callAfter(self.update)
+        ui.callAfter(self.update)
         self.layout()
         # Use this to 'delete' addControls() so that users don't try to use this method.
         self.addControls = None
 
     def _addPages(self):
-        #        self.pgfMain = dabo.ui.dPageList(self, TabPosition="Left",
-        #                 ListSpacing=20)
         self.pgfMain = dPageFrame(self, TabPosition="Top")
         self.addPages()
         incl = self.pgfMain.PageCount == 0
@@ -249,7 +245,7 @@ class PreferenceDialog(dOkCancelDialog):
                         cleanMenuCaption(dupeItem.Caption, "&_"),
                         cleanMenuCaption(itm.Caption, "&_"),
                     )
-                    change = dabo.ui.areYouSure(
+                    change = ui.areYouSure(
                         msg,
                         title=_("Duplicate Keystroke"),
                         defaultNo=True,
@@ -356,7 +352,7 @@ class PreferenceDialog(dOkCancelDialog):
     def onCheckNow(self, evt):
         ret = self.Application.checkForUpdates()
         if ret:
-            dabo.ui.info(_("No updates are available now."), title=_("Web Updates"))
+            ui.info(_("No updates are available now."), title=_("Web Updates"))
 
     # Property definitions
     @property

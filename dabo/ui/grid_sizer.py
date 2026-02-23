@@ -534,13 +534,12 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
                 self.append(itm, flag=f)
 
     def drawOutline(self, win, recurse=False, drawChildren=False):
-        """
-        Need to override this method to draw the outline
-        properly for the grid.
-        """
+        """Need to override this method to draw the outline properly for the grid."""
         self._resolveOutlineSettings()
         dc = wx.ClientDC(win)
-        dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
+        brush = wx.Brush()
+        brush.SetStyle(wx.BRUSHSTYLE_TRANSPARENT)
+        dc.SetBrush(brush)
         dc.SetLogicalFunction(wx.COPY)
         x, y = self.GetPosition()
         w, h = self.GetSize()

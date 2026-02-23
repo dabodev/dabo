@@ -848,7 +848,7 @@ these automatic updates."""
                     dlgPref = self.PreferenceDialogClass(af)
                     if af:
                         af._prefDialog = dlgPref
-                if isinstance(dlgPref, ui.PreferenceDialog):
+                if isinstance(dlgPref, ui.dialogs.PreferenceDialog):
                     if af:
                         af.fillPreferenceDialog(dlgPref)
                     # Turn off AutoPersist for any of the dialog's preferenceKeys. Track those that
@@ -859,7 +859,7 @@ these automatic updates."""
 
                 dlgPref.show()
 
-                if isinstance(dlgPref, ui.PreferenceDialog):
+                if isinstance(dlgPref, ui.dialogs.PreferenceDialog):
                     if dlgPref.Accepted:
                         if hasattr(dlgPref, "_onAcceptPref"):
                             dlgPref._onAcceptPref()
@@ -1279,7 +1279,7 @@ these automatic updates."""
 
     @property
     def ActiveForm(self):
-        """Returns the form that currently has focus, or None.    (dForm)"""
+        """Returns the form that currently has focus, or None.  (dForm)"""
         af = getattr(self, "_activeForm", None)
         if af is None:
             af = wx.GetActiveWindow()

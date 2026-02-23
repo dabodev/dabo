@@ -213,6 +213,8 @@ class dApp(dObject):
         # Location and Name of the project; used for Web Update
         self._projectInfo = (None, None)
         self._setProjInfo()
+        # Preference dialog class
+        self._preferenceDialogClass = None
         # Other Web Update values
         self.projectAbbrevs = {
             "dabo": "frm",
@@ -566,7 +568,7 @@ try again when it is running.
 
         if runCheck:
             # See if there is a later version
-            url = "%s/check/%s" % (settings.webupdate_urlbase, __version__)
+            url = f"{settings.webupdate_urlbase}/check/{dabo_module.get_version()}"
             try:
                 resp = urllib.request.urlopen(url).read()
             except urllib.error.URLError as e:
@@ -593,7 +595,7 @@ try again when it is running.
         Get any changed files from the dabodev.com server, and replace
         the local copies with them.
         """
-        fileurl = "%s/files/%s" % (settings.webupdate_urlbase, __version__)
+        fileurl = f"{settings.webupdate_urlbase}/check/{dabo_module.get_version()}"
         try:
             resp = urllib.request.urlopen(fileurl)
         except Exception as e:
@@ -1315,7 +1317,7 @@ try again when it is running.
     @ActiveForm.setter
     def ActiveForm(self, frm):
         try:
-            self.uiApp._setActiveForm(frm)
+            self.uiApp.ActiveForm = frm
         except AttributeError:
             # self.uiApp hasn't been created yet.
             pass
@@ -1622,12 +1624,15 @@ try again when it is running.
     @property
     def PreferenceDialogClass(self):
         try:
-            return self._preferenceDialogClass
+            pref_class = self._preferenceDialogClass
         except AttributeError:
+            pref_class = None
+        if not pref_class:
             # Use the default if they haven't set it
-            from ui.dialogs.PreferenceDialog import PreferenceDialog
+            from .ui.dialogs.PreferenceDialog import PreferenceDialog
 
-            return PreferenceDialog
+            pref_class = PreferenceDialog
+        return pref_class
 
     @PreferenceDialogClass.setter
     def PreferenceDialogClass(self, val):

@@ -7,12 +7,15 @@ import threading
 import time
 
 from .. import exceptions
+from .. import settings
 from ..base_object import dObject
 from ..lib.utils import ustr
 from ..localization import _
 from .cursor_mixin import dCursorMixin
 from .no_esc_quote_str import dNoEscQuoteStr
 from .table import dTable
+
+dabo_module = settings.get_dabo_package()
 
 
 class dBackend(dObject):
@@ -196,19 +199,19 @@ class dBackend(dObject):
     def beginTransaction(self, cursor):
         """Begin a SQL transaction. Override in subclasses if needed."""
         self._connection.begin()
-        dabo.dbActivityLog.info("SQL: begin")
+        dabo_module.dbActivityLog.info("SQL: begin")
         return True
 
     def commitTransaction(self, cursor):
         """Commit a SQL transaction."""
         self._connection.commit()
-        dabo.dbActivityLog.info("SQL: commit")
+        dabo_module.dbActivityLog.info("SQL: commit")
         return True
 
     def rollbackTransaction(self, cursor):
         """Roll back (revert) a SQL transaction."""
         self._connection.rollback()
-        dabo.dbActivityLog.info("SQL: rollback")
+        dabo_module.dbActivityLog.info("SQL: rollback")
         return True
 
     @staticmethod
@@ -668,7 +671,7 @@ class dBackend(dObject):
         try:
             return self._encoding
         except AttributeError:
-            self._encoding = dabo.getEncoding()
+            self._encoding = settings.getEncoding()
             return self._encoding
 
     @Encoding.setter
