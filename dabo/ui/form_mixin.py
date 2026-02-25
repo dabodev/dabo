@@ -193,10 +193,34 @@ class dFormMixin(dPemMixin):
         super()._initEvents()
         self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
         self.Bind(wx.EVT_CLOSE, self.__onWxClose)
+        # Defer EVT_MENU binding until after wx.Frame.__init__() completes.
+        # On macOS, native menu clicks are dispatched to the frame (not the app),
+        # so we catch them here and route to the appropriate dMenuItem.
+        # A deferred callAfter is needed because wx.Frame registers its own
+        # EVT_MENU handling during __init__ which would shadow a construction-time
+        # no-id binding.
+        ui.callAfter(self.Bind, wx.EVT_MENU, self.__onWxAnyMenuHit)
         self.bindEvent(events.Deactivate, self.__onDeactivate)
         self.bindEvent(events.Close, self.__onClose)
         self.bindEvent(events.Paint, self.__onPaint)
         self.bindEvent(events.Idle, self.__onIdle)
+
+    def __onWxAnyMenuHit(self, evt):
+        """Catch-all EVT_MENU handler on the frame.
+
+        On macOS, native menu-click events are dispatched to the frame (not the
+        wx.App), so uiApp.Bind(wx.EVT_MENU, ...) never fires. We intercept
+        every menu event here, look up the corresponding dMenuItem by ID, and
+        raise its Hit event so that OnHit callbacks (and the normal Dabo menu
+        dispatch) work correctly.
+        """
+        mb = getattr(self, "MenuBar", None)
+        if mb is not None:
+            item = mb.FindItemById(evt.GetId())
+            if item is not None and hasattr(item, "raiseEvent"):
+                item.raiseEvent(events.Hit, evt)
+                return
+        evt.Skip()
 
     def __onWxClose(self, evt):
         self.raiseEvent(events.Close, evt)
@@ -206,7 +230,14 @@ class dFormMixin(dPemMixin):
         if self._isClosed and isinstance(self, ui.dDialog):
             if getattr(self, "Modal", False) or self.IsModal():
                 self.EndModal(wx.ID_CANCEL)
-        if evt.CanVeto():
+        if self._isClosed:
+            # __onClose completed (beforeClose didn't veto). Destroy the window.
+            # Calling Destroy() here (the canonical wxPython EVT_CLOSE pattern)
+            # is more reliable than callAfter(safeDestroy) on macOS: it lets the
+            # OS know the close was accepted immediately, which is required for
+            # Cmd-Q / applicationShouldTerminate: to actually exit the app.
+            self.Destroy()
+        elif evt.CanVeto():
             evt.Veto()
 
     def __onWxActivate(self, evt):
@@ -556,6 +587,30 @@ class dFormMixin(dPemMixin):
         the Edit menu that is installed in the Dabo base menu, override
         this method, and either return nothing, or return something other
         than False.
+        """
+        return False
+
+    def onEditCopy(self, evt):
+        """
+        Override to handle copy in this form. Return False (the default) to
+        let uiApp use its standard copy logic (FindFocus / ActiveControl).
+        Return anything else to signal that the copy was handled.
+        """
+        return False
+
+    def onEditCut(self, evt):
+        """
+        Override to handle cut in this form. Return False (the default) to
+        let uiApp use its standard cut logic (FindFocus / ActiveControl).
+        Return anything else to signal that the cut was handled.
+        """
+        return False
+
+    def onEditPaste(self, evt):
+        """
+        Override to handle paste in this form. Return False (the default) to
+        let uiApp use its standard paste logic (FindFocus / ActiveControl).
+        Return anything else to signal that the paste was handled.
         """
         return False
 

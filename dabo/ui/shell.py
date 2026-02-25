@@ -657,7 +657,6 @@ Ctrl-Up/Down to scroll through history."""
         evt.stop()
 
     def onClearOutput(self, evt):
-        print("ON CLEAR CALLED! " * 22)
         ed = self.edtOut
         ed.Value = ""
 
@@ -741,6 +740,59 @@ Ctrl-Up/Down to scroll through history."""
             OnHit=self.onClearOutput,
             help=_("Clear Output Window"),
         )
+
+    def _activePaneControl(self):
+        """
+        Return the text control that should receive copy/cut/paste operations.
+        Walks up the wx focus chain first; falls back to the visible page's
+        primary control so that focus tracking issues with STC on macOS don't
+        break clipboard operations.
+        """
+        win = wx.Window.FindFocus()
+        while win is not None:
+            if win is self.shell:
+                return self.shell
+            if win is self.edtCode:
+                return self.edtCode
+            if win is getattr(self, "edtOut", None):
+                return self.edtOut
+            win = win.GetParent()
+        # FindFocus gave nothing useful; use whichever page is currently shown.
+        if self.pgfCodeShell.SelectedPage is self.pgShell:
+            return self.shell
+        return self.edtCode
+
+    def onEditCopy(self, evt):
+        # Get the selection directly - no focus required - and put it on the
+        # clipboard ourselves.  Calling ctrl.Copy() deferred didn't work
+        # reliably on macOS because the STC's Scintilla clipboard is separate
+        # from the system clipboard in some configurations.
+        ctrl = self._activePaneControl()
+        text = ctrl.GetStringSelection()
+        if text:
+            self.Application.uiApp.copyToClipboard(text)
+        return True
+
+    def onEditCut(self, evt):
+        ctrl = self._activePaneControl()
+        text = ctrl.GetStringSelection()
+        if text:
+            self.Application.uiApp.copyToClipboard(text)
+            # Delete the selection. STC (dShell) has ReplaceSelection(); plain
+            # TextCtrl controls (dEditBox) use Remove() instead.
+            if hasattr(ctrl, "ReplaceSelection"):
+                ui.callAfter(ctrl.ReplaceSelection, "")
+            else:
+                sel = ctrl.GetSelection()
+                ui.callAfter(ctrl.Remove, sel[0], sel[1])
+        return True
+
+    def onEditPaste(self, evt):
+        ctrl = self._activePaneControl()
+        # Give focus back to the control first, then paste.
+        ctrl.setFocus()
+        ui.callAfter(ctrl.Paste)
+        return True
 
     def onViewZoomIn(self, evt):
         self.shell.SetZoom(self.shell.GetZoom() + 1)

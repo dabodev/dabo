@@ -696,6 +696,10 @@ these automatic updates."""
                 frms.remove(frm)
 
     def onEditCut(self, evt):
+        # Give the active form a chance to handle cut directly.
+        if self.ActiveForm:
+            if self.ActiveForm.onEditCut(evt) is not False:
+                return
         self.onEditCopy(evt, cut=True)
 
     def onEditCopy(self, evt, cut=False):
@@ -703,7 +707,17 @@ these automatic updates."""
         # some controls (stc...) have Cut(), Copy(), Paste() methods - call those.
         # If neither of the above works, then copy text to the clipboard.
         if self.ActiveForm:
+            # Give the active form a chance to handle copy directly (mirrors
+            # the onEditUndo/Redo pattern). Only do this for the top-level
+            # copy call, not when we're called internally with cut=True.
+            if not cut and self.ActiveForm.onEditCopy(evt) is not False:
+                return
             win = self.ActiveForm.FindFocus()
+            if win is None:
+                # On macOS, clicking the native menu bar fires EVT_KILL_FOCUS on
+                # the focused control, so FindFocus() returns None when the menu
+                # item handler fires. Fall back to the last known active control.
+                win = self.ActiveForm.ActiveControl
             handled = False
             if cut:
                 if hasattr(win, "cut"):
@@ -767,7 +781,11 @@ these automatic updates."""
 
     def onEditPaste(self, evt):
         if self.ActiveForm:
+            if self.ActiveForm.onEditPaste(evt) is not False:
+                return
             win = self.ActiveForm.FindFocus()
+            if win is None:
+                win = self.ActiveForm.ActiveControl
             handled = False
             if hasattr(win, "paste"):
                 handled = win.paste() is not None

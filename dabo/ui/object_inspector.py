@@ -793,3 +793,11 @@ class ObjectInspectorForm(ui.dForm):
 
 
 ui.InspectorFormClass = ObjectInspectorForm
+
+
+if __name__ == "__main__":
+    from ..application import dApp
+
+    app = dApp()
+    app.MainFormClass = ObjectInspectorForm
+    app.start()
