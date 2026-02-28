@@ -26,6 +26,14 @@ def get_version():
     return version.get_version()
 
 
+# Add a module-level property-like getter
+def __getattr__(name: str):
+    if name == "Version":
+        return version.get_version()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+
 # Method to create a standard Dabo directory structure layout
 def makeDaboDirectories(homedir=None):
     """If homedir is passed, the directories will be created off of that
