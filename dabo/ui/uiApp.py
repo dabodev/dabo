@@ -574,6 +574,13 @@ these automatic updates."""
 
     def showCommandWindow(self, context=None):
         """Display a command window for debugging."""
+        if getattr(self, "_cmd_win_pending", False):
+            return
+        self._cmd_win_pending = True
+        # Reset the flag after this event-loop pass completes, so that the
+        # paired uiApp-level EVT_MENU dispatch (which fires sequentially after
+        # the frame-level dispatch on macOS) sees the flag and is suppressed.
+        ui.callAfter(setattr, self, "_cmd_win_pending", False)
         if context is None:
             context = self.ActiveForm
         dlg = ui.dShellForm(context)

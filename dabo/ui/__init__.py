@@ -15,6 +15,7 @@ import time
 import traceback
 import urllib.request, urllib.parse, urllib.error
 import warnings
+from pathlib import Path
 
 from .uiApp import uiApp
 from .. import constants
@@ -301,7 +302,7 @@ def load_namespace():
     from . import borderless_button
     from . import toggle_button
     from . import bitmap
-    from . import bitmap_button
+#     from . import bitmap_button
     from . import dialog
     from . import color_dialog
     from . import file_dialog
@@ -2226,11 +2227,10 @@ _bmpCache = {}
 
 def strToBmp(val, scale=None, width=None, height=None):
     """
-    This can be either a path, or the name of a built-in graphic.
-    If an adjusted size is desired, you can either pass a 'scale' value
-    (where 1.00 is full size, 0.5 scales it to 50% in both Height and
-    Width), or you can pass specific 'height' and 'width' values. The
-    final image will be a bitmap resized to those specs.
+    This can be either a path, or the name of a built-in graphic. If an adjusted size is desired,
+    you can either pass a 'scale' value (where 1.00 is full size, 0.5 scales it to 50% in both
+    Height and Width), or you can pass specific 'height' and 'width' values. The final image will be
+    a bitmap resized to those specs.
     """
     ret = None
     cwd = os.getcwd()
@@ -2241,7 +2241,7 @@ def strToBmp(val, scale=None, width=None, height=None):
     try:
         ret = _bmpCache[val]
     except KeyError:
-        if os.path.exists(val):
+        if Path(val).exists():
             ret = pathToBmp(val)
         else:
             # Include all the pathing possibilities
@@ -2298,13 +2298,15 @@ def strToBmp(val, scale=None, width=None, height=None):
                     newHt = height
                     # Scale the width
                     newWd = oldWd * (newHt / oldHt)
-            img.Rescale(newWd, newHt)
+            img.Rescale(int(round(newWd)), int(round(newHt)))
             ret = img.ConvertToBitmap()
     return ret
 
 
 def pathToBmp(pth):
     img = wx.NullImage
+    # This will convert both string paths and Path objects to the require string path.
+    pth = Path(pth).as_posix()
     img.LoadFile(pth)
     return img.ConvertToBitmap()
 

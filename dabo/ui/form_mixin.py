@@ -208,11 +208,9 @@ class dFormMixin(dPemMixin):
     def __onWxAnyMenuHit(self, evt):
         """Catch-all EVT_MENU handler on the frame.
 
-        On macOS, native menu-click events are dispatched to the frame (not the
-        wx.App), so uiApp.Bind(wx.EVT_MENU, ...) never fires. We intercept
-        every menu event here, look up the corresponding dMenuItem by ID, and
-        raise its Hit event so that OnHit callbacks (and the normal Dabo menu
-        dispatch) work correctly.
+        On macOS, native menu-click events are dispatched to both the frame and
+        the wx.App (via Cocoa's responder chain). We intercept every menu event
+        here, look up the corresponding dMenuItem by ID, and raise its Hit event.
         """
         mb = getattr(self, "MenuBar", None)
         if mb is not None:

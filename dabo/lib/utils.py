@@ -156,7 +156,7 @@ def getUserHomeDirectory():
 
 
 def getUserAppDataDirectory(appName="Dabo"):
-    """
+    r"""
     Return the directory where Dabo can save user preference and setting information.
 
     On *nix, this will be something like /home/pmcnett/.dabo
@@ -204,7 +204,7 @@ def getUserAppDataDirectory(appName="Dabo"):
 
 
 def getSharedAppDataDirectory(appName="Dabo"):
-    """
+    r"""
     Return the directory where Dabo can store shared mutable data.
 
     On *nix, this will be something like /var/lib/dabo
@@ -287,33 +287,23 @@ def getEncodings():
 
 def ustr(value):
     """
-    Convert the passed value to a python unicode object.
+    Convert the passed value to a str.
 
-    When converting to a string, do not use the str() function, which
-    can create encoding errors with non-ASCII text.
+    In Python 3, str is always Unicode. bytes objects are decoded using the
+    best available encoding. All other types are converted via str().
     """
     if isinstance(value, str):
-        # Don't change the encoding of an object that is already unicode.
         return value
+    if isinstance(value, bytes):
+        for enc in getEncodings():
+            try:
+                return value.decode(enc)
+            except UnicodeDecodeError:
+                pass
+        return value.decode("utf-8", errors="replace")
     if isinstance(value, Exception):
         return exceptionToUnicode(value)
-    try:
-        ## Faster for all-ascii strings and converting from non-string types::
-        return str(value)
-    except UnicodeDecodeError:
-        # Most likely there were bytes whose integer ordinal were > 127 and so the
-        # default ASCII codec used by unicode() couldn't decode them.
-        pass
-    except UnicodeEncodeError:
-        # Most likely there were bytes whose integer ordinal were > 127 and so the
-        # default ASCII codec used by unicode() couldn't encode them.
-        pass
-    for ln in getEncodings():
-        try:
-            return str(value, ln)
-        except UnicodeError:
-            pass
-    raise UnicodeError("Unable to convert '%r'." % value)
+    return str(value)
 
 
 def exceptionToUnicode(e):
@@ -328,7 +318,7 @@ def exceptionToUnicode(e):
     try:
         return ustr(e)
     except:
-        return "Unknown message."
+        return "Unknown exception message."
 
 
 def relativePathList(toLoc, fromLoc=None):
