@@ -15,11 +15,13 @@ from .. import events
 from .. import settings
 from .. import ui
 from ..localization import _
+from .button import dButtonMixin
+
 
 dabo_module = settings.get_dabo_package()
 
 
-class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
+class dBorderlessButton(dButtonMixin, platebtn.PlateButton):
     """
     Creates a button that can be pressed by the user to trigger an action.
 
@@ -36,29 +38,18 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         self._baseClass = dBorderlessButton
-        preClass = platebtn.PlateButton
-
+        self._preClass = platebtn.PlateButton
         self._backColorHover = (128, 128, 128)
-        # Initialize the self._*picture attributes
-        self._picture = self._hoverPicture = self._focusPicture = ""
-        # These atts underlie the image sizing properties.
-        self._imgScale = self._imgHt = self._imgWd = None
-        # This controls whether the button automatically resizes
-        # itself when its Picture changes.
-        self._autoSize = False
-        # On some platforms, we need to add some 'breathing room'
-        # around the bitmap image in order for it to appear correctly
-        self._bmpBorder = 10
-
-        ui.dControlMixin.__init__(
-            self,
-            preClass,
-            parent,
-            properties=properties,
-            attProperties=attProperties,
-            *args,
-            **kwargs,
+        # Alias some of the wx methods that differ between this and standard buttons
+        self.GetBitmap = self.GetBitmapLabel
+        self.GetBitmapSelected = self.GetBitmapLabel
+        self.SetBitmapPressed = self.SetBitmapSelected
+        self.GetBitmapCurrent = self.GetBitmapHover
+        self.SetBitmapCurrent = self.SetBitmapHover
+        super().__init__(
+            parent, properties=properties, attProperties=attProperties, *args, **kwargs
         )
+
 
     def _initEvents(self):
         super()._initEvents()
@@ -69,6 +60,7 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
 
     def _getInitPropertiesList(self):
         return super()._getInitPropertiesList() + ("ButtonShape",)
+
 
     # Property definitions
     @property
@@ -96,7 +88,7 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
     @property
     def NormalBitmap(self):
         """The bitmap normally displayed on the button.  (wx.Bitmap)"""
-        return self.GetBitmapLabel()
+        return self.PictureBitmap
 
     @property
     def ButtonShape(self):
@@ -121,37 +113,6 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
             nm = self.Name
             raise ValueError(f"Invalid value of {nm}.ButtonShape property: {val}")
 
-    @property
-    def CancelButton(self):
-        # need to implement
-        return False
-
-    @CancelButton.setter
-    def CancelButton(self, val):
-        warnings.warn(_("CancelButton isn't implemented yet."), Warning)
-
-    @property
-    def DefaultButton(self):
-        """Specifies whether this command button gets clicked on -Enter-."""
-        if self.Parent is not None:
-            return self.Parent.GetDefaultItem() == self
-        else:
-            return False
-
-    @DefaultButton.setter
-    def DefaultButton(self, val):
-        if self._constructed():
-            if val:
-                if self.Parent is not None:
-                    self.Parent.SetDefaultItem(self._pemObject)
-            else:
-                if self._pemObject.GetParent().GetDefaultItem() == self._pemObject:
-                    # Only change the default item to None if it wasn't self: if another object
-                    # is the default item, setting self.DefaultButton = False shouldn't also set
-                    # that other object's DefaultButton to False.
-                    self.SetDefaultItem(None)
-        else:
-            self._properties["DefaultButton"] = val
 
     @property
     def Font(self):
@@ -185,23 +146,6 @@ class dBorderlessButton(ui.dControlMixin, platebtn.PlateButton):
             val.bindEvent(events.FontPropertiesChanged, self._onFontPropsChanged)
         else:
             self._properties["Font"] = val
-
-    @property
-    def Picture(self):
-        """Specifies the image normally displayed on the button. (str)"""
-        return self._picture
-
-    @Picture.setter
-    def Picture(self, val):
-        self._picture = val
-        if self._constructed():
-            if isinstance(val, wx.Bitmap):
-                bmp = val
-            else:
-                bmp = ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
-            self.SetBitmapLabel(bmp)
-        else:
-            self._properties["Picture"] = val
 
 
 ui.dBorderlessButton = dBorderlessButton

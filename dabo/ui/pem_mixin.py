@@ -243,6 +243,11 @@ class dPemMixin(dObject):
             args = tuple(arg_list)
             del self._preInitProperties["id"]
             del self._preInitProperties["parent"]
+        elif isinstance(self, ui.dButton):
+            # These cannot be set at construction, so save them for afterInit
+            self._picture = kwargs.pop("Picture", "")
+            self._downPicture = kwargs.pop("DownPicture", "")
+            self._focusPicture = kwargs.pop("FocusPicture", "")
         # This is needed when running from a saved design file
         self._extractKey((properties, self._properties), "designerClass")
         # This attribute is used when saving code with a design file
@@ -1230,7 +1235,7 @@ class dPemMixin(dObject):
         # See if the 'classRef' is either some XML or the path of an XML file
         if isinstance(classRef, str):
             xml = classRef
-            from lib.DesignerClassConverter import DesignerClassConverter
+            from ..lib.DesignerClassConverter import DesignerClassConverter
 
             conv = DesignerClassConverter()
             classRef = conv.classFromText(xml)

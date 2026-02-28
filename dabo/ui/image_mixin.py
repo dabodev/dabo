@@ -67,7 +67,7 @@ class dImageMixin(object):
     @property
     def ImageScale(self):
         """
-        When set, scales all images shown on this control. The value is a decimal, not a percent, so
+        When set, scales all images shown on this control. The value is a float, not a percent, so
         1.0 is normal size, 0.5 is half size, etc. Default=None, which performs no scaling  (float)
         """
         return self._imgScale
@@ -75,9 +75,11 @@ class dImageMixin(object):
     @ImageScale.setter
     def ImageScale(self, val):
         self._imgScale = val
-        pic = self.Picture
-        if pic:
-            self.Picture = pic
+        pics = ["Picture", "DownPicture", "FocusPicture"]
+        for pic in pics:
+            content = getattr(self, pic)
+            if content:
+                setattr(self, pic, content)
         if self._autoSize:
             self._sizeToBitmap()
         self.refresh()
