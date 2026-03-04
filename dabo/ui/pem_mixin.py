@@ -243,11 +243,12 @@ class dPemMixin(dObject):
             args = tuple(arg_list)
             del self._preInitProperties["id"]
             del self._preInitProperties["parent"]
-        elif isinstance(self, ui.dButton):
+        elif isinstance(self, (ui.dButton, ui.dBorderlessButton)):
             # These cannot be set at construction, so save them for afterInit
-            self._picture = kwargs.pop("Picture", "")
-            self._downPicture = kwargs.pop("DownPicture", "")
-            self._focusPicture = kwargs.pop("FocusPicture", "")
+            self._picture = self._extractKey((properties, self._properties), "Picture")
+            self._downPicture = self._extractKey((properties, self._properties), "DownPicture")
+            self._focusPicture = self._extractKey((properties, self._properties), "FocusPicture")
+            self._hoverPicture = self._extractKey((properties, self._properties), "HoverPicture")
         # This is needed when running from a saved design file
         self._extractKey((properties, self._properties), "designerClass")
         # This attribute is used when saving code with a design file
@@ -3600,9 +3601,8 @@ class DrawObject(dObject):
         """
         Does the actual drawing.
 
-        NOTE: it does not clear any old drawings of the shape, so this shouldn't be
-        called except as part of a method of the parent that first clears the
-        background.
+        NOTE: it does not clear any old drawings of the shape, so this shouldn't be called except as
+        part of a method of the parent that first clears the background.
         """
         if not self.Visible or self._inInit:
             return

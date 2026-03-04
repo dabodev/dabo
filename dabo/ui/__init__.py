@@ -302,7 +302,6 @@ def load_namespace():
     from . import borderless_button
     from . import toggle_button
     from . import bitmap
-#     from . import bitmap_button
     from . import dialog
     from . import color_dialog
     from . import file_dialog

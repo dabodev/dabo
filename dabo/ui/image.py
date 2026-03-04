@@ -75,6 +75,11 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         )
 
         dImageMixin.__init__(self)
+        # Prevent wx.StaticBitmap from auto-resizing to match the bitmap when
+        # SetBitmap() is called. Without this, SetBitmap() changes the control
+        # size, which fires EVT_SIZE, which calls _showPic() again, which calls
+        # SetBitmap() again — an infinite loop that freezes the UI on macOS.
+        kwargs["style"] = kwargs.get("style", 0) | getattr(wx, "ST_NO_AUTORESIZE", 0)
         dDataControlMixin.__init__(
             self,
             preClass,
@@ -167,76 +172,74 @@ class dImage(dDataControlMixin, dImageMixin, wx.StaticBitmap):
         if not self._Image.IsOk():
             # No image to display
             self.Bitmap = wx.Bitmap(1, 1)
-            self.Freeze()
             self.SetBitmap(self.Bitmap)
-            self.Thaw()
             return
 
         self._inShowPic = True
-        img = self._Image.Copy()
-
-        ds = self._displayState
-        switchProportions = (ds % 2) == 0
-        mirrored = ds > 4
-        rotCount = (ds - 1) % 4
-        if mirrored:
-            img = img.Mirror()
-        for rot in range(rotCount):
-            img = img.Rotate90(True)
-
-        w, h = origW, origH = self.Width, self.Height
-        if w <= 1 or h < 1:
-            # Initial empty bitmap, let the image determine the size
-            w = origW = img.GetWidth()
-            h = origH = img.GetHeight()
-        w, h = float(w), float(h)
-
-        if h == 0:
-            szProp = 1
-        else:
-            szProp = w / h
-        imgProp = self._imgProp
-
-        if switchProportions:
-            # The image has been rotated.
-            imgProp = 1 / imgProp
-
-        sm = self.ScaleMode[0].lower()
-
-        if self._Image.GetWidth() == self._Image.GetHeight() == 1:
-            # Empty bitmap; no need to scale.
-            img = img
-        elif sm == "c":
-            # Clip; Don't change anything
-            img = img
-        elif sm == "p":
-            # Proportional; find the largest dimension that fits.
-            if imgProp > szProp:
-                # Image is wider than control, so limit it to the control width
-                imgW = w
-                imgH = w / imgProp
-            else:
-                # Use the height as the limiting size
-                imgH = h
-                imgW = h * imgProp
-            img = img.Scale(int(imgW), int(imgH))
-        else:
-            # Stretch; just use the control size
-            img = img.Scale(int(w), int(h))
-
-        # We have the adjusted image; now generate the bitmap
-        self.Bitmap = img.ConvertToBitmap()
-        self._bitmapHeight = self.Bitmap.GetHeight()
-        self._bitmapWidth = self.Bitmap.GetWidth()
-
-        self.Freeze()
         try:
-            self.SetBitmap(self.Bitmap)
-        except TypeError as e:
-            pass
-        self.Thaw()
-        self.SetSize((origW, origH))
-        self._inShowPic = False
+            img = self._Image.Copy()
+
+            ds = self._displayState
+            switchProportions = (ds % 2) == 0
+            mirrored = ds > 4
+            rotCount = (ds - 1) % 4
+            if mirrored:
+                img = img.Mirror()
+            for rot in range(rotCount):
+                img = img.Rotate90(True)
+
+            w, h = origW, origH = self.Width, self.Height
+            if w <= 1 or h < 1:
+                # Initial empty bitmap, let the image determine the size
+                w = origW = img.GetWidth()
+                h = origH = img.GetHeight()
+            w, h = float(w), float(h)
+
+            if h == 0:
+                szProp = 1
+            else:
+                szProp = w / h
+            imgProp = self._imgProp
+
+            if switchProportions:
+                # The image has been rotated.
+                imgProp = 1 / imgProp
+
+            sm = self.ScaleMode[0].lower()
+
+            if self._Image.GetWidth() == self._Image.GetHeight() == 1:
+                # Empty bitmap; no need to scale.
+                img = img
+            elif sm == "c":
+                # Clip; Don't change anything
+                img = img
+            elif sm == "p":
+                # Proportional; find the largest dimension that fits.
+                if imgProp > szProp:
+                    # Image is wider than control, so limit it to the control width
+                    imgW = w
+                    imgH = w / imgProp
+                else:
+                    # Use the height as the limiting size
+                    imgH = h
+                    imgW = h * imgProp
+                img = img.Scale(int(imgW), int(imgH))
+            else:
+                # Stretch; just use the control size
+                img = img.Scale(int(w), int(h))
+
+            # We have the adjusted image; now generate the bitmap
+            self.Bitmap = img.ConvertToBitmap()
+            self._bitmapHeight = self.Bitmap.GetHeight()
+            self._bitmapWidth = self.Bitmap.GetWidth()
+
+            try:
+                self.SetBitmap(self.Bitmap)
+            except TypeError:
+                pass
+            self.SetSize((origW, origH))
+        finally:
+            self._inShowPic = False
 
     # Property definitions
     @property

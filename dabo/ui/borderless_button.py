@@ -17,7 +17,6 @@ from .. import ui
 from ..localization import _
 from .button import dButtonMixin
 
-
 dabo_module = settings.get_dabo_package()
 
 
@@ -50,7 +49,6 @@ class dBorderlessButton(dButtonMixin, platebtn.PlateButton):
             parent, properties=properties, attProperties=attProperties, *args, **kwargs
         )
 
-
     def _initEvents(self):
         super()._initEvents()
         # The EVT_BUTTON event for this control is fired
@@ -60,7 +58,6 @@ class dBorderlessButton(dButtonMixin, platebtn.PlateButton):
 
     def _getInitPropertiesList(self):
         return super()._getInitPropertiesList() + ("ButtonShape",)
-
 
     # Property definitions
     @property
@@ -113,7 +110,6 @@ class dBorderlessButton(dButtonMixin, platebtn.PlateButton):
             nm = self.Name
             raise ValueError(f"Invalid value of {nm}.ButtonShape property: {val}")
 
-
     @property
     def Font(self):
         """The font properties of the button. (obj)"""
@@ -154,9 +150,12 @@ ui.dBorderlessButton = dBorderlessButton
 class _dBorderlessButton_test(dBorderlessButton):
     def initProperties(self):
         self.Caption = "You better not push me"
-        self.FontSize = 8
+        self.ButtonShape = "square"
+        self.FontSize = 13
         self.Width = 223
         self.Picture = "themes/tango/32x32/apps/accessories-text-editor.png"
+        self.DownPicture = "themes/tango/32x32/actions/list-add.png"
+        self.HoverPicture = "themes/tango/32x32/actions/process-stop.png"
 
     def onContextMenu(self, evt):
         print("context menu")
@@ -169,6 +168,7 @@ class _dBorderlessButton_test(dBorderlessButton):
         self.FontBold = True
         self.FontItalic = True
         self.Caption = "Ok, you cross this line, and you die."
+        self.Picture = "themes/tango/32x32/apps/utilities-terminal.png"
         self.Width = 333
         self.Form.layout()
 

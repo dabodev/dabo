@@ -16,7 +16,7 @@ class dButtonMixin(dControlMixin, dImageMixin):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         # Initialize the self._*picture attributes
-        self._picture = self._downPicture = self._focusPicture = ""
+        self._picture = self._downPicture = self._focusPicture = self._hoverPicture = ""
         # These atts underlie the image sizing properties.
         self._imgScale = self._imgHt = self._imgWd = None
         # This controls whether the button automatically resizes
@@ -45,9 +45,10 @@ class dButtonMixin(dControlMixin, dImageMixin):
         The various pictures cannot be set at construction, so those values will be stored in the
         underlying attributes, so they can be set here.
         """
-        self.FocusPicture = self._focusPicture
-        self.DownPicture = self._downPicture
         self.Picture = self._picture
+        self.DownPicture = self._downPicture
+        self.FocusPicture = self._focusPicture
+        self.HoverPicture = self._hoverPicture
         super()._afterInit()
 
     def _get_parent_with_set_default(self):
@@ -148,9 +149,13 @@ class dButtonMixin(dControlMixin, dImageMixin):
                 # Warning was already issued
                 return
             if val:
-                parent_with_set_default.SetDefaultItem(self._pemObject)
+                # SetDefault() notifies the parent AND triggers the platform's
+                # visual "default button" treatment (e.g. the bold ring on macOS).
+                # SetDefaultItem() alone only stores the logical reference and
+                # does not update the button's appearance.
+                self.SetDefault()
             else:
-                if parent_with_set_default.GetDefaultItem() == self._pemObject:
+                if parent_with_set_default.GetDefaultItem() == self:
                     # Only change the default item to None if it wasn't self: if another object
                     # is the default item, setting self.DefaultButton = False shouldn't also set
                     # that other object's DefaultButton to False.
