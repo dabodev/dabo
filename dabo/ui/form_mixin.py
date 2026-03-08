@@ -199,26 +199,10 @@ class dFormMixin(dPemMixin):
         # A deferred callAfter is needed because wx.Frame registers its own
         # EVT_MENU handling during __init__ which would shadow a construction-time
         # no-id binding.
-        ui.callAfter(self.Bind, wx.EVT_MENU, self.__onWxAnyMenuHit)
         self.bindEvent(events.Deactivate, self.__onDeactivate)
         self.bindEvent(events.Close, self.__onClose)
         self.bindEvent(events.Paint, self.__onPaint)
         self.bindEvent(events.Idle, self.__onIdle)
-
-    def __onWxAnyMenuHit(self, evt):
-        """Catch-all EVT_MENU handler on the frame.
-
-        On macOS, native menu-click events are dispatched to both the frame and
-        the wx.App (via Cocoa's responder chain). We intercept every menu event
-        here, look up the corresponding dMenuItem by ID, and raise its Hit event.
-        """
-        mb = getattr(self, "MenuBar", None)
-        if mb is not None:
-            item = mb.FindItemById(evt.GetId())
-            if item is not None and hasattr(item, "raiseEvent"):
-                item.raiseEvent(events.Hit, evt)
-                return
-        evt.Skip()
 
     def __onWxClose(self, evt):
         self.raiseEvent(events.Close, evt)

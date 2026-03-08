@@ -584,6 +584,7 @@ these automatic updates."""
         if context is None:
             context = self.ActiveForm
         dlg = ui.dShellForm(context)
+        dlg.MenuBar = self.Application.DefaultMenuBarClass()
         dlg.show()
 
     def toggleDebugWindow(self, context=None):
