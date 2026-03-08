@@ -142,8 +142,8 @@ class dEvent(object):
         return self._eventData
 
     @EventData.setter
-    def EventData(self, dict):
-        self._eventData = dict
+    def EventData(self, val):
+        self._eventData = val
 
 
 # Eventually deprecate Event

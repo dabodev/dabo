@@ -897,13 +897,22 @@ class dPemMixin(dObject):
         def __setNeedRedraw():
             self._needRedraw = bool(self._drawnObjects)
 
+        evt.Skip()
         dc = wx.PaintDC(self)
+        # Pass the DC along
+        evt.dc = dc
         for obj in self._drawnObjects:
             obj.draw(dc=dc)
         ui.callAfterInterval(50, __setNeedRedraw)
         self._needRedraw = (not self._inRedraw) and bool(self._drawnObjects)
+        if self.Application.DrawSizerOutlines and self.Sizer:
+            self.Sizer.drawOutline(
+                self,
+                dc=dc,
+                recurse=True,
+                drawChildren=True,
+            )
         self.raiseEvent(events.Paint, evt)
-        evt.Skip()
 
     def __onWxEraseBackground(self, evt):
         if self._finito:
@@ -3543,7 +3552,6 @@ class DrawObject(dObject):
 
     def __init__(self, parent, dc=None, useDefaults=False, *args, **kwargs):
         self._inInit = True
-        self._dc = dc
         self._useDefaults = useDefaults
         self._dynamic = {}
         # Initialize property atts
@@ -3614,7 +3622,7 @@ class DrawObject(dObject):
         x, y = round(self.Xpos), round(self.Ypos)
 
         if dc is None:
-            dc = self._dc or wx.PaintDC(srcObj)
+            dc = wx.PaintDC(srcObj)
         if self.Shape == "bmp":
             dc.DrawBitmap(self._bitmap, x, y, self._transparent)
             self._width = self._bitmap.GetWidth()

@@ -1275,9 +1275,7 @@ these automatic updates."""
         Toggles whether sizer lines are drawn. This is simply a tool
         to help people visualize how sizers lay out objects.
         """
-        self._drawSizerOutlines = not self._drawSizerOutlines
-        if self.ActiveForm:
-            self.ActiveForm.refresh()
+        self.DrawSizerOutlines = not self.DrawSizerOutlines
 
     def onReloadForm(self, evt):
         """Re-creates the active form with a newer class definition."""
@@ -1327,6 +1325,8 @@ these automatic updates."""
     @DrawSizerOutlines.setter
     def DrawSizerOutlines(self, val):
         self._drawSizerOutlines = val
+        if self.ActiveForm:
+            self.ActiveForm.refresh()
 
     @property
     def PreferenceDialogClass(self):

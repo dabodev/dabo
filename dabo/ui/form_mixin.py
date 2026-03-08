@@ -36,7 +36,6 @@ class dFormMixin(dPemMixin):
     _defaultTop = 50
     _defaultWidth = 600
     _designerMode = False
-    _drawSizerChildren = False
     _fieldValidationControl = None
     _floatingPanel = None
     _icon = None
@@ -75,7 +74,6 @@ class dFormMixin(dPemMixin):
         self._recurseOutlinedSizers = True
         self._alwaysDrawSizerOutlines = False
         self._idleRefreshInterval = 1000
-        self._drawSizerChildren = False
         self._statusBarClass = dStatusBar
 
         # Extract the menu definition file, if any
@@ -307,17 +305,7 @@ class dFormMixin(dPemMixin):
 
     def _idleRedraw(self):
         self.refresh()
-        for sz in self.SizersToOutline:
-            win = sz.getContainingWindow()
-            try:
-                sz.drawOutline(
-                    win,
-                    recurse=self._recurseOutlinedSizers,
-                    drawChildren=self._drawSizerChildren,
-                )
-            except AttributeError:
-                # Will happen if sz is None
-                self.removeFromOutlinedSizers(sz)
+        return
 
     def __onClose(self, evt):
         app = self.Application
@@ -395,6 +383,20 @@ class dFormMixin(dPemMixin):
         evt = DummyEvent()
         evt.EventObject = self
         ui.callAfter(self.Application.onReloadForm, evt)
+
+    def _get_drawing_surface(self):
+        """Returns the main panel on the form, or if there is none, the form itself."""
+        if self.Sizer:
+            itms = self.Sizer.GetChildren()
+            if len(itms) == 1:
+                itm = itms[0]
+                kid = itm.GetWindow()
+                if isinstance(kid, ui.dPanel):
+                    # Make sure the panel fills the form
+                    expand = bool(itm.Flag | wx.EXPAND)
+                    if expand and (itm.Proportion == 1):
+                        return kid
+        return self
 
     def createBizobjs(self):
         """
@@ -1135,12 +1137,9 @@ class dFormMixin(dPemMixin):
         if self._alwaysDrawSizerOutlines:
             return self._sizersToOutline
         else:
-            ret = self._sizersToOutline or self.Sizer
-            if not isinstance(ret, list):
-                if ret:
-                    ret = [ret]
-                else:
-                    ret = []
+            target = self._get_drawing_surface()
+            ret = self._sizersToOutline or target.Sizer
+            ret = [] if not ret else ret if isinstance(ret, list) else [ret]
             return ret
 
     @SizersToOutline.setter

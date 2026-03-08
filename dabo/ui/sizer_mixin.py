@@ -655,20 +655,13 @@ class dSizerMixin(dObject):
 
     def _resolveOutlineSettings(self):
         if self.outlineColor is None:
-            if self.Orientation == "Vertical":
-                self.outlineColor = wx.BLUE
-            else:
-                self.outlineColor = wx.RED
+            self.outlineColor = wx.BLUE if self.Orientation == "Vertical" else wx.RED
         else:
             if isinstance(self.outlineColor, str):
                 # translate to a wx.Colour
                 self.outlineColor = wx.Colour(self.outlineColor)
         if self.outlineWidth is None:
-            if self.Application.Platform == "Win":
-                # Make 'em a bit wider.
-                self.outlineWidth = 3
-            else:
-                self.outlineWidth = 1
+            self.outlineWidth = 3 if self.Application.Platform == "Win" else 1
         if self.outlineStyle is None:
             self.outlineStyle = wx.PENSTYLE_SHORT_DASH
         else:
@@ -681,13 +674,13 @@ class dSizerMixin(dObject):
                 elif sty == "solid":
                     self.outlineStyle = wx.PENSTYLE_SOLID
 
-    def drawOutline(self, win, recurse=False, drawChildren=False):
+    def drawOutline(self, win, dc=None, recurse=False, drawChildren=False):
         """
-        There are some cases where being able to see the sizer
-        is helpful, such as at design time. This method can be called
-        to see the outline; it needs to be called whenever the containing
+        There are some cases where being able to see the sizer is helpful, such as at design time.
+        This method can be called to see the outline; it needs to be called whenever the containing
         window is resized or repainted.
         """
+        dc = dc or wx.ClientDC(win)
         self._resolveOutlineSettings()
         if drawChildren:
             objs = self.GetChildren()
@@ -698,13 +691,12 @@ class dSizerMixin(dObject):
             w, h = obj.GetSize()
             # Offset
             off = self.outlineWidth / 2
-            dc = wx.ClientDC(win)
             dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
-            # dc.SetBrush(wx.BRUSHSTYLE_TRANSPARENT)
+            brush = wx.Brush(None, style=wx.BRUSHSTYLE_TRANSPARENT)
+            dc.SetBrush(brush)
             dc.SetLogicalFunction(wx.COPY)
             # Draw the outline
-            ui.callAfter(
-                dc.DrawRectangle,
+            dc.DrawRectangle(
                 round(x + off),
                 round(y + off),
                 round(w - (2 * off)),
@@ -712,17 +704,17 @@ class dSizerMixin(dObject):
             )
 
         if recurse:
-            for ch in self.GetChildren():
-                if ch.IsSizer():
-                    sz = ch.GetSizer()
+            for child in self.GetChildren():
+                if child.IsSizer():
+                    sz = child.GetSizer()
                     if hasattr(sz, "drawOutline"):
-                        sz.drawOutline(win, recurse)
-                elif ch.IsWindow():
-                    w = ch.GetWindow()
-                    if isinstance(w, ui.dPageFrame):
-                        w = w.SelectedPage
-                    if hasattr(w, "Sizer") and w.Sizer:
-                        w.Sizer.drawOutline(w, True)
+                        sz.drawOutline(win, dc=dc, recurse=recurse, drawChildren=drawChildren)
+                elif child.IsWindow():
+                    win = child.GetWindow()
+                    if isinstance(win, ui.dPageFrame):
+                        win = win.SelectedPage
+                    if hasattr(win, "Sizer") and win.Sizer:
+                        win.Sizer.drawOutline(win, dc=dc, recurse=True)
 
     def listMembers(self, recurse=False, lvl=0):
         """

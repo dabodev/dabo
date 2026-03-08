@@ -533,10 +533,10 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
                 oldGrid.remove(itm)
                 self.append(itm, flag=f)
 
-    def drawOutline(self, win, recurse=False, drawChildren=False):
+    def drawOutline(self, win, dc=None, recurse=False, drawChildren=False):
         """Need to override this method to draw the outline properly for the grid."""
         self._resolveOutlineSettings()
-        dc = wx.ClientDC(win)
+        dc = dc or wx.PaintDC(win)
         brush = wx.Brush()
         brush.SetStyle(wx.BRUSHSTYLE_TRANSPARENT)
         dc.SetBrush(brush)
@@ -563,17 +563,17 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         dc.SetPen(wx.Pen(self.outlineColor, self.outlineWidth, self.outlineStyle))
         dc.DrawRectangle(round(x), round(y), round(w), round(h))
 
-        for ch in self.Children:
-            if ch.IsSizer():
-                sz = ch.GetSizer()
+        for child in self.Children:
+            if child.IsSizer():
+                sz = child.GetSizer()
                 if hasattr(sz, "drawOutline"):
-                    sz.drawOutline(win, recurse)
-            elif ch.IsWindow():
-                w = ch.GetWindow()
-                if isinstance(w, ui.dPageFrame):
-                    w = w.SelectedPage
-                if hasattr(w, "Sizer") and w.Sizer:
-                    w.Sizer.drawOutline(w, True)
+                    sz.drawOutline(win, dc=dc, recurse=recurse)
+            elif child.IsWindow():
+                win = child.GetWindow()
+                if isinstance(win, ui.dPageFrame):
+                    win = win.SelectedPage
+                if hasattr(win, "Sizer") and win.Sizer:
+                    win.Sizer.drawOutline(win, dc=dc, recurse=True)
 
     @property
     def HGap(self):
