@@ -127,7 +127,7 @@ class _BasePanelMixin(object):
 
     def _onResizeBuffer(self, evt):
         evt.Skip()
-        self._buffer = wx.EmptyBitmap(max(1, self.Width), max(1, self.Height))
+        self._buffer = wx.Bitmap(max(1, self.Width), max(1, self.Height))
         self.__updateDrawing()
 
     def __updateDrawing(self):
@@ -190,8 +190,7 @@ class _BasePanelMixin(object):
         self._buffered = val
         if val:
             # Set up the double-buffering.
-            self._buffer = wx.EmptyBitmap(max(1, self.Width), max(1, self.Height))
-            #             self.Bind(wx.EVT_PAINT, self._onPaintBuffer)
+            self._buffer = wx.Bitmap(max(1, self.Width), max(1, self.Height))
             self.Bind(wx.EVT_SIZE, self._onResizeBuffer)
         else:
             #             self.Unbind(wx.EVT_PAINT)

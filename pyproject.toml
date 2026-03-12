@@ -36,7 +36,7 @@ force-sort-within-sections = false
 
 [project]
 name = "dabo"
-version = "2026.1.9"
+version = "2026.1.10"
 description = "A framework for developing data-driven business applications"
 readme = "README.md"
 authors = [

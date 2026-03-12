@@ -19,7 +19,7 @@ def parseCodeFile(txt):
     codeObjectSep = getCodeObjectSeperator()
     ret = {}
     # regexp for extracting method names
-    pat = re.compile("^(def ([^\(]+)\([^\)]*\):)\s*\n", re.M)
+    pat = re.compile(r"^(def ([^\(]+)\([^\)]*\):)\s*\n", re.M)
     # Replace any DOS-style newlines
     txt = txt.replace("\r\n", "\n")
     # The zero-th piece is the comments at the top of the file.

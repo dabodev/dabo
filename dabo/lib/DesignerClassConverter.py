@@ -53,7 +53,7 @@ class DesignerClassConverter(dObject):
         # Holds any import statements to apply to the class code.
         self._import = ""
         # RE pattern to extract the method signature.
-        self._codeDefExtract = re.compile("(\s*)def ([^\(]+)\(([^\)]*)\):")
+        self._codeDefExtract = re.compile(r"(\s*)def ([^\(]+)\(([^\)]*)\):")
         # Counter for the suffix that is appended to each method. This is simpler
         # than tracking each method name and only adding if there is a conflict.
         self._methodNum = 0

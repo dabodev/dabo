@@ -86,9 +86,10 @@ fileLogHandler = None
 dbFileLogHandler = None
 dbFileFormatter = None
 settings.setup_logging()
-debug = logger.debug
-info = logger.info
-error = logger.error
+# Add convenience names for logging
+debug = log_debug = logger.debug
+info = log_info = logger.info
+error = log_error = logger.error
 
 
 if settings.localizeDabo:
