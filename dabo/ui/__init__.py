@@ -2193,12 +2193,9 @@ def _saveScreenShot(obj, imgType, pth):
         # User canceled
         return
     # Make sure that the file has the correct extension
-    if not pth.lower().endswith(".%s" % typ):
-        if pth.endswith("."):
-            pth = "%s%s" % (pth, typ)
-        else:
-            pth = "%s.%s" % (pth, typ)
-    img = wx.ImageFromBitmap(bmp)
+    if not pth.lower().endswith(f".{typ}"):
+        pth = f"{pth}{'' if pth.endswith('.') else '.'}{typ}"
+    img = bmp.ConvertToImage()
     img.SaveFile(pth, wxTypeDict[typ])
 
 

@@ -9,6 +9,8 @@ import warnings
 
 from . import settings
 
+dabo_module = settings.get_dabo_package()
+
 _defaultLanguage, _defaultEncoding = locale.getdefaultlocale()
 
 if _defaultLanguage is None:
@@ -137,7 +139,7 @@ def setLanguage(lang=None, charset=None):
             daboTranslation = gettext.translation("settings", daboLocaleDir, languages=lang)
         except IOError:
             # No translation file found
-            log.error(
+            dabo_module.log_error(
                 """
 No translation file found for domain 'settings'.
     Locale dir = %s
@@ -149,7 +151,7 @@ No translation file found for domain 'settings'.
             daboTranslation = gettext.translation("settings", daboLocaleDir, languages=["en"])
         except ValueError:
             # Bad translation file
-            log.error(
+            dabo_module.log_error(
                 """
 Bad translation file found for domain 'settings'.
     Locale dir = %s
@@ -167,15 +169,17 @@ Bad translation file found for domain 'settings'.
         try:
             translation = gettext.translation(domain, localedir, languages=lang)
         except IOError:
-            log.error("No translation found for domain '%s' and language %s." % (domain, lang))
-            log.error(
+            dabo_module.log_error(
                 """
 No translation file found for domain '%s'.
     Locale dir = %s
     Languages = %s
     Codeset = %s """
-                % (domain, daboLocaleDir, ustr(lang), charset)
+                % (domain, localedir, ustr(lang), charset)
             )
+            # Fall back to a no‑op translation object so that callers
+            # can still run even when no .mo files are present.
+            translation = gettext.NullTranslations()
         if daboTranslation:
             translation.add_fallback(daboTranslation)
         _currentTrans = translation.gettext
