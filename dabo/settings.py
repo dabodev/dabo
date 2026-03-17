@@ -285,7 +285,7 @@ def getEncoding():
     global _encoding
     if _encoding:
         return _encoding
-    encoding = locale.getdefaultlocale()[1] or locale.getlocale()[1] or defaultEncoding
+    encoding = locale.getpreferredencoding(False) or locale.getlocale()[1] or defaultEncoding
 
     def _getEncodingName():
         if encoding.isdigit():
@@ -327,9 +327,11 @@ def getXMLEncoding():
     return encoding
 
 
-# On some platforms getfilesystemencoding() and even getdefaultlocale()
-# can return None, so we make sure we always set a reasonable encoding:
-fileSystemEncoding = sys.getfilesystemencoding() or locale.getdefaultlocale()[1] or defaultEncoding
+# On some platforms getfilesystemencoding() can return None, so we make sure we always set a
+# reasonable encoding:
+fileSystemEncoding = (
+    sys.getfilesystemencoding() or locale.getpreferredencoding(False) or defaultEncoding
+)
 
 
 @functools.lru_cache

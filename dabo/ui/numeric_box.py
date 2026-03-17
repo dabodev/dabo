@@ -18,7 +18,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
 
     def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
         localeData = locale.localeconv()
-        enc = locale.getdefaultlocale()[1]
+        enc = locale.getpreferredencoding(False)
         self._baseClass = dNumericBox
         kwargs["integerWidth"] = self._extractKey(
             (properties, attProperties, kwargs), "IntegerWidth", 10

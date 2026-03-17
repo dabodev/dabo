@@ -11,7 +11,7 @@ from . import settings
 
 dabo_module = settings.get_dabo_package()
 
-_defaultLanguage, _defaultEncoding = locale.getdefaultlocale()
+_defaultLanguage, _defaultEncoding = locale.getlocale()
 
 if _defaultLanguage is None:
     _defaultLanguage = settings.defaultLanguage
@@ -168,7 +168,7 @@ Bad translation file found for domain 'settings'.
             continue  ## already handled separately above
         try:
             translation = gettext.translation(domain, localedir, languages=lang)
-        except IOError:
+        except (IOError, ValueError):
             dabo_module.log_error(
                 """
 No translation file found for domain '%s'.
@@ -216,16 +216,9 @@ def getDaboLocaleDir():
 
 
 def main():
-    install()
-    print()
-    print("sys.getdefaultencoding():", sys.getdefaultencoding())
+    install(domain="dabo")
     if settings.loadUserLocale:
         locale.setlocale(locale.LC_ALL, "")
-        print("locale.getlocale():", locale.getlocale())
-    else:
-        print("locale.getdefaultlocale():", locale.getdefaultlocale())
-    print("_defaultLanguage, _defaultEncoding:", _defaultLanguage, _defaultEncoding)
-    print()
 
     stringsToTranslate = ("OK", "&File", "&Edit", "&Help", "Application finished.")
     max_len = {}
