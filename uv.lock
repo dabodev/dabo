@@ -189,7 +189,7 @@ wheels = [
 
 [[package]]
 name = "dabo"
-version = "2026.1.17"
+version = "2026.1.18"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },
