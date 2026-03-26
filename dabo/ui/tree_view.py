@@ -120,7 +120,7 @@ class dNode(dObject):
                 self.tree.expand(self)
             else:
                 self.tree.collapse(self)
-        except wx._core.PyAssertionError:
+        except wx._core.AssertionError:
             # Happens when expandAll() is called and the root node is hidden
             # especially from dTreeView.refreshDisplay()
             pass
@@ -756,7 +756,7 @@ class dTreeView(dControlMixin, wx.TreeCtrl):
         if ret is None:
             try:
                 ret = self.getParentNode(nd)
-            except wx.PyAssertionError:
+            except wx.AssertionError:
                 pass
         else:
             # Find the last child of the last child of the last child...
