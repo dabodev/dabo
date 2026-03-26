@@ -2265,7 +2265,7 @@ def strToBmp(val, scale=None, width=None, height=None):
                 ret = getCommonBitmap(val)
     if not ret:
         # Return an empty bitmap
-        ret = wx.EmptyBitmap(1, 1)
+        ret = wx.Bitmap(1, 1)
     else:
         _bmpCache[val] = ret
 

@@ -249,7 +249,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         # Make new offscreen bitmap: this bitmap will always have the
         # current drawing in it, so it can be used to save the image to
         # a file, or whatever.
-        self._Buffer = wx.EmptyBitmap(Size.width, Size.height)
+        self._Buffer = wx.Bitmap(Size.width, Size.height)
         plot.PlotCanvas._setSize(self)
         # Reset PointLable
         self.last_PointLabel = None

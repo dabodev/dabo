@@ -29,7 +29,7 @@ def getIconBitmap(iconName, setMask=True, noEmptyBmp=False):
         if noEmptyBmp:
             ret = None
         else:
-            ret = wx.EmptyBitmap(1, 1)
+            ret = wx.Bitmap(1, 1)
     _bmpCache[iconName] = ret
     return ret
 

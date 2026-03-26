@@ -29,7 +29,7 @@ class dImageMixin(object):
     def Bitmap(self):
         """The bitmap representation of the displayed image.  (wx.Bitmap)"""
         if self._bmp is None:
-            self._bmp = wx.EmptyBitmap(1, 1, 1)
+            self._bmp = wx.Bitmap(1, 1, 1)
         return self._bmp
 
     @Bitmap.setter
