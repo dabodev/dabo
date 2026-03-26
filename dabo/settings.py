@@ -114,7 +114,7 @@ defaultFontSize = 10
 # Default language to use when none is specified
 defaultLanguage = "en"
 
-# Override language set in python.locale.getdefaultlocale
+# Override language set in python.locale.getlocale()
 overrideLocaleLanguage = False
 
 # Default encoding to use when none is specified

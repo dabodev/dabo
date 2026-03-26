@@ -54,7 +54,7 @@ class _TraceMixin(object):
 
     @property
     def TraceColor(self):
-        """The color of the plotted trace. Must be a wx.NamedColour (default='black') (str)"""
+        """The color of the plotted trace. Must be a wx.Colour (default='black') (str)"""
         return self.attributes["colour"]
 
     @TraceColor.setter
