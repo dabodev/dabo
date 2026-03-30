@@ -11,36 +11,32 @@ You program in Python, subclassing Dabo's base classes. In addition, there are
 several graphical tools for laying out your GUI, editing your menus, and
 creating professional business reports. 
 
-Dabo has three main subpackages, representing the three tiers common in modern
-database application design:
+Dabo has three main subpackages, representing the three tiers common in database application design:
+
 ```
 	dabo.db  : database
 	dabo.biz : business objects
 	dabo.ui  : user interface
 ```
-```dabo.db``` and ```dabo.biz``` are completely ui-free, while ```dabo.ui```
-requires wxPython.
 
-To distribute your application to end users
--------------------------------------------
-Use PyInstaller or cxFreeze to make an executable package to deploy to Mac,
-Windows, and Linux clients. Or, make sure your end users have Python, wxPython,
-etc. installed and distribute your source code.
+```dabo.db``` and ```dabo.biz``` are completely ui-free, while ```dabo.ui``` requires wxPython.
 
 To run Dabo, and apps based on Dabo, you need:
 ----------------------------------------------
- * Python 3.6 or later
+ * Python 3.10 or later
  * wxPython 4.0 or later
  * Reportlab and Python Imaging Library if running reports.
- * One or more of the following operating systems:
-   * Windows XP or higher
-   * Macintosh OSX 10.5 or higher
-   * Linux 6 or higher with X11 running and Gtk3
+ * Linux, MacOS, or Windows operating system.
 
+If you are working on the Dabo codebase, you can clone the git repo from here:
+
+`git clone git@github.com:dabodev/dabo.git`
+
+ 
 How you get started is pretty much up to you. There are two related projects: `dabo_demo`, which
-contains demonstrtion code for the various Dabo classes, and `dabo_ide`, which contains tools for
+contains demonstration code for the various Dabo classes, and `dabo_ide`, which contains tools for
 creating Dabo applications visually. Please note that the `dabo_ide` tools worked great when they
-were written in the mid-2000s, but have not been fully updated to the modern Python tools.
+were written in the mid-2000s, and have largely been updated to work with modern Python. They are still a work in progress, though, so please post an issue on the [Dabo IDE Issues page](https://github.com/dabodev/dabo_ide/issues) in GitHub.
 
 For some quick results for the impatient, once you've installed Dabo using the
 standard ```uv add dabo``` or ```poetry install dabo``` method, do this from your Python
@@ -70,6 +66,17 @@ the command window.
 print(tb.Value)
 ```
 
-[https://dabodev.com](Dabo Website)
+You can even place it wherever you wish:
 
-[https://github.com/dabodev/dabo](Dabo Repo on GitHub)
+```python
+tb.Left = 123
+tb.Top = 99
+```
+
+When you type those lines, the textbox moves to the specified location.
+
+For more information:
+
+[Dabo Website](https://dabodev.com)
+
+[Dabo Repo on GitHub](https://github.com/dabodev/dabo)

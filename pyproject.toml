@@ -36,16 +36,16 @@ force-sort-within-sections = false
 
 [project]
 name = "dabo"
-version = "2026.1.20"
+version = "2026.1.21"
 description = "A framework for developing data-driven business applications"
-readme = "README.md"
+readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
     { name = "Ed Leafe", email = "ed@leafe.com" },
     { name = "Paul McNett", email = "paul@mcnett.name" }
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "cryptography>=46.0.5",
+    "cryptography>=46.0.6",
     "filetype>=1.2.0",
     "pillow>=12.1.1",
     "pymysql>=1.1.1",
