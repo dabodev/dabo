@@ -73,7 +73,7 @@ class dDialog(dFormMixin, wx.Dialog):
         if self.Modal or self.IsModal():
             try:
                 super().EndModal(*args, **kwargs)
-            except wx._core.wxAssertionError:
+            except wx.wxAssertionError:
                 # The modal hack is causing problems in some edge cases.
                 super().release()
 

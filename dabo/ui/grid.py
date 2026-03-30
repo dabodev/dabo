@@ -13,7 +13,6 @@ from functools import reduce
 
 import wx
 import wx.grid
-from wx._core import AssertionError
 
 from .. import application
 from .. import biz
@@ -1238,7 +1237,7 @@ class dColumn(wx._core.Object, dPemMixin):
         """Color for the foreground (text) of each cell in the column."""
         try:
             return self._gridColAttr.GetTextColour()
-        except wx._core.wxAssertionError:
+        except wx.wxAssertionError:
             # Getting the color failed on Mac and win: "no default attr"
             default = color_tools.colorTupleFromName("black")
             self._gridColAttr.SetTextColour(default)
@@ -1699,7 +1698,7 @@ class dColumn(wx._core.Object, dPemMixin):
                 # Make sure the grid is in sync:
                 try:
                     self.Parent.SetColSize(idx, v)
-                except wx._core.wxAssertionError:
+                except wx.wxAssertionError:
                     # The grid may still be in the process of being created, so pass.
                     pass
         return v
@@ -2257,7 +2256,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
     def _updateDaboVisibleColumns(self):
         try:
             self._daboVisibleColumns = [e[0] for e in enumerate(self._columns) if e[1].Visible]
-        except wx._core.wxAssertionError as e:
+        except wx.wxAssertionError as e:
             # Can happen when an editor is active and columns resize
             vis = []
             for pos, col in enumerate(self._columns):
@@ -2637,7 +2636,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
         try:
             self.AutoSizeColumn(self._convertDaboColNumToWxColNum(colNum), setAsMin=False)
-        except (TypeError, wx._core.wxAssertionError):
+        except (TypeError, wx.wxAssertionError):
             pass
         if colNum > -1:
             _setColSize(colNum)
@@ -2661,7 +2660,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         try:
             # When called from OnPaint event, there should be PaintDC context.
             dc = wx.PaintDC(w)
-        except wx._core.wxAssertionError:
+        except wx.wxAssertionError:
             dc = wx.ClientDC(w)
         textAngle = {True: 90, False: 0}[self.VerticalHeaders]
         self._columnMetrics = []
@@ -3413,7 +3412,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 col.Width = col.Width
         except (
             wx.wxAssertionError,
-            wx._core.wxAssertionError,
+            wx.wxAssertionError,
         ):
             # If the underlying wx grid doesn't yet know about the column, such
             # as when adding columns with inBatch=True, this can throw an error
@@ -3907,7 +3906,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         if self.SameSizeRows:
             try:
                 self.RowHeight = self.GetRowSize(row)
-            except wx._core.wxAssertionError:
+            except wx.wxAssertionError:
                 # pkm: I don't understand how it could have gotten this far, but
                 #      I got an error report that the c++ assertion row>=0 && row<m_numrows failed.
                 pass
@@ -5174,19 +5173,19 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 try:
                     self.SetSelectionMode(wx.grid.Grid.GridSelectRows)
                     self._selectionMode = "Row"
-                except (AttributeError, wx._core.wxAssertionError):
+                except (AttributeError, wx.wxAssertionError):
                     ui.setAfter(self, "SelectionMode", val)
             elif val2 == "co":
                 try:
                     self.SetSelectionMode(wx.grid.Grid.GridSelectColumns)
                     self._selectionMode = "Col"
-                except (AttributeError, wx._core.wxAssertionError):
+                except (AttributeError, wx.wxAssertionError):
                     ui.setAfter(self, "SelectionMode", val)
             else:
                 try:
                     self.SetSelectionMode(wx.grid.Grid.GridSelectCells)
                     self._selectionMode = "Cell"
-                except (AttributeError, wx._core.wxAssertionError):
+                except (AttributeError, wx.wxAssertionError):
                     ui.setAfter(self, "SelectionMode", val)
             if self._selectionMode != orig:
                 self._checkSelectionType()

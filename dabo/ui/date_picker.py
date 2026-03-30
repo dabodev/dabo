@@ -265,7 +265,7 @@ class dDatePicker(dDataControlMixin, wx_adv.DatePickerCtrl):
     def GetValue(self):
         try:
             val = dateTimeWx2Py(super().GetValue())
-        except wx._core.wxAssertionError:
+        except wx.wxAssertionError:
             val = None
         return self._getPyValue(val)
 

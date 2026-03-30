@@ -336,7 +336,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
             szit = obj.ControllingSizerItem
         try:
             row, col = szit.GetSpan()
-        except wx._core.wxAssertionError as e:
+        except wx.wxAssertionError as e:
             # Window isn't controlled by this sizer
             row, col = None, None
         return (row, col)
@@ -366,7 +366,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         if itm is not None:
             try:
                 itm.SetSpan(spn)
-            except wx._core.wxAssertionError:
+            except wx.wxAssertionError:
                 raise ui.GridSizerSpanException(_("An item already exists in that location"))
 
     def _clearCells(self, obj, span, typ):

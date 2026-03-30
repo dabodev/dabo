@@ -76,7 +76,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
         """
         try:
             self.Realize()
-        except wx._core.wxAssertionError:
+        except wx.wxAssertionError:
             # Only happens on the Mac
             pass
 
@@ -176,7 +176,7 @@ class dToolBar(dControlMixin, wx.ToolBar):
 
         try:
             self.ToggleTool(id_, toggle)
-        except wx._core.wxAssertionError:
+        except wx.wxAssertionError:
             ## The AssertionError: not implemented occurs on wxMac, even though
             ## ToggleTool() obviously is implemented, because it does work.
             pass

@@ -773,13 +773,13 @@ class dSizerMixin(dObject):
         _wxFlags = 0
         # We need to control which flags are used based on the setting for 'expand'. Without this,
         # we can get errors like:
-        #  wx._core.wxAssertionError: C++ assertion "!(flags & (wxALIGN_RIGHT |
+        #  wx.wxAssertionError: C++ assertion "!(flags & (wxALIGN_RIGHT |
         #  wxALIGN_CENTRE_HORIZONTAL))" failed at
         #  /Users/robind/projects/bb2/dist-osx-py38/build/ext/wxWidgets/src/common/sizer.cpp(2089)
         #  in DoInsert(): Horizontal alignment flags are ignored with wxEXPAND
         #
         # The same is true for horizontal alignment in horizontal sizers.
-        #    wx._core.wxAssertionError: C++ assertion "!(flags & wxALIGN_CENTRE_HORIZONTAL)" failed
+        #    wx.wxAssertionError: C++ assertion "!(flags & wxALIGN_CENTRE_HORIZONTAL)" failed
         #    at
         #    /Users/robind/projects/bb2/dist-osx-py38/build/ext/wxWidgets/src/common/sizer.cpp(2106)
         #    in DoInsert(): Horizontal alignment flags are ignored in horizontal sizers
