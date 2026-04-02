@@ -133,7 +133,7 @@ class dDockPanel(dPanel):
                 auiOK = True
                 candidate = name
                 if i:
-                    candidate = "%s%s" % (name, i)
+                    candidate = f"{name}{i}"
                 mtch = [pi.name for pi in mgr.GetAllPanes() if pi.name == candidate]
                 if mtch:
                     auiOK = False
@@ -249,7 +249,7 @@ class dDockPanel(dPanel):
         except KeyError:
             # For some reason a name was not returned
             return ""
-        return (nm, inf.replace("name=%s;" % nm, ""))
+        return (nm, inf.replace(f"name={nm};", ""))
 
     def _updateAUI(self):
         frm = self.Form
@@ -1042,7 +1042,7 @@ class _dDockForm_test(dDockForm):
         if self.fp.Docked:
             state = "Docked"
         print("STATE", state)
-        return "I'm %s!" % state
+        return f"I'm {state}!"
 
     def onTestFP(self, evt):
         self.printTest(self.fp)

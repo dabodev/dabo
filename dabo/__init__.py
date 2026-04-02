@@ -173,9 +173,9 @@ app.start()
 
 """
     for dd in _standardDirs:
-        fname = "%s/__init__.py" % dd
+        fname = f"{dd}/__init__.py"
         txt = template % locals()
         open(fname, "w").write(txt)
     os.chmod("main.py", 744)
     os.chdir(currLoc)
-    print("Application '%s' has been created for you" % homedir)
+    print(f"Application '{homedir}' has been created for you")

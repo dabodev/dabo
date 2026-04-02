@@ -609,11 +609,11 @@ class dFormMixin(dPemMixin):
             return
 
         name = self.getAbsoluteName()
-        state = self.Application.getUserSetting("%s.windowstate" % name, self._defaultState)
-        width = self.Application.getUserSetting("%s.width" % name, self._defaultWidth)
-        height = self.Application.getUserSetting("%s.height" % name, self._defaultHeight)
-        left = self.Application.getUserSetting("%s.left" % name, self._defaultLeft)
-        top = self.Application.getUserSetting("%s.top" % name, self._defaultTop)
+        state = self.Application.getUserSetting(f"{name}.windowstate", self._defaultState)
+        width = self.Application.getUserSetting(f"{name}.width", self._defaultWidth)
+        height = self.Application.getUserSetting(f"{name}.height", self._defaultHeight)
+        left = self.Application.getUserSetting(f"{name}.left", self._defaultLeft)
+        top = self.Application.getUserSetting(f"{name}.top", self._defaultTop)
 
         if (
             not isinstance(width, int)
@@ -656,7 +656,7 @@ class dFormMixin(dPemMixin):
             if self.SaveRestorePosition and not self.TempForm:
                 name = self.getAbsoluteName()
                 state = self.WindowState
-                app.setUserSetting("%s.windowstate" % name, state)
+                app.setUserSetting(f"{name}.windowstate", state)
 
                 if state == "Normal":
                     # Don't save size and position when the window
@@ -665,10 +665,10 @@ class dFormMixin(dPemMixin):
                     # is in one of these states.
                     left, top = self.Position
                     width, height = self.Size
-                    app.setUserSetting("%s.left" % name, left)
-                    app.setUserSetting("%s.top" % name, top)
-                    app.setUserSetting("%s.width" % name, width)
-                    app.setUserSetting("%s.height" % name, height)
+                    app.setUserSetting(f"{name}.left", left)
+                    app.setUserSetting(f"{name}.top", top)
+                    app.setUserSetting(f"{name}.width", width)
+                    app.setUserSetting(f"{name}.height", height)
 
     def updateStatusText(self, val, immediate=False):
         """Set the status text to val."""
@@ -744,13 +744,13 @@ class dFormMixin(dPemMixin):
         super()._setAbsoluteFontZoom(amt)
         if self.Application and self.SaveRestorePosition:
             self.Application.setUserSetting(
-                "%s.fontzoom" % self.getAbsoluteName(), self._currentFontZoom
+                f"{self.getAbsoluteName()}.fontzoom", self._currentFontZoom
             )
 
     def _restoreFontZoom(self):
         if self.Application:
             self._currentFontZoom = self.Application.getUserSetting(
-                "%s.fontzoom" % self.getAbsoluteName(), 0
+                f"{self.getAbsoluteName()}.fontzoom", 0
             )
 
     def pushStatusText(self, txt, duration=None):

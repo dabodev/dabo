@@ -33,7 +33,7 @@ class EditMenu(dMenu):
             _("&Undo"),
             HotKey="Ctrl+Z",
             OnHit=app.onEditUndo,
-            bmp="%s/actions/edit-undo.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-undo.png",
             ItemID="edit_undo",
             help=_("Undo last action"),
         )
@@ -42,7 +42,7 @@ class EditMenu(dMenu):
             _("&Redo"),
             HotKey="Ctrl+Shift+Z",
             OnHit=app.onEditRedo,
-            bmp="%s/actions/edit-redo.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-redo.png",
             ItemID="edit_redo",
             help=_("Undo last undo"),
         )
@@ -53,7 +53,7 @@ class EditMenu(dMenu):
             _("Cu&t"),
             HotKey="Ctrl+X",
             OnHit=app.onEditCut,
-            bmp="%s/actions/edit-cut.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-cut.png",
             ItemID="edit_cut",
             help=_("Cut selected text"),
         )
@@ -62,7 +62,7 @@ class EditMenu(dMenu):
             _("&Copy"),
             HotKey="Ctrl+C",
             OnHit=app.onEditCopy,
-            bmp="%s/actions/edit-copy.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-copy.png",
             ItemID="edit_copy",
             help=_("Copy selected text"),
         )
@@ -71,7 +71,7 @@ class EditMenu(dMenu):
             _("&Paste"),
             HotKey="Ctrl+V",
             OnHit=app.onEditPaste,
-            bmp="%s/actions/edit-paste.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-paste.png",
             ItemID="edit_paste",
             help=_("Paste text from clipboard"),
         )
@@ -80,7 +80,7 @@ class EditMenu(dMenu):
             _("Select &All"),
             HotKey="Ctrl+A",
             OnHit=app.onEditSelectAll,
-            bmp="%s/actions/edit-select-all.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-select-all.png",
             ItemID="edit_selectall",
             help=_("Select all text"),
         )
@@ -93,7 +93,7 @@ class EditMenu(dMenu):
             _("&Find / Replace"),
             HotKey="Ctrl+F",
             OnHit=app.onEditFind,
-            bmp="%s/actions/edit-find-replace.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-find-replace.png",
             ItemID="edit_findreplace",
             help=_("Find or Replace text in the active window"),
         )
@@ -112,7 +112,7 @@ class EditMenu(dMenu):
         self.append(
             _("Pr&eferences"),
             OnHit=app.onEditPreferences,
-            bmp="%s/categories/preferences-system.png" % iconPath,
+            bmp=f"{iconPath}/categories/preferences-system.png",
             ItemID="edit_preferences",
             help=_("Set user preferences"),
             special="pref",

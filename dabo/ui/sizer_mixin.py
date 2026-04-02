@@ -724,19 +724,11 @@ class dSizerMixin(dObject):
         ret = ""
         indnt = "\t" * lvl
         for chl in self.GetChildren():
-            ret += "SZITEM: %s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (
-                chl.GetBorder(),
-                chl.GetFlag(),
-                chl.GetMinSize(),
-                chl.GetPosition(),
-                chl.GetProportion(),
-                chl.GetRatio(),
-                chl.GetSize(),
-            )
+            ret += f"SZITEM: {chl.GetBorder()}\t{chl.GetFlag()}\t{chl.GetMinSize()}\t{chl.GetPosition()}\t{chl.GetProportion()}\t{chl.GetRatio()}\t{chl.GetSize()}\n"
 
             if chl.IsSizer():
                 itm = chl.GetSizer()
-                ret += "%s%s (%s)\n" % (indnt, itm.__class__, itm.Orientation)
+                ret += f"{indnt}{itm.__class__} ({itm.Orientation})\n"
                 if recurse:
                     try:
                         ret += itm.listMembers(recurse=recurse, lvl=lvl + 1)
@@ -746,25 +738,13 @@ class dSizerMixin(dObject):
             elif chl.IsWindow():
                 itm = chl.GetWindow()
                 try:
-                    ret += "%s%s (%s) - Pos:%s,%s - Size:%s,%s\n" % (
-                        indnt,
-                        itm.Name,
-                        itm.__class__,
-                        itm.Left,
-                        itm.Top,
-                        itm.Width,
-                        itm.Height,
-                    )
+                    ret += f"{indnt}{itm.Name} ({itm.__class__}) - Pos:{itm.Left},{itm.Top} - Size:{itm.Width},{itm.Height}\n"
                 except AttributeError:
                     # Not a Dabo instance
-                    ret += "%s%s\n" % (indnt, itm.__class__)
+                    ret += f"{indnt}{itm.__class__}\n"
             elif chl.IsSpacer():
                 itm = chl.GetSpacer()
-                ret += "%sSpacer: W=%s, H=%s\n" % (
-                    indnt,
-                    itm.GetWidth(),
-                    itm.GetHeight(),
-                )
+                ret += f"{indnt}Spacer: W={itm.GetWidth()}, H={itm.GetHeight()}\n"
         return ret
 
     def _getWxFlags(self, alignment, halign, valign, borderSides, layout):

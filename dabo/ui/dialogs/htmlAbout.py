@@ -51,10 +51,7 @@ class HtmlAbout(dDialog):
         app = self.Application
         caption = "Dabo"
         if app:
-            caption = "%s %s" % (
-                app.getAppInfo("appName"),
-                app.getAppInfo("appVersion"),
-            )
+            caption = f"{app.getAppInfo('appName')} {app.getAppInfo('appVersion')}"
         appinfo = ui.getSystemInfo("html")
         docstring = self.getAppSpecificString()
         return self.getPageData() % locals()

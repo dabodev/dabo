@@ -144,13 +144,13 @@ class Test_Many_To_Many(unittest.TestCase):
         pbiz.seek("Leafe", "last_name")
         leafe_pk = pbiz.getPK()
         pbiz.mmAssociateValue(cbiz, "company", "Acme Manufacturing")
-        emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
+        emp_count = self.reccount("employees", f"person_id = {leafe_pk}")
         self.assertEqual(emp_count, 1)
         pbiz.mmAssociateValue(cbiz, "company", "Amalgamated Industries")
-        emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
+        emp_count = self.reccount("employees", f"person_id = {leafe_pk}")
         self.assertEqual(emp_count, 2)
         pbiz.mmDisssociateValue(cbiz, "company", "Acme Manufacturing")
-        emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
+        emp_count = self.reccount("employees", f"person_id = {leafe_pk}")
         self.assertEqual(emp_count, 1)
 
     def test_dissociate_list(self):
@@ -164,10 +164,10 @@ class Test_Many_To_Many(unittest.TestCase):
             "company",
             ["Acme Manufacturing", "Amalgamated Industries", "Dabo Incorporated"],
         )
-        emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
+        emp_count = self.reccount("employees", f"person_id = {leafe_pk}")
         self.assertEqual(emp_count, 3)
         pbiz.mmDisssociateValues(cbiz, "company", ["Acme Manufacturing", "Amalgamated Industries"])
-        emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
+        emp_count = self.reccount("employees", f"person_id = {leafe_pk}")
         self.assertEqual(emp_count, 1)
 
     def test_dissociateAll(self):
@@ -182,11 +182,11 @@ class Test_Many_To_Many(unittest.TestCase):
         pbiz.mmAssociateValue(cbiz, "company", "CCCC")
         pbiz.mmAssociateValue(cbiz, "company", "DDDD")
         pbiz.mmAssociateValue(cbiz, "company", "EEEE")
-        emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
+        emp_count = self.reccount("employees", f"person_id = {leafe_pk}")
         self.assertEqual(emp_count, 5)
         # Now disassociate all of them
         pbiz.mmDisssociateAll(cbiz)
-        emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
+        emp_count = self.reccount("employees", f"person_id = {leafe_pk}")
         self.assertEqual(emp_count, 0)
 
     def test_full_associate(self):
@@ -200,10 +200,10 @@ class Test_Many_To_Many(unittest.TestCase):
         pbiz.mmAssociateValue(cbiz, "company", "CCCC")
         pbiz.mmAssociateValue(cbiz, "company", "DDDD")
         pbiz.mmAssociateValue(cbiz, "company", "EEEE")
-        emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
+        emp_count = self.reccount("employees", f"person_id = {leafe_pk}")
         self.assertEqual(emp_count, 5)
         pbiz.mmSetFullAssociation(cbiz, "company", ["yy", "zz"])
-        emp_count = self.reccount("employees", "person_id = %s" % leafe_pk)
+        emp_count = self.reccount("employees", f"person_id = {leafe_pk}")
         self.assertEqual(emp_count, 2)
 
     def test_add_to_both(self):

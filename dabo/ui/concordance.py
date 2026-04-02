@@ -16,7 +16,7 @@ for daboName in daboNames:
             if "<class 'wx." in ustr(mro):
                 if "wx._" in ustr(mro):
                     # normal wx class: don't include the wx._controls. cruft
-                    dabo_to_wx[daboName] = "wx.%s" % ustr(mro).split(".")[-1][:-2]
+                    dabo_to_wx[daboName] = f"wx.{ustr(mro).split('.')[-1][:-2]}"
                 else:
                     # extra class: give the full story:
                     dabo_to_wx[daboName] = ustr(mro)[8:-2]
@@ -33,9 +33,9 @@ wxNames = list(wx_to_dabo.items())
 wxNames.sort()
 
 for eachItem in daboNames:
-    print("%s = %s" % (eachItem[0], eachItem[1]))
+    print(f"{eachItem[0]} = {eachItem[1]}")
 
 print("\n\n")
 
 for eachItem in wxNames:
-    print("%s = %s" % (eachItem[0], ", ".join(eachItem[1])))
+    print(f"{eachItem[0]} = {', '.join(eachItem[1])}")

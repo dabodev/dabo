@@ -27,15 +27,14 @@ class Serializable(object, metaclass=SerializableMeta):
         self.srcValues = {}
         attributeNames = [attrName for attrName, attrType in self._xmlSerializationAttributes]
         for key, value in args.items():
-            assert key in attributeNames, "Unknown attribute name %r for object %s" % (
-                key,
-                self.__class__.__name__,
+            assert key in attributeNames, (
+                f"Unknown attribute name {key!r} for object {self.__class__.__name__}"
             )
             self.srcValues[key] = value
 
     def getExpectedNames(cls):
         assert hasattr(cls, "_xmlSerializationAttributes"), (
-            "Class %r does not define list of attributes needed for deserialization" % cls
+            f"Class {cls!r} does not define list of attributes needed for deserialization"
         )
         names = []
         for attrName, attrType in cls._xmlSerializationAttributes:
@@ -49,7 +48,7 @@ class Serializable(object, metaclass=SerializableMeta):
 
     def getChildObjType(cls, childName):
         assert hasattr(cls, "_xmlSerializationAttributes"), (
-            "Class %r does not define list of attributes needed for deserialization" % cls
+            f"Class {cls!r} does not define list of attributes needed for deserialization"
         )
         for attrName, attrType in cls._xmlSerializationAttributes:
             if isinstance(attrType, SerializableAttribute):

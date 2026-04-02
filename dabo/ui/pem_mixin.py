@@ -1460,7 +1460,7 @@ class dPemMixin(dObject):
                 if filt:
                     for ff in filt:
                         try:
-                            ok = eval("kid.%s" % ff)
+                            ok = eval(f"kid.{ff}")
                         except AttributeError:
                             ok = False
                         if not ok:
@@ -1468,7 +1468,7 @@ class dPemMixin(dObject):
             if ok:
                 setProp(kid, prop, val)
                 if isinstance(kid, ui.dColumn):
-                    setProp(kid, "Header%s" % prop, val)
+                    setProp(kid, f"Header{prop}", val)
             if recurse:
                 if hasattr(kid, "setAll"):
                     kid.setAll(prop, val, recurse=recurse, filt=filt, instancesOf=instancesOf)
@@ -2357,7 +2357,7 @@ class dPemMixin(dObject):
         while nameError:
             nameError = False
             if i:
-                candidate = "%s%s" % (name, i)
+                candidate = f"{name}{i}"
             nameError = hasattr(parent, candidate)
             i += 1
         return candidate
@@ -2576,7 +2576,7 @@ class dPemMixin(dObject):
     @Caption.setter
     def Caption(self, val):
         # Force the value to string
-        val = "%s" % val
+        val = f"{val}"
 
         def __captionSet(val):
             """Windows textboxes change their value when SetLabel() is called; this
@@ -3035,7 +3035,7 @@ class dPemMixin(dObject):
                 # direction, such as 'NWSE'.
                 uic = ui.dUICursors
                 try:
-                    crsName = eval("uic.%s" % val)
+                    crsName = eval(f"uic.{val}")
                 except AttributeError:
                     # Try prepending the appropriate string
                     if val.upper() in ("NWSE", "NESW", "NS", "WE"):
@@ -3043,12 +3043,12 @@ class dPemMixin(dObject):
                     else:
                         prfx = "Cursor_"
                     try:
-                        crsName = eval("uic.%s%s" % (prfx, val))
+                        crsName = eval(f"uic.{prfx}{val}")
                     except AttributeError:
                         # Try munging the case
                         valTitle = "_".join([pt.title() for pt in val.split("_")])
                         try:
-                            crsName = eval("uic.%s%s" % (prfx, valTitle))
+                            crsName = eval(f"uic.{prfx}{valTitle}")
                         except AttributeError:
                             dabo_module.error(_("Invalid MousePointer value: '%s'") % val)
                             return
@@ -3108,7 +3108,7 @@ class dPemMixin(dObject):
                     if hasattr(self.Parent, name):
                         att = getattr(self.Parent, name)
                         if att and att is not self:
-                            raise NameError("Name '%s' is already in use." % name)
+                            raise NameError(f"Name '{name}' is already in use.")
                 try:
                     self.Parent.__dict__[name] = self
                 except AttributeError:
@@ -3123,7 +3123,7 @@ class dPemMixin(dObject):
                 if hasattr(parent, name):
                     parent_att = getattr(parent, name)
                     if parent_att and parent_att is not self:
-                        raise NameError("Name '%s' is already in use." % name)
+                        raise NameError(f"Name '{name}' is already in use.")
                 else:
                     for window in parent.GetChildren():
                         if window is self:
@@ -3137,7 +3137,7 @@ class dPemMixin(dObject):
                                 # Not an object with a Name, so ignore
                                 continue
                         if ustr(winname) == ustr(name):
-                            raise NameError("Name '%s' is already in use." % name)
+                            raise NameError(f"Name '{name}' is already in use.")
 
             else:
                 # Can't do the name check for siblings, so allow it for now.

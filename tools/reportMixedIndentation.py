@@ -18,7 +18,7 @@ for root, dirs, files in os.walk("."):
                         lineNums = culprits.setdefault(fullFile, [])
                         lineNums.append(lineNum)
             if fullFile in culprits:
-                print("! => %s (%s)" % (fullFile, len(culprits[fullFile])))
+                print(f"! => {fullFile} ({len(culprits[fullFile])})")
 
 print(
     """
@@ -35,5 +35,5 @@ ret = input()
 if ret.lower() == "y":
     for fileName, lines in list(culprits.items()):
         for line in lines:
-            os.system("vi %s +%s" % (fileName, line))
+            os.system(f"vi {fileName} +{line}")
     #    print("%s: %s" % (k, v))

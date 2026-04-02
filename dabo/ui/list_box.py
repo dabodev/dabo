@@ -83,7 +83,7 @@ class _dListBox_test(dListBox):
         keys = {}
 
         for actor in actors:
-            choices.append("%s %s" % (actor["fname"], actor["lname"]))
+            choices.append(f"{actor['fname']} {actor['lname']}")
             keys[actor["iid"]] = len(choices) - 1
 
         #        self.MultipleSelect = True
@@ -101,7 +101,7 @@ class _dListBox_test(dListBox):
         print("\tCount: ", self.Count)
 
     def onMouseLeftDoubleClick(self, evt):
-        print("double click at position %s" % self.PositionValue)
+        print(f"double click at position {self.PositionValue}")
 
     def onMouseLeftDown(self, evt):
         print("mousedown")

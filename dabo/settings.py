@@ -290,14 +290,14 @@ def getEncoding():
     def _getEncodingName():
         if encoding.isdigit():
             # Fix for missing encoding aliases e.g. '874'.
-            yield "cp%s" % encoding
+            yield f"cp{encoding}"
         yield encoding
         prefEncoding = locale.getpreferredencoding()
         if not encoding == prefEncoding:
             yield prefEncoding
         if not encoding == defaultEncoding:
             yield defaultEncoding
-        raise ValueError("Unknown encoding: %s" % encoding)
+        raise ValueError(f"Unknown encoding: {encoding}")
 
     for encoding in _getEncodingName():
         try:

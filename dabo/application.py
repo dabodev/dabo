@@ -88,7 +88,7 @@ class TempFileHolder(object):
                 except OSError as e:
                     if not f.endswith(".pyc"):
                         # Don't worry about the .pyc files, since they may not be there
-                        print("Could not delete %s: %s" % (f, e))
+                        print(f"Could not delete {f}: {e}")
         except Exception as e:
             # In these rare cases, Python has already 'gone away', so just bail
             pass
@@ -105,7 +105,7 @@ class TempFileHolder(object):
         if badChars is None:
             badChars = "-:"
         fname = ""
-        suffix = ".%s" % ext
+        suffix = f".{ext}"
         while not fname:
             if directory is None:
                 fd, tmpname = tempfile.mkstemp(suffix=suffix)
@@ -364,7 +364,7 @@ try again when it is running.
             arg = arg.lower()
             for form_name in form_names:
                 if arg == form_name.lower():
-                    self.FormsToOpen.append(getattr(self.ui, "Frm%s" % form_name))
+                    self.FormsToOpen.append(getattr(self.ui, f"Frm{form_name}"))
         if not self.FormsToOpen and self.DefaultForm:
             self.FormsToOpen.append(self.DefaultForm)
         for frm in self.FormsToOpen:
@@ -481,7 +481,7 @@ try again when it is running.
 
     def _persistMRU(self):
         """Persist any MRU lists to disk."""
-        base = "MRU.%s" % self.getAppInfo("appName")
+        base = f"MRU.{self.getAppInfo('appName')}"
         self.deleteAllUserSettings(base)
         for cap in self._persistentMRUs:
             cleanCap = cleanMenuCaption(cap)
@@ -491,7 +491,7 @@ try again when it is running.
 
     def _retrieveMRUs(self):
         """Retrieve any saved MRU lists."""
-        base = "MRU.%s" % self.getAppInfo("appName")
+        base = f"MRU.{self.getAppInfo('appName')}"
         for cap, fcn in list(self._persistentMRUs.items()):
             cleanCap = cleanMenuCaption(cap)
             itms = self.getUserSetting(".".join((base, cleanCap)))
@@ -643,7 +643,7 @@ try again when it is running.
             if not chgs:
                 continue
             os.chdir(locations[project])
-            prefix = "%s/" % project
+            prefix = f"{project}/"
             for pth in chgs:
                 target = pth.replace(prefix, "")
                 dirname = os.path.split(target)[0]
@@ -753,7 +753,7 @@ try again when it is running.
         if ext == ".cdxml":
             # There might be an associated code file. If not, the error
             # will be caught in the app method, and no harm will be done.
-            codefile = "%s-code.py" % nm
+            codefile = f"{nm}-code.py"
             self.urlFetch(codefile)
 
     def getUserSettingKeys(self, spec):
@@ -1016,7 +1016,7 @@ try again when it is running.
                 name = ci.Name
             except AttributeError:
                 # Use a default name
-                name = "%s@%s" % (ci.User, ci.Host)
+                name = f"{ci.User}@{ci.Host}"
         self.dbConnectionDefs[name] = ci
         self.dbConnectionNameToFiles[name] = None
 
@@ -1286,7 +1286,7 @@ try again when it is running.
         preference file and future calls to this function with that
         msgId will result in no message being shown.
         """
-        prefKey = "display_info_messages.%s" % msgId
+        prefKey = f"display_info_messages.{msgId}"
         if not self.getUserSetting(prefKey, True):
             return
         future = self.uiApp.displayInfoMessage(msg, defaultShowInFuture=defaultShowInFuture)

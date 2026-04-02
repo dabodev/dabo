@@ -105,7 +105,7 @@ elif sys.platform[:3] == "dar":
         "/Network/Library/Fonts",
         "/Library/Fonts",
         "System/Library/Fonts",
-        "%s/Library/Fonts" % os.path.expanduser("~"),
+        f"{os.path.expanduser('~')}/Library/Fonts",
     ]
 elif sys.platform[:3] == "win":
     fontPaths = [os.path.join(os.path.expandvars("%windir%"), "fonts")]
@@ -146,7 +146,7 @@ def getSubFont(fontName, subFontName="Helvetica"):
     if oblique:
         subFontName += "Oblique"
     if subFontName not in substitutedFontNames:
-        log.error(_("Font '%(fontName)s' not found. Substituting '%(subFontName)s'") % locals())
+        log_error(_("Font '%(fontName)s' not found. Substituting '%(subFontName)s'") % locals())
         substitutedFontNames.append(subFontName)
     return subFontName
 
@@ -212,7 +212,7 @@ class PageCountCanvas(canvas.Canvas):
             if psfontname in settings.reportTTFontFileMap:
                 psfontfile = settings.reportTTFontFileMap[psfontname]
             else:
-                psfontfile = "%s.ttf" % psfontname
+                psfontfile = f"{psfontname}.ttf"
             try:
                 registerFont(TTFont(psfontname, psfontfile))
             except TTFError:
@@ -290,7 +290,7 @@ class ReportObject(CaselessDict):
         if att in self.Record:
             return self.Record.get(att)
 
-        raise AttributeError("Can't get attribute '%s'." % att)
+        raise AttributeError(f"Can't get attribute '{att}'.")
 
     def initAvailableProps(self):
         self.AvailableProps["Comment"] = toPropDict(
@@ -302,7 +302,7 @@ class ReportObject(CaselessDict):
         if self.__class__.__name__ not in CLASSES_TO_SKIP_DEF:
             for k, v in list(self.AvailableProps.items()):
                 if k.lower() not in PROPS_TO_SKIP_DEF:
-                    defProp = self.AvailableProps["%s_def" % k] = v.copy()
+                    defProp = self.AvailableProps[f"{k}_def"] = v.copy()
                     defProp["doc"] = (
                         "This is the DEFAULT value of the property, for design-time evaluation."
                     )
@@ -354,7 +354,7 @@ class ReportObject(CaselessDict):
             if prop[-4:] != "_def":
                 # First try the default (<prop>_def) value:
                 try:
-                    ret = self["%s_def" % prop]
+                    ret = self[f"{prop}_def"]
                     if evaluate:
                         ret = eval(ret)
                     return ret
@@ -391,7 +391,7 @@ class ReportObject(CaselessDict):
                     val = repr(val)
                 return val
             else:
-                raise ValueError("Property name '%s' unrecognized." % prop)
+                raise ValueError(f"Property name '{prop}' unrecognized.")
 
         if prop in self:
             if not evaluate or prop == "type":
@@ -410,8 +410,8 @@ class ReportObject(CaselessDict):
     def setProp(self, prop, val, logUndo=True):
         """Update the value of the property."""
         if prop not in self.AvailableProps:
-            raise ValueError("Property '%s' doesn't exist." % prop)
-        defProp = "%s_def" % prop
+            raise ValueError(f"Property '{prop}' doesn't exist.")
+        defProp = f"{prop}_def"
         if defProp[-8:] == "_def_def":
             defProp = None
         if False:
@@ -861,7 +861,7 @@ class Band(ReportObject):
 
     def _getBandName(self):
         name = self.__class__.__name__
-        return "%s%s" % (name[0].lower(), name[1:])
+        return f"{name[0].lower()}{name[1:]}"
 
 
 class PageBackground(Band):
@@ -1526,7 +1526,7 @@ class ReportWriter(object):
 
     def _onReportIteration(self):
         if self.PrintStatus:
-            print("Processing row %s of %s..." % (self.RecordNumber + 1, len(self.Cursor)))
+            print(f"Processing row {self.RecordNumber + 1} of {len(self.Cursor)}...")
             sys.stdout.flush()
 
     def _onReportEnd(self):
@@ -2265,11 +2265,11 @@ class ReportWriter(object):
                             prior_p, prior_height = story.pop()
                             objNeededHeight -= prior_height
                             availableHeight = height - objNeededHeight
-                            trial_p = ParaClass("%s..." % prior_para, s)
+                            trial_p = ParaClass(f"{prior_para}...", s)
                             trial_height = trial_p.wrap(columnWidth - padLeft - padRight, None)[1]
                             if trial_height > availableHeight:
                                 # It worked before, so just remove the final 3 chars
-                                p = ParaClass("%s..." % prior_para[:-3], s)
+                                p = ParaClass(f"{prior_para[:-3]}...", s)
                                 p_height = p.wrap(columnWidth - padLeft - padRight, None)[1]
                                 objNeededHeight += p_height
                                 story.append((p, p_height))
@@ -2295,10 +2295,10 @@ class ReportWriter(object):
                                 if open_tag > 0:
                                     continue
                                 this_balanced_para = para1
-                                p = ParaClass("%s..." % this_balanced_para, s)
+                                p = ParaClass(f"{this_balanced_para}...", s)
                                 p_height = p.wrap(columnWidth - padLeft - padRight, None)[1]
                                 if p_height > availableHeight:
-                                    p = ParaClass("%s..." % last_balanced_para, s)
+                                    p = ParaClass(f"{last_balanced_para}...", s)
                                     p_height = p.wrap(columnWidth - padLeft - padRight, None)[1]
                                     break
 
@@ -2350,11 +2350,11 @@ class ReportWriter(object):
         Warning, this isn't exact, and isn't intended to be.
         """
         if unit == "in":
-            return "%.4f in" % (pt / units.inch,)
+            return f"{pt / units.inch:.4f} in"
         elif unit == "pt":
-            return "%s pt" % (pt,)
+            return f"{pt} pt"
         # hail mary that rl has the requested unit:
-        return "%.3f %s" % (pt / getattr(units, unit, 1), unit)
+        return f"{pt / getattr(units, unit, 1):.3f} {unit}"
 
     def getPt(self, val):
         """Given a string or a number, convert the value into a numeric pt value.
@@ -2675,7 +2675,7 @@ class ReportWriter(object):
                         # These still need to be printed, so let it continue
                         pass
                     else:
-                        raise ValueError("Unexpected band value '%s'" % band)
+                        raise ValueError(f"Unexpected band value '{band}'")
 
                     if not deferred:
                         y -= bandHeight
@@ -2698,7 +2698,7 @@ class ReportWriter(object):
 
             if self.ShowBandOutlines:
                 self.printBandOutline(
-                    "%s (record %s)" % (band, self.RecordNumber),
+                    f"{band} (record {self.RecordNumber})",
                     x,
                     y,
                     width,
@@ -2736,7 +2736,7 @@ class ReportWriter(object):
                     # must evaluate the rest of the expression now, because it could be dependent
                     # on whatever the current record or page number is.
                     expr = obj["expr"].replace("self.PageCount", "'^^^PageCount^^^'")
-                    expr = "'''%s'''" % eval(expr)
+                    expr = f"'''{eval(expr)}'''"
                     page_count_objects = self.page_count_objects.setdefault(self.PageNumber - 1, [])
                     page_count_objects.append((x1, y1, obj, expr))
                     continue
@@ -2844,7 +2844,7 @@ class ReportWriter(object):
             self = bandDict  ## to allow "self" references from groupHeader object
             for group in groups:
                 reprinted = False
-                reprint = group.get("ReprintHeaderOnNew%s" % mode.title())
+                reprint = group.get(f"ReprintHeaderOnNew{mode.title()}")
                 if reprint is not None:
                     reprint = eval(reprint)
                 if reprint:
@@ -3041,12 +3041,12 @@ class ReportWriter(object):
             # reportlab expects the pageSize to be upper case:
             pageSize = pageSize.upper()
             # convert to the reportlab pageSize value (tuple(width,height)):
-            pageSize = eval("pagesizes.%s" % pageSize)
+            pageSize = eval(f"pagesizes.{pageSize}")
         else:
             pageSize = (self.getPt(pageSize[0]), self.getPt(pageSize[1]))
         # run it through the portrait/landscape filter:
         orientation = page.getProp("orientation").lower()
-        func = eval("pagesizes.%s" % orientation)
+        func = eval(f"pagesizes.{orientation}")
         return func(pageSize)
 
     def _getUniqueName(self):
@@ -3394,7 +3394,7 @@ class ReportWriter(object):
             if len(s[0]) == 0 or os.path.exists(s[0]):
                 self._outputFile = val
             else:
-                raise ValueError("Path '%s' doesn't exist." % s[0])
+                raise ValueError(f"Path '{s[0]}' doesn't exist.")
 
     @property
     def PrintStatus(self):
@@ -3494,7 +3494,7 @@ class ReportWriter(object):
                 # The file is a python module, import it and get the report dict:
                 s = os.path.split(val)
                 sys.path.append(s[0])
-                exec("import %s as form" % s[1].split(".")[0])
+                exec(f"import {s[1].split('.')[0]} as form")
                 sys.path.pop()
                 self._reportForm = form.report
                 self._setMemento()
@@ -3580,8 +3580,8 @@ if __name__ == "__main__":
                 f.write(rw.OutputFile.read())
                 f.close()
             else:
-                output = "./%s.pdf" % os.path.splitext(reportForm)[0]
-                print("Creating %s from report form %s..." % (output, reportForm))
+                output = f"./{os.path.splitext(reportForm)[0]}.pdf"
+                print(f"Creating {output} from report form {reportForm}...")
                 rw.ReportFormFile = reportForm
                 rw.OutputFile = output
                 rw.write()

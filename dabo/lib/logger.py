@@ -19,7 +19,7 @@ class Log(dObject):
         dabo.log.info("message")
 
     For error messages, call:
-        dabo.log.error("message")
+        dabo.log_error("message")
 
     By default, infoLog writes to stdout and errorLog to stderr. But your code
     can redirect these messages however you please. Just set the LogObject property
@@ -40,9 +40,9 @@ class Log(dObject):
             return
         msg = []
         if self.Caption:
-            msg.append("%s: " % self.Caption)
+            msg.append(f"{self.Caption}: ")
         if self.LogTimeStamp:
-            msg.append("%s: " % time.asctime())
+            msg.append(f"{time.asctime()}: ")
         msg.append(message)
         msg.append(os.linesep)
         msg = "".join(msg)

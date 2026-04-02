@@ -282,7 +282,7 @@ class _dComboBox_test(dComboBox):
         choices = []
         keys = {}
         for wannabe in wannabeCowboys:
-            choices.append("%s %s" % (wannabe["fname"], wannabe["lname"]))
+            choices.append(f"{wannabe['fname']} {wannabe['lname']}")
             keys[wannabe["iid"]] = len(choices) - 1
 
         self.Choices = choices

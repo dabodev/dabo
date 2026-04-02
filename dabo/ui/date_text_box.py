@@ -365,7 +365,7 @@ C: Popup Calendar to Select
             # checkBoundary = False
         else:
             # This shouldn't happen, because onChar would have filtered it out.
-            dabo_module.info("Warning in dDateTextBox.adjustDate: %s key sent." % key)
+            dabo_module.info(f"Warning in dDateTextBox.adjustDate: {key} key sent.")
             return
 
         if not self.dateOK:

@@ -68,7 +68,7 @@ class HotKeyEditor(dOkCancelDialog):
         }
         if 340 <= kcd <= 354:
             # Function keys
-            self._keyChar = kcr = "F%s" % ((kcd - 339),)
+            self._keyChar = kcr = f"F{(kcd - 339)}"
         elif kcd == dKeys.key_Delete and self._ctrl:
             # Ctrl-Delete was pressed
             kcr = None

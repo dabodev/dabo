@@ -213,7 +213,7 @@ def _writeQueriesToFile(queries):
         db, hst = k.ConnectInfo.Database, k.ConnectInfo.Host
         f.write(_("#Queries for DB '%(db)s' on host '%(hst)s':\n") % locals())
         for query in queries[k]:
-            f.write("%s;\n" % (query))
+            f.write(f"{query};\n")
     f.close()
 
 
@@ -240,7 +240,7 @@ class dAutoBizobj(dBizobj):
             self.KeyField = table.PK[0]
             self.addFrom(table.Name)
             for fld in table.Fields:
-                self.addField("%s.%s as %s" % (table.Name, fld.Name, fld.Name))
+                self.addField(f"{table.Name}.{fld.Name} as {fld.Name}")
 
                 self.DefaultValues[fld.Name] = fld.Default
 

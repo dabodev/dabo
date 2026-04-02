@@ -18,11 +18,11 @@ class Test_Dates(unittest.TestCase):
         expected_date = datetime.date(year, 0o5, 0o3)
 
         tests = (
-            (["ISO8601"], "%s-05-03" % year_str4, expected_date),
-            (["YYYYMMDD"], "%s0503" % year_str4, expected_date),
-            (["YYMMDD"], "%s0503" % year_str2, expected_date),
+            (["ISO8601"], f"{year_str4}-05-03", expected_date),
+            (["YYYYMMDD"], f"{year_str4}0503", expected_date),
+            (["YYMMDD"], f"{year_str2}0503", expected_date),
             (["MMDD"], "0503", expected_date),
-            (["ISO8601"], "%s05-03" % year_str4, None),
+            (["ISO8601"], f"{year_str4}05-03", None),
         )
         for test in tests:
             self.assertEqual(dates.getDateFromString(test[1], test[0]), test[2])
@@ -33,8 +33,8 @@ class Test_Dates(unittest.TestCase):
         expected_date = datetime.datetime(year, 0o5, 0o3, 12, 15, 00)
 
         tests = (
-            (["ISO8601"], "%s-05-03 12:15:00" % year_str4, expected_date),
-            (["YYYYMMDDHHMMSS"], "%s0503121500" % year_str4, expected_date),
+            (["ISO8601"], f"{year_str4}-05-03 12:15:00", expected_date),
+            (["YYYYMMDDHHMMSS"], f"{year_str4}0503121500", expected_date),
         )
         for test in tests:
             self.assertEqual(dates.getDateTimeFromString(test[1], test[0]), test[2])

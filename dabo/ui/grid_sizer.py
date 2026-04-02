@@ -399,7 +399,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         if rowspan > 1:
             if not self._clearCells(obj, rowspan, "row"):
                 dabo_module.error(
-                    "Cannot set RowSpan for %s; remove objects in the way first." % itm.Name
+                    f"Cannot set RowSpan for {itm.Name}; remove objects in the way first."
                 )
                 return
         self.setGridSpan(obj, row=rowspan)
@@ -409,7 +409,7 @@ class dGridSizer(dSizerMixin, wx.GridBagSizer):
         if colspan > 1:
             if not self._clearCells(obj, colspan, "col"):
                 dabo_module.error(
-                    "Cannot set ColSpan for %s; remove objects in the way first." % itm.Name
+                    f"Cannot set ColSpan for {itm.Name}; remove objects in the way first."
                 )
                 return
         self.setGridSpan(obj, col=colspan)

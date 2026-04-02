@@ -46,7 +46,7 @@ def _getDateRegex(format):
             for k in conv:
                 format = format.replace(k, conv[k])
                 format.replace(".", r"\.")
-                exp = "^%s$" % format
+                exp = f"^{format}$"
         else:
             return None
 
@@ -145,7 +145,7 @@ def getDateFromString(strVal, formats=None):
             if "year" not in groups:
                 curYear = datetime.date.today().year
                 if "shortyear" in groups:
-                    groups["year"] = int("%s%s" % (ustr(curYear)[:2], groups["shortyear"]))
+                    groups["year"] = int(f"{ustr(curYear)[:2]}{groups['shortyear']}")
                 else:
                     groups["year"] = curYear
             try:
@@ -200,7 +200,7 @@ def getDateTimeFromString(strVal, formats=None):
             if "year" not in groups:
                 curYear = datetime.date.today().year
                 if "shortyear" in groups:
-                    groups["year"] = int("%s%s" % (ustr(curYear)[:2], groups["shortyear"]))
+                    groups["year"] = int(f"{ustr(curYear)[:2]}{groups['shortyear']}")
                 else:
                     groups["year"] = curYear
 
@@ -302,7 +302,7 @@ if __name__ == "__main__":
     tests = ["0503", "20060503", "2006-05-03", "060503"]
     for test in tests:
         for format in formats:
-            print("%s (%s) -> %s" % (test, format, repr(getDateFromString(test, [format]))))
+            print(f"{test} ({format}) -> {repr(getDateFromString(test, [format]))}")
 
     dt = datetime.datetime.now()
     print(goDate(dt, -30))

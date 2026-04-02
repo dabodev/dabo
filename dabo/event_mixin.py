@@ -272,7 +272,7 @@ class EventMixin:
 
             if type(funcObj) in (types.FunctionType, types.MethodType):
                 evtObj = events.__dict__[parsedEvtName]
-                funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
+                funcObj = eval(f"context.{funcName}")  ## (can't use __class__.dict...)
                 self.bindEvent(evtObj, funcObj, _auto=True)
 
     def getEventList(cls):

@@ -244,7 +244,7 @@ class dNode(dObject):
         """
         ret = self.Caption
         if self.parent:
-            ret = "%s.%s" % (self.parent._getFullCaption(), ret)
+            ret = f"{self.parent._getFullCaption()}.{ret}"
         return ret
 
     @property
@@ -1349,10 +1349,10 @@ class _dTreeView_test(dTreeView):
         print("Context menu on item:", node.Caption)
 
     def onTreeBeginDrag(self, evt):
-        print("Beginning drag for %s" % evt.selectedCaption)
+        print(f"Beginning drag for {evt.selectedCaption}")
 
     def onTreeEndDrag(self, evt):
-        print("Ending drag for %s" % evt.selectedCaption)
+        print(f"Ending drag for {evt.selectedCaption}")
 
 
 if __name__ == "__main__":

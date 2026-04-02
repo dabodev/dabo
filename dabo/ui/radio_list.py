@@ -623,9 +623,9 @@ class _dRadioList_test(dRadioList):
             {"lname": "Roche", "fname": "Ted", "iid": 11},
         ]
 
-        self.Choices = ["%s %s" % (dev["fname"], dev["lname"]) for dev in developers]
+        self.Choices = [f"{dev['fname']} {dev['lname']}" for dev in developers]
         developers.append({"lname": "Hentzen", "fname": "Whil", "iid": 93})
-        self.Choices = ["%s %s" % (dev["fname"], dev["lname"]) for dev in developers]
+        self.Choices = [f"{dev['fname']} {dev['lname']}" for dev in developers]
         keys = [dev["iid"] for dev in developers]
         self.Keys = keys
         self.ValueMode = "key"

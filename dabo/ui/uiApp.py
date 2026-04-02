@@ -130,14 +130,10 @@ class uiApp(dObject, wx.App):
         self.charset = "unicode"
         if not self.charset in wx.PlatformInfo:
             self.charset = "ascii"
-        txt = "wxPython Version: %s %s (%s)" % (
-            wx.VERSION_STRING,
-            wx.PlatformInfo[1],
-            self.charset,
-        )
+        txt = f"wxPython Version: {wx.VERSION_STRING} {wx.PlatformInfo[1]} ({self.charset})"
         if wx.PlatformInfo[0] == "__WXGTK__":
             self._platform = _("GTK")
-            txt += " (%s)" % wx.PlatformInfo[3]
+            txt += f" ({wx.PlatformInfo[3]})"
         elif wx.PlatformInfo[0] == "__WXMAC__":
             self._platform = _("Mac")
         elif wx.PlatformInfo[0] == "__WXMSW__":

@@ -209,7 +209,7 @@ class dDataSet(tuple):
         if not self:
             # No rows, so nothing to filter
             return self
-        stmnt = """ [rec for rec in self if %s] """ % self._fldReplace(expr, "rec")
+        stmnt = f""" [rec for rec in self if {self._fldReplace(expr, "rec")}] """
         recs = eval(stmnt)
         ret = self.__class__(recs)
         ret._sourceDataSet = self
@@ -249,7 +249,7 @@ class dDataSet(tuple):
             dictName = "rec"
         for kk in self[0]:
             pat = patTemplate % kk
-            replacement = "%s['%s']" % (dictName, kk)
+            replacement = f"{dictName}['{kk}']"
             ret = re.sub(pat, replacement, ret)
         return ret
 
@@ -282,7 +282,7 @@ class dDataSet(tuple):
             except KeyError:
                 typ = type(rec[key])
             try:
-                retList.append("%s %s" % (safekey, ds._typeDict[typ]))
+                retList.append(f"{safekey} {ds._typeDict[typ]}")
             except KeyError:
                 retList.append(safekey)
         return "create table %s (%s)" % (alias, ", ".join(retList))
@@ -318,7 +318,7 @@ class dDataSet(tuple):
 
         # Fields may contain illegal names. This will correct them
         flds = [fld.replace("dabo-", "dabo_") for fld in ds[0]]
-        fldParams = [":%s" % fld for fld in flds]
+        fldParams = [f":{fld}" for fld in flds]
         insStmnt = "insert into %s (%s) values (%s)" % (
             alias,
             ", ".join(flds),
@@ -473,13 +473,13 @@ if __name__ == "__main__":
     if not emptyDS:
         print("No one is over 99 years old")
     else:
-        print("There are %s people over 99 years old" % len(emptyDS))
+        print(f"There are {len(emptyDS)} people over 99 years old")
     filt = emptyDS.filter("foo", "bar")
 
     leafeDS = ds.filter("name", "Leafe", "endswith")
     if not leafeDS:
         print("No one is is named 'Leafe'")
     else:
-        print("There are %s people named 'Leafe'" % len(leafeDS))
+        print(f"There are {len(leafeDS)} people named 'Leafe'")
     orig = leafeDS.removeFilters()
-    print("The original dataset has %s records." % len(orig))
+    print(f"The original dataset has {len(orig)} records.")

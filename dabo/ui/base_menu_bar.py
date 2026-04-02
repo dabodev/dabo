@@ -41,7 +41,7 @@ class FileMenu(dMenu):
                 _("Command Win&dow"),
                 HotKey="Ctrl+D",
                 OnHit=app.onCmdWin,
-                bmp="%s/apps/utilities-terminal.png" % iconPath,
+                bmp=f"{iconPath}/apps/utilities-terminal.png",
                 ItemID="file_commandwin",
                 help=_("Open up a command window for debugging"),
             )
@@ -49,7 +49,7 @@ class FileMenu(dMenu):
             self.Parent.debugMenuItem = self.append(
                 _("De&bug Output Window"),
                 menutype="check",
-                bmp="%s/apps/utilities-terminal.png" % iconPath,
+                bmp=f"{iconPath}/apps/utilities-terminal.png",
                 HotKey="Ctrl+B",
                 OnHit=app.onDebugWin,
                 ItemID="file_debugwin",
@@ -61,7 +61,7 @@ class FileMenu(dMenu):
                 _("Object &Inspector"),
                 HotKey="Ctrl+Shift+I",
                 OnHit=app.onObjectInspectorWin,
-                bmp="%s/apps/actions/system-search.png" % iconPath,
+                bmp=f"{iconPath}/apps/actions/system-search.png",
                 ItemID="file_inspectorwin",
                 menutype="check",
                 help=_("Open up the object inspector"),
@@ -84,7 +84,7 @@ class FileMenu(dMenu):
             HotKey="Ctrl+Q",
             id=wx.ID_EXIT,
             OnHit=app.onFileExit,
-            bmp="%s/actions/system-log-out.png" % iconPath,
+            bmp=f"{iconPath}/actions/system-log-out.png",
             ItemID="file_quit",
             help=_("Exit the application"),
         )
@@ -100,7 +100,7 @@ class EditMenu(dMenu):
             _("&Undo"),
             HotKey="Ctrl+Z",
             OnHit=app.onEditUndo,
-            bmp="%s/actions/edit-undo.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-undo.png",
             ItemID="edit_undo",
             help=_("Undo last action"),
         )
@@ -109,7 +109,7 @@ class EditMenu(dMenu):
             _("&Redo"),
             HotKey="Ctrl+Shift+Z",
             OnHit=app.onEditRedo,
-            bmp="%s/actions/edit-redo.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-redo.png",
             ItemID="edit_redo",
             help=_("Undo last undo"),
         )
@@ -120,7 +120,7 @@ class EditMenu(dMenu):
             _("Cu&t"),
             HotKey="Ctrl+X",
             OnHit=app.onEditCut,
-            bmp="%s/actions/edit-cut.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-cut.png",
             ItemID="edit_cut",
             help=_("Cut selected text"),
         )
@@ -129,7 +129,7 @@ class EditMenu(dMenu):
             _("&Copy"),
             HotKey="Ctrl+C",
             OnHit=app.onEditCopy,
-            bmp="%s/actions/edit-copy.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-copy.png",
             ItemID="edit_copy",
             help=_("Copy selected text"),
         )
@@ -138,7 +138,7 @@ class EditMenu(dMenu):
             _("&Paste"),
             HotKey="Ctrl+V",
             OnHit=app.onEditPaste,
-            bmp="%s/actions/edit-paste.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-paste.png",
             ItemID="edit_paste",
             help=_("Paste text from clipboard"),
         )
@@ -147,7 +147,7 @@ class EditMenu(dMenu):
             _("Select &All"),
             HotKey="Ctrl+A",
             OnHit=app.onEditSelectAll,
-            bmp="%s/actions/edit-select-all.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-select-all.png",
             ItemID="edit_selectall",
             help=_("Select all text"),
         )
@@ -160,7 +160,7 @@ class EditMenu(dMenu):
             _("&Find / Replace"),
             HotKey="Ctrl+F",
             OnHit=app.onEditFind,
-            bmp="%s/actions/edit-find-replace.png" % iconPath,
+            bmp=f"{iconPath}/actions/edit-find-replace.png",
             ItemID="edit_findreplace",
             help=_("Find or Replace text in the active window"),
         )
@@ -180,7 +180,7 @@ class EditMenu(dMenu):
             _("Pr&eferences"),
             id=wx.ID_PREFERENCES,
             OnHit=app.onEditPreferences,
-            bmp="%s/categories/preferences-system.png" % iconPath,
+            bmp=f"{iconPath}/categories/preferences-system.png",
             ItemID="edit_preferences",
             help=_("Set user preferences"),
             special="pref",
@@ -236,7 +236,7 @@ class HelpMenu(dMenu):
         appName = app.getAppInfo("appName")
         caption = _("&About")
         if appName:
-            caption += " %s" % appName
+            caption += f" {appName}"
 
         self.Parent.aboutMenuItem = self.append(
             caption,

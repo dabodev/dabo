@@ -66,7 +66,7 @@ class dMenuItem(dPemMixin, wx.MenuItem):
         if not cap:
             return
         if hk:
-            cap = "%s\t%s" % (cap, hk)
+            cap = f"{cap}\t{hk}"
         curr = self.GetItemLabel()
         ## pkm: On Windows at least, setting the Icon needs to happen before setting the caption.
         if self.GetKind() == wx.ITEM_NORMAL:

@@ -40,14 +40,14 @@ if "wx" not in sys.modules and not getattr(sys, "frozen", False):
     try:
         import wx
     except ImportError:
-        sys.exit("You need to install wxPython; minimum version = %s." % minWx)
+        sys.exit(f"You need to install wxPython; minimum version = {minWx}.")
     installed_version = wx.__version__
 
     def version_to_int(s):
         return [int(p) for p in s.split(".")]
 
     if version_to_int(installed_version) < version_to_int(minWx):
-        sys.exit("wxPython needs to be at least version %s." % minWx)
+        sys.exit(f"wxPython needs to be at least version {minWx}.")
 
 ######################################################
 # Very first thing: check for proper wxPython build:
@@ -76,12 +76,12 @@ for lib in (
             _failedLibs.append(lib)
 
 if len(_failedLibs) > 0:
-    msg = """
+    msg = f"""
 Your wxPython installation was not built correctly. Please make sure that
 the following required libraries have been built:
 
-    %s
-    """ % "\n\t".join(_failedLibs)
+    {"\n\t".join(_failedLibs)}
+    """
 
     sys.exit(msg)
 del _failedLibs
@@ -205,7 +205,7 @@ uiType = {"shortName": "wx", "moduleName": "uiwx", "longName": "wxPython"}
 uiType["version"] = wx.VERSION_STRING
 _platform = wx.PlatformInfo[1]
 if wx.PlatformInfo[0] == "__WXGTK__":
-    _platform += " (%s)" % wx.PlatformInfo[5]
+    _platform += f" ({wx.PlatformInfo[5]})"
 uiType["platform"] = _platform
 
 # Add these to the ui namespace
@@ -1514,7 +1514,7 @@ def _getWild(*args):
             try:
                 fDesc = fileDict[ftype.lower()]
             except KeyError:
-                fDesc = "%s Files" % ftype.upper()
+                fDesc = f"{ftype.upper()} Files"
             arglist.append(tmplt % (fDesc, ftype, ftype))
         ret = "|".join(arglist)
     return ret
@@ -1538,7 +1538,7 @@ def getSystemInfo(returnType=None):
     ds.append(
         {
             "name": "Python Version:",
-            "value": "%s on %s" % (sys.version.split()[0], sys.platform),
+            "value": f"{sys.version.split()[0]} on {sys.platform}",
         }
     )
     if app:
@@ -1552,7 +1552,7 @@ def getSystemInfo(returnType=None):
     ds.append(
         {
             "name": "UI Version:",
-            "value": "%s on %s" % (uiType["version"], uiType["platform"]),
+            "value": f"{uiType['version']} on {uiType['platform']}",
         }
     )
     if rType == "d":
@@ -1560,7 +1560,7 @@ def getSystemInfo(returnType=None):
         return ds
     lines = []
     for r in ds:
-        lines.append("%s %s" % (r["name"], r["value"]))
+        lines.append(f"{r['name']} {r['value']}")
     eol = {"h": "<br>\n", "s": "\n"}[rType]
     return eol.join(lines)
 
@@ -1763,7 +1763,7 @@ def createMenuBar(src, form=None, previewFunc=None):
                     HotKey=hk,
                     menutype=mtype,
                 )
-                menuItem._bindingText = "%s" % fnc
+                menuItem._bindingText = f"{fnc}"
                 if itmatts:
                     menuItem.setPropertiesFromAtts(
                         itmatts, context={"form": form, "app": settings.get_application()}
@@ -1999,7 +1999,7 @@ def browse(
         if hasattr(dataSource, "getDataSet"):
             dataSet = dataSource.getDataSet()
             try:
-                cap = "Browse: %s" % dataSource.Table
+                cap = f"Browse: {dataSource.Table}"
             except AttributeError:
                 cap = "Browse"
         else:
@@ -2358,10 +2358,10 @@ def getImagePath(nm, url=False):
 
     if ret and url:
         if wx.Platform == "__WXMSW__":
-            ret = "file:%s" % urllib.request.pathname2url(ret).replace("|", ":")
+            ret = f"file:{urllib.request.pathname2url(ret).replace('|', ':')}"
             ret = re.sub(r"([A-Z])\|/", r"\1/", ret, re.I)
         else:
-            ret = "file://%s" % ret
+            ret = f"file://{ret}"
     return ret
 
 
@@ -2408,7 +2408,7 @@ def spawnProcess(cmd, wait=False, handler=None):
             stream = self.GetErrorStream()
             err = ""
             if stream.CanRead():
-                err = "Errors:\n%s" % stream.read()
+                err = f"Errors:\n{stream.read()}"
             return (out, err)
 
     proc = Proc(handler)

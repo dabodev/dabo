@@ -37,7 +37,7 @@ class specHandler(xml.sax.ContentHandler):
             joinDict = {}
             for att in list(attrs.keys()):
                 if att == "order":
-                    name = "_join%s" % attrs["order"]
+                    name = f"_join{attrs['order']}"
                 joinDict[att] = attrs[att]
             self.currTableDict[name] = joinDict.copy()
 

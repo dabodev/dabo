@@ -8,9 +8,9 @@ class PageFrameMixin(object):
         self._pageStyleClass.__init__(self, parent, Name=Name, *args, **kwargs)
         # Add the images for the various pages.
         iconPath = "themes/tango/16x16"
-        self.addImage("%s/actions/system-search.png" % iconPath, key="select")
-        self.addImage("%s/actions/format-justify-fill.png" % iconPath, key="browse")
-        self.addImage("%s/apps/accessories-text-editor.png" % iconPath, key="edit")
+        self.addImage(f"{iconPath}/actions/system-search.png", key="select")
+        self.addImage(f"{iconPath}/actions/format-justify-fill.png", key="browse")
+        self.addImage(f"{iconPath}/apps/accessories-text-editor.png", key="edit")
 
         self.dsEditPages = {}
 
@@ -68,7 +68,7 @@ def PageFrame(parent, tabStyle="tabs", *args, **kwargs):
         }
         pageStyleClass = tabStyles[tabStyle.title()]
     except KeyError:
-        raise KeyError("tabStyle must be one of %s" % list(tabStyles.keys()))
+        raise KeyError(f"tabStyle must be one of {list(tabStyles.keys())}")
 
     class DataNavPageFrame(PageFrameMixin, pageStyleClass):
         _pageStyleClass = property(lambda self: pageStyleClass)

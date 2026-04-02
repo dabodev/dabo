@@ -308,7 +308,7 @@ class TestForm(dForm):
         pgf.PageCount = 12
         idx = 0
         for pg in pgf.Pages:
-            pg.setLabel("Page #%s" % idx)
+            pg.setLabel(f"Page #{idx}")
             idx += 1
         self.Sizer.append1x(pgf)
 
@@ -329,7 +329,7 @@ class TestForm(dForm):
             DataSource=pgf,
             DataField="SelectedPageNumber",
             ValueMode="Position",
-            Choices=["%s" % ii for ii in range(pgf.PageCount)],
+            Choices=[f"{ii}" for ii in range(pgf.PageCount)],
         )
         hsz.append(dd)
         self.Sizer.append(hsz, halign="center", border=8)

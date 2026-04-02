@@ -39,7 +39,7 @@ class TempFileHolder(object):
 
     def getTempFile(self, ext="pdf"):
         if ext[0] != ".":
-            ext = ".%s" % ext
+            ext = f".{ext}"
         fd, fname = tempfile.mkstemp(suffix=ext)
         os.close(fd)
         self.append(fname)
@@ -58,7 +58,7 @@ def previewReport(path, modal=False):
     except AttributeError:
         # On Mac, use the default viewer (probably TextEdit.app or Preview.app)
         if sys.platform == "darwin":
-            os.system("open %s" % path)
+            os.system(f"open {path}")
         else:
             # On Linux, try to find an installed viewer and just use the first one
             # found. I just don't know how to reliably get the default viewer from
@@ -78,11 +78,11 @@ def previewReport(path, modal=False):
                     "mozilla-firefox",
                 )
             else:
-                raise ValueError("Unknown report type '%s'." % reportType)
+                raise ValueError(f"Unknown report type '{reportType}'.")
 
             viewer = None
             for v in viewers:
-                r = os.system("which %s 1> /dev/null 2> /dev/null" % v)
+                r = os.system(f"which {v} 1> /dev/null 2> /dev/null")
                 if r == 0:
                     viewer = v
                     break
@@ -115,7 +115,7 @@ def printReport(path, printerName=None, printerPort=None, copies=1):
         args = ["gsprint", path]
         if printerName:
             args.insert(-1, "-printer")
-            args.insert(-1, "%s" % printerName)
+            args.insert(-1, f"{printerName}")
         if copies > 1:
             args.insert(-1, "-copies")
             args.insert(-1, str(copies))
@@ -150,7 +150,7 @@ def getTestCursorXmlFromDataSet(dataset):
             v = repr(v)
             v = escape(v, escapeAmp=False)
             v = v.replace('"', "'")
-            xml += """\t\t\t%s = "%s"\n""" % (k, v)
+            xml += f"""\t\t\t{k} = "{v}"\n"""
         xml += """\t\t/>\n"""
 
     xml += """\t</TestCursor>\n"""

@@ -7,17 +7,17 @@ import os
 
 
 def clear_localize_walk(arg, dirname, fnames):
-    print("Processing directory %s..." % dirname)
+    print(f"Processing directory {dirname}...")
     for fname in fnames:
         if os.path.splitext(fname)[1] == ".py":
-            print("Checking file %s..." % fname)
+            print(f"Checking file {fname}...")
             full_fname = os.path.join(dirname, fname)
             rlines = open(full_fname).readlines()
             wlines = []
             for idx, line in enumerate(rlines):
                 lineno = idx + 1
                 if "localization" in line:
-                    print("--> Removing line %s, '%s'" % (lineno, line))
+                    print(f"--> Removing line {lineno}, '{line}'")
                     continue
                 wlines.append(line)
             open(full_fname, "wb").write("".join(wlines))

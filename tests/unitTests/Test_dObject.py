@@ -201,7 +201,7 @@ class TestGetAbsoluteName(BaseTestdObject):
         objectList = []
         for x in range(10):
             objectList.append(dObject())
-            objectList[x].Name = "Object%s" % (x,)
+            objectList[x].Name = f"Object{x}"
             if x > 0:
                 objectList[x].Parent = objectList[x - 1]
         result = ".".join([object.Name for object in objectList])

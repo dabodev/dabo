@@ -125,7 +125,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
                 if pos:
                     drive_letter = url[pos - 1]
                     if drive_letter in string.ascii_letters:
-                        url = url.replace("%s:/" % drive_letter, "")
+                        url = url.replace(f"{drive_letter}:/", "")
             return "<img %(befSrc)ssrc=%(qt1)s%(url)s%(qt2)s%(aftSrc)s>" % locals()
 
         return pat.sub(repl, val)
@@ -189,7 +189,7 @@ class dHtmlBox(dControlMixin, wx.html.HtmlWindow):
                 self.LoadPage(val)
                 self._page = val
             except urllib.error.URLError:
-                self._source = "<html><body>Cannot Open URL %s</body><html>" % (val,)
+                self._source = f"<html><body>Cannot Open URL {val}</body><html>"
                 self._page = ""
                 self.SetPage(self._source)
 

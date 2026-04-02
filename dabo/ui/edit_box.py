@@ -124,7 +124,7 @@ It's the Love Boat
         ui.callAfter(self.adjustFormCaption)
 
     def adjustFormCaption(self):
-        newcap = "%s - WordWrap: %s" % (self.Form.Caption, self.WordWrap)
+        newcap = f"{self.Form.Caption} - WordWrap: {self.WordWrap}"
         self.Form.Caption = newcap
 
 

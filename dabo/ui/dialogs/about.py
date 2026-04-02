@@ -19,10 +19,7 @@ class About(dDialog):
         app = self.Application
         caption = "Dabo"
         if app:
-            caption = "%s %s" % (
-                app.getAppInfo("appName"),
-                app.getAppInfo("appVersion"),
-            )
+            caption = f"{app.getAppInfo('appName')} {app.getAppInfo('appVersion')}"
 
         pnlBack = dPanel(self, BackColor="White")
         self.Sizer.append(pnlBack, 1, "x")

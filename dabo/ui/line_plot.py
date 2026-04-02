@@ -198,7 +198,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         spacing = (float(End) - float(Start)) / float(points)
         pointList = Start + (numpy.arange(points) * spacing)
         coordinates = []
-        s = "value = %s" % equation
+        s = f"value = {equation}"
         for index in range(len(pointList)):
             exec(s % pointList[index])
             # coordinates.append((pointList[index], value))
@@ -209,7 +209,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         self, points, LineColor="black", LineStyle="solid", LineWidth=1, Caption=""
     ):
         if Caption == "":
-            Caption = "Line %s" % len(self.Traces)
+            Caption = f"Line {len(self.Traces)}"
         line = PlotLine(points, legend=Caption, colour=LineColor, width=LineWidth)
         line.LineStyle = LineStyle
         self.Traces.append(line)
@@ -226,7 +226,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         Caption="",
     ):
         if Caption == "":
-            Caption = "Set %s" % len(self.Traces)
+            Caption = f"Set {len(self.Traces)}"
         marker = PlotMarkers(
             points,
             legend=Caption,
@@ -283,7 +283,7 @@ class dLinePlot(dControlMixin, plot.PlotCanvas):
         pntIn = mDataDict["pIndex"]
         legend = mDataDict["legend"]
         # make a string to display
-        s = "Crv# %i, '%s', Pt. (%.2f,%.2f), PtInd %i" % (cNum, legend, px, py, pntIn)
+        s = f"Crv# {cNum}, '{legend}', Pt. ({px:.2f},{py:.2f}), PtInd {pntIn}"
         dc.DrawText(s, int(sx), int(sy) + 1)
         # -----------
 

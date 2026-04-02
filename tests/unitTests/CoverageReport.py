@@ -18,7 +18,7 @@ for dir, subdirs, files in os.walk(daboPath):
 
 cmdTemp = cmd
 for x in range(len(fileList)):
-    cmdTemp += " %s" % (fileList[x],)
+    cmdTemp += f" {fileList[x]}"
     if (x + 1) % 100 == 0:
         os.system(cmdTemp)
         cmdTemp = cmd

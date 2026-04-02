@@ -105,7 +105,7 @@ class dNumericBox(dTextBoxMixin, masked.NumCtrl):
     def getBlankValue(self):
         dec = self.DecimalWidth
         if dec > 0:
-            return Decimal("0.%s" % ("0" * dec))
+            return Decimal(f"0.{'0' * dec}")
         else:
             return 0
 

@@ -30,7 +30,7 @@ class MSSQL(dBackend):
         port = ustr(connectInfo.Port)
         if not port or port == "None":
             port = 1433
-        host = "%s:%s" % (connectInfo.Host, port)
+        host = f"{connectInfo.Host}:{port}"
         user = connectInfo.User
         password = connectInfo.revealPW()
         database = connectInfo.Database
@@ -96,7 +96,7 @@ class MSSQL(dBackend):
         """We need to wrap the value in quotes."""
         sqt = "'"  # single quote
         val = ustr(val)
-        return "%s%s%s" % (sqt, val, sqt)
+        return f"{sqt}{val}{sqt}"
 
     def getTables(self, cursor, includeSystemTables=False):
         # jfcs 11/01/06 assumed public schema

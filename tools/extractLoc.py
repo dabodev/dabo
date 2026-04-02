@@ -101,7 +101,7 @@ def processLoc(proj, drct, xtra=None):
             inserted += ins
         else:
             if fname.endswith(".py"):
-                out, inn, err = popen2.popen3("pygettext.py -a -o - %s" % fullname)
+                out, inn, err = popen2.popen3(f"pygettext.py -a -o - {fullname}")
                 upd, ins = processText(out.read(), proj, pth, fname, newXtra)
                 updated += upd
                 inserted += ins

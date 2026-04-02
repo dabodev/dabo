@@ -44,8 +44,8 @@ class dMessageBox(wx.MessageDialog):
             # isn't currently the active application. Otherwise it abuses the intent...
             parent.RequestUserAttention(userAttentionMode)
         # Force the message and title to strings
-        message = "%s" % message
-        title = "%s" % title
+        message = f"{message}"
+        title = f"{title}"
         wx.MessageDialog.__init__(self, parent, message, title, style)
 
 

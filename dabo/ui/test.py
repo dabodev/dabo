@@ -72,7 +72,7 @@ class Test(object):
             if len(classRefs) > 1:
                 frame.Caption = "Test of multiple objects"
             else:
-                frame.Caption = "Test of %s" % obj.BaseClass.__name__
+                frame.Caption = f"Test of {obj.BaseClass.__name__}"
 
             obj.setFocus()
 
@@ -119,14 +119,14 @@ class Test(object):
             except ImportError as e:
                 print("ImportError:", e)
                 continue
-            objname = "_%s_test" % modname
+            objname = f"_{modname}_test"
             if objname in mod.__dict__:
-                print("Trying to instantiate %s..." % objname)
+                print(f"Trying to instantiate {objname}...")
                 try:
                     obj = mod.__dict__[objname](panel)
                 except Exception as e:
                     print("+++++++++++++++++++++++++++++++++++++++")
-                    print("+++ Instantiating %s caused:" % objname)
+                    print(f"+++ Instantiating {objname} caused:")
                     print(traceback.print_exception(*sys.exc_info()))
                     print("+++++++++++++++++++++++++++++++++++++++")
                     continue
@@ -138,7 +138,7 @@ class Test(object):
                 bs = dSizer("horizontal")
                 label = dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
 
-                label.Caption = "%s:" % modname
+                label.Caption = f"{modname}:"
                 bs.append(label)
 
                 if isinstance(obj, dEditBox):

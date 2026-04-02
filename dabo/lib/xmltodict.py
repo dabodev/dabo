@@ -203,7 +203,7 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False, encoding=None):
         raise exceptions.XmlException(errmsg)
     if addCodeFile and isPath:
         # Get the associated code file, if any
-        codePth = "%s-code.py" % os.path.splitext(xml)[0]
+        codePth = f"{os.path.splitext(xml)[0]}-code.py"
         if os.path.exists(codePth):
             try:
                 codeContent = codecs.open(codePth, "r", encoding).read()
@@ -229,7 +229,7 @@ def escQuote(val, noEscape=False, noQuote=False):
     #     val = val.replace(slsh, slsh+slsh)
     if not noEscape:
         val = escape(val)
-    return "%s%s%s" % (qt, val, qt)
+    return f"{qt}{val}{qt}"
 
 
 def escape(val, escapeAmp=True):
@@ -246,7 +246,7 @@ def escape(val, escapeAmp=True):
     chars = []
     for pos, char in enumerate(list(val)):
         if ord(char) > 127:
-            chars.append("&#%s;" % ord(char))
+            chars.append(f"&#{ord(char)};")
         else:
             chars.append(char)
     val = "".join(chars)
@@ -283,8 +283,8 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
             # Some keys are already handled.
             noEscape = key in ("sizerInfo",)
             val = escQuote(val, noEscape)
-            att += " %s=%s" % (key, val)
-    ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
+            att += f" {key}={val}"
+    ret += f"{'\t' * level}<{dct['name']}{att}"
 
     if (
         ("cdata" not in dct)
@@ -292,15 +292,15 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
         and ("code" not in dct)
         and ("properties" not in dct)
     ):
-        ret += " />%s" % eol
+        ret += f" />{eol}"
     else:
         ret += ">"
         if "cdata" in dct:
-            ret += "%s" % dct["cdata"].replace("<", "&lt;").replace(">", "&gt;")
+            ret += f"{dct['cdata'].replace('<', '&lt;').replace('>', '&gt;')}"
 
         if "code" in dct:
             if len(list(dct["code"].keys())):
-                ret += "%s%s<code>%s" % (eol, "\t" * (level + 1), eol)
+                ret += f"{eol}{'\t' * (level + 1)}<code>{eol}"
                 methodTab = "\t" * (level + 2)
                 for mthd, cd in list(dct["code"].items()):
                     # Convert \n's in the code to eol:
@@ -309,35 +309,20 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
                     if not cd.endswith(eol):
                         cd += eol
 
-                    ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (
-                        methodTab,
-                        mthd,
-                        eol,
-                        cd,
-                        eol,
-                        methodTab,
-                        mthd,
-                        eol,
-                    )
-                ret += "%s</code>%s" % ("\t" * (level + 1), eol)
+                    ret += f"{methodTab}<{mthd}><![CDATA[{eol}{cd}]]>{eol}{methodTab}</{mthd}>{eol}"
+                ret += f"{'\t' * (level + 1)}</code>{eol}"
 
         if "properties" in dct:
             if len(list(dct["properties"].keys())):
-                ret += "%s%s<properties>%s" % (eol, "\t" * (level + 1), eol)
+                ret += f"{eol}{'\t' * (level + 1)}<properties>{eol}"
                 currTab = "\t" * (level + 2)
                 for prop, val in list(dct["properties"].items()):
-                    ret += "%s<%s>%s" % (currTab, prop, eol)
+                    ret += f"{currTab}<{prop}>{eol}"
                     for propItm, itmVal in list(val.items()):
                         itmTab = "\t" * (level + 3)
-                        ret += "%s<%s>%s</%s>%s" % (
-                            itmTab,
-                            propItm,
-                            itmVal,
-                            propItm,
-                            eol,
-                        )
-                    ret += "%s</%s>%s" % (currTab, prop, eol)
-                ret += "%s</properties>%s" % ("\t" * (level + 1), eol)
+                        ret += f"{itmTab}<{propItm}>{itmVal}</{propItm}>{eol}"
+                    ret += f"{currTab}</{prop}>{eol}"
+                ret += f"{'\t' * (level + 1)}</properties>{eol}"
 
         if ("children" in dct) and dct["children"]:
             ret += eol
@@ -347,17 +332,14 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
         if ret.endswith(eol):
             # Indent the closing tag
             indnt = "\t" * level
-        ret += "%s</%s>%s" % (indnt, dct["name"], eol)
+        ret += f"{indnt}</{dct['name']}>{eol}"
 
         if linesep:
             ret += linesep.get(level, "")
 
     if level == 0:
         if header is None:
-            header = '<?xml version="1.0" encoding="%s" standalone="no"?>%s' % (
-                default_encoding,
-                eol,
-            )
+            header = f'<?xml version="1.0" encoding="{default_encoding}" standalone="no"?>{eol}'
         ret = header + ret
 
     return ret

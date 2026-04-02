@@ -604,7 +604,7 @@ versions of wxPython)""",
 
         def addRow(self, fmt, parent):
             sz = parent.Sizer
-            sz.append(dLabel(parent, Caption="%s:" % fmt), halign="right")
+            sz.append(dLabel(parent, Caption=f"{fmt}:"), halign="right")
             sz.append(dMaskedTextBox(parent, Width=240, Format=fmt))
 
     test.Test().runTest(MaskedForm)

@@ -179,9 +179,9 @@ if __name__ == "__main__":
 
         def onValueChanged(self, evt):
             if self.IsSecret:
-                print("%s changed, but the new value is a secret!" % self.Name)
+                print(f"{self.Name} changed, but the new value is a secret!")
             else:
-                print("%s.onValueChanged:" % self.Name, self.Value, type(self.Value))
+                print(f"{self.Name}.onValueChanged:", self.Value, type(self.Value))
 
         def onSearchButtonClicked(self, evt):
             print("you pressed the search button")

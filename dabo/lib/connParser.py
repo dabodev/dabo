@@ -68,10 +68,7 @@ class connHandler(xml.sax.ContentHandler):
                 nm = self.currDict["name"]
                 if not nm:
                     # name not defined: follow the old convention of user@host
-                    nm = self.currDict["name"] = "%s@%s" % (
-                        self.currDict["user"],
-                        self.currDict["host"],
-                    )
+                    nm = self.currDict["name"] = f"{self.currDict['user']}@{self.currDict['host']}"
                 self.connDict[nm] = self.currDict.copy()
                 self.currDict = self.blankConn.copy()
         self.element = None
@@ -143,7 +140,7 @@ def genConnXML(d):
                 d["user"] = "anybody"
             if not d["host"]:
                 d["host"] = "local"
-            d["name"] = "%s@%s" % (d["user"], d["host"])
+            d["name"] = f"{d['user']}@{d['host']}"
         ret = getConnTemplate() % (
             escQuote(d["dbtype"], noQuote=True),
             escQuote(d["name"], noQuote=True),
@@ -178,19 +175,16 @@ def fileRef(ref=""):
 def getXMLWrapper(encoding=None):
     if encoding is None:
         encoding = dabo.getXMLEncoding()
-    return """<?xml version="1.0" encoding="%s" standalone="yes"?>
+    return f"""<?xml version="1.0" encoding="{encoding}" standalone="yes"?>
 <connectiondefs xmlns="http://www.dabodev.com"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.dabodev.com conn.xsd"
 xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/conn.xsd">
 
-%s
+{"%s"}
 
 </connectiondefs>
-""" % (
-        encoding,
-        "%s",
-    )
+"""
 
 
 def getConnTemplate():
