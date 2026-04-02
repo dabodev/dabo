@@ -38,6 +38,9 @@ class IntegerTypeError(ColorTupleError):
 
 # wxPython stores color names in uppercase. Ugly, IMO.
 colorDict = {itm[0].lower(): itm[1:] for itm in wcd.getColourInfoList() if " " not in itm[0]}
+# Spelling differences
+grays = {key.replace("grey", "gray"): val for key, val in colorDict.items() if "grey" in key}
+colorDict.update(grays)
 colors = list(colorDict.keys())
 colors.sort()
 
