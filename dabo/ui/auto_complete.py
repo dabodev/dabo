@@ -291,7 +291,7 @@ class TextCtrlAutoComplete(wx.TextCtrl, listmix.ColumnSorterMixin):
             if self._colNames:
                 colName = self._colNames[numCol]
             else:
-                colName = "Select %i" % numCol
+                colName = f"Select {numCol}"
             self.dropdownlistbox.InsertColumn(numCol, colName)
         for numRow, valRow in enumerate(choices):
             for numCol, colVal in enumerate(valRow):
@@ -515,7 +515,7 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
                 for rec in ds:
                     choices.append([str(rec[key]) for key in colKeys])
             except KeyError:
-                raise ValueError("DataField '%s' is not a valid column name" % key)
+                raise ValueError(f"DataField '{key}' is not a valid column name")
 
             # Find search index
             try:
@@ -527,7 +527,7 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
                 else:
                     colSearch = 0
             except ValueError:
-                raise ValueError("SearchField '%s' is not a valid column name" % self.SearchField)
+                raise ValueError(f"SearchField '{self.SearchField}' is not a valid column name")
 
             # Find fetch index
             try:
@@ -539,7 +539,7 @@ class dAutoComplete(ui.dControlMixin, TextCtrlAutoComplete):
                 else:
                     colFetch = -1
             except ValueError:
-                raise ValueError("FetchField '%s' is not a valid column name" % self.FetchField)
+                raise ValueError(f"FetchField '{self.FetchField}' is not a valid column name")
 
         self._colNames = colKeys if not self._userColNames else self._colNames
         self._setDynamicChoices(choices, colSearch=colSearch, colFetch=colFetch)

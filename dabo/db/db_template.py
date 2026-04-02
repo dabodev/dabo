@@ -79,7 +79,7 @@ class NEWDATABASE(dBackend):
         ####    values is returned correctly
         sqt = "'"  # single quote
         val = ustr(val)
-        return "%s%s%s" % (sqt, val, sqt)
+        return f"{sqt}{val}{sqt}"
 
     def getTables(self, cursor, includeSystemTables=False):
         #### TODO: Verify that this works with NEWDATABASE, including
@@ -100,7 +100,7 @@ class NEWDATABASE(dBackend):
     def getFields(self, tableName):
         tempCursor = self._connection.cursor()
         #### TODO: Modify for NEWDATABASE syntax
-        tempCursor.execute("describe %s" % tableName)
+        tempCursor.execute(f"describe {tableName}")
         rs = tempCursor.fetchall()
         fldDesc = tempCursor.description
         # The field name is the first element of the tuple. Find the

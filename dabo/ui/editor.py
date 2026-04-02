@@ -365,7 +365,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         self._bmkPos = 5
         self._setBookmarkMarker()
         justFname = os.path.split(self._fileName)[1]
-        svd = app.getUserSetting("bookmarks.%s" % justFname, "{}")
+        svd = app.getUserSetting(f"bookmarks.{justFname}", "{}")
         if svd:
             self._bookmarks = eval(svd)
         else:
@@ -922,54 +922,50 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
 
     def setDefaultFont(self, fontFace, fontSize):
         # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, f"face:{fontFace},size:{fontSize}")
         self.StyleClearAll()  # Reset all to be like the default
 
         # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (propFont, fontSize))
-        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "back:#C0C0C0,face:%s,size:%d" % (propFont, 8))
-        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%s" % fontFace)
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, f"face:{propFont},size:{fontSize}")
+        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, f"back:#C0C0C0,face:{propFont},size:{8}")
+        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, f"face:{fontFace}")
         self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#000000,back:#00FF00,bold")
         self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
 
     def setPyFont(self, fontFace, fontSize):
         # Python-specific styles
-        self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(stc.STC_P_DEFAULT, f"fore:#000000,face:{fontFace},size:{fontSize}")
         # Comments
         self.StyleSetSpec(
             stc.STC_P_COMMENTLINE,
-            "fore:#007F00,face:%s,size:%d,italic" % (fontFace, fontSize),
+            f"fore:#007F00,face:{fontFace},size:{fontSize},italic",
         )
         # Number
-        self.StyleSetSpec(stc.STC_P_NUMBER, "fore:#007F7F,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_NUMBER, f"fore:#007F7F,size:{fontSize}")
         # String
-        self.StyleSetSpec(stc.STC_P_STRING, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(stc.STC_P_STRING, f"fore:#7F007F,face:{fontFace},size:{fontSize}")
         # Single quoted string
-        self.StyleSetSpec(
-            stc.STC_P_CHARACTER, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_P_CHARACTER, f"fore:#7F007F,face:{fontFace},size:{fontSize}")
         # Keyword
-        self.StyleSetSpec(stc.STC_P_WORD, "fore:#00007F,bold,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_WORD, f"fore:#00007F,bold,size:{fontSize}")
         # Triple quotes
-        self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:#7F0000,size:%d,italic" % fontSize)
+        self.StyleSetSpec(stc.STC_P_TRIPLE, f"fore:#7F0000,size:{fontSize},italic")
         # Triple double quotes
-        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:#7F0000,size:%d,italic" % fontSize)
+        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, f"fore:#7F0000,size:{fontSize},italic")
         # Class name definition
-        self.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:#0000FF,bold,underline,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_CLASSNAME, f"fore:#0000FF,bold,underline,size:{fontSize}")
         # Function or method name definition
-        self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:#007F7F,bold,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_DEFNAME, f"fore:#007F7F,bold,size:{fontSize}")
         # Operators
-        self.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_OPERATOR, f"bold,size:{fontSize}")
         # Identifiers
-        self.StyleSetSpec(
-            stc.STC_P_IDENTIFIER, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_P_IDENTIFIER, f"fore:#000000,face:{fontFace},size:{fontSize}")
         # Comment-blocks
-        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:#7F7F7F,size:%d,italic" % fontSize)
+        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, f"fore:#7F7F7F,size:{fontSize},italic")
         # End of line where string is not closed
         self.StyleSetSpec(
             stc.STC_P_STRINGEOL,
-            "fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize),
+            f"fore:#000000,face:{fontFace},back:#E0C0E0,eol,size:{fontSize}",
         )
 
     def onCommentLine(self, evt):
@@ -1261,8 +1257,8 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
             except AttributeError:
                 name = ""
 
-            shortDoc = "%s %s%s" % (funcType, name, args)
-            longDoc = "%s\n\n%s" % (shortDoc, doc)
+            shortDoc = f"{funcType} {name}{args}"
+            longDoc = f"{shortDoc}\n\n{doc}"
 
             self.CallTipShow(pos, shortDoc)
             # Highlight the object name:
@@ -1409,7 +1405,7 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
         if fname is None or fname == "":
             s = "Do you want to save your changes?"
         else:
-            s = "Do you want to save your changes to file '%s'?" % self._fileName
+            s = f"Do you want to save your changes to file '{self._fileName}'?"
         return ui.areYouSure(s)
 
     def promptForFileName(self, prompt=None, saveAs=False, path=None, **kwargs):
@@ -1692,7 +1688,7 @@ Do you want to overwrite it?"""
             modChar = "*"
         else:
             modChar = ""
-        self._title = "%s %s" % (fileName, modChar)
+        self._title = f"{fileName} {modChar}"
 
         if self._title != _oldTitle:
             self.raiseEvent(events.TitleChanged)
@@ -1741,7 +1737,7 @@ Do you want to overwrite it?"""
                 obj = self.getWordObject(word[:-1])
                 if obj:
                     for attr in dir(obj):
-                        attr = "%s%s" % (word, attr)
+                        attr = f"{word}{attr}"
                         if attr not in words:
                             words.append(attr)
             except IndexError:
@@ -1863,7 +1859,7 @@ Do you want to overwrite it?"""
                 args = args[1:]
                 break
         if args:
-            classdef = "class self(%s): pass" % args
+            classdef = f"class self({args}): pass"
             try:
                 exec(classdef, self._namespaces)
             except NameError:
@@ -1957,7 +1953,7 @@ Do you want to overwrite it?"""
                     except StopIteration:
                         break
                     nextLine = self.GetLine(lineNum).strip()
-                    line = "%s %s" % (line, nextLine)
+                    line = f"{line} {nextLine}"
                 line += " pass"
                 code2exec.append(line)
 
@@ -2108,7 +2104,7 @@ Do you want to overwrite it?"""
             self._bookmarkIcon = val
             self._setBookmarkMarker()
         else:
-            raise ValueError("Value of BookmarkIcon must be in %s" % (list(bmkIconDic.keys()),))
+            raise ValueError(f"Value of BookmarkIcon must be in {list(bmkIconDic.keys())}")
 
     @property
     def BufferedDrawing(self):

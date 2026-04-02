@@ -218,7 +218,7 @@ class BaseForm(dFormMixin):
         self.bizobjs[bizobj.DataSource] = bizobj
         if len(self.bizobjs) == 1:
             self.PrimaryBizobj = bizobj
-        self.updateStatusText("Bizobj '%s' %s." % (bizobj.DataSource, _("added")))
+        self.updateStatusText(f"Bizobj '{bizobj.DataSource}' {_('added')}.")
         return bizobj
 
     def afterSetPrimaryBizobj(self):
@@ -263,7 +263,7 @@ class BaseForm(dFormMixin):
         if self.activeControlValid() is False:
             # Field validation failed
             return False
-        self.updateStatusText("%s..." % (self.getCurrentRecordText(),), immediate=True)
+        self.updateStatusText(f"{self.getCurrentRecordText()}...", immediate=True)
         err = self.beforePointerMove()
         if err:
             self.notifyUser(err)
@@ -439,7 +439,7 @@ class BaseForm(dFormMixin):
         except (exceptions.BusinessRuleViolation, exceptions.DBQueryException) as e:
             txt = _("Save Failed")
             self.updateStatusText(txt)
-            msg = "%s:\n\n%s" % (txt, ustr(e))
+            msg = f"{txt}:\n\n{ustr(e)}"
             self.notifyUser(msg, severe=True, exception=e)
             return False
 

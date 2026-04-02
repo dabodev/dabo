@@ -97,7 +97,7 @@ class _LookupPanel(dPanel):
     def refilter(self):
         """Display only those commands that contain the search string"""
         self.DisplayedHistory = self.History.filterByExpression(
-            " '%s' in cmd.lower() " % self.currentSearch.lower()
+            f" '{self.currentSearch.lower()}' in cmd.lower() "
         )
         lst = self.lstMatch
         sel = lst.Value
@@ -221,57 +221,53 @@ class dShell(dControlMixin, wx.py.shell.Shell):
 
     def setDefaultFont(self, fontFace, fontSize):
         # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, f"face:{fontFace},size:{fontSize}")
         self.StyleClearAll()  # Reset all to be like the default
 
         # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (self._fontFace, fontSize))
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, f"face:{self._fontFace},size:{fontSize}")
         self.StyleSetSpec(
             stc.STC_STYLE_LINENUMBER,
-            "back:#C0C0C0,face:%s,size:%d" % (self._fontFace, 8),
+            f"back:#C0C0C0,face:{self._fontFace},size:{8}",
         )
-        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "face:%s" % fontFace)
+        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, f"face:{fontFace}")
         self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#000000,back:#00FF00,bold")
         self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
 
     def setPyFont(self, fontFace, fontSize):
         # Python-specific styles
-        self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(stc.STC_P_DEFAULT, f"fore:#000000,face:{fontFace},size:{fontSize}")
         # Comments
         self.StyleSetSpec(
             stc.STC_P_COMMENTLINE,
-            "fore:#007F00,face:%s,size:%d,italic" % (fontFace, fontSize),
+            f"fore:#007F00,face:{fontFace},size:{fontSize},italic",
         )
         # Number
-        self.StyleSetSpec(stc.STC_P_NUMBER, "fore:#007F7F,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_NUMBER, f"fore:#007F7F,size:{fontSize}")
         # String
-        self.StyleSetSpec(stc.STC_P_STRING, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+        self.StyleSetSpec(stc.STC_P_STRING, f"fore:#7F007F,face:{fontFace},size:{fontSize}")
         # Single quoted string
-        self.StyleSetSpec(
-            stc.STC_P_CHARACTER, "fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_P_CHARACTER, f"fore:#7F007F,face:{fontFace},size:{fontSize}")
         # Keyword
-        self.StyleSetSpec(stc.STC_P_WORD, "fore:#00007F,bold,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_WORD, f"fore:#00007F,bold,size:{fontSize}")
         # Triple quotes
-        self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:#7F0000,size:%d,italic" % fontSize)
+        self.StyleSetSpec(stc.STC_P_TRIPLE, f"fore:#7F0000,size:{fontSize},italic")
         # Triple double quotes
-        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:#7F0000,size:%d,italic" % fontSize)
+        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, f"fore:#7F0000,size:{fontSize},italic")
         # Class name definition
-        self.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:#0000FF,bold,underline,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_CLASSNAME, f"fore:#0000FF,bold,underline,size:{fontSize}")
         # Function or method name definition
-        self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:#007F7F,bold,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_DEFNAME, f"fore:#007F7F,bold,size:{fontSize}")
         # Operators
-        self.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%d" % fontSize)
+        self.StyleSetSpec(stc.STC_P_OPERATOR, f"bold,size:{fontSize}")
         # Identifiers
-        self.StyleSetSpec(
-            stc.STC_P_IDENTIFIER, "fore:#000000,face:%s,size:%d" % (fontFace, fontSize)
-        )
+        self.StyleSetSpec(stc.STC_P_IDENTIFIER, f"fore:#000000,face:{fontFace},size:{fontSize}")
         # Comment-blocks
-        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:#7F7F7F,size:%d,italic" % fontSize)
+        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, f"fore:#7F7F7F,size:{fontSize},italic")
         # End of line where string is not closed
         self.StyleSetSpec(
             stc.STC_P_STRINGEOL,
-            "fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize),
+            f"fore:#000000,face:{fontFace},back:#E0C0E0,eol,size:{fontSize}",
         )
 
     def OnKeyDown(self, evt):
@@ -518,7 +514,7 @@ Ctrl-Up/Down to scroll through history."""
         # Delete any old instances of this command
         chk.deleteByValue(cmd)
         self._lastCmd = cmd
-        stamp = "%s" % int(round(time.time() * 100, 0))
+        stamp = f"{int(round(time.time() * 100, 0))}"
         self.cmdHistKey.setValue(stamp, cmd)
 
     def _loadHistory(self):
@@ -555,7 +551,7 @@ Ctrl-Up/Down to scroll through history."""
         cc = self.edtCode
         currText = cc.Value
         selStart, selEnd = cc.SelectionPosition
-        cc.Value = "%s%s%s" % (currText[:selStart], txt, currText[selEnd:])
+        cc.Value = f"{currText[:selStart]}{txt}{currText[selEnd:]}"
 
     def onHistoryPop(self, evt):
         """

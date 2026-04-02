@@ -150,7 +150,7 @@ class dGridDataTable(wx.grid.GridTableBase):
                 idx += 1
                 if nm in colDefs:
                     nm = ""
-            colName = "Column_%s" % nm
+            colName = f"Column_{nm}"
             pos = col._getUserSetting("Order")
             if pos is not None:
                 col.Order = pos
@@ -178,7 +178,7 @@ class dGridDataTable(wx.grid.GridTableBase):
                     except IndexError:
                         # Something's odd. Print an error message and move on.
                         dabo_module.error(
-                            "Unknown data type found in setColumns(): %s" % col.DataType
+                            f"Unknown data type found in setColumns(): {col.DataType}"
                         )
                         col.DataType = ustr(col.DataType)
 
@@ -412,14 +412,14 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         return self.__class__()
 
     def SetParameters(self, paramStr):
-        dabo_module.info("GridListEditor: SetParameters: %s" % paramStr)
+        dabo_module.info(f"GridListEditor: SetParameters: {paramStr}")
         self.control.Choices = eval(paramStr)
 
     def BeginEdit(self, row, col, grid):
-        dabo_module.info("GridListEditor: BeginEdit (%d,%d)" % (row, col))
+        dabo_module.info(f"GridListEditor: BeginEdit ({row},{col})")
         self.value = grid.GetTable().GetValue(row, col)
-        dabo_module.info("GridListEditor: Value=%s" % self.value)
-        dabo_module.info("GridListEditor: Choices=%s" % self.control.Choices)
+        dabo_module.info(f"GridListEditor: Value={self.value}")
+        dabo_module.info(f"GridListEditor: Choices={self.control.Choices}")
         try:
             self.control.Value = self.value
         except ValueError:
@@ -427,7 +427,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         self.control.SetFocus()
 
     def EndEdit(self, row, col, grid):
-        dabo_module.info("GridListEditor: EndEdit (%d,%d)" % (row, col))
+        dabo_module.info(f"GridListEditor: EndEdit ({row},{col})")
         changed = False
         v = self.control.Value
         if v != self.value:
@@ -443,7 +443,7 @@ class GridListEditor(wx.grid.GridCellChoiceEditor):
         self.control.Value = self.value
 
     def IsAcceptedKey(self, key):
-        dabo_module.info("GridListEditor: check key: %d" % (key))
+        dabo_module.info(f"GridListEditor: check key: {key}")
         return True
 
 
@@ -769,10 +769,10 @@ class dColumn(wx._core.Object, dPemMixin):
         app = self.Application
         grid = self.Parent
         form = grid.Form
-        colName = "column_%s" % self.DataField
+        colName = f"column_{self.DataField}"
 
         if app is not None and form is not None and not hasattr(grid, "isDesignerControl"):
-            settingName = "%s.%s.%s.%s" % (form.Name, grid.Name, colName, prop)
+            settingName = f"{form.Name}.{grid.Name}.{colName}.{prop}"
             return app.getUserSetting(settingName)
         return None
 
@@ -781,10 +781,10 @@ class dColumn(wx._core.Object, dPemMixin):
         app = self.Application
         grid = self.Parent
         form = grid.Form
-        colName = "column_%s" % self.DataField
+        colName = f"column_{self.DataField}"
 
         if app is not None and form is not None and not hasattr(grid, "isDesignerControl"):
-            settingName = "%s.%s.%s.%s" % (form.Name, grid.Name, colName, prop)
+            settingName = f"{form.Name}.{grid.Name}.{colName}.{prop}"
             app.setUserSetting(settingName, val)
 
     def _updateEditor(self):
@@ -1447,7 +1447,7 @@ class dColumn(wx._core.Object, dPemMixin):
         except KeyError:
             val = "Left"
         if auto:
-            val = "%s (Automatic)" % val
+            val = f"{val} (Automatic)"
         return val
 
     @HorizontalAlignment.setter
@@ -2119,7 +2119,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             else:
                 self.DataSet[row][fld] = val
         except Exception as e:
-            dabo_module.error("Cannot update data set: %s" % e)
+            dabo_module.error(f"Cannot update data set: {e}")
 
     # Wrapper methods to Dabo-ize these calls.
     def getValue(self, row=None, col=None):
@@ -3074,13 +3074,13 @@ class dGrid(dControlMixin, wx.grid.Grid):
 
     def restoreDataSet(self):
         if self.SaveRestoreDataSet:
-            ds = self.Application.getUserSetting("%s.DataSet" % self.getAbsoluteName())
+            ds = self.Application.getUserSetting(f"{self.getAbsoluteName()}.DataSet")
             if ds is not None:
                 self.DataSet = ds
 
     def saveDataSet(self):
         if self.SaveRestoreDataSet:
-            self.Application.setUserSetting("%s.DataSet" % self.getAbsoluteName(), self.DataSet)
+            self.Application.setUserSetting(f"{self.getAbsoluteName()}.DataSet", self.DataSet)
 
     def runIncSearch(self):
         """Run the incremental search."""
@@ -3194,7 +3194,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             self.Form.AutoUpdateStatusText = False
             if currAutoUpdate:
                 ui.setAfterInterval(1000, self.Form, "AutoUpdateStatusText", True)
-            self.Form.updateStatusText("Search: '%s'." % origSrchStr)
+            self.Form.updateStatusText(f"Search: '{origSrchStr}'.")
         self.currSearchStr = ""
 
     def addToSearchStr(self, key):
@@ -3217,7 +3217,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         self.currSearchStr = "".join((self.currSearchStr, key))
 
         if self.Form is not None:
-            self.Form.updateStatusText("Search: '%s'" % self.currSearchStr)
+            self.Form.updateStatusText(f"Search: '{self.currSearchStr}'")
         self.incSearchTimer.start(searchDelay)
 
     def findReplace(self, action, findString, replaceString, downwardSearch, wholeWord, matchCase):
@@ -3230,7 +3230,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
             op = operator.lt
         if wholeWord:
             if matchCase:
-                srch = r"\b%s\b" % findString
+                srch = rf"\b{findString}\b"
                 findGen = (
                     (r, c)
                     for r in range(self.RowCount)
@@ -3238,7 +3238,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
                     if op((r, c), rowcol) and re.search(srch, ustr(self.GetValue(r, c)))
                 )
             else:
-                srch = r"\b%s\b" % findString.lower()
+                srch = rf"\b{findString.lower()}\b"
                 findGen = (
                     (r, c)
                     for r in range(self.RowCount)
@@ -3512,8 +3512,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 escval = val.replace("\t", "\\t").replace("\n", "\\n")
                 if strSep:
                     # Also escape the string separator
-                    escval = escval.replace(strSep, "\\%s" % strSep)
-                return "%s%s%s" % (strSep, escval, strSep)
+                    escval = escval.replace(strSep, f"\\{strSep}")
+                return f"{strSep}{escval}{strSep}"
             else:
                 ret = str(val)
                 if isinstance(val, (Decimal, float)):
@@ -3678,7 +3678,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         form = self.Form
         ret = None
         if app is not None and form is not None and not hasattr(self, "isDesignerControl"):
-            settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
+            settingName = f"{form.Name}.{self.Name}.{prop}"
             ret = app.getUserSetting(settingName)
         return ret
 
@@ -3687,7 +3687,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         app = self.Application
         form = self.Form
         if app is not None and form is not None and not hasattr(self, "isDesignerControl"):
-            settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
+            settingName = f"{form.Name}.{self.Name}.{prop}"
             app.setUserSetting(settingName, val)
 
     def _enableDoubleBuffering(self):
@@ -3712,7 +3712,7 @@ class dGrid(dControlMixin, wx.grid.Grid):
         "Occurs when the user resizes the width of the column."
         colNum = evt.EventData["col"]
         col = self.Columns[colNum]
-        colName = "Column_%s" % col.DataField
+        colName = f"Column_{col.DataField}"
         # Sync our column object up with what the grid is reporting, and because
         # the user made this change, save to the userSettings:
         col.Width = self.GetColSize(self._convertDaboColNumToWxColNum(colNum))

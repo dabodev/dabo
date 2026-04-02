@@ -22,7 +22,7 @@ def processLoc(proj, drct, xtra=None):
             processLoc(proj, drct, newXtra)
         else:
             if fname.endswith(".py"):
-                os.system("xgettext -d dabo -L Python %s" % fullname)
+                os.system(f"xgettext -d dabo -L Python {fullname}")
 
 
 def main():

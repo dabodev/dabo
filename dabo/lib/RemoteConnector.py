@@ -44,7 +44,7 @@ class RemoteConnector(object):
         return pathjoin(self.UrlBase, pth).replace(os.sep, "/")
 
     def _getFullUrl(self, mthd, *args):
-        hashstr = "%s" % hash(self.obj)
+        hashstr = f"{hash(self.obj)}"
         ret = pathjoin(self.UrlBase, "bizservers", "biz", hashstr, self.obj.DataSource, mthd, *args)
         ret = ret.replace(os.sep, "/")
         return ret
@@ -63,7 +63,7 @@ class RemoteConnector(object):
         except urllib.error.HTTPError as e:
             if reRaise:
                 raise
-            dabo_module.error("HTTPError: %s" % e)
+            dabo_module.error(f"HTTPError: {e}")
             return None
         ret = res.read()
         return ret

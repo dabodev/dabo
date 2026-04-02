@@ -71,13 +71,13 @@ class Test_Utils(unittest.TestCase):
             utils.relativePathList(pth, pth2),
             ["..", "tmp", "relpath_tests_dir", "a", "b", "file2"],
         )
-        atts = {"Foo": "Bar", "ThePath": "%s../some/file.txt" % prfx}
+        atts = {"Foo": "Bar", "ThePath": f"{prfx}../some/file.txt"}
         utils.resolveAttributePathing(atts, os.getcwd())
         self.assertEqual(atts, {"Foo": "Bar", "ThePath": "../some/file.txt"})
-        atts = {"Foo": "Bar", "ThePath": "%sa/b/file2" % prfx}
+        atts = {"Foo": "Bar", "ThePath": f"{prfx}a/b/file2"}
         utils.resolveAttributePathing(atts, os.getcwd())
         self.assertEqual(atts, {"Foo": "Bar", "ThePath": "a/b/file2"})
-        atts = {"Foo": "Bar", "ThePath": "%s../a/b/file2" % prfx}
+        atts = {"Foo": "Bar", "ThePath": f"{prfx}../a/b/file2"}
         utils.resolveAttributePathing(atts, "a1/")
         self.assertEqual(atts, {"Foo": "Bar", "ThePath": "../a/b/file2"})
 

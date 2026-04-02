@@ -46,7 +46,7 @@ class EasyDialogBuilder(object):
                 page["imgKey"] = ustr(pageFrame.PageCount)
                 pageFrame.addImage(page["image"], imgKey=page["imgKey"])
             elif not page.get("caption"):
-                caption = "Page%i" % (pageFrame.PageCount,)
+                caption = f"Page{pageFrame.PageCount}"
 
             pageFrame.appendPage(
                 pgCls=page.get("page"),
@@ -233,17 +233,17 @@ class EasyDialogBuilder(object):
             labelTitle += ":"
 
             if hasRegIDs:
-                buttonProperties = {"RegID": "%s_button" % (name,)}
+                buttonProperties = {"RegID": f"{name}_button"}
             else:
                 buttonProperties = {}
 
-            exec("self.%s = ui.dTextBox(parent, ReadOnly=True, properties=Properties)" % (name,))
-            exec("controlList.append(self.%s)" % (name,))
+            exec(f"self.{name} = ui.dTextBox(parent, ReadOnly=True, properties=Properties)")
+            exec(f"controlList.append(self.{name})")
             exec(
                 "self.%s_button = fileButton(parent, format, directory, self.%s, buttonProperties)"
                 % (name, name)
             )
-            exec("controlList.append(self.%s_button)" % (name,))
+            exec(f"controlList.append(self.{name}_button)")
         else:
             if issubclass(control, (ui.dCheckBox, ui.dButton)):
                 controlCaption = labelTitle
@@ -252,13 +252,11 @@ class EasyDialogBuilder(object):
                 controlCaption = ""
                 labelTitle += ":"
 
-            exec(
-                "self.%s = control(parent, Caption=controlCaption, properties=Properties)" % (name,)
-            )
-            exec("controlList.append(self.%s)" % (name,))
+            exec(f"self.{name} = control(parent, Caption=controlCaption, properties=Properties)")
+            exec(f"controlList.append(self.{name})")
 
         if bindHitEvents:
-            exec("self.%s.bindEvent(events.Hit, self.onHit_%s)" % (name, name))
+            exec(f"self.{name}.bindEvent(events.Hit, self.onHit_{name})")
 
         controlList.insert(0, ui.dLabel(parent, Caption=labelTitle))
         return controlList

@@ -45,7 +45,7 @@ class dSizer(dSizerMixin, wx.BoxSizer):
         if kwargs:
             # Some kwargs haven't been handled.
             bad = ", ".join(list(kwargs.keys()))
-            raise TypeError("Invalid keyword arguments passed to dSizer: %s" % bad)
+            raise TypeError(f"Invalid keyword arguments passed to dSizer: {bad}")
 
         dSizerMixin.__init__(self, *args, **kwargs)
 

@@ -254,7 +254,7 @@ class dDataControlMixin(ui.dControlMixin):
                             return
                         if isinstance(src, str):
                             try:
-                                exec("src.%s = curVal" % self.DataField)
+                                exec(f"src.{self.DataField} = curVal")
                             except Exception as e:
                                 dabo_module.error(
                                     "Could not bind to '%s.%s'\nReason: %s"
@@ -299,20 +299,20 @@ class dDataControlMixin(ui.dControlMixin):
             else:
                 value = self._value  ## on Win, the C++ object is already gone
             if self.RegID:
-                name = "%s.%s" % (self.Form.Name, self.RegID)
+                name = f"{self.Form.Name}.{self.RegID}"
             else:
                 name = self.getAbsoluteName()
-            app.setUserSetting("%s.Value" % name, value)
+            app.setUserSetting(f"{name}.Value", value)
 
     def restoreValue(self):
         """Set the control's value to the value in dApp's user settings table."""
         app = self.Application
         if app:
             if self.RegID:
-                name = "%s.%s" % (self.Form.Name, self.RegID)
+                name = f"{self.Form.Name}.{self.RegID}"
             else:
                 name = self.getAbsoluteName()
-            value = app.getUserSetting("%s.Value" % name)
+            value = app.getUserSetting(f"{name}.Value")
 
             if value is not None:
                 if self.IsSecret and self.PersistSecretData:

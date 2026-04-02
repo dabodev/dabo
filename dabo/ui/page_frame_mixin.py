@@ -216,7 +216,7 @@ class dPageFrameMixin(dControlMixin):
             # Page could have its own default caption
             caption = pg._caption
         if caption.count("&") == 1 and caption[-1] != "&":
-            hotkey = "alt+%s" % (caption[caption.index("&") + 1],)
+            hotkey = f"alt+{caption[caption.index('&') + 1]}"
             self.Form.bindKey(hotkey, self._onHK)
             pg._rawCaption = caption
             if sys.platform.startswith("darwin"):
@@ -331,7 +331,7 @@ class dPageFrameMixin(dControlMixin):
     def _onHK(self, evt):
         char = chr(evt.EventData["keyCode"]).lower()
         for page in self.Pages:
-            if "&%s" % char in getattr(page, "_rawCaption", "").lower():
+            if f"&{char}" in getattr(page, "_rawCaption", "").lower():
                 self.SelectedPage = page
                 page.setFocus()
                 return

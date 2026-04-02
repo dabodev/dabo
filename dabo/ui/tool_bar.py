@@ -592,7 +592,7 @@ class _dToolBar_test(dToolBar):
         iconPath = "themes/tango/22x22"
         self.appendButton(
             "Copy",
-            pic="%s/actions/edit-copy.png" % iconPath,
+            pic=f"{iconPath}/actions/edit-copy.png",
             toggle=False,
             OnHit=self.onCopy,
             tip="Copy",
@@ -601,7 +601,7 @@ class _dToolBar_test(dToolBar):
 
         self.appendButton(
             "Toggle",
-            pic="%s/actions/system-shutdown.png" % iconPath,
+            pic=f"{iconPath}/actions/system-shutdown.png",
             toggle=True,
             OnHit=self.onToggle,
             tip="Toggle me",
@@ -620,7 +620,7 @@ class _dToolBar_test(dToolBar):
 
         self.appendButton(
             "Exit",
-            pic="%s/actions/system-log-out.png" % iconPath,
+            pic=f"{iconPath}/actions/system-log-out.png",
             toggle=True,
             OnHit=self.onExit,
             tip="Exit",
@@ -632,7 +632,7 @@ class _dToolBar_test(dToolBar):
 
     def onToggle(self, evt):
         item = evt.EventObject
-        ui.info("CHECKED: %s, ID: %s" % (item.Value, item.GetId()))
+        ui.info(f"CHECKED: {item.Value}, ID: {item.GetId()}")
 
     def onExit(self, evt):
         app = self.Application

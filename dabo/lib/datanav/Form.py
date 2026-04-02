@@ -121,35 +121,35 @@ class Form(dui.dForm):
         if self.FormType != "Edit":
             self.appendToolBarButton(
                 "First",
-                "%s/actions/go-first.png" % iconPath,
+                f"{iconPath}/actions/go-first.png",
                 OnHit=self.onFirst,
                 tip=_("First"),
                 help=_("Go to the first record"),
             )
             self.appendToolBarButton(
                 "Prior",
-                "%s/actions/go-previous.png" % iconPath,
+                f"{iconPath}/actions/go-previous.png",
                 OnHit=self.onPrior,
                 tip=_("Prior"),
                 help=_("Go to the prior record"),
             )
             self.appendToolBarButton(
                 "Requery",
-                "%s/actions/view-refresh.png" % iconPath,
+                f"{iconPath}/actions/view-refresh.png",
                 OnHit=self.onRequery,
                 tip=_("Requery"),
                 help=_("Requery dataset"),
             )
             self.appendToolBarButton(
                 "Next",
-                "%s/actions/go-next.png" % iconPath,
+                f"{iconPath}/actions/go-next.png",
                 OnHit=self.onNext,
                 tip=_("Next"),
                 help=_("Go to the next record"),
             )
             self.appendToolBarButton(
                 "Last",
-                "%s/actions/go-last.png" % iconPath,
+                f"{iconPath}/actions/go-last.png",
                 OnHit=self.onLast,
                 tip=_("Last"),
                 help=_("Go to the last record"),
@@ -159,14 +159,14 @@ class Form(dui.dForm):
         if self.FormType == "Normal":
             self.appendToolBarButton(
                 "New",
-                "%s/actions/document-new.png" % iconPath,
+                f"{iconPath}/actions/document-new.png",
                 OnHit=self.onNew,
                 tip=_("New"),
                 help=_("Add a new record"),
             )
             self.appendToolBarButton(
                 "Delete",
-                "%s/actions/edit-delete.png" % iconPath,
+                f"{iconPath}/actions/edit-delete.png",
                 OnHit=self.onDelete,
                 tip=_("Delete"),
                 help=_("Delete this record"),
@@ -176,14 +176,14 @@ class Form(dui.dForm):
         if self.FormType != "PickList":
             self.appendToolBarButton(
                 "Save",
-                "%s/actions/document-save.png" % iconPath,
+                f"{iconPath}/actions/document-save.png",
                 OnHit=self.onSave,
                 tip=_("Save"),
                 help=_("Save changes"),
             )
             self.appendToolBarButton(
                 "Cancel",
-                "%s/actions/edit-undo.png" % iconPath,
+                f"{iconPath}/actions/edit-undo.png",
                 OnHit=self.onCancel,
                 tip=_("Cancel"),
                 help=_("Cancel changes"),
@@ -193,7 +193,7 @@ class Form(dui.dForm):
         if self.FormType == "Normal":
             self.appendToolBarButton(
                 _("Configure Grid"),
-                "%s/categories/preferences-system.png" % iconPath,
+                f"{iconPath}/categories/preferences-system.png",
                 OnHit=self.onConfigGrid,
                 tip=_("Configure Grid"),
                 help=_("Configure grid columns"),
@@ -201,7 +201,7 @@ class Form(dui.dForm):
 
             self.appendToolBarButton(
                 _("Quick Report"),
-                "%s/actions/document-print-preview.png" % iconPath,
+                f"{iconPath}/actions/document-print-preview.png",
                 OnHit=self.onQuickReport,
                 tip=_("Quick Report"),
                 Enabled=_has_reporting_libs,
@@ -211,7 +211,7 @@ class Form(dui.dForm):
             tb.appendSeparator()
             self.appendToolBarButton(
                 _("Close"),
-                "%s/actions/system-log-out.png" % iconPath,
+                f"{iconPath}/actions/system-log-out.png",
                 OnHit=self.Application.onWinClose,
                 tip=_("Close"),
                 help=_("Close Form"),
@@ -226,7 +226,7 @@ class Form(dui.dForm):
         menu.append(
             _("Set Selection &Criteria") + "\tAlt+1",
             OnHit=self.onSetSelectionCriteria,
-            bmp="%s/actions/system-search.png" % iconPath,
+            bmp=f"{iconPath}/actions/system-search.png",
             ItemID="actions_select",
             help=_("Set the selection criteria for the recordset."),
         )
@@ -234,7 +234,7 @@ class Form(dui.dForm):
         menu.append(
             _("&Browse Records") + "\tAlt+2",
             OnHit=self.onBrowseRecords,
-            bmp="%s/actions/format-justify-fill.png" % iconPath,
+            bmp=f"{iconPath}/actions/format-justify-fill.png",
             ItemID="actions_browse",
             help=_("Browse the records in the current recordset."),
         )
@@ -246,15 +246,12 @@ class Form(dui.dForm):
         if self.FormType != "PickList":
             for index in range(2, self.pageFrame.PageCount):
                 if index == 2:
-                    title = "&%s\tAlt+3" % (self.pageFrame.Pages[index].Caption)
+                    title = f"&{self.pageFrame.Pages[index].Caption}\tAlt+3"
                     onHit = self.onEditCurrentRecord
                     tag = self.pageFrame.Pages[index].DataSource
                     help = _("Edit the fields of the currently selected record.")
                 else:
-                    title = "%s\tAlt+%d" % (
-                        self.pageFrame.Pages[index].Caption,
-                        index + 1,
-                    )
+                    title = f"{self.pageFrame.Pages[index].Caption}\tAlt+{index + 1}"
                     onHit = onActivatePage
                     tag = self.pageFrame.Pages[index]
                     help = ""
@@ -262,7 +259,7 @@ class Form(dui.dForm):
                 menu.append(
                     title,
                     OnHit=onHit,
-                    bmp="%s/apps/accessories-text-editor.png" % iconPath,
+                    bmp=f"{iconPath}/apps/accessories-text-editor.png",
                     help=help,
                     Tag=tag,
                     ItemID="actions_edit",
@@ -273,7 +270,7 @@ class Form(dui.dForm):
             menu.append(
                 _("&Requery") + "\tCtrl+R",
                 OnHit=self.onRequery,
-                bmp="%s/actions/view-refresh.png" % iconPath,
+                bmp=f"{iconPath}/actions/view-refresh.png",
                 ItemID="actions_requery",
                 help=_("Get a new recordset from the backend."),
                 menutype="check",
@@ -283,14 +280,14 @@ class Form(dui.dForm):
             menu.append(
                 _("&Save Changes") + "\tCtrl+S",
                 OnHit=self.onSave,
-                bmp="%s/actions/document-save.png" % iconPath,
+                bmp=f"{iconPath}/actions/document-save.png",
                 ItemID="actions_save",
                 help=_("Save any changes made to the records."),
             )
             menu.append(
                 _("&Cancel Changes"),
                 OnHit=self.onCancel,
-                bmp="%s/actions/edit-undo.png" % iconPath,
+                bmp=f"{iconPath}/actions/edit-undo.png",
                 ItemID="actions_cancel",
                 help=_("Cancel any changes made to the records."),
             )
@@ -304,30 +301,30 @@ class Form(dui.dForm):
                 altKey = "Ctrl"
 
             menu.append(
-                _("Select &First Record") + "\t%s+UP" % altKey,
+                _("Select &First Record") + f"\t{altKey}+UP",
                 OnHit=self.onFirst,
-                bmp="%s/actions/go-first.png" % iconPath,
+                bmp=f"{iconPath}/actions/go-first.png",
                 ItemID="actions_first",
                 help=_("Go to the first record in the set."),
             )
             menu.append(
-                _("Select &Prior Record") + "\t%s+LEFT" % altKey,
+                _("Select &Prior Record") + f"\t{altKey}+LEFT",
                 OnHit=self.onPrior,
-                bmp="%s/actions/go-previous.png" % iconPath,
+                bmp=f"{iconPath}/actions/go-previous.png",
                 ItemID="actions_prior",
                 help=_("Go to the prior record in the set."),
             )
             menu.append(
-                _("Select Ne&xt Record") + "\t%s+RIGHT" % altKey,
+                _("Select Ne&xt Record") + f"\t{altKey}+RIGHT",
                 OnHit=self.onNext,
-                bmp="%s/actions/go-next.png" % iconPath,
+                bmp=f"{iconPath}/actions/go-next.png",
                 ItemID="actions_next",
                 help=_("Go to the next record in the set."),
             )
             menu.append(
-                _("Select &Last Record") + "\t%s+DOWN" % altKey,
+                _("Select &Last Record") + f"\t{altKey}+DOWN",
                 OnHit=self.onLast,
-                bmp="%s/actions/go-last.png" % iconPath,
+                bmp=f"{iconPath}/actions/go-last.png",
                 ItemID="actions_last",
                 help=_("Go to the last record in the set."),
             )
@@ -337,14 +334,14 @@ class Form(dui.dForm):
             menu.append(
                 _("&New Record") + "\tCtrl+N",
                 OnHit=self.onNew,
-                bmp="%s/actions/document-new.png" % iconPath,
+                bmp=f"{iconPath}/actions/document-new.png",
                 ItemID="actions_new",
                 help=_("Add a new record to the dataset."),
             )
             menu.append(
                 _("&Delete Current Record"),
                 OnHit=self.onDelete,
-                bmp="%s/actions/edit-delete" % iconPath,
+                bmp=f"{iconPath}/actions/edit-delete",
                 ItemID="actions_delete",
                 help=_("Delete the current record from the dataset."),
             )
@@ -357,7 +354,7 @@ class Form(dui.dForm):
             menu.append(
                 _("Quick &Report"),
                 OnHit=self.onQuickReport,
-                bmp="%s/actions/document-print-preview.png" % iconPath,
+                bmp=f"{iconPath}/actions/document-print-preview.png",
                 ItemID="actions_quickreport",
                 DynamicEnabled=self.enableQuickReport,
             )
@@ -664,7 +661,7 @@ class Form(dui.dForm):
         # will save and restore uniquely. They may want to usually print just the
         # current record in expanded format when on the edit page, and a list
         # format otherwise, for example.
-        name = "FrmQuickReport_%s" % self.PageFrame.SelectedPage.Caption
+        name = f"FrmQuickReport_{self.PageFrame.SelectedPage.Caption}"
         d = ReportFormatDialog(self, NameBase=name)
         d.show()
         mode = d.mode
@@ -681,7 +678,7 @@ class Form(dui.dForm):
                 filename = os.path.join(
                     self.Application.HomeDirectory,
                     "reports",
-                    "datanav-%s-%s.rfxml" % (biz.DataSource, mode),
+                    f"datanav-{biz.DataSource}-{mode}.rfxml",
                 )
                 if not os.path.exists(os.path.join(self.Application.HomeDirectory, "reports")):
                     os.mkdir(os.path.join(self.Application.HomeDirectory, "reports"))
@@ -811,7 +808,7 @@ class Form(dui.dForm):
             fileName = os.path.join(
                 self.Application.HomeDirectory,
                 "reports",
-                "datanav-%s-%s.rfxml" % (self.getBizobj().DataSource, mode),
+                f"datanav-{self.getBizobj().DataSource}-{mode}.rfxml",
             )
             if os.path.exists(fileName):
                 return open(fileName).read()
@@ -832,7 +829,7 @@ class Form(dui.dForm):
         grid = self.PageFrame.Pages[1].BrowseGrid
         rw = lrw.ReportWriter()
         rf = rw.ReportForm = lrw.Report(reportWriter=rw, parent=None)
-        rf["Title"] = "Quick Report: %s" % self.Caption
+        rf["Title"] = f"Quick Report: {self.Caption}"
         rf["PageHeader"]["Height"] = '''"0.75 in"'''
 
         # Page Header Columns:
@@ -875,7 +872,7 @@ class Form(dui.dForm):
             string["Height"] = repr(col.HeaderFontSize)
             string["FontSize"] = repr(col.HeaderFontSize)
             string["expr"] = repr(col.Caption)
-            string["align"] = "'%s'" % hAlign.lower().split(" ")[0]
+            string["align"] = f"'{hAlign.lower().split(' ')[0]}'"
             string["x"] = repr(x + horBuffer)
             string["y"] = repr(textY)
 
@@ -902,7 +899,7 @@ class Form(dui.dForm):
         vertBuffer = 5
         for col in grid.Columns:
             rectWidth = col.Width + (2 * horBuffer)
-            textHorAlignment = "'%s'" % col.HorizontalAlignment.lower().split(" ")[0]
+            textHorAlignment = f"'{col.HorizontalAlignment.lower().split(' ')[0]}'"
 
             if x + rectWidth > 720:
                 # We'll run off the edge of the page, ignore the rest:
@@ -925,7 +922,7 @@ class Form(dui.dForm):
             rect["x"] = repr(x)
             rect["y"] = "0"
 
-            string["expr"] = "self.Record['%s']" % col.DataField
+            string["expr"] = f"self.Record['{col.DataField}']"
             string["Height"] = repr(col.FontSize)
             string["Align"] = textHorAlignment
             string["FontSize"] = repr(col.FontSize)
@@ -980,7 +977,7 @@ class Form(dui.dForm):
 
 <report>
     <title>"""
-        rfxml += "Quick Report: %s" % self.Caption
+        rfxml += f"Quick Report: {self.Caption}"
         rfxml += """</title>
     <pageHeader>
         <height>"0.75 in"</height>

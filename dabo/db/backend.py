@@ -256,7 +256,7 @@ class dBackend(dObject):
                 subs = lowkeys = tuple()
             else:
                 # First separate any keywords: e.g., 'foo as bar'.
-                pat = re.compile(r"(\b%s\b)" % r"\b|\b".join(keywords), re.I)
+                pat = re.compile(rf"(\b{r'\b|\b'.join(keywords)}\b)", re.I)
                 parts = pat.split(exp)
                 subs = tuple(pat.findall(exp))
                 lowkeys = [k.lower() for k in keywords]
@@ -273,12 +273,12 @@ class dBackend(dObject):
     def addField(self, clause, exp, alias=None, autoQuote=True):
         """Add a field to the field clause."""
         indent, exp = self._getFieldAddRemoveExp(exp, alias, autoQuote)
-        return self.addWithSep(clause, exp, sep=",\n%s" % indent)
+        return self.addWithSep(clause, exp, sep=f",\n{indent}")
 
     def removeField(self, clause, exp, alias=None, autoQuote=True):
         """Remove a previously added field from the field clause."""
         indent, exp = self._getFieldAddRemoveExp(exp, alias, autoQuote)
-        return self.removeWithSep(clause, exp, sep=",\n%s" % indent)
+        return self.removeWithSep(clause, exp, sep=f",\n{indent}")
 
     def _getFieldAddRemoveExp(self, exp, alias, autoQuote):
         indent = len("select ") * " "
@@ -298,7 +298,7 @@ class dBackend(dObject):
         if alias:
             exp = "%(exp)s as %(alias)s" % locals()
         indent = len("select ") * " "
-        return self.addWithSep(clause, exp, sep=",\n%s" % indent)
+        return self.addWithSep(clause, exp, sep=f",\n{indent}")
 
     def addJoin(self, tbl, joinCondition, exp, joinType=None, autoQuote=True):
         """Add a joined table to the sql statement."""
@@ -306,31 +306,31 @@ class dBackend(dObject):
         joinType = self.formatJoinType(joinType)
         indent = len("select ") * " "
         clause = "%(joinType)s join %(tbl)s on %(joinCondition)s" % locals()
-        return self.addWithSep(exp, clause, sep="\n%s" % indent)
+        return self.addWithSep(exp, clause, sep=f"\n{indent}")
 
     def addWhere(self, clause, exp, comp="and", autoQuote=True):
         """Add an expression to the where clause."""
         indent = (len("select ") - len(comp)) * " "
         exp = self.processFields(exp)
-        return self.addWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
+        return self.addWithSep(clause, exp, sep=f"\n{indent}{comp} ")
 
     def removeWhere(self, clause, exp, comp="and", autoQuote=True):
         """Remove a previously-added expression from the where clause."""
         indent = (len("select ") - len(comp)) * " "
         exp = self.processFields(exp)
-        return self.removeWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
+        return self.removeWithSep(clause, exp, sep=f"\n{indent}{comp} ")
 
     def addGroupBy(self, clause, exp, autoQuote=True):
         """Add an expression to the group-by clause."""
         exp = self.encloseNames(exp, autoQuote=autoQuote)
         indent = len("select ") * " "
-        return self.addWithSep(clause, exp, sep=",\n%s" % indent)
+        return self.addWithSep(clause, exp, sep=f",\n{indent}")
 
     def addOrderBy(self, clause, exp, autoQuote=True):
         """Add an expression to the order-by clause."""
         exp = self.encloseNames(exp, autoQuote=autoQuote, keywords=("asc", "desc"))
         indent = len("select ") * " "
-        return self.addWithSep(clause, exp, sep=",\n%s" % indent)
+        return self.addWithSep(clause, exp, sep=f",\n{indent}")
 
     def getLimitWord(self):
         """

@@ -476,11 +476,11 @@ class ObjectInspectorForm(ui.dForm):
                     txt = kid.Name
                 except AttributeError:
                     if isinstance(kid, wx.Size):
-                        txt = "Spacer %s" % kid
+                        txt = f"Spacer {kid}"
                         nodeColor = "darkred"
                     else:
-                        txt = "%s" % kid
-            txt = "%s (%s)" % (txt, self.cls_repr(kid.__class__))
+                        txt = f"{kid}"
+            txt = f"{txt} ({self.cls_repr(kid.__class__)})"
             knode = node.appendChild(txt)
             if nodeColor is not None:
                 knode.ForeColor = nodeColor
@@ -530,15 +530,15 @@ class ObjectInspectorForm(ui.dForm):
             cls = obj.BaseClass
         except AttributeError:
             cls = obj.__class__
-        classString = "%s" % cls
+        classString = f"{cls}"
         shortClass = classString.replace("'", "").replace(">", "").split(".")[-1]
         if cap:
-            ret = '%s ("%s")' % (shortClass, cap)
+            ret = f'{shortClass} ("{cap}")'
         else:
             try:
-                ret = "%s (%s)" % (obj.Name, shortClass)
+                ret = f"{obj.Name} ({shortClass})"
             except AttributeError:
-                ret = "%s (%s)" % (obj, cls)
+                ret = f"{obj} ({cls})"
         return ret
 
     def onToggleSizers(self, evt):
@@ -578,10 +578,10 @@ class ObjectInspectorForm(ui.dForm):
             if val is None:
                 val = self.Application.NoneDisplay
             elif isinstance(val, str):
-                val = "'%s'" % val
+                val = f"'{val}'"
             elif isinstance(val, dObject):
                 try:
-                    val = "'%s'" % self.formatName(val)
+                    val = f"'{self.formatName(val)}'"
                 except Exception as e:
                     pass
             rows.append({"prop": prop, "val": val})
@@ -633,7 +633,7 @@ class ObjectInspectorForm(ui.dForm):
 
     def afterInitAll(self):
         objnote = "NOTE: The 'obj' variable refers to the object selected in the tree."
-        intro = "%s\n%s" % (ui.getSystemInfo(), objnote)
+        intro = f"{ui.getSystemInfo()}\n{objnote}"
         shell_panel = self.shellPanel
         self.shell = ui.dShell(shell_panel, showInterpIntro=False, introText=intro)
         self.shell.interp.locals["self"] = self
@@ -694,7 +694,7 @@ class ObjectInspectorForm(ui.dForm):
 
     def cls_repr(self, cls):
         """Returns a readable representation for a class"""
-        txt = "%s" % cls
+        txt = f"{cls}"
         prfx, clsname, suff = txt.split("'")
         return clsname
 
@@ -748,7 +748,7 @@ class ObjectInspectorForm(ui.dForm):
 
     def object_selected(self, obj):
         self.shell.interp.locals["obj"] = obj
-        self.shellPanel.Sizer.Caption = "'obj' is %s" % self.formatName(obj)
+        self.shellPanel.Sizer.Caption = f"'obj' is {self.formatName(obj)}"
         self.showPropVals(obj)
 
     def createObjectTree(self):

@@ -73,7 +73,7 @@ class MySQL(dBackend):
                 )
                 crs = cn.cursor()
                 # Params don't work here; need direct string to execute
-                crs.execute("show create database %s" % (db,))
+                crs.execute(f"show create database {db}")
                 charset = crs.fetchone()[1].split("DEFAULT CHARACTER SET")[1].split()[0]
                 self.Encoding = charset
             except IndexError:
@@ -139,11 +139,11 @@ class MySQL(dBackend):
         """We need to wrap the value in quotes."""
         sqt = "'"  # single quote
         val = ustr(val)
-        return "%s%s%s" % (sqt, val, sqt)
+        return f"{sqt}{val}{sqt}"
 
     def _isExistingTable(self, tablename, cursor):
         tbl = self.encloseNames(self.escQuote(tablename))
-        cursor.execute("SHOW TABLES LIKE %s" % tbl)
+        cursor.execute(f"SHOW TABLES LIKE {tbl}")
         rs = cursor.getDataSet()
         return bool(rs)
 
@@ -165,7 +165,7 @@ class MySQL(dBackend):
     def getFields(self, tableName, cursor):
         if not tableName:
             return tuple()
-        cursor.execute("describe %s" % self.encloseNames(tableName))
+        cursor.execute(f"describe {self.encloseNames(tableName)}")
         rs = cursor.fetchall()
         fields = []
         for r in rs:
@@ -335,7 +335,7 @@ class MySQL(dBackend):
                 if not fld.AllowNulls:
                     sql = sql + "NOT NULL "
                 if not fld.IsPK:
-                    sql = "%sDEFAULT %s," % (sql, self.formatForQuery(fld.Default))
+                    sql = f"{sql}DEFAULT {self.formatForQuery(fld.Default)},"
                 else:
                     sql = sql + ","
 

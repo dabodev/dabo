@@ -18,7 +18,7 @@ rw = ReportWriter()
 
 # Set some required properties:
 rw.ReportFormFile = "invoice.rfxml"
-rw.OutputFile = "%s" % outFile
+rw.OutputFile = f"{outFile}"
 # (Normally, you'd also set the Cursor property, to provide the data,
 #  but this sample just uses the test cursor inside the report form.)
 
@@ -26,7 +26,7 @@ rw.OutputFile = "%s" % outFile
 rw.UseTestCursor = True
 rw.ShowBandOutlines = True
 
-print("Writing %s..." % outFile)
+print(f"Writing {outFile}...")
 rw.write()
 
 print("Trying to preview it...")

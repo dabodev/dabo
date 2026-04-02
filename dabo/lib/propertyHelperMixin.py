@@ -45,9 +45,9 @@ class PropertyHelperMixin(object):
                 s = _("The only accepted values for this property are ")
                 for idx, p in enumerate(propList):
                     if idx == len(propList) - 1:
-                        s += """%s '%s'.""" % (_("and"), p)
+                        s += f"""{_("and")} '{p}'."""
                     else:
-                        s += """'%s', """ % p
+                        s += f"""'{p}', """
                 raise ValueError(s)
         return value
 
@@ -141,7 +141,7 @@ class PropertyHelperMixin(object):
             for prop in _propSequence:
                 if prop in propsToSkip:
                     continue
-                propRef = eval("self.__class__.%s" % prop)
+                propRef = eval(f"self.__class__.{prop}")
                 if type(propRef) == property:
                     getter = propRef.fget
                     if getter is not None:
@@ -151,10 +151,10 @@ class PropertyHelperMixin(object):
                             propDict[prop] = e
                     else:
                         if not ignoreErrors:
-                            raise ValueError("Property '%s' is not readable." % prop)
+                            raise ValueError(f"Property '{prop}' is not readable.")
                         pass
                 else:
-                    raise AttributeError("'%s' is not a property." % prop)
+                    raise AttributeError(f"'{prop}' is not a property.")
 
         if isinstance(propertySequence, (list, tuple)):
             _fillPropDict(propertySequence)

@@ -125,7 +125,7 @@ class SQLite(dBackend):
                 errMsg = ustr(e).decode(self.Encoding)
             except UnicodeError:
                 errMsg = ustr(e)
-            dabo_module.dbActivityLog.info("SQL: commit failed: %s" % errMsg)
+            dabo_module.dbActivityLog.info(f"SQL: commit failed: {errMsg}")
             raise dException.DBQueryException(errMsg)
 
     def rollbackTransaction(self, cursor):
@@ -145,7 +145,7 @@ class SQLite(dBackend):
         """We need to wrap the value in quotes."""
         sqt = "'"  # single quote
         val = ustr(val)
-        return "%s%s%s" % (sqt, val, sqt)
+        return f"{sqt}{val}{sqt}"
 
     def _isExistingTable(self, tablename, cursor):
         cursor.execute(
@@ -173,7 +173,7 @@ class SQLite(dBackend):
         return cursor.getDataSet(rows=1)["ncount"]
 
     def getFields(self, tableName, cursor):
-        cursor.execute("pragma table_info('%s')" % tableName)
+        cursor.execute(f"pragma table_info('{tableName}')")
         fields = []
         getFieldVal = cursor.getFieldVal
         for rec_idx in range(cursor.RowCount):
@@ -216,7 +216,7 @@ class SQLite(dBackend):
         descFlds = cursor.FieldDescription
         # Get the field info for the table
         auxCrs = cursor._getAuxCursor()
-        auxCrs.execute("pragma table_info('%s')" % cursor.Table)
+        auxCrs.execute(f"pragma table_info('{cursor.Table}')")
         rs = auxCrs._records
 
         stdFlds = [ff["name"] for ff in rs]
@@ -278,7 +278,7 @@ class SQLite(dBackend):
 
                 if not fld.AllowNulls:
                     sql = sql + "NOT NULL "
-                sql = "%sDEFAULT %s," % (sql, self.formatForQuery(fld.Default))
+                sql = f"{sql}DEFAULT {self.formatForQuery(fld.Default)},"
             if sql[-1:] == ",":
                 sql = sql[:-1]
             sql = sql + ")"

@@ -67,13 +67,7 @@ class Postgres(dBackend):
         import psycopg2 as dbapi
 
         self.conn_user = connectInfo.User
-        DSN = "host=%s port=%d dbname=%s user=%s password=%s" % (
-            connectInfo.Host,
-            connectInfo.Port or 5432,
-            connectInfo.Database,
-            self.conn_user,
-            connectInfo.revealPW(),
-        )
+        DSN = f"host={connectInfo.Host} port={connectInfo.Port or 5432} dbname={connectInfo.Database} user={self.conn_user} password={connectInfo.revealPW()}"
         self._connection = dbapi.connect(DSN)
         self.setClientEncoding()
         return self._connection
@@ -88,7 +82,7 @@ class Postgres(dBackend):
         try:
             encoding = self._encodings[encoding]
         except KeyError:
-            dabo.dbActivityLog.info("unknown encoding %r" % encoding)
+            dabo.dbActivityLog.info(f"unknown encoding {encoding!r}")
         if self._connection.encoding != encoding:
             try:
                 self._connection.set_client_encoding(encoding)
@@ -109,11 +103,11 @@ class Postgres(dBackend):
     def escQuote(self, val):
         # escape backslashes and single quotes, and
         # wrap the result in single quotes
-        return "'%s'" % val.replace("\\", "\\\\").replace("'", "''")
+        return f"'{val.replace('\\', '\\\\').replace("'", "''")}'"
 
     def formatDateTime(self, val):
         """We need to wrap the value in quotes."""
-        return "'%s'" % ustr(val)
+        return f"'{ustr(val)}'"
 
     def getTables(self, cursor, includeSystemTables=False):
         query = ["SELECT schemaname||'.'||tablename AS tablename FROM pg_tables WHERE"]
@@ -158,10 +152,10 @@ class Postgres(dBackend):
             " JOIN pg_attribute a ON a.attrelid = c.oid"
             " JOIN pg_type t ON t.oid  = a.atttypid"
             " LEFT JOIN pg_index i ON i.indrelid = c.oid AND i.indisprimary",
-            "WHERE c.relname = '%s'" % tableName,
+            f"WHERE c.relname = '{tableName}'",
         ]
         if schemaName:
-            sql.append("AND n.nspname = '%s'" % schemaName)
+            sql.append(f"AND n.nspname = '{schemaName}'")
         else:
             sql.append("AND pg_table_is_visible(c.oid)")
         if not includeSystemFields:
@@ -283,11 +277,11 @@ class Postgres(dBackend):
             " LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid"
             " AND d.adnum = a.attnum AND a.atthasdef"
             " LEFT JOIN pg_namespace n ON c.relnamespace = n.oid",
-            "WHERE a.attname = '%s'" % cursor.KeyField,
-            "AND (c.relname = '%s')" % tableName,
+            f"WHERE a.attname = '{cursor.KeyField}'",
+            f"AND (c.relname = '{tableName}')",
         ]
         if schemaName:
-            sql.append("AND n.nspname = '%s'" % schemaName)
+            sql.append(f"AND n.nspname = '{schemaName}'")
         else:
             sql.append("AND pg_table_is_visible(c.oid)")
         sql.append(

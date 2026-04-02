@@ -29,9 +29,9 @@ def logPoint(msg="", levels=None):
             continue
         if filename.startswith("./"):
             filename = filename[2:]
-        output.write("%s:%s in %s:\n" % (filename, line, funcname))
+        output.write(f"{filename}:{line} in {funcname}:\n")
         if lines:
-            output.write("    %s\n" % "".join(lines)[:-1])
+            output.write(f"    {''.join(lines)[:-1]}\n")
     s = output.getvalue()
     # I actually logged the result, but you could also print it:
     return s
@@ -69,20 +69,20 @@ def loggit(fnc):
         loggit.fhwr = open(fname, "a")
 
     def wrapped(*args, **kwargs):
-        loggit.fhwr.write("\n%s\n" % time.strftime("%Y-%m-%d %H:%M:%S"))
-        loggit.fhwr.write("%s\n" % fnc)
+        loggit.fhwr.write(f"\n{time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        loggit.fhwr.write(f"{fnc}\n")
         if args:
             loggit.fhwr.write("\tARGS:")
             for ag in args:
                 try:
-                    loggit.fhwr.write(" %s" % ag)
+                    loggit.fhwr.write(f" {ag}")
                 except Exception as e:
-                    loggit.fhwr.write(" ERR: %s" % e)
+                    loggit.fhwr.write(f" ERR: {e}")
             loggit.fhwr.write("\n")
         if kwargs:
-            loggit.fhwr.write("\tKWARGS:%s\n" % kwargs)
+            loggit.fhwr.write(f"\tKWARGS:{kwargs}\n")
         for stk in inspect.stack()[1:-7]:
-            loggit.fhwr.write("\t%s, %s, line %s\n" % (os.path.split(stk[1])[1], stk[3], stk[2]))
+            loggit.fhwr.write(f"\t{os.path.split(stk[1])[1]}, {stk[3]}, line {stk[2]}\n")
         result = fnc(*args, **kwargs)
         loggit.fhwr.flush()
         return result

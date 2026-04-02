@@ -145,7 +145,7 @@ class dPref(object):
                 # See if it's in the database
                 key = self._getKey()
                 if key:
-                    param = "%s.%s" % (key, att)
+                    param = f"{key}.{att}"
                 else:
                     param = att
                 crs = self._cursor
@@ -242,9 +242,9 @@ class dPref(object):
         elif typ in ("list", "tuple", "dict"):
             ret = eval(val)
         elif typ == "date":
-            ret = eval("datetime.date%s" % val)
+            ret = eval(f"datetime.date{val}")
         elif typ == "datetime":
-            ret = eval("datetime.datetime%s" % val)
+            ret = eval(f"datetime.datetime{val}")
         elif typ == "decimal":
             ret = Decimal(val)
         elif typ == "none":
@@ -264,7 +264,7 @@ class dPref(object):
             else:
                 key = att
         else:
-            key = "%s.%s" % (baseKey, att)
+            key = f"{baseKey}.{att}"
         crs = self._cursor
         try:
             typ = self._typeDict[type(val)]
@@ -306,7 +306,7 @@ class dPref(object):
         """
         basekey = self._getKey()
         if basekey:
-            key = "%s.%s" % (basekey, att)
+            key = f"{basekey}.{att}"
         else:
             key = att
         crs = self._cursor
@@ -330,7 +330,7 @@ class dPref(object):
         basekey = self._getKey()
         if not basekey:
             return
-        key = "%s.%%" % basekey
+        key = f"{basekey}.%"
         if self._autoPersist:
             crs = self._cursor
             crs.execute("delete from daboprefs where ckey like ? ", (key,))
@@ -354,7 +354,7 @@ class dPref(object):
         sql = """delete from daboprefs
                 where ckey like ?
                 and cvalue = ?"""
-        prm = ("%s%%" % self._getKey(), val)
+        prm = (f"{self._getKey()}%", val)
         crs.execute(sql, prm)
         crs.commitTransaction()
 
@@ -403,7 +403,7 @@ class dPref(object):
         keylen = len(key) + 1
         keydots = len(key.split("."))
         sql = "select ckey from daboprefs where ckey like ?"
-        crs.execute(sql, ("%s.%%" % key,))
+        crs.execute(sql, (f"{key}.%",))
         rs = crs.getDataSet()
         tmpDict = {}
         for rec in rs:
@@ -429,7 +429,7 @@ class dPref(object):
             key = ".".join((key, spec))
         keydots = len(key.split("."))
         sql = "select ckey from daboprefs where ckey like ?"
-        crs.execute(sql, ("%s.%%" % key,))
+        crs.execute(sql, (f"{key}.%",))
         rs = crs.getDataSet()
         retList = [rec["ckey"].split(".")[keydots] for rec in rs if len(rec["ckey"].split(".")) > 2]
         tmp = {}
@@ -467,7 +467,7 @@ class dPref(object):
             key = ".".join((key, spec))
         sql = "select ckey from daboprefs where ckey like ? order by ckey"
         if key:
-            param = "%s.%%" % key
+            param = f"{key}.%"
         else:
             param = "%"
         crs.execute(sql, (param,))

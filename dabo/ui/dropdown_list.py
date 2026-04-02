@@ -50,7 +50,7 @@ class _dDropdownList_test(dDropdownList):
         choices = []
         keys = {}
         for developer in developers:
-            choices.append("%s %s" % (developer["fname"], developer["lname"]))
+            choices.append(f"{developer['fname']} {developer['lname']}")
             keys[developer["iid"]] = len(choices) - 1
 
         self.Choices = choices

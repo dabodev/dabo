@@ -145,7 +145,7 @@ class Page(Serializable):
                 self._beginPage(canvas, env)
             self._placeDetailBand()
             self.detail.evaluateObjects(detailEnv)
-            bandOutline = "%s (record %s)" % ("detail", recordNumber)
+            bandOutline = f"{'detail'} (record {recordNumber})"
             self.detail.draw(canvas, bandOutline)  # bandOutline * self.ShowBandOutlines)
         self._drawForeground(canvas, env)
 

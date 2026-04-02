@@ -44,7 +44,7 @@ class Oracle(dBackend):
         sl = "\\"
         qt = "'"
         val = val.replace(sl, sl + sl).replace(qt, sl + qt)
-        return "%s%s%s" % (qt, val, qt)
+        return f"{qt}{val}{qt}"
 
     def processFields(self, txt):
         # this was used for testing only
@@ -56,7 +56,7 @@ class Oracle(dBackend):
         """We need to wrap the value in quotes."""
         sqt = "'"  # single quote
         val = ustr(val)
-        return "%s%s%s" % (sqt, val, sqt)
+        return f"{sqt}{val}{sqt}"
 
     def getTables(self, cursor, includeSystemTables=False):
         sqlstr = "select table_name from user_tables"
@@ -139,9 +139,9 @@ class Oracle(dBackend):
         """Oracle wants the limit clause as where clause."""
         if whereClause:
             if limitClause:
-                whereClause = whereClause + " and %s" % limitClause
+                whereClause = whereClause + f" and {limitClause}"
         elif limitClause:
-            whereClause = "where %s" % limitClause
+            whereClause = f"where {limitClause}"
         clauses = (
             fieldClause,
             fromClause,

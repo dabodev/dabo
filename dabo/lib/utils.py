@@ -175,7 +175,7 @@ def getUserAppDataDirectory(appName="Dabo"):
 
     if sys.platform not in ("win32",):
         # On Unix, change appname to lower, don't allow spaces, and prepend a ".":
-        appName = ".%s" % appName.lower().replace(" ", "_")
+        appName = f".{appName.lower().replace(' ', '_')}"
 
     # First, on Windows, try the Windows API function:
     if shell and shellcon:
@@ -198,7 +198,7 @@ def getUserAppDataDirectory(appName="Dabo"):
             try:
                 os.makedirs(dd)
             except OSError:
-                sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
+                sys.stderr.write(f"Couldn't create the user setting directory ({dd}).")
                 dd = None
     return dd
 
@@ -223,7 +223,7 @@ def getSharedAppDataDirectory(appName="Dabo"):
 
     if sys.platform not in ("win32",):
         # On Unix, change appname to lower, don't allow spaces.
-        appName = "%s" % appName.lower().replace(" ", "_")
+        appName = f"{appName.lower().replace(' ', '_')}"
 
     if sys.platform in ("win32",):
         # On Windows platform, get information using shell32 library function.
@@ -246,7 +246,7 @@ def getSharedAppDataDirectory(appName="Dabo"):
             try:
                 os.makedirs(dd)
             except OSError:
-                sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
+                sys.stderr.write(f"Couldn't create the user setting directory ({dd}).")
                 dd = None
     return dd
 
@@ -504,7 +504,7 @@ def resolvePathAndUpdate(srcFile):
             if ext == ".cdxml":
                 # There might be an associated code file. If not, the error
                 # will be caught in the app method, and no harm will be done.
-                codefile = "%s-code.py" % nm
+                codefile = f"{nm}-code.py"
                 app.urlFetch(codefile)
     # At this point the file should be present and updated. If not...
     if not os.path.exists(srcFile):

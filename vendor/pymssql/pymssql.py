@@ -159,9 +159,9 @@ class pymssqlCursor:
                     totrows = totrows + self._result[self.__resultpos][1]
                 else:
                     self._result = None
-                    raise DatabaseError("error: %s" % self.__source.errmsg())
+                    raise DatabaseError(f"error: {self.__source.errmsg()}")
         except:
-            raise DatabaseError("internal error: %s" % self.__source.errmsg())
+            raise DatabaseError(f"internal error: {self.__source.errmsg()}")
 
         # then initialize result raw count and description
         if len(self._result[self.__resultpos][0]) > 0:
@@ -231,22 +231,14 @@ def _quote(x):
     # datetime.datetime ! Also round x.microsecond to milliseconds,
     # otherwise we get Msg 241, Level 16, State 1: Syntax error
     elif isinstance(x, datetime.datetime):
-        x = "{ts '%04d-%02d-%02d %02d:%02d:%02d.%s'}" % (
-            x.year,
-            x.month,
-            x.day,
-            x.hour,
-            x.minute,
-            x.second,
-            x.microsecond / 1000,
-        )
+        x = f"{{ts '{x.year:04d}-{x.month:02d}-{x.day:02d} {x.hour:02d}:{x.minute:02d}:{x.second:02d}.{x.microsecond / 1000}'}}"
     elif isinstance(x, datetime.date):
-        x = "{d '%04d-%02d-%02d'}" % (x.year, x.month, x.day)
+        x = f"{{d '{x.year:04d}-{x.month:02d}-{x.day:02d}'}}"
     # alternative quoting by Luciano Pacheco <lucmult@gmail.com>
     # elif hasattr(x, 'timetuple'):
     #    x = time.strftime('\'%Y%m%d %H:%M:%S\'', x.timetuple())
     else:
-        raise InterfaceError("do not know how to handle type %s" % type(x))
+        raise InterfaceError(f"do not know how to handle type {type(x)}")
 
     return x
 

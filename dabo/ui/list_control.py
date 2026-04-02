@@ -300,7 +300,7 @@ class dListControl(dControlItemMixin, ListMixin.ListCtrlAutoWidthMixin, wx.ListC
         else:
             if col < self.ColumnCount:
                 if not isinstance(tx, str) and self.AutoConvertToString:
-                    tx = "%s" % tx
+                    tx = f"{tx}"
                 if insert:
                     new_item = self.InsertItem(row, tx)
                 else:

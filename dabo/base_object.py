@@ -10,6 +10,8 @@ from .localization import _
 
 NONE_TYPE = type(None)
 
+dabo_module = settings.get_dabo_package()
+
 
 class dObject(PropertyHelperMixin, EventMixin):
     """The basic ancestor of all Dabo objects."""
@@ -85,8 +87,8 @@ class dObject(PropertyHelperMixin, EventMixin):
         properties = self._extractKeywordProperties(kwargs, self._properties)
         if kwargs:
             # Some kwargs haven't been handled.
-            bad = ", ".join(["'%s'" % kk for kk in kwargs])
-            raise TypeError("Invalid keyword arguments passed to %s: %s" % (self.__repr__(), bad))
+            bad = ", ".join([f"'{kk}'" for kk in kwargs])
+            raise TypeError(f"Invalid keyword arguments passed to {self.__repr__()}: {bad}")
 
         if self._call_afterInit:
             self._afterInit()
@@ -98,7 +100,7 @@ class dObject(PropertyHelperMixin, EventMixin):
         bc = self.BaseClass
         if bc is None:
             bc = self.__class__
-        strval = "%s" % bc
+        strval = f"{bc}"
         classname = strval.split("'")[1]
         classparts = classname.split(".")
         if ".ui.ui" in classname:
@@ -122,11 +124,11 @@ class dObject(PropertyHelperMixin, EventMixin):
 
         if (not nm) or (nm == NULL_NAME):
             # No name; use module.classname
-            nm = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+            nm = "{self.__class__.__module__}.{self.__class__.__name__}"
         if not self:
             print("I'm dead")
         _id = self._getID()
-        return "<%(nm)s (baseclass %(classname)s, id:%(_id)s)>" % locals()
+        return f"<{nm} (baseclass {classname}, id:{_id})>"
 
     def _getID(self):
         """
@@ -251,9 +253,8 @@ class dObject(PropertyHelperMixin, EventMixin):
                 compCode = compile(code, "", "exec")
             except SyntaxError as e:
                 snm = self.Name
-                log.error(
-                    _("Method '%(nm)s' of object '%(snm)s' has the following error: %(e)s")
-                    % locals()
+                dabo_module.log_error(
+                    _(f"Method '{nm}' of object '{snm}' has the following error: {e}")
                 )
                 continue
             # OK, we have the compiled code. Add it to the class definition.
@@ -262,7 +263,7 @@ class dObject(PropertyHelperMixin, EventMixin):
             nmSpace = {}
             exec(compCode, nmSpace)
             mthd = nmSpace[nm]
-            exec("self.%s = %s.__get__(self)" % (nm, nm))
+            exec(f"self.{nm} = {nm}.__get__(self)")
             newMethod = types.MethodType(mthd, self)
             setattr(self, nm, newMethod)
 

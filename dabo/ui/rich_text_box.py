@@ -81,7 +81,7 @@ class dRichTextBox(dDataControlMixin, wx.richtext.RichTextCtrl):
             )
             if handler is None:
                 handler = self._xmlHandler
-                filename = "%s.xml" % filename
+                filename = f"{filename}.xml"
                 dabo_module.info(_("Forcing to RichText XML format"))
             handler.SaveFile(self.GetBuffer(), filename)
 
@@ -475,7 +475,7 @@ class RichTextTestForm(dForm):
         iconPath = "themes/tango/32x32/actions"
         self.tbbBold = self.appendToolBarButton(
             "Bold",
-            pic="%s/format-text-bold" % iconPath,
+            pic=f"{iconPath}/format-text-bold",
             toggle=True,
             help="Toggle the Bold style of the selected text",
             tip="Bold",
@@ -483,7 +483,7 @@ class RichTextTestForm(dForm):
         )
         self.tbbItalic = self.appendToolBarButton(
             "Italic",
-            pic="%s/format-text-italic" % iconPath,
+            pic=f"{iconPath}/format-text-italic",
             toggle=True,
             help="Toggle the Italic style of the selected text",
             tip="Italic",
@@ -491,7 +491,7 @@ class RichTextTestForm(dForm):
         )
         self.tbbUnderline = self.appendToolBarButton(
             "Underline",
-            pic="%s/format-text-underline" % iconPath,
+            pic=f"{iconPath}/format-text-underline",
             toggle=True,
             help="Toggle the Underline style of the selected text",
             tip="Underline",

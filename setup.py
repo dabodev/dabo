@@ -71,7 +71,7 @@ setup(
     name="Dabo",
     version=version,
     url="http://dabodev.com/",
-    download_url="https://github.com/dabodev/dabo/archive/v%s.zip" % version,
+    download_url=f"https://github.com/dabodev/dabo/archive/v{version}.zip",
     author="Ed Leafe and Paul McNett",
     author_email="dev@dabodev.com",
     description="Dabo 3-tier Application Framework",

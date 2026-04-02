@@ -935,11 +935,11 @@ if __name__ == "__main__":
             p.BarColor1 = color1
             p.BarColor2 = color2
             if style in ("VerticalFill", "HorizontalFill"):
-                p.Caption = "Style: %s; Colors: %s, %s" % (style, color1, color2)
+                p.Caption = f"Style: {style}; Colors: {color1}, {color2}"
             elif style in ("BorderOnly",):
-                p.Caption = "Style: %s" % style
+                p.Caption = f"Style: {style}"
             else:
-                p.Caption = "Style: %s; Color: %s" % (style, color1)
+                p.Caption = f"Style: {style}; Color: {color1}"
 
         def onCollapseAll(self, evt):
             self.slideControl.collapseAll()

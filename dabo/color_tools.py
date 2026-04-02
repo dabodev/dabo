@@ -70,7 +70,7 @@ def hexToDec(hx):
     pos = 1
     for c in rev:
         if hex.get(c) == None:
-            raise InvalidCharError("%s is an invalid hex character" % (c,))
+            raise InvalidCharError(f"{c} is an invalid hex character")
         ret += hex[c] * pos
         pos = pos * 16
     return ret
@@ -144,7 +144,7 @@ def colorTupleFromString(color):
             if not 0 <= val <= 255:
                 raise KeyError("Color tuple integer must range from 0-255")
     else:
-        raise KeyError("Color '%s' is not defined." % color)
+        raise KeyError(f"Color '{color}' is not defined.")
     return ret
 
 

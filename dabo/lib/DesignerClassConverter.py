@@ -122,7 +122,7 @@ class DesignerClassConverter(dObject):
         if encoding is None:
             encoding = self._encoding
         # Get the associated code file, if any
-        codePth = "%s-code.py" % os.path.splitext(pth)[0]
+        codePth = f"{os.path.splitext(pth)[0]}-code.py"
         if os.path.exists(codePth):
             try:
                 codeContent = codecs.open(codePth, "r", encoding).read()
@@ -321,9 +321,9 @@ class DesignerClassConverter(dObject):
                 continue
             if propDef["defaultType"] == "string":
                 val = '"' + val + '"'
-            propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
+            propInit += f"self._{prop[0].lower()}{prop[1:]} = {val}" + LINESEP
         if self.CreateDesignerControls:
-            superName = "getControlClass(%s.%s)" % (modpath, shortClsName)
+            superName = f"getControlClass({modpath}.{shortClsName})"
         else:
             superName = ".".join((modpath, shortClsName))
         prnt = self.currParent
@@ -353,11 +353,7 @@ class DesignerClassConverter(dObject):
             if mthd == "importStatements":
                 self._import += cd + LINESEP
                 continue
-            self.classText = "%s%s%s" % (
-                self.classText,
-                LINESEP,
-                self.indentCode(cd, 1),
-            )
+            self.classText = f"{self.classText}{LINESEP}{self.indentCode(cd, 1)}"
         # Add any property definitions
         for prop, propDef in list(propDefs.items()):
             pdg = propDef["getter"]
@@ -516,9 +512,9 @@ class DesignerClassConverter(dObject):
                     propsToSend = []
                     for att, val in list(atts.items()):
                         if att in ("HGap", "MaxRows", "MaxCols", "VGap"):
-                            propsToSend.append("%s=%s" % (att, val))
+                            propsToSend.append(f"{att}={val}")
                         elif att == "MaxDimension":
-                            propsToSend.append("%s='%s'" % (att, val))
+                            propsToSend.append(f"{att}='{val}'")
                     if propsToSend:
                         propString = ", ".join(propsToSend)
                 isBorderSizer = clsname == "LayoutBorderSizer"
@@ -533,7 +529,7 @@ class DesignerClassConverter(dObject):
                     szType = atts["Orientation"]
                     for unneeded in ("SlotCount", "classID"):
                         atts.pop(unneeded, None)
-                    propString = ", ".join(["%s='%s'" % (k, v) for k, v in list(atts.items())])
+                    propString = ", ".join([f"{k}='{v}'" for k, v in list(atts.items())])
                     if isBorderSizer:
                         prnt = "currParent, "
                 if self.CreateDesignerControls:
@@ -560,12 +556,12 @@ class DesignerClassConverter(dObject):
                 defSizerInfo.update(szInfo)
                 szInfo = defSizerInfo
                 if self.CreateDesignerControls:
-                    superName = "getControlClass(%s.%s)" % (modpath, "dPanel")
+                    superName = f"getControlClass({modpath}.{'dPanel'})"
                     template = self._createCustomControlText
                 else:
                     superName = "ui.dPanel"
                     template = self._createControlText
-                attPropString = ", attProperties=%s" % cleanAtts
+                attPropString = f", attProperties={cleanAtts}"
                 self.classText += LINESEP + template % locals()
 
             else:
@@ -594,16 +590,16 @@ class DesignerClassConverter(dObject):
                     # We don't want panels auto-created by the PanelCount prop
                     pnlCnt = self._extractKey(cleanAtts, "PanelCount")
                 if isCustom:
-                    superName = "self.getCustControlClass('%s')" % nm
+                    superName = f"self.getCustControlClass('{nm}')"
                     template = self._createCustomControlText
                 else:
                     if self.CreateDesignerControls:
-                        superName = "getControlClass(%s.%s)" % (modpath, shortClsName)
+                        superName = f"getControlClass({modpath}.{shortClsName})"
                         template = self._createCustomControlText
                     else:
                         superName = ".".join((modpath, shortClsName))
                         template = self._createControlText
-                    attPropString = ", attProperties=%s" % cleanAtts
+                    attPropString = f", attProperties={cleanAtts}"
                 self.classText += LINESEP + template % locals()
 
             # If this item has child objects, push the appropriate objects
@@ -619,7 +615,7 @@ class DesignerClassConverter(dObject):
                     # Create the two panels as custom classes, and add them to the
                     # splitter as those classes
                     splitName = self.uniqename("splt")
-                    self.classText += LINESEP + ("""        %s = obj""" % splitName)
+                    self.classText += LINESEP + (f"""        {splitName} = obj""")
                     kid = kids[0]
                     kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
                     nm = kid.get("name")
@@ -709,10 +705,10 @@ class DesignerClassConverter(dObject):
                                 classname = nm
                                 if code:
                                     nm = self.createInnerClass(nm, kidCleanAtts, code, {})
-                                    nm = "self.getCustControlClass('%s')" % nm
+                                    nm = f"self.getCustControlClass('{nm}')"
                                     moduleString = ""
                                 else:
-                                    attPropString = ", attProperties=%s" % kidCleanAtts
+                                    attPropString = f", attProperties={kidCleanAtts}"
                                     kidCleanAtts = {}
                                 if isPageFrame:
                                     baseText = self._pgfPageText
@@ -768,7 +764,7 @@ class DesignerClassConverter(dObject):
                 continue
             if propDef["defaultType"] == "string":
                 val = '"' + val + '"'
-            propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
+            propInit += f"self._{prop[0].lower()}{prop[1:]} = {val}" + LINESEP
         prnt = self.currParent
         indCode = self.indentCode(propInit, 2)
         self.innerClassText += self.classTemplate % locals()
@@ -824,7 +820,7 @@ class DesignerClassConverter(dObject):
         ret = ""
         while not ret or ret in self._generatedNames:
             # The empty string is always in the list, so it will run at least once.
-            ret = "%s_%s" % (nm, random.randint(0, 99999))
+            ret = f"{nm}_{random.randint(0, 99999)}"
         self._generatedNames.append(ret)
         return ret
 

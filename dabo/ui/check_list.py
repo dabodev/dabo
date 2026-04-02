@@ -93,7 +93,7 @@ class _dCheckList_test(dCheckList):
         keys = {}
 
         for actor in actors:
-            choices.append("%s %s" % (actor["fname"], actor["lname"]))
+            choices.append(f"{actor['fname']} {actor['lname']}")
             keys[actor["iid"]] = len(choices) - 1
 
         self.Choices = choices

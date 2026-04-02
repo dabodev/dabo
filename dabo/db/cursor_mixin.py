@@ -276,7 +276,7 @@ class dCursorMixin(dObject):
                     scale = 2
             dec = tryToCorrect(Decimal, _field_val, field_name)
             if dec is not None:
-                return dec.quantize(Decimal("0.%s" % (scale * "0",)))
+                return dec.quantize(Decimal(f"0.{scale * '0'}"))
             return dec
         else:
             return tryToCorrect(pythonType, field_val, field_name)
@@ -330,7 +330,7 @@ class dCursorMixin(dObject):
             if isinstance(sql, bytes):
                 sql = sql.decode(self.Encoding)
         try:
-            params = ", ".join("%s" % p for p in params)
+            params = ", ".join(f"{p}" for p in params)
         except UnicodeDecodeError as e:
             params = "(couldn't decode params)"
 
@@ -405,7 +405,7 @@ class dCursorMixin(dObject):
                 errMsg = ustr(e).decode(self.Encoding)
             except UnicodeError:
                 errMsg = ustr(e)
-            dabo_module.error("Error fetching records: (%s, %s)" % (type(e), errMsg))
+            dabo_module.error(f"Error fetching records: ({type(e)}, {errMsg})")
 
         if _records and isinstance(_records[0], (tuple, list)):
             # Need to convert each row to a Dict, since the backend didn't do it.
@@ -711,7 +711,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         ret = val
         if isinstance(val, str):
             if ("\n" in val) or ("<" in val) or ("&" in val):
-                ret = "<![CDATA[%s]]>" % val.encode(self.Encoding)
+                ret = f"<![CDATA[{val.encode(self.Encoding)}]]>"
         return ret
 
     def setNonUpdateFields(self, fldList=None):
@@ -828,7 +828,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         # Decrement the temp PK value
         self.__tmpPK -= 1
         if isinstance(pkValue, str):
-            ret = "%s-dabotmp" % ret
+            ret = f"{ret}-dabotmp"
         return ret
 
     def getPK(self, row=None):
@@ -904,7 +904,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 return vf["func"](*vf["args"], **vf["kwargs"])
         else:
             raise exceptions.FieldNotFoundException(
-                "%s '%s' %s" % (_("Field"), fld, _("does not exist in the data set"))
+                f"{_('Field')} '{fld}' {_('does not exist in the data set')}"
             )
 
     def _fldTypeFromDB(self, fld):
@@ -1114,12 +1114,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         try:
             dbActivityLog.info(
                 "lookupPKWithAdd() SQL: %s, PARAMS: %s"
-                % (sql.decode(self.Encoding).replace("\n", " "), "(%s, )" % val)
+                % (sql.decode(self.Encoding).replace("\n", " "), f"({val}, )")
             )
         except Exception:
             # A problem with writing to the log, most likely due to encoding issues
             try:
-                dbActivityLog.info("lookupPKWithAdd() SQL (failed to log PARAMS): %r" % sql)
+                dbActivityLog.info(f"lookupPKWithAdd() SQL (failed to log PARAMS): {sql!r}")
             except Exception:
                 dbActivityLog.info("lookupPKWithAdd() (failed to log SQL and PARAMS)")
         aux.execute(sql, (val,))
@@ -1185,7 +1185,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             except Exception:
                 # A problem with writing to the log, most likely due to encoding issues
                 try:
-                    dbActivityLog.info("mmDissociateValues() SQL (failed to log PARAMS): %r" % sql)
+                    dbActivityLog.info(f"mmDissociateValues() SQL (failed to log PARAMS): {sql!r}")
                 except Exception:
                     dbActivityLog.info("mmDissociateValues() (failed to log SQL and PARAMS)")
             try:
@@ -1204,7 +1204,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         )
         try:
             dbActivityLog.info(
-                "mmDissociateAll() SQL: %s" % (sql.decode(self.Encoding).replace("\n", " "))
+                f"mmDissociateAll() SQL: {sql.decode(self.Encoding).replace('\n', ' ')}"
             )
         except Exception:
             dbActivityLog.info("mmDissociateAll() (failed to log SQL")
@@ -1245,7 +1245,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         except Exception:
             # A problem with writing to the log, most likely due to encoding issues
             try:
-                dbActivityLog.info("mmAddToBoth() SQL (failed to log PARAMS): %r" % sql)
+                dbActivityLog.info(f"mmAddToBoth() SQL (failed to log PARAMS): {sql!r}")
             except Exception:
                 dbActivityLog.info("mmAddToBoth() (failed to log SQL and PARAMS)")
         aux.execute(sql, (thisPK, otherPK))
@@ -1263,21 +1263,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         """
         aux = self.AuxCursor
         # Add the related table alias
-        aliased_names = ["%s.%s" % (self._mmOtherTable, fld) for fld in listOfFields]
+        aliased_names = [f"{self._mmOtherTable}.{fld}" for fld in listOfFields]
         fldNames = ", ".join(aliased_names)
         otherPKcol = self._mmOtherPKCol
         aux.setFromClause(self._assocTable)
-        join = "join %s on %s.%s = %s.%s" % (
-            self._mmOtherTable,
-            self._assocTable,
-            self._assocPKColOther,
-            self._mmOtherTable,
-            self._mmOtherPKCol,
-        )
+        join = f"join {self._mmOtherTable} on {self._assocTable}.{self._assocPKColOther} = {self._mmOtherTable}.{self._mmOtherPKCol}"
         aux.setJoinClause(join)
         aux.setFieldClause(fldNames)
         aux.setWhereClause(
-            self._qMarkToParamPlaceholder("%s.%s = ?" % (self._assocTable, self._assocPKColThis))
+            self._qMarkToParamPlaceholder(f"{self._assocTable}.{self._assocPKColThis} = ?")
         )
         params = (self.getPK(),)
         aux.requery(params)
@@ -1706,7 +1700,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                         val = self.formatDateTime(val)
                     else:
                         val = ustr(val)
-                    wheres.append("%s = %s" % (fld, val))
+                    wheres.append(f"{fld} = {val}")
                 where = " and ".join(wheres)
                 aux.execute("select * from %s where %s" % (self.Table, where))
                 try:
@@ -1998,7 +1992,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
                 scale = field_scale
                 if scale is None:
                     scale = 2
-                ex = "0.%s" % ("0" * scale)
+                ex = f"0.{'0' * scale}"
                 newval = newval.quantize(Decimal(ex))
             elif typ is datetime.datetime:
                 newval = datetime.datetime.min
@@ -2339,7 +2333,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             # elif fieldType in ("D", "T"):
             #        val = self.formatDateTime(val)
             nms = bo.encloseNames(fld, aq)
-            retSql.append("%s%s = %s" % (tblPrefix, nms, self.ParamPlaceholder))
+            retSql.append(f"{tblPrefix}{nms} = {self.ParamPlaceholder}")
             retParams.append(val)
         return (", ".join(retSql), tuple(retParams))
 
@@ -2375,7 +2369,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         if tableName is None:
             # Use the default
             tableName = self.Table
-        key = "%s:::%s" % (tableName, self.CurrentSQL)
+        key = f"{tableName}:::{self.CurrentSQL}"
         try:
             return self._fieldStructure[key]
         except KeyError:
@@ -2551,18 +2545,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         self._assocPKColOther = assocPKColOther
 
         if self.sqlManager.BackendObject:
-            thisJoin = "%s.%s = %s.%s" % (
-                self.Table,
-                self.KeyField,
-                assocTable,
-                assocPKColThis,
-            )
-            otherJoin = "%s.%s = %s.%s" % (
-                mmOtherTable,
-                mmOtherPKCol,
-                assocTable,
-                assocPKColOther,
-            )
+            thisJoin = f"{self.Table}.{self.KeyField} = {assocTable}.{assocPKColThis}"
+            otherJoin = f"{mmOtherTable}.{mmOtherPKCol} = {assocTable}.{assocPKColOther}"
             self.sqlManager._joinClause = self.sqlManager.BackendObject.addJoin(
                 assocTable,
                 thisJoin,
@@ -2639,9 +2623,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
             alias = self.Table
         if not isinstance(fld, (list, tuple)):
             fld = (fld,)
-        filtExpr = "and".join(
-            [" %s.%s = %s " % (alias, fldExpr, self.ParamPlaceholder) for fldExpr in fld]
-        )
+        filtExpr = "and".join([f" {alias}.{fldExpr} = {self.ParamPlaceholder} " for fldExpr in fld])
         self.setChildFilterClause(filtExpr)
 
     def setNonMatchChildFilterClause(self):
@@ -2737,7 +2719,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         if not fieldClause:
             fieldClause = "*"
         if self._isMM:
-            fieldClause = "DISTINCT %s" % fieldClause
+            fieldClause = f"DISTINCT {fieldClause}"
 
         if not fromClause:
             fromClause = self.Table
@@ -2761,15 +2743,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         if orderByClause:
             orderByClause = " order by " + orderByClause
         if limitClause:
-            limitClause = " %s %s" % (self.sqlManager.getLimitWord(), limitClause)
+            limitClause = f" {self.sqlManager.getLimitWord()} {limitClause}"
         elif limitClause is None:
             # The limit clause was specifically disabled.
             limitClause = ""
         else:
-            limitClause = " %s %s" % (
-                self.sqlManager.getLimitWord(),
-                self.sqlManager._defaultLimit,
-            )
+            limitClause = f" {self.sqlManager.getLimitWord()} {self.sqlManager._defaultLimit}"
 
         return self.sqlManager.BackendObject.formSQL(
             fieldClause,
@@ -2823,14 +2802,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
         if boPlaceholder in sql:
             # Better not change the sql, because the ? might have a different meaning.
             return sql
-        return sql.replace("?", "%s" % self.BackendObject.paramPlaceholder)
+        return sql.replace("?", f"{self.BackendObject.paramPlaceholder}")
 
     def _setTableForRemote(self, tbl):
         """
         Used when running as a remote application. We don't want to trigger
         the methods to query the database for field information.
         """
-        self._table = self.AuxCursor._table = self.sqlManager._table = "%s" % tbl
+        self._table = self.AuxCursor._table = self.sqlManager._table = f"{tbl}"
 
     def __createDataStructure(self):
         # Get the information from the backend. Note that elements 3 and 4 get
@@ -3119,7 +3098,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
     @Table.setter
     def Table(self, table):
-        self._table = self.AuxCursor._table = self.sqlManager._table = "%s" % table
+        self._table = self.AuxCursor._table = self.sqlManager._table = f"{table}"
         if table and not self._keyFieldSet:
             flds = self.getFields(table)
             if flds is None:

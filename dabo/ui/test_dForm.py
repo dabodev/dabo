@@ -16,8 +16,8 @@ class Test_dForm(unittest.TestCase):
         self.con = db.dConnection(DbType="SQLite", Database=":memory:")
         biz = self.biz = biz.dBizobj(self.con)
         uniqueName = getRandomUUID().replace("-", "")[-20:]
-        self.temp_table_name = "unittest%s" % uniqueName
-        self.temp_child_table_name = "ut_child%s" % uniqueName
+        self.temp_table_name = f"unittest{uniqueName}"
+        self.temp_child_table_name = f"ut_child{uniqueName}"
         self.createSchema()
         biz.UserSQL = "select * from %s" % self.temp_table_name
         biz.KeyField = "pk"

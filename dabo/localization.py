@@ -241,13 +241,13 @@ def main():
             # print the boundary
             add("+----")
             for s in stringsToTranslate:
-                add("+-%s-" % ("-" * max_len[s]))
+                add(f"+-{'-' * max_len[s]}-")
             add("+")
         else:
             # print the text
             for i, s in enumerate(strings):
                 len_s = max_len.get(i and stringsToTranslate[i - 1], len(s))
-                add("| %s " % s.ljust(len_s))
+                add(f"| {s.ljust(len_s)} ")
             add("|")
         return "".join(lin)
 

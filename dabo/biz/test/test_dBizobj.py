@@ -105,7 +105,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
         biz = self.biz
 
         def getCombinedName():
-            return "%s:%s" % (biz.Record.cField.replace(" ", ""), biz.Record.iField)
+            return f"{biz.Record.cField.replace(' ', '')}:{biz.Record.iField}"
 
         biz.VirtualFields["combined_name"] = getCombinedName
 

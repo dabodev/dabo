@@ -58,10 +58,7 @@ class StringChoiceAttr(SerializableAttribute):
         if value is None:
             return self.default
         v = eval(value, env)
-        assert v in self.choices, "Invalid value %r for %s" % (
-            v,
-            self.__class__.__name__,
-        )
+        assert v in self.choices, f"Invalid value {v!r} for {self.__class__.__name__}"
         return v
 
 

@@ -51,7 +51,7 @@ class Firebird(dBackend):
         host = ustr(connectInfo.Host)
         port = connectInfo.Port
         if port:
-            host = "%s/%s" % (host, port)
+            host = f"{host}/{port}"
         user = str(connectInfo.User)
         password = str(connectInfo.revealPW())
         database = ustr(connectInfo.Database)
@@ -98,7 +98,7 @@ class Firebird(dBackend):
         """We need to wrap the value in quotes."""
         sqt = "'"  # single quote
         val = ustr(val)
-        return "%s%s%s" % (sqt, val, sqt)
+        return f"{sqt}{val}{sqt}"
 
     def getTables(self, cursor, includeSystemTables=False):
         if includeSystemTables:
@@ -107,8 +107,7 @@ class Firebird(dBackend):
             whereClause = "where rdb$relation_name not starting with 'RDB$' "
 
         cursor.execute(
-            "select rdb$relation_name from rdb$relations "
-            "%s order by rdb$relation_name" % whereClause
+            f"select rdb$relation_name from rdb$relations {whereClause} order by rdb$relation_name"
         )
         rs = cursor.getDataSet()
         tables = []
@@ -295,7 +294,7 @@ class Firebird(dBackend):
             )
             cursor.execute(sql)
             ret = cursor.getFieldVal("nextval")
-        dabo.dbActivityLog.info("SQL: result of pregenPK: %d" % ret)
+        dabo.dbActivityLog.info(f"SQL: result of pregenPK: {ret}")
         return ret
 
     def setSQL(self, sql):
@@ -342,7 +341,7 @@ class Firebird(dBackend):
         def qtField(mtch):
             tbl = mtch.groups()[0]
             fld = mtch.groups()[1].upper()
-            return '%s."%s"' % (tbl, fld)
+            return f'{tbl}."{fld}"'
 
         return self.fieldPat.sub(qtField, txt)
 

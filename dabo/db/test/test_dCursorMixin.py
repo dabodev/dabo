@@ -196,7 +196,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
         testSQL = "select * from %s where nfield = 23.23" % self.temp_table_name
         addWhere = self.getAdditionalWhere()
         if addWhere:
-            testSQL += " AND %s" % addWhere
+            testSQL += f" AND {addWhere}"
         cur.UserSQL = testSQL
         cur.requery()
         self.assertEqual(cur.LastSQL, cur.UserSQL)
@@ -336,7 +336,7 @@ class Test_dCursorMixin_sqlite(Test_dCursorMixin, unittest.TestCase):
     def setUp(self):
         con = db.dConnection(DbType="SQLite", Database=":memory:")
         self.cur = con.getDaboCursor()
-        self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
+        self.temp_table_name = f"unittest{getRandomUUID().replace('-', '')[-17:]}"
         super().setUp()
 
 
@@ -350,7 +350,7 @@ class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
             Host="paulmcnett.com",
         )
         self.cur = con.getDaboCursor()
-        self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
+        self.temp_table_name = f"unittest{getRandomUUID().replace('-', '')[-17:]}"
         super().setUp()
 
     def tearDown(self):
@@ -368,7 +368,7 @@ class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
             Host="athlon28",
         )
         self.cur = con.getDaboCursor()
-        self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
+        self.temp_table_name = f"unittest{getRandomUUID().replace('-', '')[-17:]}"
         super().setUp()
 
     def tearDown(self):
@@ -412,7 +412,7 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
         super().tearDown()
 
     def getAdditionalWhere(self):
-        return "jobid = %f" % self.jobid
+        return f"jobid = {self.jobid}"
 
     def createSchema(self):
         cur = self.cur

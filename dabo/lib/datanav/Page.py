@@ -216,7 +216,7 @@ class SelectPage(Page):
         elif action == "show":
             # Get the descrips and order
             sf = self.sortFields
-            dd = [(sf[kk][0], kk, "%s %s" % (sf[kk][2], sf[kk][1])) for kk in sf]
+            dd = [(sf[kk][0], kk, f"{sf[kk][2]} {sf[kk][1]}") for kk in sf]
             sortDesc = [itm[2] for itm in sorted(dd)]
             sortedList = dui.sortList(sortDesc)
             newPos = 0
@@ -329,7 +329,7 @@ class SelectPage(Page):
                 else:
                     matchVal = ctrl.Value
                 try:
-                    matchStr = "%s" % matchVal
+                    matchStr = f"{matchVal}"
                 except TypeError:
                     matchStr = ""
                 # matchStr = "%s" % matchVal
@@ -364,11 +364,7 @@ class SelectPage(Page):
                 elif fldType in ("date", "datetime"):
                     if isinstance(ctrl, dui.dDateTextBox):
                         dtTuple = ctrl.getDateTuple()
-                        dt = "%s-%s-%s" % (
-                            dtTuple[0],
-                            ustr(dtTuple[1]).zfill(2),
-                            ustr(dtTuple[2]).zfill(2),
-                        )
+                        dt = f"{dtTuple[0]}-{ustr(dtTuple[1]).zfill(2)}-{ustr(dtTuple[2]).zfill(2)}"
                     else:
                         dt = matchVal
                     matchStr = biz.formatDateTime(dt)
@@ -413,7 +409,7 @@ class SelectPage(Page):
 
                 # We have the pieces of the clause; assemble them together
                 if useStdFormat:
-                    whr = "%s.%s %s %s" % (table, field, opStr, matchStr)
+                    whr = f"{table}.{field} {opStr} {matchStr}"
                 if len(whr) > 0:
                     biz.addWhere(whr, expJoint)
         return
@@ -496,7 +492,7 @@ class SelectPage(Page):
         elif typ == "bool":
             chc = (QRY_OPERATOR.TRUE, QRY_OPERATOR.FALSE)
         else:
-            dabo.log.error(_("Type '%s' not recognized.") % typ)
+            dabo.log_error(_("Type '%s' not recognized.") % typ)
             chc = ()
         return chc
 

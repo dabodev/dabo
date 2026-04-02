@@ -34,7 +34,7 @@ class CaselessDict(dict):
         for v in list(self._OriginalCase.values()):
             if len(ret) > 1:
                 ret += ", "
-            ret += "%s: %s" % (repr(v), repr(self[v]))
+            ret += f"{repr(v)}: {repr(self[v])}"
         ret += "}"
         return ret
 

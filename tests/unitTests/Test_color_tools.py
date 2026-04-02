@@ -259,11 +259,11 @@ class TestColorTupleFromString(unittest.TestCase):
     def testKnownValues(self):
         """colorTupleFromString should return known results for known values"""
         for a in range(256):
-            test = "(%i, %i, %i)" % (a, 255 - a, a)
+            test = f"({a}, {255 - a}, {a})"
             result = color_tools.colorTupleFromString(test)
             self.assertEqual((a, 255 - a, a), result)
 
-            test = "(%i, %i, %i)" % (a, a, a)
+            test = f"({a}, {a}, {a})"
             result = color_tools.colorTupleFromString(test)
             self.assertEqual((a, a, a), result)
 

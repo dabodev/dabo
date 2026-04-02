@@ -526,7 +526,7 @@ class dBizobj(dObject):
         if rp:
             return rp.save(startTransaction=startTransaction)
         if not self.RowCount:
-            dabo_module.log.error(_("Abort attempt to save an empty cursor of %s.") % self.Name)
+            dabo_module.log_error(_("Abort attempt to save an empty cursor of %s.") % self.Name)
             return
         if not self.isChanged():
             return
@@ -940,7 +940,7 @@ class dBizobj(dObject):
             if self._logScanException(e):
                 nm = self.Name
                 ue = ustr(e)
-                dabo_module.log.error(_("Error in scanRows of %(nm)s: %(ue)s") % locals())
+                dabo_module.log_error(_("Error in scanRows of %(nm)s: %(ue)s") % locals())
             if self.ScanRestorePosition:
                 self.__setCurrentStatus(currentStatus)
             raise
@@ -975,7 +975,7 @@ class dBizobj(dObject):
             if self._logScanException(e):
                 nm = self.Name
                 ue = ustr(e)
-                dabo_module.log.error(_("Error in scanKeys of %(nm)s: %(ue)s") % locals())
+                dabo_module.log_error(_("Error in scanKeys of %(nm)s: %(ue)s") % locals())
             if self.ScanRestorePosition:
                 self.__setCurrentStatus(currentStatus)
             raise
@@ -1023,7 +1023,7 @@ class dBizobj(dObject):
             if self._logScanException(e):
                 nm = self.Name
                 ue = ustr(e)
-                dabo_module.log.error(_("Error in scanChangedRows of %(nm)s: %(ue)s") % locals())
+                dabo_module.log_error(_("Error in scanChangedRows of %(nm)s: %(ue)s") % locals())
             self.__setCurrentStatus(currentStatus)
             raise
 
@@ -1053,7 +1053,7 @@ class dBizobj(dObject):
             pat = patTemplate % fld
             mtch = re.match(pat, ret)
             if mtch:
-                ret = mtch.groups()[0] + "self.Record.%s" % fld + mtch.groups()[1]
+                ret = mtch.groups()[0] + f"self.Record.{fld + mtch.groups()[1]}"
         return ret
 
     def _logScanException(self, ex):
@@ -1107,7 +1107,7 @@ class dBizobj(dObject):
                     else:
                         nm = self.Name
                         ue = ustr(e)
-                        dabo_module.log.error(
+                        dabo_module.log_error(
                             _("Failed to set RowNumber of %(nm)s: %(ue)s") % locals()
                         )
 
@@ -1370,7 +1370,7 @@ class dBizobj(dObject):
                 "%s IN (%s)"
                 % (
                     self.KeyField,
-                    ", ".join("%i" % key for key in self.__filterPKVirtual),
+                    ", ".join(f"{key}" for key in self.__filterPKVirtual),
                 )
             )
             # clear filter ids
@@ -2063,7 +2063,7 @@ class dBizobj(dObject):
 
         def addToBody(txt, lvl=None):
             if lvl:
-                txt = "\n".join(["%s%s" % ("\t" * lvl, ln) for ln in txt.splitlines()])
+                txt = "\n".join([f"{'\t' * lvl}{ln}" for ln in txt.splitlines()])
                 if txt and not txt.endswith("\n"):
                     txt += "\n"
             self._xmlBody += txt
@@ -2090,7 +2090,7 @@ class dBizobj(dObject):
                 kidXML += childTemplate % (kid.DataSource, kidstuff)
             else:
                 kidXML += childEmptyTemplate % kid.DataSource
-        callback(rowTemplate % ("%s%s" % (xml, kidXML)), level)
+        callback(rowTemplate % (f"{xml}{kidXML}"), level)
 
     def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False):
         """
@@ -2285,7 +2285,7 @@ class dBizobj(dObject):
                 return self._associations[ds]
             except IndexError:
                 raise exceptions.DataSourceNotFoundException(
-                    _("No many-to-many association found for DataSource: '%s'." % bizOrDS)
+                    _(f"No many-to-many association found for DataSource: '{bizOrDS}'.")
                 )
         return None
 
@@ -2523,7 +2523,7 @@ class dBizobj(dObject):
         if mode == "befor":
             mode = "before"
         if mainDoc is None:
-            mainDoc = "Hook method called %s %s." % (mode, action)
+            mainDoc = f"Hook method called {mode} {action}."
         if additionalDoc is None:
             if mode == "before":
                 additionalDoc = """Subclasses can put in additional code to run, and/or return a
@@ -2535,7 +2535,7 @@ displayed to the user."""
         def method(self):
             return ""
 
-        method.__doc__ = "%s\n\n%s" % (mainDoc, additionalDoc)
+        method.__doc__ = f"{mainDoc}\n\n{additionalDoc}"
         method.__name__ = name
         return method
 
@@ -2714,7 +2714,7 @@ afterDelete() which is only called after a delete().""",
 
     @Caption.setter
     def Caption(self, val):
-        self._caption = "%s" % val
+        self._caption = f"{val}"
 
     @property
     def CascadeDeleteFromParent(self):
@@ -2782,7 +2782,7 @@ afterDelete() which is only called after a delete().""",
     @DataSource.setter
     def DataSource(self, val):
         """The title of the cursor. Used in resolving DataSource references. (str)"""
-        self._dataSource = "%s" % val
+        self._dataSource = f"{val}"
         self._syncWithCursors()
 
     @property
@@ -2811,7 +2811,7 @@ afterDelete() which is only called after a delete().""",
                 def initProperties(self):
                     self.DataSource = "stock_low"
         """
-        self._dataSourceName = "%s" % val
+        self._dataSourceName = f"{val}"
         self._syncWithCursors()
 
     @property
@@ -2946,7 +2946,7 @@ afterDelete() which is only called after a delete().""",
 
     @LinkField.setter
     def LinkField(self, val):
-        self._linkField = "%s" % val
+        self._linkField = f"{val}"
 
     @property
     def NewChildOnNew(self):
@@ -3012,7 +3012,7 @@ afterDelete() which is only called after a delete().""",
 
     @ParentLinkField.setter
     def ParentLinkField(self, val):
-        self._parentLinkField = "%s" % val
+        self._parentLinkField = f"{val}"
 
     @property
     def Record(self):

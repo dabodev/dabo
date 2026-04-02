@@ -427,7 +427,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
                 self.SetActiveTabColour(wx.Colour(*val))
                 self.Refresh()
             else:
-                raise ValueError(_("'%s' can not be translated into a color" % val))
+                raise ValueError(_(f"'{val}' can not be translated into a color"))
         else:
             self._properties["ActiveTabColor"] = val
 
@@ -453,7 +453,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
                 self.SetActiveTabTextColour(wx.Colour(*val))
                 self.Refresh()
             else:
-                raise ValueError(_("'%s' can not be translated into a color" % val))
+                raise ValueError(_(f"'{val}' can not be translated into a color"))
         else:
             self._properties["ActiveTabTextColor"] = val
 
@@ -479,7 +479,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
                 self.SetNonActiveTabTextColour(wx.Colour(*val))
                 self.Refresh()
             else:
-                raise ValueError(_("'%s' can not be translated into a color" % val))
+                raise ValueError(_(f"'{val}' can not be translated into a color"))
         else:
             self._properties["InactiveTabTextColor"] = val
 
@@ -612,7 +612,7 @@ class dPageStyled(dPageFrameMixin, fnb.FlatNotebook):
                 self.SetTabAreaColour(wx.Colour(*val))
                 self.Refresh()
             else:
-                raise ValueError(_("'%s' can not be translated into a color" % val))
+                raise ValueError(_(f"'{val}' can not be translated into a color"))
         else:
             self._properties["MenuBackColor"] = val
 
@@ -738,7 +738,7 @@ class TestMixin(object):
         self.Pages[3].BackColor = "yellow"
 
     def onPageChanged(self, evt):
-        print("Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum))
+        print(f"Page number changed from {evt.oldPageNum} to {evt.newPageNum}")
 
 
 class _dPageToolBar_test(TestMixin, dPageToolBar):
@@ -837,7 +837,7 @@ class _dPageStyled_test(TestMixin, dPageStyled):
         self.Form.fitToSizer()
 
     def onPageChanged(self, evt):
-        print("Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum))
+        print(f"Page number changed from {evt.oldPageNum} to {evt.newPageNum}")
 
 
 if __name__ == "__main__":
