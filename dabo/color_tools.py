@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import operator
 import random
 import re
 
@@ -176,7 +177,11 @@ def colorNameFromTuple(colorTuple, firstOnly=False):
     return ret
 
 
-def text_color_on_background(r, g, b):
+def calc_luminance(r, g, b, precision=2):
+    return round((0.299 * r) + (0.587 * g) + (0.114 * b), precision)
+
+
+def text_color_on_background(r=None, g=None, b=None, luminance=None):
     """
     Determines if white or black text would look best against a given background.
 
@@ -184,10 +189,9 @@ def text_color_on_background(r, g, b):
     background color's RGB values, and returns 'white' or 'black', depending on the background's
     luminance (lightness).
     """
-    # Calculate relative luminance
-    luminance = (0.299 * r) + (0.587 * g) + (0.114 * b)
     # Choose black for lighter backgrounds, white for darker ones
-    return "black" if luminance > 128 else "white"
+    threshold = calc_luminance(r, g, b) if luminance is None else luminance
+    return "black" if threshold > 128 else "white"
 
 
 if __name__ == "__main__":
@@ -204,23 +208,35 @@ if __name__ == "__main__":
             hsz = ui.dSizerH()
             hsz.append(lbl, border=2, alignment="right")
             hsz.append1x(txt, border=2)
-            vsz.append(hsz, alignment="center")
+            hsz.appendSpacer(25, proportion=1)
 
+            lbl = ui.dLabel(bp, Caption="Brightness Level:")
+            self.bright_slider = ui.dSlider(
+                bp, Min=-128, Max=128, Value=0, Continuous=True, OnHit=self.filter
+            )
+            hsz.append(lbl, border=2, alignment="right")
+            hsz.append(self.bright_slider, proportion=2, layout="x")
+
+            vsz.append(hsz, alignment="center")
             gsz = self.color_grid_sizer = ui.dGridSizer(MaxCols=6)
             self.color_panels = []
-            panel_height = 80
+            panel_height = 50
             label_bottom = panel_height - 5
             for name, rgb in colorDict.items():
                 p = ui.dPanel(
                     bp, Name=name, BackColor=name, Height=panel_height, BorderWidth=1, RegID=name
                 )
+                r, g, b = rgb
+                p.luminance = calc_luminance(r=r, g=g, b=b)
+                p.ToolTipText = f"Luminance: {p.luminance}"
                 self.color_panels.append(p)
                 ui.dLabel(
                     p,
                     Caption=name,
-                    ForeColor=text_color_on_background(*rgb),
+                    ForeColor=text_color_on_background(luminance=p.luminance),
                     Left=2,
                     Bottom=label_bottom,
+                    FontSize=10,
                 )
                 gsz.append(p, layout="x")
             gsz.setColExpand(True, "all", proportion=1)
@@ -231,16 +247,24 @@ if __name__ == "__main__":
             color = evt.EventObject.StringValue
             self.color_sample.BackColor = color
 
-        def filter(self, evt):
-            filter_val = evt.EventObject.Value
+        def filter(self, evt=None):
+            text_filter = self.filter_text.Value
+            level_filter = self.bright_slider.Value
             [self.color_grid_sizer.remove(p) for p in self.color_panels]
-            with self.lockDisplay():
-                for pnl in self.color_panels:
-                    vis = filter_val.lower() in pnl.RegID
-                    pnl.Visible = vis
-                    if vis:
-                        self.color_grid_sizer.append(pnl, layout="x")
-            self.layout()
+            with ui.dActivityIndicator(self.back_panel):
+                with self.lockDisplay():
+                    for pnl in self.color_panels:
+                        vis = text_filter.lower() in pnl.RegID
+                        if vis:
+                            # Filter on brightness
+                            if level_filter:
+                                op = operator.ge if level_filter > 0 else operator.le
+                                threshold = 128 + level_filter
+                                vis = op(pnl.luminance, threshold)
+                        pnl.Visible = vis
+                        if vis:
+                            self.color_grid_sizer.append(pnl, layout="x")
+                    self.layout()
 
     app = application.dApp()
     app.MainFormClass = ColorForm
