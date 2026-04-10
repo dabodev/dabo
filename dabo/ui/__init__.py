@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This is Dabo's user interface layer.
 """
@@ -166,6 +165,8 @@ dPageToolBar = dObject
 dPanel = dObject
 dPdfWindow = dObject
 dPemMixin = dObject
+dPieControl = dObject
+dPieWedge = dObject
 dRadioList = dObject
 dRadioMenuItem = dObject
 dReportProgress = dObject

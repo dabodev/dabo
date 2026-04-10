@@ -2,6 +2,8 @@
 import operator
 import random
 import re
+import string
+from functools import lru_cache
 
 import wx.lib.colourdb as wcd
 
@@ -44,6 +46,11 @@ grays = {key.replace("grey", "gray"): val for key, val in colorDict.items() if "
 colorDict.update(grays)
 colors = list(colorDict.keys())
 colors.sort()
+
+
+@lru_cache
+def color_number_translator():
+    return str.maketrans("", "", string.digits)
 
 
 def hexToDec(hx):
@@ -152,14 +159,26 @@ def colorTupleFromString(color):
     return ret
 
 
+@lru_cache
+def weighted_keys():
+    """
+    Color names have many shade variants, and some names have a lot more than others. Some, like
+    'grey' or 'gray', have a hundred each, and they duplicate each other. The result is that
+    randomly picking a color key will pick a grey variant more often than not. This filters out all
+    the numbered names, so ["grey", "grey1", ..., "grey99"] will reduce to just "grey".
+    """
+    translator = color_number_translator()
+    return [name for name in colorDict.keys() if name == name.translate(translator)]
+
+
 def randomColor():
     """Returns a random color tuple"""
-    return colorDict[random.choice(list(colorDict.keys()))]
+    return colorDict[random.choice(weighted_keys())]
 
 
 def randomColorName():
     """Returns a random color name"""
-    return random.choice(list(colorDict.keys()))
+    return random.choice(weighted_keys())
 
 
 def colorNameFromTuple(colorTuple, firstOnly=False):
