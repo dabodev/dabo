@@ -47,6 +47,7 @@ requires-python = ">=3.12"
 dependencies = [
     "cryptography>=46.0.6",
     "filetype>=1.2.0",
+    "oracletrace>=1.0.25",
     "pillow>=12.1.1",
     "pymysql>=1.1.1",
     "reportlab>=4.2.5",
