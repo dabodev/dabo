@@ -1219,15 +1219,14 @@ class dEditor(dDataControlMixin, stc.StyledTextCtrl):
 
         if obj is not None:
             try:
-                args = inspect.getargspec(obj)
-                try:
-                    sarg = args[0][0]
-                except IndexError:
-                    sarg = None
-                if sarg is not None and sarg == "self":
-                    del args[0][0]
-                args = inspect.formatargspec(args[0], args[1], args[2], args[3])
-            except TypeError:
+                sig = inspect.signature(obj)
+                params = list(sig.parameters.values())
+
+                if params and params[0].name == "self":
+                    params = params[1:]
+
+                args = str(sig.replace(parameters=params))
+            except (TypeError, ValueError):
                 args = ""
 
             if inspect.ismethod(obj):
@@ -2608,7 +2607,7 @@ Do you want to overwrite it?"""
     @Value.setter
     def Value(self, val):
         if self._constructed():
-            if isinstance(val, str):
+            if isinstance(val, str) and isinstance(self.Text, bytes):
                 val = val.encode(self.Encoding)
             if self.Text != val:
                 try:
@@ -2616,8 +2615,7 @@ Do you want to overwrite it?"""
                 except TypeError as e:
                     nm = self._name
                     dabo_module.error(
-                        _("Could not set value of %(nm)s to %(val)s. Error message: %(e)s")
-                        % locals()
+                        _(f"Could not set value of {nm} to {val}. Error message: {e}")
                     )
                 self._afterValueChanged()
             self.flushValue()

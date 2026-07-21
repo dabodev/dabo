@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import builtins
+import sys
 import time
 
 import wx
@@ -25,6 +26,8 @@ from . import dPanel
 from . import dSizer
 from . import dSplitForm
 from . import makeDynamicProperty
+
+CONTROL_KEY_PROMPT = "Cmd" if sys.platform == "darwin" else "Ctrl"
 
 
 class _LookupPanel(dPanel):
@@ -434,20 +437,17 @@ class dShellForm(dSplitForm):
         lbl = dLabel(
             self.pgCode,
             ForeColor="blue",
-            WordWrap=True,
+            WordWrap=False,
             Caption=_(
-                """Ctrl-Enter to run the code (or click the button to the right).
-Ctrl-Up/Down to scroll through history."""
+                f"""{CONTROL_KEY_PROMPT}-Enter to run the code (or click the button to the right).
+{CONTROL_KEY_PROMPT}-Up/Down to scroll through history."""
             ),
         )
         lbl.FontSize -= 3
         runButton = dButton(self.pgCode, Caption=_("Run"), OnHit=self.onRunCode)
         hsz = dSizer("h")
-        hsz.appendSpacer(20)
-        hsz.append(lbl)
-        hsz.append1x(dPanel(self.pgCode))
-        hsz.append(runButton, valign="middle")
-        hsz.appendSpacer(20)
+        hsz.append(lbl, proportion=1, border=3)
+        hsz.append(runButton, valign="middle", border=3)
         self.pgCode.Sizer.append(hsz, "x")
         # Stack to hold code history
         self._codeStack = []
@@ -456,9 +456,9 @@ Ctrl-Up/Down to scroll through history."""
         # Restore the history
         self.restoreHistory()
         # Bring up history search
-        self.bindKey("Ctrl+R", self.onHistoryPop)
+        self.bindKey(f"{CONTROL_KEY_PROMPT}+R", self.onHistoryPop)
         # Show/hide the code editing pane
-        self.bindKey("Ctrl+E", self.onToggleCodePane)
+        self.bindKey(f"{CONTROL_KEY_PROMPT}+E", self.onToggleCodePane)
 
         # Force the focus to the editor when the code page is activated.
         def _delayedSetFocus(evt):
@@ -618,12 +618,14 @@ Ctrl-Up/Down to scroll through history."""
         if code.splitlines()[-1][0] in " \t":
             self.shell.run("", prompt=False)
         self.addToHistory()
-        self.pgfCodeShell.SelectedPage = self.pgShell
+        ui.setAfter(self.pgfCodeShell, "SelectedPage", self.pgShell)
 
     def onCodeKeyDown(self, evt):
-        if not evt.controlDown:
+        evt_data = evt.EventData
+        wxEvt = evt._uiEvent
+        if not evt_data["controlDown"]:
             return
-        keyCode = evt.keyCode
+        keyCode = evt_data["keyCode"]
         if keyCode == 13:
             evt.stop()
             self.onRunCode(None, addReturn=True)

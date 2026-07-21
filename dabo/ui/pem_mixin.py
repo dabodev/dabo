@@ -1590,6 +1590,7 @@ class dPemMixin(dObject):
         """Repaints this control and all contained objects."""
         try:
             self.Refresh()
+            self.Update()
         except RuntimeError:
             # This can happen if an object is released when there is a
             # pending callAfter() refresh.
