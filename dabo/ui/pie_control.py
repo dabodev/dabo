@@ -1,14 +1,15 @@
 import math
 
 import wx
-from wx.lib.agw.piectrl import PieCtrl, ProgressPie, PiePart
+from wx.lib.agw.piectrl import PieCtrl
+from wx.lib.agw.piectrl import PiePart
+from wx.lib.agw.piectrl import ProgressPie
 
-from . import dControlMixin
-from . import dPemMixin
 from .. import color_tools
 from .. import ui
 from ..localization import _
-
+from . import dControlMixin
+from . import dPemMixin
 
 DUMMY_WEDGE_CAPTION = "Initial Wedge abcdefg"
 
@@ -26,6 +27,7 @@ class _LegendProxy:
     def BackColor(self, val):
         val = self._control.getWxColour(val)
         self._legend.SetBackColour(val)
+        self._control.Parent.layout()
 
     @property
     def FontBold(self):
@@ -36,18 +38,30 @@ class _LegendProxy:
     def FontBold(self, val):
         wxfont = self._legend.GetLabelFont()
         wxfont.SetWeight(wx.FONTWEIGHT_BOLD if val else wx.FONTWEIGHT_NORMAL)
-        self._legend.SetFont(wxfont)
+        self._legend.SetLabelFont(wxfont)
+        self._control.Parent.update()
 
     @property
     def FontFace(self):
         wxfont = self._legend.GetLabelFont()
         return wxfont.GetFaceName()
 
+    def _new_legend_font(self, **overrides):
+        """Return a new wx.Font built from the current legend font plus any overrides."""
+        old = self._legend.GetLabelFont()
+        return wx.Font(
+            overrides.get("point_size", old.GetPointSize()),
+            old.GetFamily(),
+            overrides.get("style", old.GetStyle()),
+            old.GetWeight(),
+            overrides.get("underline", old.GetUnderlined()),
+            overrides.get("face", old.GetFaceName()),
+        )
+
     @FontFace.setter
     def FontFace(self, val):
-        wxfont = self._legend.GetLabelFont()
-        wxfont.SetFaceName(val)
-        self._legend.SetFont(wxfont)
+        self._legend.SetLabelFont(self._new_legend_font(face=val))
+        self._control.Parent.refresh()
 
     @property
     def FontItalic(self):
@@ -56,9 +70,9 @@ class _LegendProxy:
 
     @FontItalic.setter
     def FontItalic(self, val):
-        wxfont = self._legend.GetLabelFont()
-        wxfont.SetStyle(wx.FONTSTYLE_ITALIC if val else wx.FONTSTYLE_NORMAL)
-        self._legend.SetFont(wxfont)
+        style = wx.FONTSTYLE_ITALIC if val else wx.FONTSTYLE_NORMAL
+        self._legend.SetLabelFont(self._new_legend_font(style=style))
+        self._control.Refresh()
 
     @property
     def FontSize(self):
@@ -67,9 +81,8 @@ class _LegendProxy:
 
     @FontSize.setter
     def FontSize(self, val):
-        wxfont = self._legend.GetLabelFont()
-        wxfont.SetPointSize(val)
-        self._legend.SetFont(wxfont)
+        self._legend.SetLabelFont(self._new_legend_font(point_size=val))
+        self._control.Refresh()
 
     @property
     def FontUnderline(self):
@@ -78,9 +91,8 @@ class _LegendProxy:
 
     @FontUnderline.setter
     def FontUnderline(self, val):
-        wxfont = self._legend.GetLabelFont()
-        wxfont.SetUnderlined(val)
-        self._legend.SetFont(wxfont)
+        self._legend.SetLabelFont(self._new_legend_font(underline=val))
+        self._control.Refresh()
 
     @property
     def ForeColor(self):

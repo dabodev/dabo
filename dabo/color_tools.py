@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 import operator
+import pickle
 import random
 import re
 import string
 from functools import lru_cache
+from pathlib import Path
 
 import wx.lib.colourdb as wcd
 
 from dabo import application
+from dabo import constants
 from dabo import ui
+
+BG_TEXT_COLOR_FILE = Path.cwd() / ".bg_text"
 
 
 class HexError(Exception):
@@ -213,6 +218,16 @@ def text_color_on_background(r=None, g=None, b=None, luminance=None):
     return "black" if threshold > 128 else "white"
 
 
+def persist_bg_text_color():
+    whites = set()
+    for name, (r, g, b) in colorDict.items():
+        if text_color_on_background(r=r, g=g, b=b) == "white":
+            whites.add(name)
+    with open(BG_TEXT_COLOR_FILE, "wb") as ff:
+        pickle.dump(whites, ff)
+    return whites
+
+
 if __name__ == "__main__":
 
     class ColorForm(ui.dForm):
@@ -235,32 +250,89 @@ if __name__ == "__main__":
             )
             hsz.append(lbl, border=2, alignment="right")
             hsz.append(self.bright_slider, proportion=2, layout="x")
+            self.whites = self._load_whites()
 
             vsz.append(hsz, alignment="center")
             gsz = self.color_grid_sizer = ui.dGridSizer(MaxCols=6)
             self.color_panels = []
             panel_height = 50
             label_bottom = panel_height - 5
-            for name, rgb in colorDict.items():
-                p = ui.dPanel(
-                    bp, Name=name, BackColor=name, Height=panel_height, BorderWidth=1, RegID=name
+            for name, (r, g, b) in colorDict.items():
+                pnl = ui.dPanel(
+                    bp,
+                    Name=name,
+                    BackColor=name,
+                    Height=panel_height,
+                    BorderWidth=1,
+                    RegID=name,
+                    OnMouseLeftClick=self._on_click,
                 )
-                r, g, b = rgb
-                p.luminance = calc_luminance(r=r, g=g, b=b)
-                p.ToolTipText = f"Luminance: {p.luminance}"
-                self.color_panels.append(p)
+                pnl.luminance = calc_luminance(r=r, g=g, b=b)
+                pnl.ToolTipText = f"Luminance: {pnl.luminance}"
+                self.color_panels.append(pnl)
                 ui.dLabel(
-                    p,
+                    pnl,
                     Caption=name,
-                    ForeColor=text_color_on_background(luminance=p.luminance),
+                    ForeColor="white" if name in self.whites else "black",
                     Left=2,
                     Bottom=label_bottom,
                     FontSize=10,
                 )
-                gsz.append(p, layout="x")
+                gsz.append(pnl, layout="x")
             gsz.setColExpand(True, "all", proportion=1)
             vsz.append1x(gsz, border=20)
             self.layout()
+
+        def _load_whites(self):
+            try:
+                with open(BG_TEXT_COLOR_FILE, "rb") as ff:
+                    return pickle.load(ff)
+            except FileNotFoundError:
+                return persist_bg_text_color()
+
+        def _on_click(self, evt):
+
+            class CopyColorDialog(ui.dDialog):
+                color = None
+
+                def addControls(self):
+                    super().addControls()
+                    sz = self.Sizer
+                    self.Caption = "Copy Color"
+                    self.lbl = ui.dLabel(
+                        self, Caption="Do you want to copy the Hex or Tuple of this color?"
+                    )
+                    self.hex_button = ui.dButton(self, Caption="Hex", OnHit=self._copy_hex)
+                    self.tuple_button = ui.dButton(self, Caption="Tuple", OnHit=self._copy_tuple)
+                    self.cancel_button = ui.dButton(self, Caption="Cancel", OnHit=self._cancel)
+                    hsz = ui.dSizerH()
+                    hsz.append(self.hex_button, border=5)
+                    hsz.append(self.tuple_button, border=5)
+                    hsz.append(self.cancel_button, border=5)
+                    sz.append(self.lbl, halign="center", border=22)
+                    sz.append(hsz, halign="center", border=12)
+
+                def _copy_value(self, as_hex=True):
+                    val = tupleToHex(self.color) if as_hex else f"{self.color}"
+                    self.Application.copyToClipboard(val)
+                    self.hide()
+
+                def _copy_hex(self, evt):
+                    self._copy_value(as_hex=True)
+
+                def _copy_tuple(self, evt):
+                    self._copy_value(as_hex=False)
+
+                def _cancel(self, evt):
+                    self.hide()
+
+                def hide(self):
+                    self.EndModal(constants.DLG_OK)
+
+            pnl = evt.EventObject
+            with CopyColorDialog(self) as dlg:
+                dlg.color = pnl.BackColor[:3]
+                res = dlg.ShowModal()
 
         def color_choice(self, evt):
             color = evt.EventObject.StringValue
@@ -269,7 +341,7 @@ if __name__ == "__main__":
         def filter(self, evt=None):
             text_filter = self.filter_text.Value
             level_filter = self.bright_slider.Value
-            [self.color_grid_sizer.remove(p) for p in self.color_panels]
+            [self.color_grid_sizer.remove(pnl) for pnl in self.color_panels]
             with ui.dActivityIndicator(self.back_panel):
                 with self.lockDisplay():
                     for pnl in self.color_panels:

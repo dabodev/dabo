@@ -311,6 +311,7 @@ def load_namespace():
     from . import page_frame_mixin
     from . import page_frame
     from . import page_frame_no_tabs
+    from . import pie_control
     from . import shell
     from . import ui_calendar
     from . import dialogs
@@ -1599,6 +1600,10 @@ def sortList(chc, Caption="", ListCaption=""):
             ret = sf.Choices
     sf.release()
     return ret
+
+
+def copyFromClipboard():
+    return uiApp.copyFromClipboard()
 
 
 def copyToClipboard(val):

@@ -761,6 +761,20 @@ these automatic updates."""
                         win.Remove(win.GetSelection()[0], win.GetSelection()[1])
 
     @classmethod
+    def copyFromClipboard(cls):
+        txtData = wx.TextDataObject()
+        bmpData = wx.BitmapDataObject()
+        cb = wx.TheClipboard
+        cb.Open()
+        cb.GetData(bmpData)
+        ret_val = bmpData.GetBitmap()
+        if not ret_val.IsOk():
+            cb.GetData(txtData)
+            ret_val = txtData.GetText()
+        cb.Close()
+        return ret_val
+
+    @classmethod
     def copyToClipboard(cls, val):
         txtData = wx.TextDataObject()
         bmpData = wx.BitmapDataObject()
