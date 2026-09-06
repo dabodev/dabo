@@ -349,7 +349,7 @@ class dCursorMixin(dObject):
             sql = sql.encode(self.Encoding)
         if convertQMarks:
             sql = self._qMarkToParamPlaceholder(sql)
-        # Some backends, notably Firebird, require that fields be specially marked.
+        # Some backends require that fields be specially marked.
         sql = self.processFields(sql)
         try:
             if params:

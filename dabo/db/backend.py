@@ -598,9 +598,9 @@ class dBackend(dObject):
 
     ###########################################
     # The following methods by default simply return the text
-    # supplied to them. If a particular backend (Firebird comes
-    # to mind) has specific formatting requirements, though,
-    # that subclass should override these.
+    # supplied to them. If a particular backend has specific
+    # formatting requirements, though, that subclass should
+    # override these.
     def setSQL(self, sql):
         return sql
 

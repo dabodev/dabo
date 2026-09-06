@@ -4,7 +4,7 @@ This is a template for creating new backend-specific scripts. To create
 a script to support a database not yet suppported by Dabo, make a copy
 of this file in the dabo/db directory, and name the copy 'db_product.py',
 where 'product' is the actual name of the database (e.g., db_mysql.py,
-db_firebird.py, etc.)
+db_postgresql.py, etc.)
 
 This template uses 'NEWDATABASE' as the name of the database; you
 should replace this with the actual name of the database

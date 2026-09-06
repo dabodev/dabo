@@ -184,10 +184,6 @@ class dConnectInfo(dObject):
                     from . import db_sqlite
 
                     self._backendObject = db_sqlite.SQLite()
-                elif nm == "firebird":
-                    from . import db_firebird
-
-                    self._backendObject = db_firebird.Firebird()
                 elif nm == "postgresql":
                     from . import db_postgresql
 
