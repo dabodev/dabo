@@ -36,7 +36,7 @@ force-sort-within-sections = false
 
 [project]
 name = "dabo"
-version = "2026.1.32"
+version = "2026.1.33"
 description = "A framework for developing data-driven business applications"
 readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
@@ -49,6 +49,7 @@ dependencies = [
     "filetype>=1.2.0",
     "oracletrace>=1.0.25",
     "pillow>=12.1.1",
+    "psycopg2-binary>=2.9.12",
     "pymysql>=1.1.1",
     "reportlab>=4.2.5",
     "wxpython>=4.2.2",

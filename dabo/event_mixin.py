@@ -101,7 +101,7 @@ class EventMixin:
                 self._raised_events.pop()
             except (AttributeError, IndexError):
                 # This is a deleted object; no need (or ability!) to do anything else.
-                return
+                pass
 
         if uiEvent is not None:
             # Let the UI lib know whether to do the default event behavior
@@ -120,11 +120,10 @@ class EventMixin:
         """
         Remove a previously registered event binding.
 
-        Removes all registrations that exist for the given binding for this
-        object. If event is None, all bindings for the passed function are
-        removed. If function is None, all bindings for the passed event are
-        removed. If both event and function are None, all event bindings are
-        removed.
+        Removes all registrations that exist for the given binding for this object. If event is
+        None, all bindings for the passed function are removed. If function is None, all bindings
+        for the passed event are removed. If both event and function are None, all event bindings
+        are removed.
         """
         if eventClass is None and function is None:
             # Short-circuit: blank the entire list of _EventBindings

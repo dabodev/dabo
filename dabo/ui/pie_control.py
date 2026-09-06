@@ -19,6 +19,9 @@ class _LegendProxy:
         self._control = control
         self._legend = control.GetLegend()
 
+    def _refresh(self):
+        self._control.Parent.layout()
+
     @property
     def BackColor(self):
         return self._legend.GetBackColour()
@@ -27,7 +30,7 @@ class _LegendProxy:
     def BackColor(self, val):
         val = self._control.getWxColour(val)
         self._legend.SetBackColour(val)
-        self._control.Parent.layout()
+        self._refresh()
 
     @property
     def FontBold(self):
@@ -39,7 +42,7 @@ class _LegendProxy:
         wxfont = self._legend.GetLabelFont()
         wxfont.SetWeight(wx.FONTWEIGHT_BOLD if val else wx.FONTWEIGHT_NORMAL)
         self._legend.SetLabelFont(wxfont)
-        self._control.Parent.update()
+        self._refresh()
 
     @property
     def FontFace(self):
@@ -61,7 +64,7 @@ class _LegendProxy:
     @FontFace.setter
     def FontFace(self, val):
         self._legend.SetLabelFont(self._new_legend_font(face=val))
-        self._control.Parent.refresh()
+        self._refresh()
 
     @property
     def FontItalic(self):
@@ -72,7 +75,7 @@ class _LegendProxy:
     def FontItalic(self, val):
         style = wx.FONTSTYLE_ITALIC if val else wx.FONTSTYLE_NORMAL
         self._legend.SetLabelFont(self._new_legend_font(style=style))
-        self._control.Refresh()
+        self._refresh()
 
     @property
     def FontSize(self):
@@ -82,7 +85,7 @@ class _LegendProxy:
     @FontSize.setter
     def FontSize(self, val):
         self._legend.SetLabelFont(self._new_legend_font(point_size=val))
-        self._control.Refresh()
+        self._refresh()
 
     @property
     def FontUnderline(self):
@@ -92,7 +95,7 @@ class _LegendProxy:
     @FontUnderline.setter
     def FontUnderline(self, val):
         self._legend.SetLabelFont(self._new_legend_font(underline=val))
-        self._control.Refresh()
+        self._refresh()
 
     @property
     def ForeColor(self):
@@ -102,6 +105,7 @@ class _LegendProxy:
     def ForeColor(self, val):
         val = self._control.getWxColour(val)
         self._legend.SetLabelColour(val)
+        self._refresh()
 
     @property
     def Left(self):
@@ -126,6 +130,7 @@ class _LegendProxy:
     @Transparent.setter
     def Transparent(self, val):
         self._legend.SetTransparent(val)
+        self._refresh()
 
     @property
     def WindowStyle(self):
@@ -394,6 +399,12 @@ if __name__ == "__main__":
             self.pie.append_wedge(wedge2)
             wedge3 = dPieWedge(Caption="Third", Value=55, Color="blue")
             self.pie.append_wedge(wedge3)
+
+            spn = ui.dSpinner(
+                pnl, Caption="Legend FontSize", DataSource=self.pie, DataField="FontSize"
+            )
+            sz.appendSpacer(25)
+            sz.append(spn, halign="center")
 
             self.update()
             ui.callAfterInterval(200, self.layout)
