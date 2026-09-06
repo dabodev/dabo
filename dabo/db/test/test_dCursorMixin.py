@@ -13,7 +13,6 @@ from .. import settings
 db_tests = {
     "sqlite": True,
     "mysql": False,
-    "firebird": False,
     "postgresql": False,
     "mssql": False,
     "oracle": False,
@@ -376,91 +375,11 @@ class Test_dCursorMixin_oracle(Test_dCursorMixin, unittest.TestCase):
         super().tearDown()
 
 
-class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
-    ## NOTE: Firebird not set up completely yet. What is here is courtesy Uwe
-    ##         Grauer. We need insert statements, and we need a firebird server.
-    ##         I intend to set up a test server, but don't know when it will
-    ##         actually occur.
-    def setUp(self):
-        con = db.dConnection(
-            DbType="Firebird",
-            User="dabotester",
-            password="Y57W8EN6CB06KBCCDCX01D6B",
-            Database="dabo_unittest",
-            Host="dabodev.com",
-        )
-        cur = self.cur = con.getDaboCursor()
-        self.temp_table_name = "dabo_unittest_tbl"
-        self.jobid = self.get_jobid()
-        super().setUp(_doRequery=False)
-        cur.UserSQL = "select * from %s where jobid = %s" % (
-            self.temp_table_name,
-            self.jobid,
-        )
-        cur.requery()
-
-    def get_jobid(self):
-        ret = None
-        self.cur.execute("select gen_id(gen_jobid, 1) as nextval from rdb$database")
-        ret = self.cur.getFieldVal("nextval")
-        return ret
-
-    def tearDown(self):
-        self.cur.execute("commit")
-        self.cur.execute("delete from %s where jobid = %f" % (self.temp_table_name, self.jobid))
-        self.cur.execute("commit")
-        super().tearDown()
-
-    def getAdditionalWhere(self):
-        return f"jobid = {self.jobid}"
-
-    def createSchema(self):
-        cur = self.cur
-        tableName = self.temp_table_name
-
-        cur.execute("commit")
-        cur.execute(
-            """
-insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Paul Keith McNett', 23, 23.23)
-"""
-            % (tableName, self.jobid)
-        )
-        cur.execute(
-            """
-insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Edward Leafe', 42, 42.42)
-"""
-            % (tableName, self.jobid)
-        )
-        cur.execute(
-            """
-insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Carl Karsten', 10223, 23032.76)
-"""
-            % (tableName, self.jobid)
-        )
-        cur.execute("commit")
-
-    def createNullRecord(self):
-        self.cur.AuxCursor.execute(
-            """
-insert into %s (jobid, cfield, ifield, nfield) values (%f, NULL, NULL, NULL)
-"""
-            % (self.temp_table_name, self.jobid)
-        )
-
-    def test_AutoSQL(self):
-        cur = self.cur
-        self.assertEqual(
-            cur.AutoSQL,
-            "SELECT \n first 1000\n*\n  from %s\n\n\n" % self.temp_table_name,
-        )
-
-
 if __name__ == "__main__":
     testClasses = []
     mapping = {
         "sqlite": Test_dCursorMixin_sqlite,
         "mysql": Test_dCursorMixin_mysql,
-        "firebird": Test_dCursorMixin_firebird,
         "oracle": Test_dCursorMixin_oracle,
     }
     for k, v in list(db_tests.items()):
