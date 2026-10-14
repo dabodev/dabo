@@ -809,7 +809,7 @@ class SlidePanelCaptionClick(dEvent):
     def appliesToClass(eventClass, objectClass):
         from . import ui
 
-        return issubclass(objectClass, (ui.dFoldPanelBar, ui.dSlidePanel))
+        return issubclass(objectClass, ui.dSlidePanel)
 
     appliesToClass = classmethod(appliesToClass)
 
