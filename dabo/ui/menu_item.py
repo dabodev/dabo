@@ -220,44 +220,48 @@ class dSeparatorMenuItem(dPemMixin, wx.MenuItem):
 
     Bind = SetLabel = _dummy
 
-    def _getItemID(self):
+    @property
+    def Caption(self):
+        """Separators don't have a caption"""
+        return ""
+
+    @Caption.setter
+    def Caption(self, val):
+        pass
+
+    @property
+    def ItemID(self):
+        """
+        Identifying value for this menuitem. NOTE: there is no checking for duplicate values; it is
+        the responsibility to ensure that ItemID values are unique within a menu.  (varies)
+        """
         return self._itemID
 
-    def _setItemID(self, val):
+    @ItemID.setter
+    def ItemID(self, val):
         if self._constructed():
             self._itemID = val
         else:
             self._properties["ItemID"] = val
 
-    def _getParent(self):
+    @property
+    def Parent(self):
+        """Specifies the parent menu."""
         try:
             ret = self._parent
         except AttributeError:
             ret = self._parent = None
         return ret
 
-    def _setParent(self, val):
+    @Parent.setter
+    def Parent(self, val):
         self._parent = val
-
-    ItemID = property(
-        _getItemID,
-        _setItemID,
-        None,
-        _(
-            """Identifying value for this menuitem. NOTE: there is no checking for
-            duplicate values; it is the responsibility to ensure that ItemID values
-            are unique within a menu.  (varies)"""
-        ),
-    )
-
-    Parent = property(_getParent, _setParent, None, _("Specifies the parent menu."))
 
 
 class _AbstractExtendedMenuItem(dMenuItem):
     """Creates a checkbox-like item in a menu."""
 
     def __init__(self, parent=None, properties=None, *args, **kwargs):
-        # Remove the 'Icon' property, as it interferes with the 'selected' display
         if self.__class__ is _AbstractExtendedMenuItem:
             raise exceptions.dException(
                 "dAbstractExtendedMenuItem class should not be instantiated directly."
@@ -268,16 +272,17 @@ class _AbstractExtendedMenuItem(dMenuItem):
             parent=parent, properties=properties, *args, **kwargs
         )
 
-    def _getChecked(self):
+    @property
+    def Checked(self):
+        """Is this menu item checked?  (bool)"""
         return self.IsChecked()
 
-    def _setChecked(self, val):
+    @Checked.setter
+    def Checked(self, val):
         if self._constructed():
             self.Check(val)
         else:
             self._properties["Checked"] = val
-
-    Checked = property(_getChecked, _setChecked, None, _("Is this menu item checked?  (bool)"))
 
 
 class dCheckMenuItem(_AbstractExtendedMenuItem):
