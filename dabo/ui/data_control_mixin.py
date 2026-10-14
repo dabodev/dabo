@@ -138,7 +138,7 @@ class dDataControlMixin(ui.dControlMixin):
                 # See if DataField refers to an attribute of the bizobj:
                 att = getattr(src, self.DataField, None)
                 if callable(att):
-                    self.Value = method()
+                    self.Value = att()
                 else:
                     self.Value = att
                 self._verifyEnabledStatus(True)
