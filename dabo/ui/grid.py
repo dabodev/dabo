@@ -2055,7 +2055,9 @@ class dGrid(dControlMixin, wx.grid.Grid):
         # We never call the superclass update, because we don't need/want that behavior.
         last = getattr(self, "_lastCellSelectedTime", 0)
         cur = time.time()
-        if cur - last < 0.5:
+        # Skip redundant updates right after a cell selection, but never when the row count
+        # has changed (e.g. a requery just after wx selected the first cell at startup).
+        if cur - last < 0.5 and self.GetNumberRows() == self.RowCount:
             return
         self._syncRowCount()
         self._syncCurrentRow()
