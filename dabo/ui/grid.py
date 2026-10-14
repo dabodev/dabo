@@ -2093,7 +2093,8 @@ class dGrid(dControlMixin, wx.grid.Grid):
         try:
             ret = self._Table.GetValue(row, col, dynamicUpdate=dynamicUpdate)
         except (AttributeError, TypeError):
-            ret = super().GetValue(row, col)
+            # Default to None if the _Table fails
+            ret = None
         return ret
 
     def SetValue(self, row, col, val):
@@ -3663,7 +3664,14 @@ class dGrid(dControlMixin, wx.grid.Grid):
                 self._Table, wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED, diff
             )
         if msg:
-            self.ProcessTableMessage(msg)
+            # When the grid has no cell cursor yet, wx responds to the row-count change by
+            # selecting cell (0, 0). That is not a user selection, so don't let it move the
+            # bizobj's record pointer.
+            self._inUpdateSelection = True
+            try:
+                self.ProcessTableMessage(msg)
+            finally:
+                self._inUpdateSelection = False
 
     def _getDefaultGridColAttr(self):
         """Return the GridCellAttr that will be used for all columns by default."""

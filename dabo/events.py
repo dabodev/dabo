@@ -497,7 +497,9 @@ class MenuOpen(MenuEvent):
     """Occurs when a menu is about to be opened."""
 
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dPemMixin)
+        from . import ui
+
+        return issubclass(objectClass, ui.dPemMixin)
 
     appliesToClass = classmethod(appliesToClass)
 
@@ -1184,7 +1186,9 @@ class InteractiveChange(dEvent):
     """Occurs when the user interactively changes the control's value."""
 
     def appliesToClass(eventClass, objectClass):
-        return issubclass(objectClass, dDataControlMixin)
+        from . import ui
+
+        return issubclass(objectClass, ui.dDataControlMixin)
 
     appliesToClass = classmethod(appliesToClass)
 
