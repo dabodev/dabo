@@ -120,9 +120,6 @@ class dFormMixin(dPemMixin):
             **kwargs,
         )
 
-        ui.callAfter(self._createStatusBar)
-        self._createToolBar()
-
     def _getInitPropertiesList(self):
         additional = [
             "BorderResizable",
@@ -186,6 +183,16 @@ class dFormMixin(dPemMixin):
         ##                 play around with where we make this call, or set double buffered off
         ##                 every now and then with a timer or something...
         ##self.SetDoubleBuffered(True)
+
+    def _afterInitAll(self):
+        """
+        The status bar and tool bar were being created after the base class _afterInitAll(), where
+        `fitToSizer()` is run, resulting in the form appearing too short. This creates both bars
+        first, and then runs the default behavior that fits to the sizer.
+        """
+        self._createStatusBar()
+        self._createToolBar()
+        super()._afterInitAll()
 
     def _initEvents(self):
         super()._initEvents()
