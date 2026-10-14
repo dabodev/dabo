@@ -124,7 +124,7 @@ class dObject(PropertyHelperMixin, EventMixin):
 
         if (not nm) or (nm == NULL_NAME):
             # No name; use module.classname
-            nm = "{self.__class__.__module__}.{self.__class__.__name__}"
+            nm = f"{self.__class__.__module__}.{self.__class__.__name__}"
         if not self:
             print("I'm dead")
         _id = self._getID()
